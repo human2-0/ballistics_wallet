@@ -324,7 +324,8 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   @override
   Widget build(BuildContext context) {
     final userId = ref.watch(authRepositoryProvider).currentUserId;
-    final products = ref.watch(productsProvider);
+    final updated = ref.watch(productUpdateProvider);
+    final products = ref.watch(productsProvider(updated));
     final productName =
         ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
 
@@ -565,6 +566,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                                         ),
                                         child: products.when(
                                           data: (data) {
+                                            print(products);
                                             final filteredProducts = data
                                                 .where((product) => product[
                                                         'name']
@@ -689,9 +691,26 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                                                                                   child: Text('Add'),
                                                                                   onPressed: () async {
                                                                                     final String productName = _productNameController.text;
-                                                                                    final int target = int.parse(_targetController.text);
-                                                                                    await ref.read(pressingRepositoryProvider).addProduct(productName, target);
-                                                                                    Navigator.of(context).pop();
+                                                                                    final String targetString = _targetController.text;
+
+                                                                                    if (productName.isEmpty) {
+                                                                                      print('Product name cannot be empty');
+                                                                                      return;
+                                                                                    }
+
+                                                                                    final int? target = int.tryParse(targetString);
+                                                                                    if (target == null) {
+                                                                                      print('Invalid target');
+                                                                                      return;
+                                                                                    }
+
+                                                                                    try {
+                                                                                      await ref.read(pressingRepositoryProvider).addProduct(productName, target);
+                                                                                      ref.read(productUpdateProvider.notifier).update();
+                                                                                      Navigator.of(context).pop();
+                                                                                    } catch (e) {
+                                                                                      print('Failed to add product: $e');
+                                                                                    }
                                                                                   },
                                                                                 ),
                                                                               ],

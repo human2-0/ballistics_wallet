@@ -36,11 +36,21 @@ class PressingRepository {
     // Convert the product name to title case
     String formattedProductName = toTitleCase(productName);
 
-    await db.collection("Products").add({
-      'name': formattedProductName,
-      'target': target
-    });
+    // Check if a product with the same name already exists
+    var productDoc = await db.collection("Products").doc(formattedProductName).get();
+
+    if (productDoc.exists) {
+      // If the product already exists, throw an error or return
+      throw Exception('A product with the same name already exists');
+    } else {
+      // If the product does not exist, add it to the database
+      await db.collection("Products").doc(formattedProductName).set({
+        'name': formattedProductName,
+        'target': target,
+      });
+    }
   }
+
 
   String toTitleCase(String text) {
     if (text == null || text.isEmpty) return text;
@@ -533,9 +543,21 @@ final pressingRepositoryProvider = Provider<PressingRepository>((ref) {
   return PressingRepository();
 });
 
+final productUpdateProvider = StateNotifierProvider<ProductUpdateNotifier, bool>((ref) {
+  return ProductUpdateNotifier();
+});
+
+class ProductUpdateNotifier extends StateNotifier<bool> {
+  ProductUpdateNotifier() : super(false);
+
+  void update() {
+    state = !state;
+  }
+}
+
 final productsProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final repository = ref.watch(pressingRepositoryProvider);
+FutureProvider.autoDispose.family<List<Map<String, dynamic>>, bool>((ref, updated) async {
+  final repository = ref.read(pressingRepositoryProvider);
   final products = await repository.readProductsPressing();
   return products;
 });
