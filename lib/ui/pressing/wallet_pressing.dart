@@ -107,7 +107,7 @@ class BonusCalendar extends HookConsumerWidget {
           String userId = ref
               .watch(authRepositoryProvider)
               .currentUserId;
-          double? workingHours = ref.read(userNotifierProvider).workingHours;// Replace with actual user id
+          double? workingHours = ref.read(userNotifierProvider).realWorkingHours;// Replace with actual user id
           String productName = newBonus['productName'];
           double bonus = newBonus['bonus'];
           int amount = newBonus['amount'];
@@ -661,10 +661,6 @@ class BonusListView extends HookConsumerWidget {
             if (direction == DismissDirection.endToStart) {
               onDelete(index,0);
               await ref.read(userBonusNotifierProvider.notifier).deleteUserBonus(event['id'], userId);
-              // Update the list immediately after deleting an item
-              useState(() {
-                selectedEvents.removeAt(index);
-              });
               await ref.read(targetRatioProvider(userId).notifier).init();
               return true;
             }
@@ -1536,7 +1532,7 @@ class AddBonusListItem extends HookConsumerWidget {
                                     ? double.tryParse(overtimeHoursController.text)
                                     : ref
                                     .read(userNotifierProvider)
-                                    .workingHours;
+                                    .realWorkingHours;
 
 
 
@@ -1564,12 +1560,11 @@ class AddBonusListItem extends HookConsumerWidget {
                                   newProductAmountController.clear();
                                   overtimeHoursController.clear();
 
+
                                   // Close the sheet after all operations are done.
                                   Navigator.of(context).pop();
-                                  ref
-                                      .read(
-                                      targetRatioProvider(userId).notifier)
-                                      .init();
+                                  await ref.read(targetRatioProvider(userId).notifier).init();
+
                                 } else {
                                   // Close the sheet if the data validation fails.
                                   Navigator.of(context).pop();
@@ -1696,5 +1691,8 @@ final monthlyBonusProvider = Provider<int>((ref) {
 final ratioCalendar = StateProvider<double>((ref){
   return 0.0;
 });
+
+
+
 
 

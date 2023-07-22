@@ -396,15 +396,17 @@ class TargetRatioNotifier extends StateNotifier<double> {
   }
 
 
-
-
-
   Future<void> init() async {
     // Fetch necessary data from database
     final Map<String, dynamic> data = await _repository.getUserProductInfo(_userId);
     if (data.isEmpty) {
       _productRatios = {};
     }
+
+    // Ensure that the notifier has not been disposed of before continuing.
+    // StateNotifier.mounted returns a bool that is true if the notifier has not been disposed of.
+    if (!mounted) return;
+
 
     // Store the data in the _productRatios map
     _productRatios = data.map((key, value) => MapEntry(key, value as double));
@@ -450,23 +452,15 @@ class TargetRatioNotifier extends StateNotifier<double> {
     return _productRatios[productName] ?? 0;
   }
 
-
   @override
-  Future<void> dispose() async {
+  void dispose() {
     super.dispose();
-
-    // Here you can cancel streams, close connections, etc.
   }
 }
 
 final targetRatioProvider = StateNotifierProvider.autoDispose
     .family<TargetRatioNotifier, double, String>((ref, userId) {
-  final notifier =
-      TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId);
-  ref.onDispose(() async {
-    await notifier.dispose();
-  });
-  return notifier;
+  return TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId);
 });
 
 class NumberNotifier extends StateNotifier<int> {
@@ -779,4 +773,6 @@ final selectedProductProvider = StateProvider<StateController<String>>(
         (ref) => StateController<String>(""));
 
 final productsMade = StateProvider<int>((ref) => 0);
+
+
 

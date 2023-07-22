@@ -1,4 +1,3 @@
-import 'package:ballistics_wallet_flutter/ui/expanding_fab/action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -164,7 +163,7 @@ class ProfilePage extends HookConsumerWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ActionButton(
+                                  IconButton(
                                     icon: const Icon(
                                         color: Colors.orange,
                                         Icons.flight_takeoff_outlined),
