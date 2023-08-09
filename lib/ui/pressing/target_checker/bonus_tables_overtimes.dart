@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_provider.dart'; // Import the PressingRepository
 
-class BonusTable extends ConsumerWidget {
-  const BonusTable({super.key});
+class BonusTableOvertime extends ConsumerWidget {
+  const BonusTableOvertime({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +32,7 @@ class BonusTable extends ConsumerWidget {
               final bonuses = snapshot.data!;
               final int stableTarget = ref.watch(targetProvider);
               final target = ref.watch(targetProvider) *
-                  (1 - targetRatio);
+                  (1 - overtimeRatio);
 
               // Sort the keys in ascending order
               final sortedKeys = bonuses.keys.toList()

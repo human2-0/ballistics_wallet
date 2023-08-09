@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SlideAnimation extends StatefulWidget {
-  const SlideAnimation({Key? key}) : super(key: key);
+class SlideToBasicShift extends StatefulWidget {
+  const SlideToBasicShift({Key? key}) : super(key: key);
 
   @override
-  _SlideAnimationState createState() => _SlideAnimationState();
+  _SlideToBasicShiftState createState() => _SlideToBasicShiftState();
 }
 
-class _SlideAnimationState extends State<SlideAnimation>
+class _SlideToBasicShiftState extends State<SlideToBasicShift>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
@@ -22,8 +22,8 @@ class _SlideAnimationState extends State<SlideAnimation>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0.15, 0.0),
-      end: Offset(-0.15, 0.0),
+      begin: Offset(-0.15, 0.0),
+      end: Offset(0.15, 0.0),
     ).animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
     )..addStatusListener((status) {
@@ -50,7 +50,7 @@ class _SlideAnimationState extends State<SlideAnimation>
       child: Column(
         children: <Widget>[
           Container(
-            width: MediaQuery.of(context).size.width * 0.60,
+            width: MediaQuery.of(context).size.width * 0.70,
             height: MediaQuery.of(context).size.height * 0.05,
             decoration: BoxDecoration(
               color: Colors.lightBlue,
@@ -66,16 +66,16 @@ class _SlideAnimationState extends State<SlideAnimation>
             child: Center(
               child: Column(
                 children: [
-                  Text("Go back to basic shift"),
+                  Text("Slide to return"),
                   SlideTransition(
                     position: _slideAnimation,
                     child:
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Icon(Icons.arrow_left, color: Colors.orange, size: 25),
-                        Icon(Icons.arrow_left, color: Colors.orange, size: 25),
-                        Icon(Icons.arrow_left, color: Colors.orange, size: 25),
+                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: 25),
+                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: 25),
+                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: 25),
                       ],
                     ),
                   ),

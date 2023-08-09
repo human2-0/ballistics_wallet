@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../providers/pressing_provider.dart';
 
 
-class TargetButton extends StatefulWidget {
+class TargetButton extends ConsumerStatefulWidget {
   final String productName;
-  const TargetButton({Key? key, required this.productName}) : super(key: key);
+  final bool overtimes;
+  const TargetButton({
+    Key? key,
+    required this.productName, this.overtimes = false}) : super(key: key);
 
   @override
   _TargetButtonState createState() => _TargetButtonState();
 }
 
-class _TargetButtonState extends State<TargetButton>
+class _TargetButtonState extends ConsumerState<TargetButton>
     with TickerProviderStateMixin {
   late AnimationController _rotationController;
   late AnimationController _pulseController;
@@ -81,6 +87,7 @@ class _TargetButtonState extends State<TargetButton>
       padding: const EdgeInsets.all(16.0),
       child: GestureDetector(
         onTap: () {
+          ref.read(bonusTableSelectorProvider.notifier).state = widget.overtimes;
           Scaffold.of(context).openEndDrawer();
         },
         child: AnimatedBuilder(
@@ -100,12 +107,12 @@ class _TargetButtonState extends State<TargetButton>
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                       blurRadius: 5,
                     ),
                   ],
                 ),
-                child: Center(
+                child: const Center(
                   child: Icon(
                     Icons.gps_fixed_rounded,
                     color: Colors.white,

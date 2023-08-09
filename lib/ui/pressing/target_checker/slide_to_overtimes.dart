@@ -50,7 +50,7 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
       child: Column(
         children: <Widget>[
           Container(
-            width: MediaQuery.of(context).size.width * 0.60,
+            width: MediaQuery.of(context).size.width * 0.70,
             height: MediaQuery.of(context).size.height * 0.05,
             decoration: BoxDecoration(
               color: Colors.orange[200],

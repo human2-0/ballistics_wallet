@@ -1,3 +1,5 @@
+import 'package:ballistics_wallet_flutter/providers/pressing_provider.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -127,8 +129,9 @@ class _HomeState extends ConsumerState<HomeScreen>
     double kBottomNavigationBarHeight =
         MediaQuery.of(context).size.height * 0.12;
 
+
     return Scaffold(
-      endDrawer: const BonusTable(),
+      endDrawer: ref.watch(bonusTableSelectorProvider) ? const BonusTableOvertime() : const BonusTable() ,
       resizeToAvoidBottomInset: false,
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification notification) {
@@ -142,26 +145,23 @@ class _HomeState extends ConsumerState<HomeScreen>
                 SafeArea(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      bool isWideScreen = constraints.maxWidth > 500;
                       return TabBarView(
                         controller: _tabController,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         children: <Widget>[
                           SingleChildScrollView(
-                            physics: AlwaysScrollableScrollPhysics(),
+                            physics: const AlwaysScrollableScrollPhysics(),
                             controller: _scrollController,
                             scrollDirection: Axis.vertical,
-                            child: Column(
+                            child: const Column(
                               children: [
                                 TargetChecker(),
                               ],
                             ),
                           ),
-                          (userId != null)
-                              ? BonusCalendar(
-                                  userId: userId, onNotification: handleScroll)
-                              : const CircularProgressIndicator(),
-                          ProfilePage(),
+                          BonusCalendar(
+                                  userId: userId, onNotification: handleScroll),
+                          const ProfilePage(),
                         ],
                       );
                     },
@@ -191,7 +191,7 @@ class _HomeState extends ConsumerState<HomeScreen>
         color: Colors.brown[50],
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
-          BoxShadow(
+          const BoxShadow(
             color: Colors.grey,
             blurRadius: 5,
           ),

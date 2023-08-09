@@ -174,7 +174,7 @@ class _RainbowCirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width, size.height) / 2;
+    final radius = min(size.width, size.height) / 3;
 
     final gradient = SweepGradient(
       startAngle: 0.0,
@@ -199,13 +199,18 @@ class _RainbowCirclePainter extends CustomPainter {
     final paint = Paint()
       ..shader = gradient.createShader(Rect.fromCircle(center: center, radius: radius))
       ..strokeWidth = 6.0
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
 
-    // Draw a circle filled up to the current progress
+    // Start angle is -pi/2 to make the progress start from the top
+    double startAngle = -pi / 2;
+    // Sweep angle is 2*pi to make it a full circle
+    double sweepAngle = 2 * pi * progress;
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -pi / 2, // start from the top
-      2 * pi * progress, // draw arc up to the current progress
+      startAngle,
+      sweepAngle,
       false,
       paint,
     );
@@ -216,6 +221,7 @@ class _RainbowCirclePainter extends CustomPainter {
     return true;
   }
 }
+
 
 
 class MinimumCircle extends StatefulWidget {
@@ -229,7 +235,6 @@ class MinimumCircle extends StatefulWidget {
 class _MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
-
 
   @override
   void initState() {
@@ -268,11 +273,13 @@ class _MinimumCircleState extends State<MinimumCircle> with SingleTickerProvider
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, Widget? child) {
-        return CircularProgressIndicator(
-          strokeWidth: 4.0,
-          backgroundColor: Colors.pink[50]!,
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-          value: _progressAnimation.value,
+        return CustomPaint(
+          painter: _MinimumCirclePainter(
+            progress: _progressAnimation.value,
+            color: Colors.green,
+            backgroundColor: Colors.pink[50]!,
+          ),
+          size: const Size(46, 46),
         );
       },
     );
@@ -284,3 +291,65 @@ class _MinimumCircleState extends State<MinimumCircle> with SingleTickerProvider
     super.dispose();
   }
 }
+
+class _MinimumCirclePainter extends CustomPainter {
+  const _MinimumCirclePainter({required this.progress, required this.color, required this.backgroundColor});
+
+  final double progress;
+  final Color color;
+  final Color backgroundColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width, size.height) / 2;
+
+    final backgroundPaint = Paint()
+      ..color = backgroundColor
+      ..strokeWidth = 4.0
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawCircle(center, radius, backgroundPaint);
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 4.0
+      ..style = PaintingStyle.stroke;
+
+    final angle = 2 * pi * progress;
+
+    // Draw the arc
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -pi / 2,
+        angle,
+        false,
+        paint);
+
+    // Draw the round caps
+    final Paint roundPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final double strokeWidthHalf = paint.strokeWidth / 2;
+
+    final Offset circleStartOffset = Offset(
+      center.dx + radius * cos(-pi / 2),
+      center.dy + radius * sin(-pi / 2),
+    );
+
+    final Offset circleEndOffset = Offset(
+      center.dx + radius * cos(-pi / 2 + angle),
+      center.dy + radius * sin(-pi / 2 + angle),
+    );
+
+    canvas.drawCircle(circleStartOffset, strokeWidthHalf, roundPaint);
+    canvas.drawCircle(circleEndOffset, strokeWidthHalf, roundPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+

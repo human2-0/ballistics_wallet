@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 
 const Map<int, double> bonusPercentageMap = {
-  1: 102,
+  1: 102.00,
   2: 104.10,
   3: 106.10,
   4: 108.20,
@@ -13,19 +14,20 @@ const Map<int, double> bonusPercentageMap = {
   7: 114.29,
   8: 118.37,
   9: 122.45,
-  10: 130.61,
-  11: 134.69,
-  12: 138.78,
-  13: 142.86,
-  14: 146.94,
-  15: 151.02,
-  16: 155.10,
-  17: 159.18,
-  18: 163.27,
-  19: 167.35,
-  20: 171.43,
-  21: 175.51, //Add more values as per your requirements
+  10: 126.53,
+  11: 130.61,
+  12: 134.69,
+  13: 138.78,
+  14: 142.86,
+  15: 146.94,
+  16: 151.02,
+  17: 155.10,
+  18: 159.18,
+  19: 163.27,
+  20: 167.35,
+  21: 171.43, //Add more values as per your requirements
 };
+
 
 class PressingRepository {
   final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -67,12 +69,12 @@ class PressingRepository {
   }
 
   Future<List<Map<String, dynamic>>> readProductsPressing() async {
-    QuerySnapshot querySnapshot = await db.collection("Products").get();
-    return querySnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
+    Box box = Hive.box('Products');
+
+    return box.keys.map((key) {
       final product = {
-        'name': doc.id,
-        'target': data['target'] as int,
+        'name': key,
+        'target': box.get(key) as int,
       };
       return product;
     }).toList();
@@ -419,10 +421,18 @@ class TargetRatioNotifier extends StateNotifier<double> {
   void updateRatio(String productName, int productTarget, int userNumber, double workingHours, double allowanceProvided) {
 
     productName = productName.toLowerCase();
-    // Calculate adjusted target with respect to working hours and allowance provided
-    int productTargetAdjusted = (productTarget *
-        (((workingHours) - (allowanceProvided)) / 7.00))
-        .ceil();
+    int productTargetAdjusted;
+
+    // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
+    if (workingHours == 8) {
+      productTargetAdjusted = (productTarget *
+          ((workingHours - allowanceProvided) / 7.00))
+          .ceil();
+    }
+    // If workingHours are less than 8, adjust productTarget only with respect to allowance
+    else {
+      productTargetAdjusted = (productTarget * ((workingHours - allowanceProvided) / workingHours)).ceil();
+    }
 
     // Handle zero cases
     if (userNumber == 0 || productTargetAdjusted == 0) {
@@ -440,7 +450,6 @@ class TargetRatioNotifier extends StateNotifier<double> {
     // Recalculate the total ratio and update the state
     state = _productRatios.values.fold(0.0, (a, b) => a + b);
   }
-
 
   double getProductRatio(String productName) {
     productName = productName.toLowerCase().trim();
@@ -559,17 +568,23 @@ FutureProvider.autoDispose.family<List<Map<String, dynamic>>, bool>((ref, update
 final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
   targetRatio *= 100; // Convert targetRatio to percentage
 
+  print("Target ratio: $targetRatio"); // Check the input
+
   // Sort the keys in ascending order
   final sortedKeys = bonusPercentageMap.keys.toList()
     ..sort((a, b) => b.compareTo(a));  // We sort in descending order
 
   double bonus = 0.0;
   for (final key in sortedKeys) {
-    if (targetRatio >= (bonusPercentageMap[key] ?? 0)) {  // We check if targetRatio is greater than or equal to the value in the map
-      bonus = key.toDouble();  // We assign the key (which is the bonus) to the variable bonus
+    print("Checking key: $key, percentage: ${bonusPercentageMap[key]}"); // Check the logic
+
+    if (targetRatio >= (bonusPercentageMap[key] ?? 0)) {
+      bonus = key.toDouble();
       break;
     }
   }
+
+  print("Bonus: $bonus"); // Check the output
 
   return bonus;
 });
