@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "291226983840",
+    "project_id": "boost-ballistics",
+    "storage_bucket": "boost-ballistics.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291226983840:android:c8230e9f0206b97b72d8c5",
+        "android_client_info": {
+          "package_name": "com.example.boost_ballistics"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291226983840-j20si3ikj5908lo23l2en7n1km13neaj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeAumh_ygbEe2yVLOVLcihNo186lD41OA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291226983840-9qlnc56a98j7uh1jv8pfft96h1hn86q9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "lush.co.uk.ballisticsWalletFlutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291226983840:android:f4faf9410dda26d772d8c5",
+        "android_client_info": {
+          "package_name": "lush.co.uk.ballistics_wallet_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lush.co.uk.ballistics_wallet_flutter",
+            "certificate_hash": "75fc826eccaa6d743f3e832ed9650bef656283c7"
+          }
+        },
+        {
+          "client_id": "291226983840-j20si3ikj5908lo23l2en7n1km13neaj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeAumh_ygbEe2yVLOVLcihNo186lD41OA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291226983840-9qlnc56a98j7uh1jv8pfft96h1hn86q9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "lush.co.uk.ballisticsWalletFlutter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
