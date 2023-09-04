@@ -132,8 +132,6 @@ Future<void> addDataToHiveBoxProductSplit() async {
   // open the Hive box
   final box = await Hive.openBox<Product>('products_split');
 
-  box.clear();
-
   // add the products to the Hive box
   for (final row in rows) {
     // Skip empty rows
