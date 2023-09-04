@@ -87,6 +87,7 @@ flutter:
     - assets/
     - assets/lottie/
     - new_targets.csv
+    - split_data.csv
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

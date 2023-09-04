@@ -11,11 +11,16 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 
+import 'models/product_split.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
   var box = await Hive.openBox('Products');
+  await box.clear();
+  Hive.registerAdapter(ProductAdapter());
+  await addDataToHiveBoxProductSplit();
 
   String determineEOL() {
     if (Platform.isWindows) {
@@ -116,3 +121,48 @@ MaterialColor blackMaterialColor = const MaterialColor(
     900: Color(0xFF131313),
   },
 );
+
+
+Future<void> addDataToHiveBoxProductSplit() async {
+  // read the CSV file
+  final data = await rootBundle.loadString('split_data.csv');
+
+  // convert the CSV string to a list of lists
+  final rows = const CsvToListConverter().convert(data);
+
+  // open the Hive box
+  final box = await Hive.openBox<Product>('products_split');
+
+  print('CSV Data: $rows');
+
+  // add the products to the Hive box
+  for (final row in rows) {
+    // Skip empty rows
+    if (row.isEmpty ||
+        row[0] == null ||
+        row[1] == null ||
+        row[2] == null ||
+        row[3] == null) {
+      continue;
+    }
+
+    final product = Product(
+      row[0].toString(),
+      row[1].toString(),
+      double.tryParse(row[2].toString()) ?? 0.0,
+      double.tryParse(row[3].toString()) ?? 0.0,
+    );
+
+    // Only add product if fields are non-empty and values are non-zero
+    if (product.productName.isNotEmpty &&
+        product.productColor.isNotEmpty &&
+        product.systemG != 0.0 &&
+        product.systemCitric != 0.0) {
+      print('Adding Product: $product');
+      box.add(product);
+    } else {
+      print('Skipping Product: $product');
+    }
+  }
+
+}

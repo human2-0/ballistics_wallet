@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/pressing_provider.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/split_check/background_animated_split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet_pressing.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile.dart';
+
+import 'split_check/split_check.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -47,7 +50,7 @@ class _HomeState extends ConsumerState<HomeScreen>
       }
     });
 
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.animation!.addListener(_handleTabAnimation);
 
     _scrollController = ScrollController();
@@ -149,16 +152,8 @@ class _HomeState extends ConsumerState<HomeScreen>
                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
                         children: <Widget>[
-                          SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            controller: _scrollController,
-                            scrollDirection: Axis.vertical,
-                            child: const Column(
-                              children: [
-                                TargetChecker(),
-                              ],
-                            ),
-                          ),
+                          const TargetChecker(),
+                          SplitCheck(),
                           BonusCalendar(
                                   userId: userId, onNotification: handleScroll),
                           const ProfilePage(),
@@ -206,10 +201,17 @@ class _HomeState extends ConsumerState<HomeScreen>
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           alignment: Alignment(
-              activeIndex == 0 ? -1.0 : (activeIndex == 1 ? 0 : 1), 0),
+              activeIndex == 0
+                  ? -1.0
+                  : activeIndex == 1
+                  ? -0.33
+                  : activeIndex == 2
+                  ? 0.33
+                  : 1.0,
+              0),
 
           child: FractionallySizedBox(
-            widthFactor: 1 / 3,
+            widthFactor: 1 / 4,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(33.0),
@@ -246,7 +248,7 @@ class _HomeState extends ConsumerState<HomeScreen>
               children: <Widget>[
                 IconButton(
                   icon: Icon(
-                    Icons.wallet_outlined,
+                    Icons.balance_outlined,
                     size: 40,
                     color: (activeIndex == 1) ? Colors.orange : Colors.black54,
                   ),
@@ -254,6 +256,25 @@ class _HomeState extends ConsumerState<HomeScreen>
                     setActiveTab(1);
                     setState(() {
                       _tabController.animateTo(1);
+                    });
+                  },
+                ),
+                const Text('Split'),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(
+                    Icons.wallet_outlined,
+                    size: 40,
+                    color: (activeIndex == 2) ? Colors.orange : Colors.black54,
+                  ),
+                  onPressed: () {
+                    setActiveTab(2);
+                    setState(() {
+                      _tabController.animateTo(2);
                     });
                   },
                 ),
@@ -267,12 +288,12 @@ class _HomeState extends ConsumerState<HomeScreen>
                   icon: Icon(
                     Icons.account_circle_outlined,
                     size: 40,
-                    color: (activeIndex == 2) ? Colors.orange : Colors.black54,
+                    color: (activeIndex == 3) ? Colors.orange : Colors.black54,
                   ),
                   onPressed: () {
-                    setActiveTab(2);
+                    setActiveTab(3);
                     setState(() {
-                      _tabController.animateTo(2);
+                      _tabController.animateTo(3);
                     });
                   },
                 ),

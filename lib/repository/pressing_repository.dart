@@ -28,7 +28,6 @@ const Map<int, double> bonusPercentageMap = {
   21: 171.43, //Add more values as per your requirements
 };
 
-
 class PressingRepository {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -39,7 +38,8 @@ class PressingRepository {
     String formattedProductName = toTitleCase(productName);
 
     // Check if a product with the same name already exists
-    var productDoc = await db.collection("Products").doc(formattedProductName).get();
+    var productDoc =
+        await db.collection("Products").doc(formattedProductName).get();
 
     if (productDoc.exists) {
       // If the product already exists, throw an error or return
@@ -52,7 +52,6 @@ class PressingRepository {
       });
     }
   }
-
 
   String toTitleCase(String text) {
     if (text.isEmpty) return text;
@@ -79,29 +78,18 @@ class PressingRepository {
       return product;
     }).toList();
 
-    print('Read Products: $products');  // Debug print statement
-
     return products;
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> getBonusesPercentage() async {
-    CollectionReference bonuses = db.collection('Bonuses');
-    return (await bonuses.doc('BonusesPercentage').get())
-    as DocumentSnapshot<Map<String, dynamic>>;
-  }
-
   Future<Map<String, dynamic>> getBonuses() async {
-    Map<String, int> swappedMap = bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
-
+    Map<String, int> swappedMap =
+        bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
 
     return swappedMap;
   }
 
-
-
-
-  Future<void> saveUserBonus(String userId, String productName, double bonus,
-      int amount, double ratio,
+  Future<void> saveUserBonus(
+      String userId, String productName, double bonus, int amount, double ratio,
       {double workingHours = 0}) async {
     CollectionReference userBonusCollection = db.collection('userBonuses');
 
@@ -167,12 +155,8 @@ class PressingRepository {
     await docRef.update({'bonus': bonus});
   }
 
-
-
-
-
-  Future<void> saveOvertimeUserBonus(String userId, String productName,
-      double bonus, int amount, double ratio,
+  Future<void> saveOvertimeUserBonus(
+      String userId, String productName, double bonus, int amount, double ratio,
       {bool isOvertime = false, double workingHours = 0}) async {
     CollectionReference userBonusCollection = db.collection('userBonuses');
 
@@ -239,9 +223,8 @@ class PressingRepository {
     }
   }
 
-
-  Future<void> addUserBonus(String userId, int bonus,
-      DateTime selectedDate) async {
+  Future<void> addUserBonus(
+      String userId, int bonus, DateTime selectedDate) async {
     final userBonusCollection = db.collection('userBonuses');
 
     // Code to add the new bonus to Firestore
@@ -270,14 +253,14 @@ class PressingRepository {
 
         // Fetch 'produced' sub-collection for each userBonus document
         QuerySnapshot producedSnapshot =
-        await doc.reference.collection('produced').get();
+            await doc.reference.collection('produced').get();
 
         // Create a list to store 'productName' and 'amount' for each product
         List<Map<String, dynamic>> producedList = [];
 
         for (var producedDoc in producedSnapshot.docs) {
           Map<String, dynamic>? producedData =
-          producedDoc.data() as Map<String, dynamic>?;
+              producedDoc.data() as Map<String, dynamic>?;
           if (producedData != null) {
             producedData['id'] =
                 producedDoc.id; // Include the document ID in the data
@@ -299,8 +282,8 @@ class PressingRepository {
     return bonuses;
   }
 
-  Future<void> editUserBonus(String bonusId, String producedId, double bonus,
-      int amount) async {
+  Future<void> editUserBonus(
+      String bonusId, String producedId, double bonus, int amount) async {
     CollectionReference userBonusCollection = db.collection('userBonuses');
 
     // Edit existing bonus
@@ -322,8 +305,8 @@ class PressingRepository {
     CollectionReference userBonusCollection = db.collection('userBonuses');
 
     // Reference to the 'produced' subcollection
-    CollectionReference producedCollection = userBonusCollection.doc(bonusId)
-        .collection('produced');
+    CollectionReference producedCollection =
+        userBonusCollection.doc(bonusId).collection('produced');
 
     // Get all documents in the 'produced' subcollection
     QuerySnapshot producedSnapshot = await producedCollection.get();
@@ -337,8 +320,8 @@ class PressingRepository {
     await userBonusCollection.doc(bonusId).delete();
   }
 
-  Future<void> deleteIndividualBonus(String userId, String bonusId,
-      String itemId) async {
+  Future<void> deleteIndividualBonus(
+      String userId, String bonusId, String itemId) async {
     CollectionReference userBonusCollection = db.collection('userBonuses');
     await userBonusCollection
         .doc(bonusId)
@@ -366,13 +349,13 @@ class PressingRepository {
     // For each bonus, iterate through the 'produced' sub-collection
     for (var bonusDoc in userBonusesSnapshot.docs) {
       // Check if the current bonus document isOvertime
-      bool isOvertime = (bonusDoc.data() as Map<String,
-          dynamic>)['isOvertime'] ?? false;
+      bool isOvertime =
+          (bonusDoc.data() as Map<String, dynamic>)['isOvertime'] ?? false;
 
       // Only process the 'produced' sub-collection if isOvertime is false
       if (!isOvertime) {
-        QuerySnapshot producedSnapshot = await bonusDoc.reference.collection(
-            'produced').get();
+        QuerySnapshot producedSnapshot =
+            await bonusDoc.reference.collection('produced').get();
         for (var producedDoc in producedSnapshot.docs) {
           var data = producedDoc.data() as Map<String, dynamic>?;
           String? productName = data?['productName'].toLowerCase().trim();
@@ -390,7 +373,7 @@ class PressingRepository {
   }
 }
 
-  final productNamesProvider = FutureProvider<List<String>>((ref) async {
+final productNamesProvider = FutureProvider<List<String>>((ref) async {
   final repository = ref.watch(pressingRepositoryProvider);
   final productNames = await repository.readProductNames();
   return productNames;
@@ -405,10 +388,10 @@ class TargetRatioNotifier extends StateNotifier<double> {
     init();
   }
 
-
   Future<void> init() async {
     // Fetch necessary data from database
-    final Map<String, dynamic> data = await _repository.getUserProductInfo(_userId);
+    final Map<String, dynamic> data =
+        await _repository.getUserProductInfo(_userId);
     if (data.isEmpty) {
       _productRatios = {};
     }
@@ -417,7 +400,6 @@ class TargetRatioNotifier extends StateNotifier<double> {
     // StateNotifier.mounted returns a bool that is true if the notifier has not been disposed of.
     if (!mounted) return;
 
-
     // Store the data in the _productRatios map
     _productRatios = data.map((key, value) => MapEntry(key, value as double));
 
@@ -425,21 +407,21 @@ class TargetRatioNotifier extends StateNotifier<double> {
     state = _productRatios.values.fold(0, (a, b) => a + b);
   }
 
-
-  void updateRatio(String productName, int productTarget, int userNumber, double workingHours, double allowanceProvided) {
-
+  void updateRatio(String productName, int productTarget, int userNumber,
+      double workingHours, double allowanceProvided) {
     productName = productName.toLowerCase();
     int productTargetAdjusted;
 
     // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
     if (workingHours == 8) {
-      productTargetAdjusted = (productTarget *
-          ((workingHours - allowanceProvided) / 7.00))
-          .ceil();
+      productTargetAdjusted =
+          (productTarget * ((workingHours - allowanceProvided) / 7.00)).ceil();
     }
     // If workingHours are less than 8, adjust productTarget only with respect to allowance
     else {
-      productTargetAdjusted = (productTarget * ((workingHours - allowanceProvided) / workingHours)).ceil();
+      productTargetAdjusted =
+          (productTarget * ((workingHours - allowanceProvided) / workingHours))
+              .ceil();
     }
 
     // Handle zero cases
@@ -464,7 +446,7 @@ class TargetRatioNotifier extends StateNotifier<double> {
     print('here is product ratio list ${_productRatios}');
     print(productName);
     print('text above is provided product name');
-      // Normalize productName to lower case and trim spaces
+    // Normalize productName to lower case and trim spaces
 
     return _productRatios[productName] ?? 0;
   }
@@ -502,7 +484,6 @@ class TargetNotifier extends StateNotifier<int> {
 
 final targetProvider =
     StateNotifierProvider<TargetNotifier, int>((ref) => TargetNotifier());
-
 
 class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
   UserBonusesNotifier() : super({});
@@ -554,7 +535,8 @@ final pressingRepositoryProvider = Provider<PressingRepository>((ref) {
   return PressingRepository();
 });
 
-final productUpdateProvider = StateNotifierProvider<ProductUpdateNotifier, bool>((ref) {
+final productUpdateProvider =
+    StateNotifierProvider<ProductUpdateNotifier, bool>((ref) {
   return ProductUpdateNotifier();
 });
 
@@ -566,8 +548,8 @@ class ProductUpdateNotifier extends StateNotifier<bool> {
   }
 }
 
-final productsProvider =
-FutureProvider.autoDispose.family<List<Map<String, dynamic>>, bool>((ref, updated) async {
+final productsProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, bool>((ref, updated) async {
   final repository = ref.read(pressingRepositoryProvider);
   final products = await repository.readProductsPressing();
   return products;
@@ -580,11 +562,12 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
 
   // Sort the keys in ascending order
   final sortedKeys = bonusPercentageMap.keys.toList()
-    ..sort((a, b) => b.compareTo(a));  // We sort in descending order
+    ..sort((a, b) => b.compareTo(a)); // We sort in descending order
 
   double bonus = 0.0;
   for (final key in sortedKeys) {
-    print("Checking key: $key, percentage: ${bonusPercentageMap[key]}"); // Check the logic
+    print(
+        "Checking key: $key, percentage: ${bonusPercentageMap[key]}"); // Check the logic
 
     if (targetRatio >= (bonusPercentageMap[key] ?? 0)) {
       bonus = key.toDouble();
@@ -603,12 +586,13 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
   final PressingRepository _repository;
 
   Future<void> saveUserBonusCalendar(String userId, String productName,
-      double bonus, int amount, DateTime selectedEventDate, double workingHours, {bool isOvertime = false}) async {
+      double bonus, int amount, DateTime selectedEventDate, double workingHours,
+      {bool isOvertime = false}) async {
     try {
       CollectionReference userBonusCollection =
-      _repository.db.collection('userBonuses');
-      DateTime date = DateTime(
-          selectedEventDate.year, selectedEventDate.month, selectedEventDate.day);
+          _repository.db.collection('userBonuses');
+      DateTime date = DateTime(selectedEventDate.year, selectedEventDate.month,
+          selectedEventDate.day);
       DateTime nextDate = DateTime(selectedEventDate.year,
           selectedEventDate.month, selectedEventDate.day + 1);
 
@@ -648,7 +632,8 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
         for (QueryDocumentSnapshot doc in existingProduced.docs) {
           String producedId = doc.id;
           await _repository.db.runTransaction((transaction) async {
-            transaction.update(producedCollection.doc(producedId), {'amount': amount});
+            transaction
+                .update(producedCollection.doc(producedId), {'amount': amount});
           });
         }
       } else {
@@ -658,11 +643,8 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
           'amount': amount,
         });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
-
-
 
   Future<void> saveUserBonus(
       String userId, int bonus, DateTime selectedDate) async {
@@ -789,13 +771,9 @@ final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);
 
 final monthlyWorkingHoursProvider = StateProvider<double>((ref) => 0.0);
 
-
 final searchTermProvider = StateProvider<String>((ref) => '');
 
 final selectedProductProvider = StateProvider<StateController<String>>(
-        (ref) => StateController<String>(""));
+    (ref) => StateController<String>(""));
 
 final productsMade = StateProvider<int>((ref) => 0);
-
-
-

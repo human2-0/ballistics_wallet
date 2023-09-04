@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/utilities.dart';
 
 import '../../../providers/pressing_provider.dart';
 
@@ -159,6 +160,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                           .read(targetRatioProvider(userId)
                                               .notifier)
                                           .init();
+                                      ref.read(numberProvider.notifier).state = 0 ;
                                     },
                                   ),
                             hintStyle: const TextStyle(color: Colors.grey),
@@ -437,7 +439,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                         width: MediaQuery.of(context).size.width * 0.66,
                         height: MediaQuery.of(context).size.width * 0.66,
                         child: Image.asset(
-                          'assets/images/${productName.split(' ').join('_')}.png',
+                          'assets/images/${productName}.png',
                           fit: BoxFit.cover,
                           errorBuilder: (BuildContext context, Object exception,
                               StackTrace? stackTrace) {

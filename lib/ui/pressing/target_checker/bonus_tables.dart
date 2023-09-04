@@ -4,7 +4,9 @@ import 'package:ballistics_wallet_flutter/ui/pressing/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_provider.dart'; // Import the PressingRepository
+import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
+
+import '../split_check/split_check.dart'; // Import the PressingRepository
 
 class BonusTable extends ConsumerWidget {
   const BonusTable({super.key});
@@ -18,6 +20,8 @@ class BonusTable extends ConsumerWidget {
     final overtimeHours = ref.watch(overtimeWorkingHoursState);
     final workingHours = userData.workingHours ?? 0.0;
     final allowance = ref.watch(allowanceProvider);
+    print('allowance here $allowance');
+    double allowanceCheck = 0;
 
     return Stack(
       children: [
@@ -32,7 +36,14 @@ class BonusTable extends ConsumerWidget {
             } else {
               final bonuses = snapshot.data!;
               final int stableTarget = ref.watch(targetProvider);
-              final target = ref.watch(targetProvider) * (1 - targetRatio);
+              double target = ref.watch(targetProvider) * (1 - targetRatio);
+              if (targetRatio == 0.0) {
+                double allowanceCheck = (workingHours - allowance) / 7;
+                print(allowanceCheck);
+                if (allowanceCheck > 0) {
+                  target = target * allowanceCheck;
+                }
+              }
 
               // Sort the keys in ascending order
               final sortedKeys = bonuses.keys.toList();
@@ -42,59 +53,69 @@ class BonusTable extends ConsumerWidget {
 
               if (target > 0) {
                 listItems.add(
-                  Container(
-                    margin: const EdgeInsets.all(16.0),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    height: MediaQuery.of(context).size.height * 0.25,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [Colors.orange[200]!, Colors.white],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3), // changes position of shadow
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SplitCheck(requiredAmount: target.ceil()),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                     child: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.orange.withOpacity(0.5),
-                          gradient: LinearGradient(
+                      margin: const EdgeInsets.all(16.0),
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.25,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.0),
+                        gradient: LinearGradient(
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                           colors: [Colors.orange[200]!, Colors.white],
                         ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 3,
-                              offset: const Offset(2, 2), // changes position of shadow
-                            ),
-                          ],
-                        ),
-                        child: Column(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: const Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                            color: Colors.orange.withOpacity(0.5),
+                            gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [Colors.orange[200]!, Colors.white],
+                          ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 3,
+                                offset: const Offset(2, 2), // changes position of shadow
+                              ),
+                            ],
+                          ),
+                          child: Column(
 
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Minimum',
-                              style: TextStyle(fontSize: 16.0, color: Colors.black54),
-                            ),
-                            Text(
-                              '${target.ceil()}',
-                              style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Minimum',
+                                style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                              ),
+                              Text(
+                                '${target.ceil()}',
+                                style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -112,102 +133,114 @@ class BonusTable extends ConsumerWidget {
                     double.parse(key) - ((overtimeRatio > 0.0)
                         ? overtimeRatio
                         : targetRatio) * 100;
-                final requiredAmount =
-                ((requiredPercentage * stableTarget) / 100).ceil();
+                print(requiredPercentage);
+                double allowanceCheck = (workingHours - allowance) / 7;
+
+                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? stableTarget * allowanceCheck : stableTarget)) / 100).round();
 
                 if (requiredAmount > 0) {
-                  return Container(
-                    margin: const EdgeInsets.all(16.0),
-                    height: MediaQuery.of(context).size.height * 0.25,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [Colors.orange[200]!, Colors.white],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3), // changes position of shadow
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SplitCheck(requiredAmount: requiredAmount),
                         ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.orange.withOpacity(0.5),
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [Colors.orange[200]!, Colors.white],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 3,
-                                    offset: const Offset(2, 2), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'to earn',
-                                    style: TextStyle(fontSize: 16.0, color: Colors.black54),
-                                  ),
-                                  Text(
-                                  '£${formatDouble(bonus)}',
-                                  style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                                ),]
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.orange.withOpacity(0.5),
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [Colors.orange[200]!, Colors.white],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 3,
-                                    offset: const Offset(2, 2), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '$requiredAmount',
-                                    style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                                  ),
-                                  const Text(
-                                    'more to do',
-                                    style: TextStyle(fontSize: 16.0, color: Colors.black54),
-                                  ),
-                                ],
-                              ),
-                            ),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(16.0),
+                      height: MediaQuery.of(context).size.height * 0.25,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.0),
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Colors.orange[200]!, Colors.white],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: const Offset(0, 3), // changes position of shadow
                           ),
                         ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Colors.orange.withOpacity(0.5),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [Colors.orange[200]!, Colors.white],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 3,
+                                      offset: const Offset(2, 2), // changes position of shadow
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'to earn',
+                                      style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                                    ),
+                                    Text(
+                                    '£${formatDouble(bonus)}',
+                                    style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                                  ),]
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16.0),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Colors.orange.withOpacity(0.5),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [Colors.orange[200]!, Colors.white],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 3,
+                                      offset: const Offset(2, 2), // changes position of shadow
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '$requiredAmount',
+                                      style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                                    ),
+                                    const Text(
+                                      'more to do',
+                                      style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );

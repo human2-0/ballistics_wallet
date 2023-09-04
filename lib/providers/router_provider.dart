@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../ui/pressing/split_check/split_check.dart';
+
 
 
 
@@ -49,6 +51,16 @@ class RouterNotifier extends ChangeNotifier {
           name: 'home',
           builder: (context, state) => const HomeScreen(),
           path: '/',
+        ),
+        GoRoute(
+          name: 'split',
+          builder: (context, state) {
+            final requiredAmount = state.queryParameters['requiredAmount'];
+            return SplitCheck(
+              requiredAmount: requiredAmount == null ? 0 : int.parse(requiredAmount),
+            );
+          },
+          path: '/split',
 
         ),
         GoRoute(
