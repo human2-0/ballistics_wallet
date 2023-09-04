@@ -79,7 +79,6 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
     final requiredAmount = ref.watch(requiredAmountProvider);
     final amountPerBatch = ref.watch(amountPerBatchProvider);
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Center(child: Text('Split check')),
       ),
@@ -189,7 +188,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.orangeAccent.withOpacity(0.5),
+                      color: Colors.orangeAccent[100]!.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(33),
                     ),
                     child: Row(
@@ -198,7 +197,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                         Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.orangeAccent[100]!.withOpacity(0.5),
+                              color: Colors.orangeAccent.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(20),
                             ),
 
@@ -320,6 +319,6 @@ Color getColorFromString(String colorName, {bool accent = false}) {
     case 'white':
       return accent ? Colors.black12 : Colors.white; // no whiteAccent exists
     default:
-      return accent ? Colors.white : Colors.white70;
+      return accent ? Colors.black12 : Colors.white70;
   }
 }

@@ -126,14 +126,13 @@ MaterialColor blackMaterialColor = const MaterialColor(
 Future<void> addDataToHiveBoxProductSplit() async {
   // read the CSV file
   final data = await rootBundle.loadString('split_data.csv');
-
-  // convert the CSV string to a list of lists
-  final rows = const CsvToListConverter().convert(data);
+  String eol = data.contains('\r\n') ? '\r\n' : '\n';
+  List<List<dynamic>> rows = CsvToListConverter(eol: eol).convert(data);
 
   // open the Hive box
   final box = await Hive.openBox<Product>('products_split');
 
-  print('CSV Data: $rows');
+  box.clear();
 
   // add the products to the Hive box
   for (final row in rows) {
