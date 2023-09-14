@@ -439,7 +439,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                         width: MediaQuery.of(context).size.width * 0.66,
                         height: MediaQuery.of(context).size.width * 0.66,
                         child: Image.asset(
-                          'assets/images/${productName}.png',
+                          'assets/images/${ref.read(pressingRepositoryProvider).getImageNameForProduct(productName)}.png',
                           fit: BoxFit.cover,
                           errorBuilder: (BuildContext context, Object exception,
                               StackTrace? stackTrace) {

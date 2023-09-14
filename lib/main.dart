@@ -11,15 +11,15 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 
+import 'models/product_name.dart';
 import 'models/product_split.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-
-  var box = await Hive.openBox('Products');
+  var box = await Hive.openBox<ProductName>('Products');
   await box.clear();
-  Hive.registerAdapter(ProductAdapter());
+  Hive.registerAdapter(ProductNameAdapter());
   await addDataToHiveBoxProductSplit();
 
   String determineEOL() {
@@ -40,7 +40,6 @@ Future<void> main() async {
 
     for (var row in rows) {
       if (row != null) {
-
         if (row.length < 2) {
           print('Skipping row due to insufficient columns.');
           continue;
@@ -51,35 +50,28 @@ Future<void> main() async {
         var cleanedTargetString = targetString?.replaceAll(RegExp(r'[^0-9]'), '');
         var target = int.tryParse(cleanedTargetString!);
 
+        String? imageName = row.length >= 3 ? row[2]?.toString()?.trim() : null;
 
-        if (productName != null && productName.isNotEmpty) {
-          var target = int.tryParse(targetString ?? '');
-          if (target == null && targetString != null) {
-            print('Failed to parse target value for product: $productName. Raw value: $targetString');
-            for (var char in targetString.split('')) {
-              print('${char}: ${char.codeUnitAt(0)}');
-            }
-            continue;
-          }
-
-          if (target != 0) {
-            await box.put(productName, target);
-            print("Added to box: $productName with value $target");
-          } else {
-            print('Target value is 0 for product: $productName. Skipping.');
-          }
+        if (productName != null && productName.isNotEmpty && target != null && target != 0) {
+          var product = ProductName(name: productName, target: target, imageName: imageName);
+          await box.put(productName, product);
+          print("Added to box: $productName with value $target and image $imageName");
+        } else if (target == 0) {
+          print('Target value is 0 for product: $productName. Skipping.');
         } else {
-          print('Product name is empty or null. Skipping.');
-        }
-      }
-    }
-  } catch (e) {
-    print("Error occurred: $e");
-  }
+          print('''Product name is empty, null or target couldn't be parsed. Skipping.''');
+          }
+          }
+          }
+          } catch (e) {
+            print("Error occurred: $e");
+          }
 
 
 
-  await Firebase.initializeApp(
+
+
+          await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const ProviderScope(child: MyApp()));

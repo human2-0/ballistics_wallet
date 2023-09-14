@@ -4,24 +4,21 @@ Experimenter,364
 Foot Soak and Fancy Free,520
 New Think Pink,572
 Cheer up Buttercup,728
-Intergalactic,624
 Over and Over (INC INSERTS),532
-Twilight (INC INSERTS),624
-Dragon Egg (INC INSERTS),676
 Lava Lamp,788
-Sex Bomb,988
+Sex Bomb,988,sex_bomb
 Tisty Tosty,1103
 Big Blue,1040
 Sakura,1144
-Avobath,1404
+Avobath,1404,avobath
 Rocket,312
 Ickle Robot,2184
-Butterball,2080
-Goddess,468
+Butterball,2080, butterball
+Goddess,468, goddess
 Crystal Ball,62
 Karma SPA,312
 Dream Steam,2600
-Big Blue Spa,1560
+Big Blue Spa,1560, big_blue
 Volcano Spa,343
 Toner Tab,4160
 Intergalatic Spa,655
@@ -37,9 +34,9 @@ Cyanide,431
 Golden Slumbers * New*,1278
 Under The Umbrela Tree,266
 Little Bottle of Calm,624
-Sleepy,1456
+Sleepy,1456, sleepy_shower_bomb
 Koyaanisqatsi,1065
-Not Sleepy,1456
+Not Sleepy,1456,not_sleepy
 Karma Shower Bomb,1384
 Butterbear,2130
 Golden Wonder,587
@@ -58,7 +55,7 @@ Lush Pud Dots - Blue,26000
 Cherry Christmas,390
 Snow Fairy,426
 Holey Night,383
-Shoot For the Stars,624
+Shoot For the Stars,624,shoot_for_the_stars
 The Worlds Smallest Disco *OLD*,426
 The Worlds Smallest Disco (DOTS) Pink,26000
 The Worlds Smallest Disco (DOTS) Orange,26000
@@ -145,7 +142,7 @@ Play Doze,0
 Tea Bag,364
 Fresh Flower Giant Bombshell TOP/BOTTOM,157
 Love Boat '18,437
-Peachy,416
+Peachy,416,peachy
 Aubergine,416
 Butterfly (Orange/Yellow),364
 Rose Butterfly 2020,416
@@ -181,7 +178,7 @@ BATH SALT CUBE BLUE GARDENIA,624
 CHOCCOMINT,1040
 GROOVY KIND OF LOVE,468
 GEODE,468
-BLACK ROSE,676
+BLACK ROSE,676, black_rose
 LUCKY CAT (PINK),676
 DEEP SLEEP MUSLIN,1248
 FLOWER POWER,1040
@@ -274,7 +271,7 @@ Party Kits- Goddess,42
 Party Kits- Inrtergalactic,42
 Blue Pill Shower Bomb,1768
 Red Pill Shower Bomb,1768
-Comfort Zone Shower Bomb,1352
+Comfort Zone Shower Bomb,1352,comfort_zone
 Wake Up Call Shower Bomb,1560
 Luck Shower Bomb,1872
 Love Shower Bomb,1352
@@ -422,7 +419,7 @@ Skullduggery,572
 SATSUMO SANTA,312
 Sleepy Bombshell Top,416
 Sleepy Bombshell Bottom,624
-Sleepy Giant bombshell  top+bottom,250
+Sleepy Giant bombshell  top+bottom,250,sleeping_giant
 Hokkaido,1248
 Party Kit-I Want A Hippo,42
 PartyKit-ShootForStars20,42
@@ -454,29 +451,23 @@ Mother of Pearl,1560
 Atom Heart Mother,468
 Rose Gold - for AYR new fragrance,572
 Atom Heart Mother INSERT,8320
-,0
-04:20PM Bath bomb,468
+04:20PM Bath bomb,468,420_cbd
 MrS Whippy,468
 Frog Prince,624
-,0
 Owl And The Pussycat - boat,416
 Owl And The Pussycat - cat,1768
 Owl And The Pussycat - owl,1560
 Marshmallow World '21 - New flat base,520
 Floating Flower '21 - New flat base,832
-Deep Sleep '21 - New flat base,1248
-TWILIGHT'21 V2,624
+Deep Sleep '21 - New flat base,1248, deep_sleep
+TWILIGHT'21 V2,624,twilight
 Sex Bomb '21 - New Flat base,988
-Sakura '21 - New Flat base,1144
-Intergalactic '21 - New flat base,624
+Sakura '21 - New Flat base,1144,sakura
+Intergalactic '21 - New flat base,624,intergalactic
 Ickle Baby Bot '21- New moulds,1456
 Goddess '21 - New Flat base,468
-Dragon's Egg '21 - New Flat base,676
-Butterball '21 - New Flat base,2080
-Big Blue '21 - New Flat base,1040
-Avobath '21 - New Flat base,1404
+Dragon's Egg '21 - New Flat base,676,dragons_egg
 Groovy kind of love'21-New flatbase,468
-Peachy'21 - New flatbase,416
 Temple of the sky'21-New flatbase,229
 Melusine'21 - New flatbase,520
 The Comforter'21 - New flatbase,374
@@ -494,7 +485,6 @@ PEAU DE PARIS BOMBSHELL GREEN BOTTOM,624
 PEAU DE PARIS BOMBSHELL YELLOW TOP,624
 PEAU DE PARIS BOMBSHELL YELLOW BOTTOM,624
 PEAU DE PARIS BOMBSHELL,312
-,0
 Punkin Pumpkin'21,312
 Bat art'21,624
 Ghostie'21,406
@@ -545,15 +535,15 @@ Rudolph nose'21-MEXICO,1664
 Silver Bells shower bomb'21-MEXICO,1664
 ,0
 The Sicilian,1040
-Lakes Bath Bomb,832
+Lakes Bath Bomb,832, lakes
 Golden Slumbers Spa'21 - New flatbase,1456
 The Worlds Smallest Disco'21,426
 Rangoli Dreams '21,312
 Golden Pudding '21 AF,421
 Marshmallow ' 22,520
-Unicorn Poop Bath bomb,468
+Unicorn Poop Bath bomb,468,unicorn_poop
 Black rose'21,676
-Toby's magic cow,416
+Toby's magic cow,416,tobys_magic_cow
 Luxe Bath Bomb,572
 GRANNY  TAKES THE DIP,208
 Volcano Spa'21,343
@@ -638,8 +628,8 @@ Sweet Pudding '22,936
 Intergalactic - Line,593
 Christmas Party '22 GCO,884
 Wild Remedy Bath Bomb,728
-Slow Down Bath Bomb,728
-Broken Heart Bath Bomb,728
+Slow Down Bath Bomb,728,slow_down_bath_bomb
+Broken Heart Bath Bomb,728,broken_heart
 Shoot for the stars Yellow - Mixing kg,156
 Cobweb '22 GCO,562
 ,0
@@ -667,8 +657,8 @@ D8,468
 Valentine Bombshell '23,312
 Gold Rabbit'23,468
 Lovebug '23,286
-Deep Sleep Cube,416
-Salt Water Soother Cube,416
+Deep Sleep Cube,416,deep_sleep_cube
+Salt Water Soother Cube,416,salt_water_soother
 Valentine Bombshell '23 - Top,624
 Valentine Bombshell '23 - Bottom,624
 Valentine Bombshell '23 - Whole product,312
@@ -676,7 +666,7 @@ Birding Boat bath bomb,416
 There's Room '22,218
 There's Room'22 Yellow Ears,15600
 There's Room'22 Pink Cheeks,15600
-Out Of This World,520
+Out Of This World,520,out_of_this_world_bath_bomb
 Tisty Tosty '23 (Mini),832
 Slammer,624
 Time To Relax '23,260
@@ -760,7 +750,7 @@ Sweet Pudding '23,780
 The Wishing Lamp '23,260
 The Wishing Lamp '23 LID,1248
 Twinkle '23 GCO,664
-Asteroid,468
+Asteroid,468, astroid
 PartyKit-Punkin Pumpkin,62
 PartyKit-Ghostie,52
 Snow Fairy Lights '23 Confetti Blue,78000
@@ -768,7 +758,7 @@ Snow Fairy Lights '23 Confetti Orange,78000
 Snow Fairy Lights '23 Confetti Pink,78000
 Snow Fairy Lights '23 Confetti Yellow,78000
 Snow Fairy Lights '23 Confetti Green,78000
-Welcome Bath bomb,520
+Welcome Bath bomb,520,welcome
 Dreidel ,780
 Diwali Dyia Yellow insert ,884
 Diwali Dyia Main ,312

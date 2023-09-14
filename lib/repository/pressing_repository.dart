@@ -4,29 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
-const Map<int, double> bonusPercentageMap = {
-  1: 102.00,
-  2: 104.10,
-  3: 106.10,
-  4: 108.20,
-  5: 110.20,
-  6: 112.20,
-  7: 114.29,
-  8: 118.37,
-  9: 122.45,
-  10: 126.53,
-  11: 130.61,
-  12: 134.69,
-  13: 138.78,
-  14: 142.86,
-  15: 146.94,
-  16: 151.02,
-  17: 155.10,
-  18: 159.18,
-  19: 163.27,
-  20: 167.35,
-  21: 171.43, //Add more values as per your requirements
-};
 
 class PressingRepository {
   final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -37,35 +14,32 @@ class PressingRepository {
     // Convert the product name to title case
     String formattedProductName = toTitleCase(productName);
 
-    // Check if a product with the same name already exists
-    var productDoc =
-        await db.collection("Products").doc(formattedProductName).get();
+    // Open the Hive box
+    Box box = Hive.box('Products');
 
-    if (productDoc.exists) {
+    // Check if a product with the same name already exists
+    if (box.containsKey(formattedProductName)) {
       // If the product already exists, throw an error or return
       throw Exception('A product with the same name already exists');
     } else {
-      // If the product does not exist, add it to the database
-      await db.collection("Products").doc(formattedProductName).set({
-        'name': formattedProductName,
-        'target': target,
-      });
+      // If the product does not exist, add it to the Hive box
+      await box.put(formattedProductName, target);
+    }
+  }
+  Future<String?> getImageNameForProduct(String productName) async {
+    Box box = Hive.box('Products');
+
+    // Check if the product exists in the box
+    var productData = box.get(productName);
+
+    if (productData != null && productData is Map && productData.containsKey('image_name')) {
+      return productData['image_name'] as String?;
+    } else {
+      print("No image found for product: $productName");
+      return null;
     }
   }
 
-  String toTitleCase(String text) {
-    if (text.isEmpty) return text;
-
-    return text.toLowerCase().split(' ').map((word) {
-      final String leftText = word.length > 1 ? word.substring(1) : '';
-      return word[0].toUpperCase() + leftText;
-    }).join(' ');
-  }
-
-  Future<List<String>> readProductNames() async {
-    QuerySnapshot querySnapshot = await db.collection("Products").get();
-    return querySnapshot.docs.map((doc) => doc.id).toList();
-  }
 
   Future<List<Map<String, dynamic>>> readProductsPressing() async {
     Box box = Hive.box('Products');
@@ -372,12 +346,6 @@ class PressingRepository {
     return userInfo;
   }
 }
-
-final productNamesProvider = FutureProvider<List<String>>((ref) async {
-  final repository = ref.watch(pressingRepositoryProvider);
-  final productNames = await repository.readProductNames();
-  return productNames;
-});
 
 class TargetRatioNotifier extends StateNotifier<double> {
   final PressingRepository _repository;
@@ -777,3 +745,37 @@ final selectedProductProvider = StateProvider<StateController<String>>(
     (ref) => StateController<String>(""));
 
 final productsMade = StateProvider<int>((ref) => 0);
+
+
+const Map<int, double> bonusPercentageMap = {
+  1: 102.00,
+  2: 104.10,
+  3: 106.10,
+  4: 108.20,
+  5: 110.20,
+  6: 112.20,
+  7: 114.29,
+  8: 118.37,
+  9: 122.45,
+  10: 126.53,
+  11: 130.61,
+  12: 134.69,
+  13: 138.78,
+  14: 142.86,
+  15: 146.94,
+  16: 151.02,
+  17: 155.10,
+  18: 159.18,
+  19: 163.27,
+  20: 167.35,
+  21: 171.43, //Add more values as per your requirements
+};
+
+String toTitleCase(String text) {
+  if (text.isEmpty) return text;
+
+  return text.toLowerCase().split(' ').map((word) {
+    final String leftText = word.length > 1 ? word.substring(1) : '';
+    return word[0].toUpperCase() + leftText;
+  }).join(' ');
+}

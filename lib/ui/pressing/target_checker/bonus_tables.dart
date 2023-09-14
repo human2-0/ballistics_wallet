@@ -136,7 +136,7 @@ class BonusTable extends ConsumerWidget {
                 print(requiredPercentage);
                 double allowanceCheck = (workingHours - allowance) / 7;
 
-                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? stableTarget * allowanceCheck : stableTarget)) / 100).round();
+                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? stableTarget * allowanceCheck : stableTarget)) / 100).ceil();
 
                 if (requiredAmount > 0) {
                   return GestureDetector(
@@ -228,7 +228,7 @@ class BonusTable extends ConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      '$requiredAmount',
+                                      '${requiredAmount}',
                                       style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                                     ),
                                     const Text(
