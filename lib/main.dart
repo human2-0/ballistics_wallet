@@ -17,10 +17,16 @@ import 'models/product_split.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  var box = await Hive.openBox<ProductName>('Products');
-  await box.clear();
+
   Hive.registerAdapter(ProductNameAdapter());
-  await addDataToHiveBoxProductSplit();
+  Hive.registerAdapter(ProductAdapter());
+
+  var boxNames = await Hive.openBox<ProductName>('Products');
+  var boxSplit = await Hive.openBox<Product>('products_split');
+  boxNames.clear();
+  boxSplit.clear();
+
+  await addDataToHiveBoxProductSplit(boxSplit);
 
   String determineEOL() {
     if (Platform.isWindows) {
@@ -31,7 +37,6 @@ Future<void> main() async {
   }
 
   String eol = determineEOL();
-
 
   try {
     final rawData = await rootBundle.loadString('new_targets.csv');
@@ -46,37 +51,40 @@ Future<void> main() async {
         }
 
         var productName = row[0]?.toString()?.trim();
-        var targetString = row[1]?.toString()?.replaceAll(RegExp(r'[,"]'), '')?.trim();
-        var cleanedTargetString = targetString?.replaceAll(RegExp(r'[^0-9]'), '');
+        var targetString =
+            row[1]?.toString()?.replaceAll(RegExp(r'[,"]'), '')?.trim();
+        var cleanedTargetString =
+            targetString?.replaceAll(RegExp(r'[^0-9]'), '');
         var target = int.tryParse(cleanedTargetString!);
 
         String? imageName = row.length >= 3 ? row[2]?.toString()?.trim() : null;
 
-        if (productName != null && productName.isNotEmpty && target != null && target != 0) {
-          var product = ProductName(name: productName, target: target, imageName: imageName);
-          await box.put(productName, product);
-          print("Added to box: $productName with value $target and image $imageName");
+        if (productName != null &&
+            productName.isNotEmpty &&
+            target != null &&
+            target != 0) {
+          var product = ProductName(
+              name: productName, target: target, imageName: imageName);
+          await boxNames.put(productName, product);
+          print(
+              "Added to box: $productName with value $target and image $imageName");
         } else if (target == 0) {
           print('Target value is 0 for product: $productName. Skipping.');
         } else {
-          print('''Product name is empty, null or target couldn't be parsed. Skipping.''');
-          }
-          }
-          }
-          } catch (e) {
-            print("Error occurred: $e");
-          }
+          print(
+              '''Product name is empty, null or target couldn't be parsed. Skipping.''');
+        }
+      }
+    }
+  } catch (e) {
+    print("Error occurred: $e");
+  }
 
-
-
-
-
-          await Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const ProviderScope(child: MyApp()));
 }
-
 
 class MyApp extends ConsumerWidget {
   const MyApp() : super();
@@ -90,9 +98,7 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange)
-      ),
-
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange)),
       routerConfig: router,
     );
   }
@@ -114,15 +120,13 @@ MaterialColor blackMaterialColor = const MaterialColor(
   },
 );
 
-
-Future<void> addDataToHiveBoxProductSplit() async {
+Future<void> addDataToHiveBoxProductSplit(boxSplit) async {
   // read the CSV file
   final data = await rootBundle.loadString('split_data.csv');
   String eol = data.contains('\r\n') ? '\r\n' : '\n';
   List<List<dynamic>> rows = CsvToListConverter(eol: eol).convert(data);
 
   // open the Hive box
-  final box = await Hive.openBox<Product>('products_split');
 
   // add the products to the Hive box
   for (final row in rows) {
@@ -148,10 +152,9 @@ Future<void> addDataToHiveBoxProductSplit() async {
         product.systemG != 0.0 &&
         product.systemCitric != 0.0) {
       print('Adding Product: $product');
-      box.add(product);
+      boxSplit.add(product);
     } else {
       print('Skipping Product: $product');
     }
   }
-
 }

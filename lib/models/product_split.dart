@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'product_split.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 class Product {
   @HiveField(0)
   final String productName;

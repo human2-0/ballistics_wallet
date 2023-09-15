@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/utilities.dart';
+
+import '../models/product_name.dart';
 
 
 class PressingRepository {
@@ -27,13 +30,16 @@ class PressingRepository {
     }
   }
   Future<String?> getImageNameForProduct(String productName) async {
-    Box box = Hive.box('Products');
+    Box<ProductName> box = Hive.box<ProductName>('Products');
 
-    // Check if the product exists in the box
-    var productData = box.get(productName);
+    // Try to find the product by its name
+    var productData = box.values.firstWhere(
+            (product) => product.name == productName,
+    );
 
-    if (productData != null && productData is Map && productData.containsKey('image_name')) {
-      return productData['image_name'] as String?;
+    if (productData.imageName != null) {
+      print("!!!!!!!!!!!!!!!!!!${productData.imageName}");
+      return productData.imageName;
     } else {
       print("No image found for product: $productName");
       return null;
@@ -41,16 +47,12 @@ class PressingRepository {
   }
 
 
-  Future<List<Map<String, dynamic>>> readProductsPressing() async {
-    Box box = Hive.box('Products');
+
+  Future<List<ProductName>> readProductsPressing() async {
+    Box<ProductName> box = await Hive.openBox<ProductName>('Products');
     print('Read Products: ${box.toMap()}');
-    List<Map<String, dynamic>> products = box.keys.map((key) {
-      final product = {
-        'name': key,
-        'target': box.get(key) as int,
-      };
-      return product;
-    }).toList();
+
+    List<ProductName> products = box.values.toList();
 
     return products;
   }
@@ -517,11 +519,20 @@ class ProductUpdateNotifier extends StateNotifier<bool> {
 }
 
 final productsProvider = FutureProvider.autoDispose
-    .family<List<Map<String, dynamic>>, bool>((ref, updated) async {
+    .family<List<ProductName>, bool>((ref, updated) async {
   final repository = ref.read(pressingRepositoryProvider);
   final products = await repository.readProductsPressing();
   return products;
 });
+
+final imageNameProvider = FutureProvider.autoDispose.family<String?, String>((ref, productName) async {
+  final repository = ref.read(pressingRepositoryProvider);
+  final imageName = await repository.getImageNameForProduct(productName);
+  return imageName;
+});
+
+
+
 
 final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
   targetRatio *= 100; // Convert targetRatio to percentage
@@ -771,11 +782,3 @@ const Map<int, double> bonusPercentageMap = {
   21: 171.43, //Add more values as per your requirements
 };
 
-String toTitleCase(String text) {
-  if (text.isEmpty) return text;
-
-  return text.toLowerCase().split(' ').map((word) {
-    final String leftText = word.length > 1 ? word.substring(1) : '';
-    return word[0].toUpperCase() + leftText;
-  }).join(' ');
-}

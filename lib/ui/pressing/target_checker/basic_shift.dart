@@ -21,11 +21,6 @@ class BasicShift extends ConsumerStatefulWidget {
 
 class BasicShiftCard extends ConsumerState<BasicShift>
     with TickerProviderStateMixin {
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     final showList = ref.watch(showListProvider);
@@ -34,12 +29,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final allowanceFocusNode = ref.watch(allowanceFocusNodeProvider);
     bool isSearchBarFocused = false;
 
-
     final userId = ref.watch(authRepositoryProvider).currentUserId;
     final updated = ref.watch(productUpdateProvider);
     final products = ref.watch(productsProvider(updated));
     final productName =
         ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
+
     int productTarget = ref.watch(targetProvider);
     final double percentage = ref.watch(targetRatioProvider(userId)) * 100;
     final double targetRatio = ref.watch(targetRatioProvider(userId));
@@ -53,6 +48,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final numberController = ref.watch(numberControllerProvider);
     final allowanceController = ref.watch(allowanceControllerProvider);
 
+    final imageNameFuture = ref.watch(imageNameProvider(textEditingController.text));
 
     return GestureDetector(
       onTap: () {
@@ -114,7 +110,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                           borderRadius: BorderRadius.circular(20),
                         ),
                         duration: const Duration(milliseconds: 400),
-                        width: ((showList || focusNode.hasFocus || (textEditingController.text != ""))
+                        width: ((showList ||
+                                focusNode.hasFocus ||
+                                (textEditingController.text != ""))
                             ? MediaQuery.of(context).size.width * 0.66
                             : MediaQuery.of(context).size.width * 0.12),
                         child: TextField(
@@ -141,8 +139,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                       ref
                                           .read(showListProvider.notifier)
                                           .state = false;
-                                      ref
-                                          .read(focusNodeProvider).unfocus();
+                                      ref.read(focusNodeProvider).unfocus();
                                       focusNode.unfocus();
                                       isSearchBarFocused = false;
                                       numberController.clear();
@@ -160,7 +157,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                           .read(targetRatioProvider(userId)
                                               .notifier)
                                           .init();
-                                      ref.read(numberProvider.notifier).state = 0 ;
+                                      ref.read(numberProvider.notifier).state =
+                                          0;
                                     },
                                   ),
                             hintStyle: const TextStyle(color: Colors.grey),
@@ -200,7 +198,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                           child: products.when(
                             data: (data) {
                               final filteredProducts = data
-                                  .where((product) => product['name']
+                                  .where((product) => product.name
                                       .toLowerCase()
                                       .contains(ref
                                           .watch(searchTermProvider)
@@ -223,13 +221,13 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                         title: const Text(
                                             'Not found what you\'re looking for?'),
                                         trailing: Container(
-                                          padding:
-                                              const EdgeInsets.fromLTRB(4, 8, 4, 8),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              4, 8, 4, 8),
                                           decoration: BoxDecoration(
                                             boxShadow: [
                                               BoxShadow(
-                                                color:
-                                                    Colors.black.withOpacity(0.2),
+                                                color: Colors.black
+                                                    .withOpacity(0.2),
                                                 spreadRadius: 2,
                                                 blurRadius: 16,
                                                 offset: const Offset(4,
@@ -248,7 +246,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                                 0.9,
                                               ],
                                             ),
-                                            borderRadius: const BorderRadius.all(
+                                            borderRadius:
+                                                const BorderRadius.all(
                                               Radius.circular(33),
                                             ),
                                           ),
@@ -269,7 +268,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                                       return Dialog(
                                                         child: Container(
                                                           padding:
-                                                              const EdgeInsets.all(16),
+                                                              const EdgeInsets
+                                                                  .all(16),
                                                           height: MediaQuery.of(
                                                                       context)
                                                                   .size
@@ -352,21 +352,15 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                                                       }
 
                                                                       try {
-                                                                        await ref
-                                                                            .read(
-                                                                                pressingRepositoryProvider)
-                                                                            .addProduct(
-                                                                                productName,
-                                                                                target);
+                                                                        await ref.read(pressingRepositoryProvider).addProduct(
+                                                                            productName,
+                                                                            target);
                                                                         ref
-                                                                            .read(
-                                                                                productUpdateProvider.notifier)
+                                                                            .read(productUpdateProvider.notifier)
                                                                             .update();
-                                                                        Navigator.of(
-                                                                                context)
+                                                                        Navigator.of(context)
                                                                             .pop();
-                                                                      } catch (e) {
-                                                                      }
+                                                                      } catch (e) {}
                                                                     },
                                                                   ),
                                                                 ],
@@ -392,12 +386,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                       margin: const EdgeInsets.symmetric(
                                           vertical: 5, horizontal: 10),
                                       child: ListTile(
-                                        title: Text(product['name']),
+                                        title: Text(product.name),
                                         subtitle: Text(
-                                            'Target: ${((product['target']?.toDouble() ?? 0) * ((workingHours - allowance) / 7.00)).ceil()}'),
+                                            'Target: ${((product.target?.toDouble() ?? 0) * ((workingHours - allowance) / 7.00)).ceil()}'),
                                         onTap: () {
                                           String selectedProductName =
-                                              product['name'];
+                                              product.name;
                                           ref
                                               .watch(selectedProductProvider
                                                   .notifier)
@@ -409,12 +403,11 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                           ref
                                               .read(showListProvider.notifier)
                                               .state = false;
-                                          ref
-                                              .read(focusNodeProvider).unfocus();
+                                          ref.read(focusNodeProvider).unfocus();
 
 // Update the targetProvider state when a product is selected
-                                          int productTarget = (((product['target']
-                                                      ?.toDouble()) *
+                                          int productTarget = (((product.target
+                                                      .toDouble()) *
                                                   ((workingHours - allowance) /
                                                       7.00))
                                               .ceil());
@@ -428,26 +421,38 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                 },
                               );
                             },
-                            loading: () =>
-                                const Center(child: CircularProgressIndicator()),
+                            loading: () => const Center(
+                                child: CircularProgressIndicator()),
                             error: (error, stackTrace) => Text('Error: $error'),
                           ),
                         ),
                       ),
                     if (!showList && productName != '')
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.66,
-                        height: MediaQuery.of(context).size.width * 0.66,
-                        child: Image.asset(
-                          'assets/images/${ref.read(pressingRepositoryProvider).getImageNameForProduct(productName)}.png',
-                          fit: BoxFit.cover,
-                          errorBuilder: (BuildContext context, Object exception,
-                              StackTrace? stackTrace) {
-// If the image fails to load, load a Lottie animation
+
+                      imageNameFuture.when(
+                        data: (imageName) {
+                          print("Image Name: $imageName");
+                          if (imageName != null) {
+                            return SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.66,
+                              height: MediaQuery.of(context).size.width * 0.66,
+                              child: Image.asset(
+                                'assets/images/$imageName.png',
+                                fit: BoxFit.cover,
+                                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                                  print("Image Error: $exception");
+                                  return Lottie.asset('assets/lottie/product_image_not_found.json');
+                                },
+                              ),
+                            );
+                          } else {
                             return Lottie.asset(
                                 'assets/lottie/product_image_not_found.json');
-                          },
-                        ),
+                          }
+                        },
+                        loading: () => CircularProgressIndicator(),
+                        error: (error, stack) => Lottie.asset(
+                            'assets/lottie/product_image_not_found.json'),
                       ),
                     if (!showList && productName == "")
                       Container(
@@ -479,7 +484,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               color: Colors.black.withOpacity(0.2),
                               spreadRadius: 5,
                               blurRadius: 12,
-                              offset: const Offset(4, 4), // changes position of shadow
+                              offset: const Offset(
+                                  4, 4), // changes position of shadow
                             ),
                           ],
                         ),
@@ -637,9 +643,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                 Center(
                                   child: Transform.scale(
                                     scale: 4.5,
-                                      child: RainbowCircularProgressIndicator(
-                                        percentage:
-                                            percentage, // Substitute your actual percentage here
+                                    child: RainbowCircularProgressIndicator(
+                                      percentage:
+                                          percentage, // Substitute your actual percentage here
                                     ),
                                   ),
                                 ),
@@ -689,11 +695,10 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                       final userState = ref
                                           .watch(userNotifierProvider.notifier)
                                           .state;
-                                      final bonus = ref
-                                          .watch(bonusValueProvider(targetRatio)) *  ((workingHours - (allowance)) /
-                                          7.00);
-                                      return BonusCoin(
-                                          bonus: bonus);
+                                      final bonus = ref.watch(
+                                              bonusValueProvider(targetRatio)) *
+                                          ((workingHours - (allowance)) / 7.00);
+                                      return BonusCoin(bonus: bonus);
                                     }),
                                   ),
                                 ),
@@ -711,16 +716,17 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                             return Column(
                               children: [
                                 SizedBox(
-                                  width: constraints.maxWidth *
-                                      0.60,
+                                  width: constraints.maxWidth * 0.60,
                                   child: ElevatedButton(
                                     style: ButtonStyle(
-                                      backgroundColor: MaterialStateProperty.all(
-                                          Colors.yellowAccent[100]),
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.yellowAccent[100]),
                                       shape: MaterialStateProperty.all<
                                           RoundedRectangleBorder>(
                                         RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                       ),
                                     ),
@@ -728,10 +734,10 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                             amount == 0)
                                         ? null
                                         : () async {
-                                            final authRepository =
-                                                ref.read(authRepositoryProvider);
-                                            final pressingRepository = ref
-                                                .read(pressingRepositoryProvider);
+                                            final authRepository = ref
+                                                .read(authRepositoryProvider);
+                                            final pressingRepository = ref.read(
+                                                pressingRepositoryProvider);
                                             final bonusAsyncValue = ref.read(
                                                 bonusValueProvider(
                                                     targetRatio)); // changed watch to read
@@ -743,12 +749,14 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                             double bonus = bonusAsyncValue *
                                                 ((workingHours - allowance) /
                                                     7.0);
-                                            final productRatioProvider = ref.read(
-                                                targetRatioProvider(userId)
-                                                    .notifier);
+                                            final productRatioProvider =
+                                                ref.read(
+                                                    targetRatioProvider(userId)
+                                                        .notifier);
                                             final double productRatio =
                                                 productRatioProvider
-                                                    .getProductRatio(productName);
+                                                    .getProductRatio(
+                                                        productName);
 // Retrieve the bonus value
 
                                             try {
@@ -764,10 +772,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                                       ? (userState
                                                               .realWorkingHours ??
                                                           0)
-                                                      : (userState.workingHours ??
+                                                      : (userState
+                                                              .workingHours ??
                                                           0));
 // Show a success message
-                                              ScaffoldMessenger.of(buttonContext)
+                                              ScaffoldMessenger.of(
+                                                      buttonContext)
                                                   .showSnackBar(
                                                 const SnackBar(
                                                   content: Text(
@@ -819,7 +829,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
 // Show a success message or navigate to another screen
                                           },
                                     child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
 // Center the content horizontally
                                       children: [
                                         Icon(Icons.wallet),
@@ -838,7 +849,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                           });
                         },
                       ),
-
                   ],
                 ),
               ),

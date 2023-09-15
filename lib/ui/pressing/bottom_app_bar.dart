@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/wallet_pressing.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_pressing.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile.dart';
 

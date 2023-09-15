@@ -9,6 +9,8 @@ import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:intl/intl.dart';
 
+import '../../../models/product_name.dart';
+
 class BonusCalendar extends HookConsumerWidget {
   final String userId;
   final Function(ScrollNotification) onNotification; // Add ScrollController
@@ -229,6 +231,7 @@ class BonusCalendar extends HookConsumerWidget {
                     color: Colors.grey[100],
                   ),
                   child: TableCalendar(
+                    startingDayOfWeek: StartingDayOfWeek.monday,
                     calendarBuilders: CalendarBuilders(
                       singleMarkerBuilder: (context, date, event) {
                         if (event is Map<String, dynamic> &&
@@ -635,7 +638,7 @@ class BonusListView extends HookConsumerWidget {
 
 
     return ListView.builder(
-      physics: AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       itemCount: selectedEvents.length + 1, // Add 1 for the AddBonusListItem
       itemBuilder: (context, index) {
         // If the index is the last item, return the AddBonusListItem
@@ -667,12 +670,12 @@ class BonusListView extends HookConsumerWidget {
             return false;
           },
           secondaryBackground: ClipRRect(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(33.0),
                 bottomRight: Radius.circular(33.0)),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(33.0),
                     bottomRight: Radius.circular(33.0)),
                 gradient: LinearGradient(
@@ -681,10 +684,10 @@ class BonusListView extends HookConsumerWidget {
                   colors: [Colors.red, Colors.deepPurple.shade900],
                 ),
               ),
-            child: Align(
+            child: const Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Icon(Icons.delete, color: Colors.white),
                 ),
               ),
@@ -1008,7 +1011,7 @@ class BonusListItem extends HookConsumerWidget {
                                             ),
                                             const SizedBox(height: 16.0),
                                             FutureBuilder<
-                                                    List<Map<String, dynamic>>>(
+                                                    List<ProductName>>(
                                                 future: ref
                                                     .watch(
                                                         pressingRepositoryProvider)
@@ -1018,7 +1021,7 @@ class BonusListItem extends HookConsumerWidget {
                                                     List<String> productList =
                                                         snapshot.data!
                                                             .map((product) =>
-                                                                product['name']
+                                                                product.name
                                                                     .toString())
                                                             .toList();
                                                     return Container(
@@ -1365,7 +1368,7 @@ class AddBonusListItem extends HookConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 8.0),
-                          FutureBuilder<List<Map<String, dynamic>>>(
+                          FutureBuilder<List<ProductName>>(
                             future: ref
                                 .watch(pressingRepositoryProvider)
                                 .readProductsPressing(),
@@ -1373,7 +1376,7 @@ class AddBonusListItem extends HookConsumerWidget {
                               if (snapshot.hasData) {
                                 List<String> productList = snapshot.data!
                                     .map((product) =>
-                                    product['name'].toString())
+                                    product.name.toString())
                                     .toList();
                                 return Container(
                                   decoration: BoxDecoration(
@@ -1591,15 +1594,15 @@ class AddBonusListItem extends HookConsumerWidget {
           height: 64,
           width: 64,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
                 Colors.amber,
-                Colors.orange!,
+                Colors.orange,
 
               ],
-              stops: const [0.0, 1.0],
+              stops: [0.0, 1.0],
             ),
             boxShadow: [
               BoxShadow(
