@@ -7,9 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../providers/auth_provider.dart';
-import '../../../providers/pressing_provider.dart';
-import '../../../repository/pressing_repository.dart';
+import '../../../providers/auth_providers/auth_provider.dart';
+import '../../../providers/target_check_provider.dart';
+import '../../../repository/target_check_repository.dart';
 import '../../../repository/users_repository.dart';
 import 'basic_shift.dart';
 import 'circles.dart';

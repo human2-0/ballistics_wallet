@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../repository/pressing_repository.dart';
+import '../../../providers/pressing_db_provider.dart';
+import '../../../providers/target_check_provider.dart';
+import '../../../repository/target_check_repository.dart';
 
 class AddProductDialog extends ConsumerStatefulWidget {
 

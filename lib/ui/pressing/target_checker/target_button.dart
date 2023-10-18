@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../providers/pressing_provider.dart';
+import '../../../providers/target_check_provider.dart';
+import '../../../providers/wallet_provider.dart';
 
 
 class TargetButton extends ConsumerStatefulWidget {

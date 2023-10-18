@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -126,12 +126,12 @@ class ProfilePage extends HookConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("Paid breaks"),
+                              const Text("Paid breaks"),
                               IconButton(
                                 icon: CircleAvatar(
                                   radius: 20,
                                   backgroundColor: userState.paidBreaks == true ? Colors.green : Colors.grey,
-                                  child: userState.paidBreaks == true ? Icon(Icons.check, color: Colors.white) : null,
+                                  child: userState.paidBreaks == true ? const Icon(Icons.check, color: Colors.white) : null,
                                 ),
                                 onPressed: () async {
                                   bool success = await ref

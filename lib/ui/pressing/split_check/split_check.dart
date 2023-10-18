@@ -1,11 +1,10 @@
-import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
 import '../../../models/product_split.dart';
-import '../../../providers/split_providers.dart';
+import '../../../providers/split_provider.dart';
 
 class SplitCheck extends ConsumerStatefulWidget {
   final int requiredAmount;
@@ -76,8 +75,8 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
 
   @override
   Widget build(BuildContext context) {
-    final requiredAmount = ref.watch(requiredAmountProvider);
-    final amountPerBatch = ref.watch(amountPerBatchProvider);
+    ref.watch(requiredAmountProvider);
+    ref.watch(amountPerBatchProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Split check')),
@@ -222,7 +221,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                     ),
                   ),
                   ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: products.length,
                     itemBuilder: (context, index) {
@@ -263,7 +262,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceEvenly,
                               children: [
-                                Container(
+                                SizedBox(
                                   width: MediaQuery.sizeOf(context).width * 0.25,
                                   child: Center(
                                     child: Text(

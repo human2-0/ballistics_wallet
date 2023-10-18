@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ballistics_wallet_flutter/providers/states/login_controller.dart';
+
+import '../providers/auth_providers/states/login_controller.dart';
+
 
 class ProtectScreen extends ConsumerStatefulWidget {
   const ProtectScreen({super.key});

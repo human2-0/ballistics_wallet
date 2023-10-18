@@ -65,6 +65,7 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
             ),
             child: Center(
               child: Column(
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   Text("Slide for overtime card"),
                   SlideTransition(
@@ -73,9 +74,9 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 24),
-                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 24),
-                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 24),
+                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 22),
+                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 22),
+                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 22),
                           ],
                         ),
                   ),

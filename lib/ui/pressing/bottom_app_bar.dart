@@ -1,17 +1,16 @@
-import 'package:ballistics_wallet_flutter/providers/pressing_provider.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/split_check/background_animated_split_check.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_pressing.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile.dart';
 
+import '../../providers/wallet_provider.dart';
 import 'split_check/split_check.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -129,8 +128,6 @@ class _HomeState extends ConsumerState<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final String userId = ref.read(authRepositoryProvider).currentUserId;
-    double kBottomNavigationBarHeight =
-        MediaQuery.of(context).size.height * 0.12;
 
 
     return Scaffold(
@@ -153,7 +150,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         children: <Widget>[
                           const TargetChecker(),
-                          SplitCheck(),
+                          const SplitCheck(),
                           BonusCalendar(
                                   userId: userId, onNotification: handleScroll),
                           const ProfilePage(),
@@ -185,8 +182,8 @@ class _HomeState extends ConsumerState<HomeScreen>
       decoration: BoxDecoration(
         color: Colors.brown[50],
         borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          const BoxShadow(
+        boxShadow: const [
+          BoxShadow(
             color: Colors.grey,
             blurRadius: 5,
           ),

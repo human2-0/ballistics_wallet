@@ -1,5 +1,5 @@
-import 'package:ballistics_wallet_flutter/providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/repository/pressing_repository.dart';
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/circles.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/slide_to_overtimes.dart';
@@ -9,7 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../providers/pressing_provider.dart';
+import '../../../providers/pressing_db_provider.dart';
+import '../../../providers/target_check_provider.dart';
 import 'slide_to_basicshift.dart';
 
 class OvertimeShift extends ConsumerStatefulWidget {

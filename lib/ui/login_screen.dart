@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../providers/states/login_states.dart';
-import '../providers/states/login_controller.dart';
+import '../providers/auth_providers/states/login_controller.dart';
+import '../providers/auth_providers/states/login_states.dart';
+
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
