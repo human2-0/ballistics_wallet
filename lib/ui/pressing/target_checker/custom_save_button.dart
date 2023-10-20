@@ -1,4 +1,4 @@
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/slide_to_overtimes.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

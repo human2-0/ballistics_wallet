@@ -1,16 +1,16 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/circles.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/slide_to_overtimes.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_button.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../providers/pressing_db_provider.dart';
-import '../../../providers/target_check_provider.dart';
+import '../../../../providers/pressing_db_provider.dart';
+import '../../../../providers/target_check_provider.dart';
 import 'slide_to_basicshift.dart';
 
 class OvertimeShift extends ConsumerStatefulWidget {

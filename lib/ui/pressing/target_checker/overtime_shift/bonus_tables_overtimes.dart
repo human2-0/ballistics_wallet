@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 
-import '../../../providers/pressing_db_provider.dart';
-import '../../../providers/target_check_provider.dart'; // Import the PressingRepository
+import '../../../../providers/pressing_db_provider.dart';
+import '../../../../providers/target_check_provider.dart'; // Import the PressingRepository
 
 class BonusTableOvertime extends ConsumerWidget {
   const BonusTableOvertime({super.key});

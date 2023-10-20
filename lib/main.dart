@@ -3,13 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'firebase_options.dart';
-import 'dart:convert';
 import 'dart:io';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
 
 import 'models/product_name.dart';
 import 'models/product_split.dart';
@@ -23,8 +20,10 @@ Future<void> main() async {
 
   var boxNames = await Hive.openBox<ProductName>('Products');
   var boxSplit = await Hive.openBox<Product>('products_split');
+
   boxNames.clear();
   boxSplit.clear();
+
 
   await addDataToHiveBoxProductSplit(boxSplit);
 
@@ -44,40 +43,31 @@ Future<void> main() async {
     List<List<dynamic>> rows = CsvToListConverter(eol: eol).convert(rawData);
 
     for (var row in rows) {
-      if (row != null) {
-        if (row.length < 2) {
-          print('Skipping row due to insufficient columns.');
-          continue;
-        }
-
-        var productName = row[0]?.toString()?.trim();
-        var targetString =
-            row[1]?.toString()?.replaceAll(RegExp(r'[,"]'), '')?.trim();
-        var cleanedTargetString =
-            targetString?.replaceAll(RegExp(r'[^0-9]'), '');
-        var target = int.tryParse(cleanedTargetString!);
-
-        String? imageName = row.length >= 3 ? row[2]?.toString()?.trim() : null;
-
-        if (productName != null &&
-            productName.isNotEmpty &&
-            target != null &&
-            target != 0) {
-          var product = ProductName(
-              name: productName, target: target, imageName: imageName);
-          await boxNames.put(productName, product);
-          print(
-              "Added to box: $productName with value $target and image $imageName");
-        } else if (target == 0) {
-          print('Target value is 0 for product: $productName. Skipping.');
-        } else {
-          print(
-              '''Product name is empty, null or target couldn't be parsed. Skipping.''');
-        }
+      if (row.length < 2) {
+        continue;
       }
-    }
+
+      var productName = row[0]?.toString().trim();
+      var targetString =
+          row[1]?.toString().replaceAll(RegExp(r'[,"]'), '').trim();
+      var cleanedTargetString =
+          targetString?.replaceAll(RegExp(r'[^0-9]'), '');
+      var target = int.tryParse(cleanedTargetString!);
+
+      String? imageName = row.length >= 3 ? row[2]?.toString().trim() : null;
+
+      if (productName != null &&
+          productName.isNotEmpty &&
+          target != null &&
+          target != 0) {
+        var product = ProductName(
+            name: productName, target: target, imageName: imageName);
+        await boxNames.put(productName, product);
+      } else if (target == 0) {
+      } else {
+      }
+        }
   } catch (e) {
-    print("Error occurred: $e");
   }
 
   await Firebase.initializeApp(
@@ -87,7 +77,7 @@ Future<void> main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp() : super();
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -151,10 +141,8 @@ Future<void> addDataToHiveBoxProductSplit(boxSplit) async {
         product.productColor.isNotEmpty &&
         product.systemG != 0.0 &&
         product.systemCitric != 0.0) {
-      print('Adding Product: $product');
       boxSplit.add(product);
     } else {
-      print('Skipping Product: $product');
     }
   }
 }

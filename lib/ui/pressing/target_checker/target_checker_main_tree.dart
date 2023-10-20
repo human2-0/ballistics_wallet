@@ -1,19 +1,14 @@
 import 'dart:math';
 
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/slide_to_overtimes.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../../providers/auth_providers/auth_provider.dart';
 import '../../../providers/target_check_provider.dart';
-import '../../../repository/target_check_repository.dart';
 import '../../../repository/users_repository.dart';
-import 'basic_shift.dart';
-import 'circles.dart';
-import 'overtime_shift.dart';
+import 'basic_shift/basic_shift.dart';
+import 'overtime_shift/overtime_shift.dart';
 
 class TargetChecker extends ConsumerStatefulWidget {
   const TargetChecker({Key? key}) : super(key: key);
@@ -58,20 +53,9 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   Widget build(BuildContext context) {
 
     final userId = ref.watch(authRepositoryProvider).currentUserId;
-    final updated = ref.watch(productUpdateProvider);
-    final products = ref.watch(productsProvider(updated));
-    final productName =
-        ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
 
-    final double percentage = ref.watch(targetRatioProvider(userId)) * 100;
-    final int amount = ref.watch(numberProvider);
-    int productTarget = ref.watch(targetProvider);
 
-    final double targetRatio = ref.watch(targetRatioProvider(userId));
     ref.read(userNotifierProvider.notifier).loadUser(userId);
-    final userState = ref.watch(userNotifierProvider.notifier).state;
-    final allowance = ref.watch(allowanceProvider);
-    final double workingHours = userState.workingHours ?? 0.0;
 
     final focusNode = ref.watch(focusNodeProvider);
 
@@ -81,7 +65,6 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
       double containerWidth = isWideScreen
           ? MediaQuery.of(context).size.width * 0.33
           : MediaQuery.of(context).size.width * 0.85;
-      double containerHeight = MediaQuery.of(context).size.height * 0.82;
 
       return GestureDetector(
         onTap: () {
@@ -94,7 +77,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
         onHorizontalDragUpdate: (details) {
           setState(() {
             double dx = details.globalPosition.dx - _startPosition;
-            _flipController.value += dx / (containerWidth ?? 1);
+            _flipController.value += dx / (containerWidth);
             _startPosition = details.globalPosition.dx;
           });
         },
@@ -128,11 +111,11 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                       alignment: Alignment.center,
                       index: (_flipController.value < 0.5) ? 0 : 1,
                       children: [
-                        BasicShift(), // FrontFlipCard
+                        const BasicShift(), // FrontFlipCard
                         Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()..rotateY(pi),
-                          child: OvertimeShift(),
+                          child: const OvertimeShift(),
                         ),
                         // BackFlipCard
                       ]));

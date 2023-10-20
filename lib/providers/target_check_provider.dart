@@ -2,6 +2,7 @@ import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 
 import '../models/product_name.dart';
 import '../repository/pressing_db_repository.dart';
@@ -47,9 +48,16 @@ final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>((ref) {
   return FocusNotifier();
 });
 
-final textEditingControllerProvider =
-    Provider.autoDispose<TextEditingController>((ref) {
-  final controller = TextEditingController();
+final selectedProductFromHiveProvider = FutureProvider<String>((ref) async {
+  final box = await Hive.openBox('settings');
+  return box.get('selectedProduct', defaultValue: '');
+});
+
+final textEditingControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
+  final textValueFromHive = ref.watch(selectedProductFromHiveProvider);
+  final controller = TextEditingController(
+      text: textValueFromHive.maybeWhen(data: (data) => data, orElse: () => "")
+  );
   ref.onDispose(() {
     controller.dispose();
   });
@@ -94,10 +102,17 @@ final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);
 
 final monthlyWorkingHoursProvider = StateProvider<double>((ref) => 0.0);
 
-final searchTermProvider = StateProvider<String>((ref) => '');
+final searchTermProvider = StateProvider<String>((ref) {
+  final searchTermFromHive = ref.watch(selectedProductFromHiveProvider);
+  return searchTermFromHive.maybeWhen(data: (data) => data, orElse: () => "");
+});
 
-final selectedProductProvider = StateProvider<StateController<String>>(
-        (ref) => StateController<String>(""));
+final selectedProductProvider = StateProvider<StateController<String>>((ref) {
+  final selectedProductFromHive = ref.watch(selectedProductFromHiveProvider);
+  return StateController<String>(
+      selectedProductFromHive.maybeWhen(data: (data) => data, orElse: () => "")
+  );
+});
 
 final productsMade = StateProvider<int>((ref) => 0);
 

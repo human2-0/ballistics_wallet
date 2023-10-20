@@ -1,17 +1,17 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/circles.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/empty_product_image.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/products_list_suggested.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_button.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/not_selected_product_sphere.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/products_list_suggested.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../providers/target_check_provider.dart';
-import 'custom_save_button.dart';
-import 'search_bar.dart';
+import '../../../../providers/target_check_provider.dart';
+import '../custom_save_button.dart';
+import '../look_up_bar/search_bar.dart';
 
 class BasicShift extends ConsumerStatefulWidget {
   const BasicShift({Key? key}) : super(key: key);
@@ -32,6 +32,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final userId = ref.watch(authRepositoryProvider).currentUserId;
     final productName =
         ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
+    print("here is what i pass $productName");
 
     int productTarget = ref.watch(targetProvider);
     final double percentage = ref.watch(targetRatioProvider(userId)) * 100;

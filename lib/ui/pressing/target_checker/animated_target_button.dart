@@ -9,8 +9,7 @@ class TargetButton extends ConsumerStatefulWidget {
   final String productName;
   final bool overtimes;
   const TargetButton({
-    Key? key,
-    required this.productName, this.overtimes = false}) : super(key: key);
+    required this.productName, this.overtimes = false}) : super();
 
   @override
   _TargetButtonState createState() => _TargetButtonState();

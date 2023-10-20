@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +36,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                 .toStringAsFixed(0)
             : '')));
     String productName = ref.read(selectedProductProvider).state;
+    print("target list bonus eloeloeloe$productName");
     productsFuture = getProducts(productName);
     productNameController.text = productName;
   }
@@ -77,6 +79,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
   Widget build(BuildContext context) {
     ref.watch(requiredAmountProvider);
     ref.watch(amountPerBatchProvider);
+    ref.watch(selectedProductProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Split check')),
@@ -133,7 +136,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                           },
                           onSelected: (String selection) {
                             productNameController.text = selection;
-                            ref.read(selectedProductProvider).state = selection;
+                            ref.read(searchTermProvider.notifier).state = selection;
                             setState(() {
                               productsFuture = getProducts(selection);
                             });

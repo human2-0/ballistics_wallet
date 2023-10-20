@@ -1,10 +1,10 @@
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables_overtimes.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/bonus_tables.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_pressing.dart';
 import 'package:flutter/rendering.dart';

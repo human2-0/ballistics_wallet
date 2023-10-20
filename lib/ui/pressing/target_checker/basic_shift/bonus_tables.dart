@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 
-import '../../../providers/pressing_db_provider.dart';
-import '../../../providers/target_check_provider.dart';
-import '../split_check/split_check.dart'; // Import the PressingRepository
+import '../../../../providers/pressing_db_provider.dart';
+import '../../../../providers/target_check_provider.dart';
+import '../../split_check/split_check.dart'; // Import the PressingRepository
 
 class BonusTable extends ConsumerWidget {
   const BonusTable({super.key});

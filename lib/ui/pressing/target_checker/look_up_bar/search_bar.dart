@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-import '../../../providers/auth_providers/auth_provider.dart';
-import '../../../providers/target_check_provider.dart';
+import '../../../../providers/auth_providers/auth_provider.dart';
+import '../../../../providers/target_check_provider.dart';
 
 class SearchProductBar extends ConsumerWidget {
   final TextEditingController textEditingController;
