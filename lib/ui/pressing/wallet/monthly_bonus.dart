@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/wallet_provider.dart';
-import '../utilities.dart';
+import '../../../utilities.dart';
 
 class MonthlyBonus extends ConsumerWidget {
   const MonthlyBonus({Key? key}) : super(key: key);

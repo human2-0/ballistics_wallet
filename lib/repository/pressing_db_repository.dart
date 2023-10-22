@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
 import '../models/product_name.dart';
-import '../ui/pressing/utilities.dart';
+import '../utilities.dart';
 
 class PressingRepository {
   final FirebaseFirestore db = FirebaseFirestore.instance;

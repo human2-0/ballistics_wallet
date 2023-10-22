@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import '../../../../providers/pressing_db_provider.dart';
 import '../../../../providers/target_check_provider.dart';
 import '../../../../repository/users_repository.dart';
+import 'add_product.dart';
 
 class ProductsListSuggested extends ConsumerWidget {
   const ProductsListSuggested({super.key});
@@ -39,141 +40,7 @@ class ProductsListSuggested extends ConsumerWidget {
               itemCount: filteredProducts.isEmpty ? 1 : filteredProducts.length,
               itemBuilder: (context, index) {
                 if (filteredProducts.isEmpty) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(33),
-                      color: Colors.white,
-                    ),
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    child: ListTile(
-                      title: const Text('Not found what you\'re looking for?'),
-                      trailing: Container(
-                        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 16,
-                              offset: const Offset(
-                                  4, 4), // changes position of shadow
-                            ),
-                          ],
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.orange[50]!,
-                              Colors.orange[200]!,
-                              Colors.orange[300]!,
-                            ],
-                            stops: const [
-                              0.0,
-                              0.5,
-                              0.9,
-                            ],
-                          ),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(33),
-                          ),
-                        ),
-                        child: IconButton(
-                            icon: const Icon(Icons.add),
-                            color: Colors.brown[400],
-                            tooltip: 'Add product',
-                            onPressed: () async {
-                              final productNameController =
-                                  TextEditingController();
-                              final targetController = TextEditingController();
-
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Dialog(
-                                      child: Container(
-                                        padding: const EdgeInsets.all(16),
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.35,
-                                        // 30% of screen height
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.80,
-                                        // 75% of screen width
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: <Widget>[
-                                            const Text("Add a new product"),
-                                            TextField(
-                                              controller: productNameController,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Product Name'),
-                                            ),
-                                            TextField(
-                                              controller: targetController,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Target'),
-                                              keyboardType:
-                                                  TextInputType.number,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                TextButton(
-                                                  child: const Text('Cancel'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                                TextButton(
-                                                  child: const Text('Add'),
-                                                  onPressed: () async {
-                                                    final String productName =
-                                                        productNameController
-                                                            .text;
-                                                    final String targetString =
-                                                        targetController.text;
-
-                                                    if (productName.isEmpty) {
-                                                      return;
-                                                    }
-
-                                                    final int? target =
-                                                        int.tryParse(
-                                                            targetString);
-                                                    if (target == null) {
-                                                      return;
-                                                    }
-
-                                                    try {
-                                                      await ref
-                                                          .read(
-                                                              pressingRepositoryProvider)
-                                                          .addProduct(
-                                                              productName,
-                                                              target);
-                                                      ref
-                                                          .read(
-                                                              productUpdateProvider
-                                                                  .notifier)
-                                                          .update();
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    } catch (e) {}
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  });
-                            }),
-                      ),
-                    ),
-                  );
+                  return AddProductDialog();
                 }
 // If the index is not 0, adjust it by 1 to get the correct product
                 else {

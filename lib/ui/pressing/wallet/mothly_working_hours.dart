@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/target_check_provider.dart';
 import '../../../providers/wallet_provider.dart';
-import '../utilities.dart';
+import '../../../utilities.dart';
 
 class MonthlyWorkingHours extends ConsumerWidget {
   const MonthlyWorkingHours({Key? key}) : super(key: key);

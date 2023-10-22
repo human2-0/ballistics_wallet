@@ -8,7 +8,7 @@ import '../../../providers/pressing_db_provider.dart';
 import '../../../providers/target_check_provider.dart';
 import '../../../providers/wallet_provider.dart';
 import '../../../repository/users_repository.dart';
-import '../utilities.dart';
+import '../../../utilities.dart';
 
 class BonusListItem extends HookConsumerWidget {
   final DateTime date;
