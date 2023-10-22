@@ -4,6 +4,7 @@ import 'package:hive_flutter/adapters.dart';
 
 import 'models/product_name.dart';
 import 'models/product_split.dart';
+import 'models/selected_product_history.dart';
 
 String formatDouble(double value) {
   return value == value.floor() ? value.floor().toString() : value.toStringAsFixed(2);
@@ -98,11 +99,14 @@ Future<void> addDataToHiveBoxProductSplit(Box<Product> boxSplit) async {
 Future<void> initHive() async {
   await Hive.initFlutter();
 
+
   Hive.registerAdapter(ProductNameAdapter());
   Hive.registerAdapter(ProductAdapter());
+  Hive.registerAdapter(SelectedProductAdapter());
 
   var boxNames = await Hive.openBox<ProductName>('Products');
   var boxSplit = await Hive.openBox<Product>('products_split');
+
 
   boxNames.clear();
   boxSplit.clear();

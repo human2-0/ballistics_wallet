@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../providers/auth_providers/auth_provider.dart';
+import '../../../../providers/pressing_db_provider.dart';
 import '../../../../providers/target_check_provider.dart';
 
 class SearchProductBar extends ConsumerWidget {
@@ -86,6 +87,7 @@ class SearchProductBar extends ConsumerWidget {
           onChanged: (value) {
             ref.read(searchTermProvider.notifier).state = value;
             ref.read(selectedProductProvider.notifier).state.state = value;
+
           },
           onSubmitted: (value) {
             ref.read(showListProvider.notifier).state = false;

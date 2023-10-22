@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
 import 'package:ballistics_wallet_flutter/repository/pressing_db_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 
 class TargetRatioNotifier extends StateNotifier<double> {
   final PressingRepository _repository;
@@ -133,5 +135,79 @@ class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
     }
 
     return totalBonus;
+  }
+}
+
+
+class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
+  LastSelectedProductNotifier() : super([]) {
+    _fetchInitialData();
+  }
+
+  Future<void> _fetchInitialData() async {
+    // Set state to a loading state if you have one, otherwise skip this step
+    // state = LoadingState();
+
+    final box = await Hive.openBox<SelectedProduct>('selected_products');
+    final products = box.values.toList();
+    state = products;
+  }
+
+
+  Future<void> saveSelectedProduct(SelectedProduct product) async {
+    final box = await Hive.openBox<SelectedProduct>('selected_products');
+
+    // Try to find an existing product with the same name
+    var existingProductKey = box.keys.firstWhere(
+          (key) => box.get(key)!.name == product.name,
+      orElse: () => null,
+    );
+
+    if (existingProductKey != null) {
+      // If found, update the existing product's selectedDate
+      final existingProduct = box.get(existingProductKey);
+      final updatedProduct = SelectedProduct(
+        name: existingProduct!.name,
+        selectedDate: DateTime.now(),
+        target: existingProduct.target,
+      );
+      box.put(existingProductKey, updatedProduct);
+    } else {
+      // If not found, add the new product to the box
+      box.add(product);
+    }
+
+    // Update the state with the latest values
+    state = box.values.toList();
+  }
+
+  Future<void> deleteSelectedProductByName(String productName) async {
+    final box = await Hive.openBox<SelectedProduct>('selected_products');
+
+    // Try to find the key of the product with the given name
+    var productKey = box.keys.firstWhere(
+          (key) => box.get(key)!.name == productName,
+      orElse: () => null,
+    );
+
+    if (productKey != null) {
+      // If found, delete the product from the box
+      box.delete(productKey);
+    } else {
+      print("Product not found!");
+    }
+
+    // Update the state with the latest values
+    state = box.values.toList();
+  }
+
+  Future<void> fetchLast7SelectedProducts() async {
+    final box = await Hive.openBox<SelectedProduct>('selected_products');
+    final last7Products = box.values.toList()
+      ..sort((a, b) => b.selectedDate.compareTo(a.selectedDate))
+      ..take(7);
+
+    // Update the state with the last 7 products
+    state = last7Products;
   }
 }

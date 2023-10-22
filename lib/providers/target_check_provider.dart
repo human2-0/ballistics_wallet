@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
 import '../models/product_name.dart';
+import '../models/selected_product_history.dart';
 import '../repository/pressing_db_repository.dart';
 import '../repository/target_check_repository.dart';
 
@@ -58,6 +59,9 @@ final textEditingControllerProvider = Provider.autoDispose<TextEditingController
   final controller = TextEditingController(
       text: textValueFromHive.maybeWhen(data: (data) => data, orElse: () => "")
   );
+  controller.addListener(() {
+    ref.read(searchTermProvider.notifier).state = controller.text;
+  });
   ref.onDispose(() {
     controller.dispose();
   });
@@ -174,4 +178,8 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
 
   return bonus;
 });
+
+final lastSelectedProductProvider = StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(
+      (ref) => LastSelectedProductNotifier(),
+);
 

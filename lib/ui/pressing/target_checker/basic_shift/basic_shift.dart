@@ -9,8 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../../providers/pressing_db_provider.dart';
 import '../../../../providers/target_check_provider.dart';
 import '../custom_save_button.dart';
+import '../look_up_bar/last_selected_products.dart';
 import '../look_up_bar/search_bar.dart';
 
 class BasicShift extends ConsumerStatefulWidget {
@@ -95,8 +97,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                       numberController: numberController,
                       focusNode: focusNode,
                     ),
-                    if (showList)
-                      const ProductsListSuggested(),
+                    if (showList) _buildProductList(ref),
                     if (!showList && productName != '')
                       imageNameFuture.when(
                         data: (imageName) {
@@ -333,9 +334,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                         ],
                       ),
 //add a new widget to the row
-                    if (!showList)
-                      const CustomSaveButton(
-                      ),
+                    if (!showList) const CustomSaveButton(),
                   ],
                 ),
               ),
@@ -345,4 +344,24 @@ class BasicShiftCard extends ConsumerState<BasicShift>
       ]),
     );
   }
+
+  Widget _buildProductList(WidgetRef ref) {
+    // Watch the state of our SelectedProductNotifier
+    final selectedProducts = ref.watch(lastSelectedProductProvider);
+
+    // Watch the current search term
+    final currentSearchTerm = ref.watch(searchTermProvider);
+
+    // Check if the search term is empty
+    final textIsEmpty = currentSearchTerm.isEmpty;
+
+    // If the text is empty and there are recent products, show LastSelectedProducts
+    if (textIsEmpty && selectedProducts.isNotEmpty) {
+      return LastSelectedProducts();
+    } else {
+      return const ProductsListSuggested();
+    }
+  }
+
+
 }

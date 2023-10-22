@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,6 +29,8 @@ class AddBonusListItem extends HookConsumerWidget {
     final newProductAmountController =
     ref.watch(productAmountControllerProvider);
     final amountFocusNode = useFocusNode();
+    FocusNode bonusAmountFocusNode = FocusNode();
+
 
     final userBonusNotifier = ref.watch(userBonusNotifierProvider.notifier);
 
@@ -75,20 +78,35 @@ class AddBonusListItem extends HookConsumerWidget {
                                   ),
                                 ],
                               ),
-                              child: TextField(
-                                controller: newBonusAmountController,
-                                decoration: InputDecoration(
-                                  alignLabelWithHint: true,
-                                  hintText: 'Bonus',
-                                  filled: true,
-                                  fillColor: Colors.orange[100],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(33),
-                                    borderSide: BorderSide.none,
+                              child: GestureDetector(
+                                onTap: () {
+                                  FocusScope.of(context).requestFocus(FocusNode());
+                                },
+                                behavior: HitTestBehavior.translucent,
+                                child: TextField(
+                                  focusNode: bonusAmountFocusNode,
+                                  controller: newBonusAmountController,
+                                  decoration: InputDecoration(
+                                    alignLabelWithHint: true,
+                                    hintText: 'Bonus',
+                                    filled: true,
+                                    fillColor: Colors.orange[100],
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(33),
+                                      borderSide: BorderSide.none,
+                                    ),
                                   ),
+                                  textAlign: TextAlign.center,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*')),
+                                    TextInputFormatter.withFunction(
+                                          (oldValue, newValue) => newValue.copyWith(
+                                        text: newValue.text.replaceAll(',', '.'),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
                               ),
                             ),
                             const SizedBox(height: 8.0),

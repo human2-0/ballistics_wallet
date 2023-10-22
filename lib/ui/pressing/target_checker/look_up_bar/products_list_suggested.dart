@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
+import '../../../../models/selected_product_history.dart';
 import '../../../../providers/pressing_db_provider.dart';
 import '../../../../providers/target_check_provider.dart';
 import '../../../../repository/users_repository.dart';
@@ -13,6 +14,7 @@ class ProductsListSuggested extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final updated = ref.watch(productUpdateProvider);
+    final repo = ref.read(lastSelectedProductProvider.notifier);
     final products = ref.watch(productsProvider(updated));
 
     final userState = ref.watch(userNotifierProvider.notifier).state;
@@ -56,7 +58,7 @@ class ProductsListSuggested extends ConsumerWidget {
                       title: Text(product.name),
                       subtitle: Text(
                           'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}'),
-                      onTap: () {
+                      onTap: () async {
                         String selectedProductName = product.name;
                         ref
                             .read(selectedProductProvider.notifier)
@@ -75,6 +77,14 @@ class ProductsListSuggested extends ConsumerWidget {
                         ref
                             .read(targetProvider.notifier)
                             .updateTarget(productTarget);
+
+                        await repo.saveSelectedProduct(
+                          SelectedProduct(
+                            name: product.name,
+                            selectedDate: DateTime.now(),
+                            target: productTarget,
+                          ),
+                        );
                       },
                     ),
                   );
