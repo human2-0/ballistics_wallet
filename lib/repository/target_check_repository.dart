@@ -138,7 +138,6 @@ class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
   }
 }
 
-
 class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   LastSelectedProductNotifier() : super([]) {
     _fetchInitialData();
@@ -153,13 +152,12 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
     state = products;
   }
 
-
   Future<void> saveSelectedProduct(SelectedProduct product) async {
     final box = await Hive.openBox<SelectedProduct>('selected_products');
 
     // Try to find an existing product with the same name
     var existingProductKey = box.keys.firstWhere(
-          (key) => box.get(key)!.name == product.name,
+      (key) => box.get(key)!.name == product.name,
       orElse: () => null,
     );
 
@@ -186,7 +184,7 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
 
     // Try to find the key of the product with the given name
     var productKey = box.keys.firstWhere(
-          (key) => box.get(key)!.name == productName,
+      (key) => box.get(key)!.name == productName,
       orElse: () => null,
     );
 
@@ -204,10 +202,7 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   Future<void> fetchLast7SelectedProducts() async {
     final box = await Hive.openBox<SelectedProduct>('selected_products');
     final last7Products = box.values.toList()
-      ..sort((a, b) => b.selectedDate.compareTo(a.selectedDate))
-      ..take(7);
-
-    // Update the state with the last 7 products
-    state = last7Products;
+      ..sort((a, b) => b.selectedDate.compareTo(a.selectedDate));
+    state = last7Products.take(7).toList();
   }
 }
