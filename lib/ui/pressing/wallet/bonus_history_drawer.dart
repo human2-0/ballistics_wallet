@@ -64,72 +64,86 @@ class BonusHistoryDrawer extends HookConsumerWidget {
         return true;
       },
       child: Drawer(
-        backgroundColor: Colors.tealAccent[100],
-        child: ListView.separated(
-          itemCount: 12,
-          separatorBuilder: (context, index) =>
-          const SizedBox(height: 8), // adds space between the items
-          itemBuilder: (context, index) {
-            DateTime monthStart = DateTime(now.year, now.month - index, 19);
-            DateTime monthEnd = DateTime(now.year, now.month - index + 1, 18);
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              stops: const [0.1, 0.3, 0.7, 0.95],
+              colors: [
+                Colors.orange[700]!.withOpacity(0.9),
+                Colors.orange[500]!.withOpacity(0.8),
+                Colors.brown.withOpacity(0.65),
+                Colors.blueGrey.withOpacity(0.45),
+              ],
+            ),
+          ),
+          child: ListView.separated(
+            itemCount: 12,
+            separatorBuilder: (context, index) =>
+            const SizedBox(height: 8), // adds space between the items
+            itemBuilder: (context, index) {
+              DateTime monthStart = DateTime(now.year, now.month - index, 19);
+              DateTime monthEnd = DateTime(now.year, now.month - index + 1, 18);
 
-            double totalBonusForMonth =
-            calculateTotalBonus(bonuses, monthStart, monthEnd);
+              double totalBonusForMonth =
+              calculateTotalBonus(bonuses, monthStart, monthEnd);
 
-            double totalHoursForMonth = calculateTotalHours(bonuses, monthStart, monthEnd);
+              double totalHoursForMonth = calculateTotalHours(bonuses, monthStart, monthEnd);
 
-            String period =
-                '${DateFormat('MMMM yyyy').format(monthStart)} - ${DateFormat('MMMM yyyy').format(monthEnd)}';
+              String period =
+                  '${DateFormat('MMMM yyyy').format(monthStart)} - ${DateFormat('MMMM yyyy').format(monthEnd)}';
 
-            return Padding(
-              padding: const EdgeInsets.all(4),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(33),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.teal[500]!.withOpacity(0.6),
-                      offset: const Offset(10, 10),
-                      blurRadius: 10,
-                      spreadRadius: -5,
+              return Padding(
+                padding: const EdgeInsets.all(4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(33),
                     ),
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.4),
-                      offset: const Offset(-5, -5),
-                      blurRadius: 15,
-                      spreadRadius: -5,
-                    ),
-                  ],
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    stops: const [0.1, 0.5, 0.7, 0.9],
-                    colors: [
-                      Colors.teal[200]!.withOpacity(1),
-                      Colors.teal[300]!,
-                      Colors.teal.withOpacity(0.6),
-                      Colors.teal.withOpacity(0.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.brown.withOpacity(0.6),
+                        offset: const Offset(8, 8),
+                        blurRadius: 10,
+                        spreadRadius: -4,
+                      ),
+                      BoxShadow(
+                        color: Colors.blueGrey.withOpacity(0.4),
+                        offset: const Offset(-4, -4),
+                        blurRadius: 10,
+                        spreadRadius: -4,
+                      ),
                     ],
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      stops: const [0.1, 0.6, 0.8, 0.95],
+                      colors: [
+                        Colors.orange[700]!.withOpacity(0.9),
+                        Colors.orange[500]!.withOpacity(0.8),
+                        Colors.orange[100]!.withOpacity(0.65),
+                        Colors.white.withOpacity(0.45),
+                      ],
+                    ),
+                    color: Colors.white,
                   ),
-                  color: Colors.white,
+                  child: ListTile(
+                    title: Text(
+                      period,
+                      style: const TextStyle(
+                          color: Colors.white), // adjusts the text color
+                    ),
+                    subtitle: Text(
+                      'Total bonus: £$totalBonusForMonth\nTotal Hours: $totalHoursForMonth ',
+                      style: const TextStyle(
+                          color: Colors.white70), // adjusts the subtitle color
+                    ),
+                  ),
                 ),
-                child: ListTile(
-                  title: Text(
-                    period,
-                    style: const TextStyle(
-                        color: Colors.white), // adjusts the text color
-                  ),
-                  subtitle: Text(
-                    'Total bonus: £$totalBonusForMonth\n Total Hours: $totalHoursForMonth ',
-                    style: const TextStyle(
-                        color: Colors.white70), // adjusts the subtitle color
-                  ),
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

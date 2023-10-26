@@ -143,7 +143,6 @@ class BonusCalendar extends HookConsumerWidget {
       } catch (e) {}
     }
 
-
     return Scaffold(
       body: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification notification) {
@@ -159,30 +158,53 @@ class BonusCalendar extends HookConsumerWidget {
           ),
           Column(
             children: [
-              Stack(
+              Row(
                 children: [
-                  const Align(
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        MonthlyWorkingHours(),
-                        MonthlyBonus(),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      MonthlyWorkingHours(),
+                      MonthlyBonus(),
+                    ],
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Builder(
-                      builder: (context) => IconButton(
-                        iconSize: 30,
-                        icon: const Icon(Icons.history_outlined),
-                        onPressed: () {
-                          Scaffold.of(context).openEndDrawer();
-                        },
-                      ),
-                    ),
-                  ),
+                  Builder(
+                      builder: (context) => Padding(
+                        padding: EdgeInsets.all(2),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                                15.0), // This gives the rounded corner for the decoration
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.orange[100]!,
+                                Colors.orange[400]!,
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.brown.withOpacity(0.6),
+                                offset: Offset(4, 4),
+                                blurRadius: 5.0,
+                                spreadRadius: 1.0,
+                              ),
+                              BoxShadow(
+                                color: Colors.blue.withOpacity(0.5),
+                                offset: Offset(-4, -4),
+                                blurRadius: 5.0,
+                                spreadRadius: 1.0,
+                              ),
+                            ],
+                          ),
+                          child: IconButton(
+                            iconSize: 30,
+                            icon: const Icon(Icons.history_outlined),
+                            onPressed: () {
+                              Scaffold.of(context).openEndDrawer();
+                            },
+                          ),
+                        ),
+                      )),
                 ],
               ),
               Center(

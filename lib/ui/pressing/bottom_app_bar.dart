@@ -8,7 +8,7 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_pressing.dart';
 import 'package:flutter/rendering.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/profile.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
 
 import '../../providers/wallet_provider.dart';
 import 'split_check/split_check.dart';
