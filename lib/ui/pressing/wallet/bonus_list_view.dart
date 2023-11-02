@@ -1,27 +1,21 @@
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/add_bonus_list_item.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../providers/target_check_provider.dart';
-import '../../../providers/wallet_provider.dart';
-import 'add_bonus_list_item.dart';
-import 'bonus_list.dart';
-
 class BonusListView extends HookConsumerWidget {
+
+
+  const BonusListView({required this.selectedEvents, required this.selectedDate, required this.userId, required this.onDelete, required this.onAdd, super.key,
+  });
   final List<Map<String, dynamic>> selectedEvents;
   final DateTime selectedDate;
   final String userId;
   final Function onDelete;
-  final Function(Map<String, dynamic>) onAdd;
-
-
-  const BonusListView({super.key,
-    required this.selectedEvents,
-    required this.selectedDate,
-    required this.userId,
-    required this.onDelete,
-    required this.onAdd,
-  });
+  final void Function(Map<String, dynamic>) onAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,13 +63,13 @@ class BonusListView extends HookConsumerWidget {
           },
           secondaryBackground: ClipRRect(
             borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(33.0),
-                bottomRight: Radius.circular(33.0)),
-            child: Container(
+                topRight: Radius.circular(33),
+                bottomRight: Radius.circular(33)),
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(33.0),
-                    bottomRight: Radius.circular(33.0)),
+                    topRight: Radius.circular(33),
+                    bottomRight: Radius.circular(33)),
                 gradient: LinearGradient(
                   begin: Alignment.centerRight,
                   end: Alignment.centerLeft,
@@ -85,7 +79,7 @@ class BonusListView extends HookConsumerWidget {
               child: const Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Icon(Icons.delete, color: Colors.white),
                 ),
               ),
@@ -104,4 +98,3 @@ class BonusListView extends HookConsumerWidget {
     );
   }
 }
-

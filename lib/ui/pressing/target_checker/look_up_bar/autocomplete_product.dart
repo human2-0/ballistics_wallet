@@ -1,12 +1,10 @@
+import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/add_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-
-import '../../../../models/selected_product_history.dart';
-import '../../../../providers/pressing_db_provider.dart';
-import '../../../../providers/target_check_provider.dart';
-import '../../../../repository/users_repository.dart';
-import 'add_product.dart';
 
 class ProductsListSuggested extends ConsumerWidget {
   const ProductsListSuggested({super.key});
@@ -19,12 +17,12 @@ class ProductsListSuggested extends ConsumerWidget {
 
     final userState = ref.watch(userNotifierProvider.notifier).state;
     final allowance = ref.watch(allowanceProvider);
-    final double workingHours = userState.workingHours ?? 0.0;
+    final workingHours = userState.workingHours ?? 0.0;
 
     final textEditingController = ref.watch(textEditingControllerProvider);
 
     return Expanded(
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
             Radius.circular(33),
@@ -42,7 +40,7 @@ class ProductsListSuggested extends ConsumerWidget {
               itemCount: filteredProducts.isEmpty ? 1 : filteredProducts.length,
               itemBuilder: (context, index) {
                 if (filteredProducts.isEmpty) {
-                  return AddProductDialog();
+                  return const AddProductDialog();
                 }
 // If the index is not 0, adjust it by 1 to get the correct product
                 else {
@@ -59,21 +57,21 @@ class ProductsListSuggested extends ConsumerWidget {
                       subtitle: Text(
                           'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}'),
                       onTap: () async {
-                        String selectedProductName = product.name;
+                        final selectedProductName = product.name;
                         ref
                             .read(selectedProductProvider.notifier)
                             .state
                             .state = selectedProductName;
                         textEditingController.text = selectedProductName
-                            .toString(); // Update the controller's text
+                            ; // Update the controller's text
                         ref.read(showListProvider.notifier).state = false;
                         ref.read(focusNodeProvider).unfocus();
-                        Hive.box('settings').put('selectedProduct', product);
+                        await Hive.box('settings').put('selectedProduct', product);
 
 // Update the targetProvider state when a product is selected
-                        int productTarget = (((product.target.toDouble()) *
+                        final productTarget = ((product.target.toDouble()) *
                                 ((workingHours - allowance) / 7.00))
-                            .ceil());
+                            .ceil();
                         ref
                             .read(targetProvider.notifier)
                             .updateTarget(productTarget);

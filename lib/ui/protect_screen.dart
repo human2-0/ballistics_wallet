@@ -1,7 +1,6 @@
+import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../providers/auth_providers/states/login_controller.dart';
 
 
 class ProtectScreen extends ConsumerStatefulWidget {
@@ -13,8 +12,7 @@ class ProtectScreen extends ConsumerStatefulWidget {
 
 class _ProtectState extends ConsumerState<ProtectScreen> {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context) => Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -34,5 +32,4 @@ class _ProtectState extends ConsumerState<ProtectScreen> {
         ),
       ),
     );
-  }
 }

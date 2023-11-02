@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfilePage extends HookConsumerWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,7 +17,7 @@ class ProfilePage extends HookConsumerWidget {
 
     final userDataAsyncValue = ref.watch(userDataProvider(uid));
 
-    final TextEditingController controller = TextEditingController();
+    final controller = TextEditingController();
 
     // Use useEffect to load user data when the widget is first created
     useEffect(() {
@@ -38,7 +38,7 @@ class ProfilePage extends HookConsumerWidget {
     if (userDataAsyncValue is AsyncError) {
       return const Scaffold(
         body: Center(
-          child: Text("Error loading user data"),
+          child: Text('Error loading user data'),
         ),
       );
     }
@@ -59,7 +59,7 @@ class ProfilePage extends HookConsumerWidget {
                 children: [
                   Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
 
                         children: [
@@ -72,35 +72,34 @@ class ProfilePage extends HookConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const SizedBox(height: 20),
-                              Text("Working Hours: ${userState.realWorkingHours}"),
+                              Text('Working Hours: ${userState.realWorkingHours}'),
                               const SizedBox(height: 10),
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 onPressed: () async {
-                                  showDialog(
+                                  await showDialog(
                                     context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text("Edit Working Hours"),
+                                    builder: (context) => AlertDialog(
+                                        title: const Text('Edit Working Hours'),
                                         content: TextField(
                                           controller: controller,
                                           decoration: const InputDecoration(
-                                            hintText: "Enter new working hours",
+                                            hintText: 'Enter new working hours',
                                           ),
                                         ),
                                         actions: [
                                           TextButton(
-                                            child: const Text("Cancel"),
+                                            child: const Text('Cancel'),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
                                           ),
                                           TextButton(
-                                            child: const Text("Submit"),
+                                            child: const Text('Submit'),
                                             onPressed: () async {
-                                              double newWorkingHours =
+                                              final newWorkingHours =
                                                   double.parse(controller.text);
-                                              bool success = await ref
+                                              final success = await ref
                                                   .read(userRepositoryProvider)
                                                   .editWorkingHours(
                                                       uid, newWorkingHours);
@@ -114,8 +113,7 @@ class ProfilePage extends HookConsumerWidget {
                                             },
                                           ),
                                         ],
-                                      );
-                                    },
+                                      ),
                                   );
                                 },
                               ),
@@ -126,15 +124,15 @@ class ProfilePage extends HookConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text("Paid breaks"),
+                              const Text('Paid breaks'),
                               IconButton(
                                 icon: CircleAvatar(
                                   radius: 20,
-                                  backgroundColor: userState.paidBreaks == true ? Colors.green : Colors.grey,
-                                  child: userState.paidBreaks == true ? const Icon(Icons.check, color: Colors.white) : null,
+                                  backgroundColor: (userState.paidBreaks ?? false) ? Colors.green : Colors.grey,
+                                  child: (userState.paidBreaks ?? false) ? const Icon(Icons.check, color: Colors.white) : null,
                                 ),
                                 onPressed: () async {
-                                  bool success = await ref
+                                  final success = await ref
                                       .read(userRepositoryProvider)
                                       .editPaidBreaks(uid, !(userState.paidBreaks ?? false));
                                   if (success) {
@@ -167,11 +165,9 @@ class ProfilePage extends HookConsumerWidget {
                                     icon: const Icon(
                                         color: Colors.orange,
                                         Icons.flight_takeoff_outlined),
-                                    onPressed: () {
-                                      authRepo.signOut();
-                                    },
+                                    onPressed: authRepo.signOut,
                                   ),
-                                  const Text("Log out"),
+                                  const Text('Log out'),
                                 ],
                               ),
                             ),

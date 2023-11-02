@@ -1,24 +1,23 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_history_drawer.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_list_view.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/monthly_bonus.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/total_monthly_working_hours.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
-import '../../../providers/pressing_db_provider.dart';
-import '../../../providers/wallet_provider.dart';
-import 'bonus_history_drawer.dart';
-import 'bonus_list_view.dart';
-import 'monthly_bonus.dart';
-import 'total_monthly_working_hours.dart';
-
-class BonusCalendar extends HookConsumerWidget {
-  final String userId;
-  final Function(ScrollNotification) onNotification; // Add ScrollController
+class BonusCalendar extends HookConsumerWidget { // Add ScrollController
 
   const BonusCalendar(
-      {super.key, required this.userId, required this.onNotification});
+      {required this.userId, required this.onNotification, super.key});
+  final String userId;
+  final void Function(ScrollNotification) onNotification;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,7 +32,7 @@ class BonusCalendar extends HookConsumerWidget {
       final pressingRepository = ref.read(pressingRepositoryProvider);
       final userBonusesNotifier = ref.read(userBonusNotifierProvider.notifier);
 
-      Map<DateTime, List<dynamic>> userBonuses =
+      final userBonuses =
           await pressingRepository.fetchUserBonuses(userId);
 
       // To debug and see if data is fetched
@@ -45,7 +44,7 @@ class BonusCalendar extends HookConsumerWidget {
     useEffect(() {
       _fetchUserBonuses(ref);
       if (_selectedDay.value != null) {
-        DateTime localDay = DateTime(_selectedDay.value!.year,
+        final localDay = DateTime(_selectedDay.value!.year,
                 _selectedDay.value!.month, _selectedDay.value!.day)
             .toLocal();
         _selectedEvents.value = userBonuses[localDay] ?? [];
@@ -54,7 +53,7 @@ class BonusCalendar extends HookConsumerWidget {
     }, [userBonuses]);
 
     void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-      DateTime localDay =
+      final localDay =
           DateTime(selectedDay.year, selectedDay.month, selectedDay.day)
               .toLocal();
       _selectedDay.value = selectedDay;
@@ -62,7 +61,7 @@ class BonusCalendar extends HookConsumerWidget {
       _selectedEvents.value = userBonuses[localDay] ?? [];
     }
 
-    void onDeleteBonus(int parentIndex, int childIndex) {
+    Future<void> onDeleteBonus(int parentIndex, int childIndex) async {
       // Get the ID of the parent bonus
       final parentId = _selectedEvents.value[parentIndex]['id'];
 
@@ -76,7 +75,7 @@ class BonusCalendar extends HookConsumerWidget {
         final childId = childBonus['id'];
 
         // Perform the delete operation in the background
-        ref
+        await ref
             .read(userBonusNotifierProvider.notifier)
             .deleteIndividualBonus(userId, parentId, childId);
 
@@ -92,8 +91,8 @@ class BonusCalendar extends HookConsumerWidget {
     }
 
     List<dynamic> eventLoader(DateTime day) {
-      DateTime localDay = DateTime(day.year, day.month, day.day).toLocal();
-      List<dynamic> eventsForDay = userBonuses[localDay] ?? [];
+      final localDay = DateTime(day.year, day.month, day.day).toLocal();
+      final eventsForDay = userBonuses[localDay] ?? [];
 
       // If there are no events, return an empty list
       if (eventsForDay.isEmpty) {
@@ -101,9 +100,9 @@ class BonusCalendar extends HookConsumerWidget {
       }
 
       // If there are events, sum their bonuses and return a single event with the total bonus
-      double totalBonus = eventsForDay.fold(0.0, (sum, currentEvent) {
-        return sum + (currentEvent['bonus'] as double);
-      });
+      final totalBonus = eventsForDay.fold(0.0, (sum, currentEvent) => sum + (currentEvent['bonus'] as double));
+
+
 
       // Return a list containing a single map with the total bonus
       return [
@@ -113,22 +112,22 @@ class BonusCalendar extends HookConsumerWidget {
       ];
     }
 
-    void onAddBonus(Map<String, dynamic> newBonus) {
+    Future<void> onAddBonus(Map<String, dynamic> newBonus) async {
       try {
         if (newBonus['productName'] != null &&
             newBonus['bonus'] != null &&
             newBonus['amount'] != null) {
-          String userId = ref.watch(authRepositoryProvider).currentUserId;
-          double? workingHours = ref
+          final userId = ref.watch(authRepositoryProvider).currentUserId;
+          final workingHours = ref
               .read(userNotifierProvider)
               .realWorkingHours; // Replace with actual user id
-          String productName = newBonus['productName'];
-          double bonus = newBonus['bonus'];
-          int amount = newBonus['amount'];
-          DateTime selectedEventDate = newBonus[
+          final String productName = newBonus['productName'];
+          final double bonus = newBonus['bonus'];
+          final int amount = newBonus['amount'];
+          final DateTime selectedEventDate = newBonus[
               'selectedDate']; // Replace with actual selected event date
 
-          ref
+          await ref
               .read(userBonusNotifierProvider.notifier)
               .saveUserBonusCalendar(userId, productName, bonus, amount,
                   selectedEventDate, workingHours!)
@@ -145,7 +144,7 @@ class BonusCalendar extends HookConsumerWidget {
 
     return Scaffold(
       body: NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification notification) {
+        onNotification: (notification) {
           onNotification(notification);
           return true;
         },
@@ -160,7 +159,7 @@ class BonusCalendar extends HookConsumerWidget {
             children: [
               Row(
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       MonthlyWorkingHours(),
                       MonthlyBonus(),
@@ -168,11 +167,11 @@ class BonusCalendar extends HookConsumerWidget {
                   ),
                   Builder(
                       builder: (context) => Padding(
-                        padding: EdgeInsets.all(2),
-                        child: Container(
+                        padding: const EdgeInsets.all(2),
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(
-                                15.0), // This gives the rounded corner for the decoration
+                                15), // This gives the rounded corner for the decoration
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -184,15 +183,15 @@ class BonusCalendar extends HookConsumerWidget {
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.brown.withOpacity(0.6),
-                                offset: Offset(4, 4),
-                                blurRadius: 5.0,
-                                spreadRadius: 1.0,
+                                offset: const Offset(4, 4),
+                                blurRadius: 5,
+                                spreadRadius: 1,
                               ),
                               BoxShadow(
                                 color: Colors.blue.withOpacity(0.5),
-                                offset: Offset(-4, -4),
-                                blurRadius: 5.0,
-                                spreadRadius: 1.0,
+                                offset: const Offset(-4, -4),
+                                blurRadius: 5,
+                                spreadRadius: 1,
                               ),
                             ],
                           ),
@@ -224,9 +223,9 @@ class BonusCalendar extends HookConsumerWidget {
                       singleMarkerBuilder: (context, date, event) {
                         if (event is Map<String, dynamic> &&
                             event.containsKey('bonus')) {
-                          final double bonus = event['bonus'] as double;
+                          final bonus = event['bonus'] as double;
                           return bonus > 0
-                              ? Container(
+                              ? ColoredBox(
                                   color: Colors.green[50]!.withOpacity(0.5),
                                   child: Text(
                                     '£${formatDouble(bonus)}',
@@ -258,7 +257,6 @@ class BonusCalendar extends HookConsumerWidget {
                     onPageChanged: (focusedDay) =>
                         _focusedDay.value = focusedDay,
                     calendarStyle: const CalendarStyle(
-                      isTodayHighlighted: true,
                       cellMargin: EdgeInsets.all(13),
                       markerDecoration: BoxDecoration(
                         shape: BoxShape.circle,

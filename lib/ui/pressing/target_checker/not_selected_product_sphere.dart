@@ -5,8 +5,7 @@ class SphereQuestionMark extends StatelessWidget{
 
   @override
   Widget build(BuildContext context)
-  {
-    return Container(
+  => Container(
       width: 256,
       height: 256,
       decoration: BoxDecoration(
@@ -50,5 +49,4 @@ class SphereQuestionMark extends StatelessWidget{
         ),
       ),
     );
-  }
 }

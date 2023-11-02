@@ -1,17 +1,16 @@
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../providers/target_check_provider.dart';
-import '../../../providers/wallet_provider.dart';
-import '../../../utilities.dart';
-
 class MonthlyWorkingHours extends ConsumerWidget {
-  const MonthlyWorkingHours({Key? key}) : super(key: key);
+  const MonthlyWorkingHours({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userBonuses = ref.watch(userBonusNotifierProvider);
-    double monthlyWorkingHours = ref.watch(monthlyWorkingHoursProvider);
+    var monthlyWorkingHours = ref.watch(monthlyWorkingHoursProvider);
 
     // Get dates for the range
     final now = DateTime.now();
@@ -28,15 +27,15 @@ class MonthlyWorkingHours extends ConsumerWidget {
     }
 
     // Iterate over all bonuses
-    for (var entry in userBonuses.entries) {
+    for (final entry in userBonuses.entries) {
       final date = entry.key;
       final bonuses = entry.value;
 
       // Check if the date of the bonuses is within the range
       if ((date.compareTo(startDate) >= 0) && (date.compareTo(endDate) <= 0)) {
         // If the date is within range, sum up the hours
-        for (var bonus in bonuses) {
-          monthlyWorkingHours += (bonus['workingHours'] ?? 0.0);
+        for (final bonus in bonuses) {
+          monthlyWorkingHours += bonus['workingHours'] ?? 0.0;
         }
       }
     }
@@ -46,7 +45,7 @@ class MonthlyWorkingHours extends ConsumerWidget {
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.40,
         height: MediaQuery.of(context).size.height * 0.1,
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(33)),
             gradient: LinearGradient(

@@ -2,11 +2,9 @@
 
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/wallet_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../repository/wallet_repository.dart';
-import '../repository/target_check_repository.dart';
 
 final userBonusNotifierProvider =
 StateNotifierProvider<UserBonusNotifier, Map<DateTime, List<dynamic>>>(
@@ -17,9 +15,7 @@ StateNotifierProvider<UserBonusNotifier, Map<DateTime, List<dynamic>>>(
 
 
 final bonusTableSelectorProvider =
-StateNotifierProvider<BonusTableSelector, bool>((ref) {
-  return BonusTableSelector();
-});
+StateNotifierProvider<BonusTableSelector, bool>((ref) => BonusTableSelector());
 
 final bonusAmountControllerProvider =
 StateNotifierProvider<TextFieldStateNotifier, TextEditingController>(
@@ -46,8 +42,4 @@ final monthlyBonusProvider = Provider<int>((ref) {
   return userBonusesNotifier.calculateMonthlyBonus();
 });
 
-final ratioCalendar = StateProvider<double>((ref){
-  return 0.0;
-});
-
-
+final ratioCalendar = StateProvider<double>((ref)=> 0.0);

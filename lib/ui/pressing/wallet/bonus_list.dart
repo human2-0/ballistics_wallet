@@ -1,31 +1,30 @@
+import 'package:ballistics_wallet_flutter/models/product_name.dart';
+import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../models/product_name.dart';
-import '../../../providers/pressing_db_provider.dart';
-import '../../../providers/target_check_provider.dart';
-import '../../../providers/wallet_provider.dart';
-import '../../../repository/users_repository.dart';
-import '../../../utilities.dart';
-
 class BonusListItem extends HookConsumerWidget {
+  const BonusListItem({
+    required this.date,
+    required this.index,
+    required this.event,
+    required this.userId,
+    required this.parentIndex,
+    super.key,
+    this.onDelete,
+  });
   final DateTime date;
   final int index;
   final Map<String, dynamic> event;
   final String userId;
   final Function? onDelete;
   final int parentIndex;
-
-  const BonusListItem({super.key,
-    required this.date,
-    required this.index,
-    required this.event,
-    required this.userId,
-    this.onDelete,
-    required this.parentIndex,
-  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,17 +36,17 @@ class BonusListItem extends HookConsumerWidget {
 
     final isEditing = useState(false);
     final newBonusAmountController =
-    useTextEditingController(text: '${event['bonus']}');
+        useTextEditingController(text: '${event['bonus']}');
     final userBonusNotifier = ref.watch(userBonusNotifierProvider.notifier);
 
-    final primaryColor = (event['isOvertime'] != null && event['isOvertime'])
-        ? Colors.blue
-        : Colors.orange;
-
+    final primaryColor =
+        (event['isOvertime'] != null && event['isOvertime'] as bool)
+            ? Colors.blue
+            : Colors.orange;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(33)),
           gradient: LinearGradient(
@@ -80,14 +79,13 @@ class BonusListItem extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Align(
-              alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment:
-                MainAxisAlignment.center, // Add this line to center the row
+                    MainAxisAlignment.center, // Add this line to center the row
                 children: [
                   Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: DecoratedBox(
                           decoration: BoxDecoration(
                             borderRadius: const BorderRadius.all(
                               Radius.circular(33),
@@ -139,8 +137,8 @@ class BonusListItem extends HookConsumerWidget {
                       }
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.all(
                             Radius.circular(33),
@@ -180,21 +178,21 @@ class BonusListItem extends HookConsumerWidget {
                               Center(
                                 child: isEditing.value
                                     ? TextField(
-                                  controller: newBonusAmountController,
-                                  keyboardType: TextInputType.number,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
+                                        controller: newBonusAmountController,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
                                     : Text(
-                                  '£${formatDouble(event['bonus'])}',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                        '£${formatDouble(event['bonus'])}',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                               if (isEditing.value) ...[
                                 Positioned(
@@ -203,9 +201,9 @@ class BonusListItem extends HookConsumerWidget {
                                   child: IconButton(
                                     icon: const Icon(Icons.delete_outline),
                                     onPressed: () async {
-                                      ref
+                                      await ref
                                           .read(userBonusNotifierProvider
-                                          .notifier)
+                                              .notifier)
                                           .deleteUserBonus(event['id'], userId)
                                           .then((_) {
                                         event['bonus'] = 0;
@@ -215,7 +213,7 @@ class BonusListItem extends HookConsumerWidget {
                                         // Only call init() after the delete operation has completed.
                                         ref
                                             .read(targetRatioProvider(userId)
-                                            .notifier)
+                                                .notifier)
                                             .init();
                                       });
                                     },
@@ -226,16 +224,16 @@ class BonusListItem extends HookConsumerWidget {
                                   top: -10,
                                   child: IconButton(
                                     icon:
-                                    const Icon(Icons.check_circle_outline),
+                                        const Icon(Icons.check_circle_outline),
                                     onPressed: () async {
-                                      double? newBonusAmount = double.tryParse(
+                                      final newBonusAmount = double.tryParse(
                                           newBonusAmountController.text);
                                       if (newBonusAmount != null) {
                                         await ref
                                             .read(userBonusNotifierProvider
-                                            .notifier)
+                                                .notifier)
                                             .editBonus(userId, event['id'],
-                                            newBonusAmount);
+                                                newBonusAmount);
                                         event['bonus'] = newBonusAmount;
                                         isEditing.value = false;
                                         newBonusAmountController.clear();
@@ -263,7 +261,7 @@ class BonusListItem extends HookConsumerWidget {
                               title: Text(item['productName']),
                               subtitle: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Amount: ${item['amount']}'),
                                 ],
@@ -273,11 +271,11 @@ class BonusListItem extends HookConsumerWidget {
                                   icon: Icon(
                                       color: Colors.pink[50],
                                       Icons.delete_outline),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     onDelete?.call(parentIndex, index);
-                                    ref
+                                    await ref
                                         .read(targetRatioProvider(userId)
-                                        .notifier)
+                                            .notifier)
                                         .init();
                                   }),
                             );
@@ -286,253 +284,233 @@ class BonusListItem extends HookConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 0, 115, 0),
                           child: TextButton(
-                            onPressed: () {
-                              showModalBottomSheet(
+                            onPressed: () async {
+                              await showModalBottomSheet(
                                 isScrollControlled: true,
                                 context: context,
-                                builder: (BuildContext context) {
-                                  return AnimatedPadding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context)
-                                            .viewInsets
-                                            .bottom,
-                                      ),
-                                      duration:
-                                      const Duration(milliseconds: 100),
-                                      child: SingleChildScrollView(
-                                          child: Container(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: <Widget>[
-                                                const Text(
-                                                  'Add Product',
-                                                  style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 24.0,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 16.0),
-                                                FutureBuilder<
-                                                    List<ProductName>>(
-                                                    future: ref
-                                                        .watch(
-                                                        pressingRepositoryProvider)
-                                                        .readProductsPressing(),
-                                                    builder: (context, snapshot) {
-                                                      if (snapshot.hasData) {
-                                                        List<String> productList =
-                                                        snapshot.data!
-                                                            .map((product) =>
-                                                            product.name
-                                                                .toString())
-                                                            .toList();
-                                                        return Container(
-                                                          decoration: BoxDecoration(
+                                builder: (context) => AnimatedPadding(
+                                    padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom,
+                                    ),
+                                    duration: const Duration(milliseconds: 100),
+                                    child: SingleChildScrollView(
+                                        child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          const Text(
+                                            'Add Product',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 24,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          FutureBuilder<List<ProductName>>(
+                                              future: ref
+                                                  .watch(
+                                                      pressingRepositoryProvider)
+                                                  .readProductsPressing(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  final productList = snapshot
+                                                      .data!
+                                                      .map((product) =>
+                                                          product.name)
+                                                      .toList();
+                                                  return DecoratedBox(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .all(
+                                                        Radius.circular(33),
+                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.orange
+                                                              .withOpacity(1),
+                                                          offset: const Offset(
+                                                              2, -2.5),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: TypeAheadField(
+                                                      textFieldConfiguration:
+                                                          TextFieldConfiguration(
+                                                        controller:
+                                                            newProductNameController,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          alignLabelWithHint:
+                                                              true,
+                                                          hintText:
+                                                              'Product Name',
+                                                          filled: true,
+                                                          fillColor: Colors
+                                                              .orange[100],
+                                                          border:
+                                                              OutlineInputBorder(
                                                             borderRadius:
-                                                            const BorderRadius
-                                                                .all(
-                                                              Radius.circular(33),
-                                                            ),
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors.orange
-                                                                    .withOpacity(1),
-                                                                offset:
-                                                                const Offset(
-                                                                    2, -2.5),
-                                                              ),
-                                                            ],
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        33),
+                                                            borderSide:
+                                                                BorderSide.none,
                                                           ),
-                                                          child: TypeAheadField(
-                                                            textFieldConfiguration:
-                                                            TextFieldConfiguration(
-                                                              controller:
-                                                              newProductNameController,
-                                                              decoration:
-                                                              InputDecoration(
-                                                                alignLabelWithHint:
-                                                                true,
-                                                                hintText:
-                                                                'Product Name',
-                                                                filled: true,
-                                                                fillColor: Colors
-                                                                    .orange[100],
-                                                                border:
-                                                                OutlineInputBorder(
-                                                                  borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                      33),
-                                                                  borderSide:
-                                                                  BorderSide
-                                                                      .none,
-                                                                ),
-                                                              ),
-                                                              textAlign:
-                                                              TextAlign.center,
-                                                            ),
-                                                            suggestionsCallback:
-                                                                (pattern) {
-                                                              return productList
-                                                                  .where((product) => product
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                      suggestionsCallback:
+                                                          (pattern) => productList
+                                                              .where((product) => product
                                                                   .toLowerCase()
                                                                   .contains(pattern
-                                                                  .toLowerCase()))
-                                                                  .toList();
-                                                            },
-                                                            itemBuilder: (context,
-                                                                suggestion) {
-                                                              return ListTile(
-                                                                title: Text(
-                                                                    suggestion),
-                                                              );
-                                                            },
-                                                            onSuggestionSelected:
-                                                                (suggestion) {
-                                                              newProductNameController
-                                                                  .text =
-                                                                  suggestion;
-                                                            },
-                                                            noItemsFoundBuilder:
-                                                                (context) => const Text(
-                                                                'No matches found'),
-                                                          ),
-                                                        );
-                                                      } else if (snapshot
-                                                          .hasError) {
-                                                        return Text(
-                                                            'Error: ${snapshot.error}');
-                                                      }
-                                                      // Show a loading indicator while waiting for the products
-                                                      return const CircularProgressIndicator();
-                                                    }),
-                                                const SizedBox(height: 8.0),
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                    const BorderRadius.all(
-                                                      Radius.circular(33),
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.orange
-                                                            .withOpacity(1),
-                                                        offset:
-                                                        const Offset(2, -2.5),
+                                                                      .toLowerCase()))
+                                                              .toList(),
+                                                      itemBuilder: (context,
+                                                              suggestion) =>
+                                                          ListTile(
+                                                        title: Text(suggestion),
                                                       ),
-                                                    ],
-                                                  ),
-                                                  child: TextField(
-                                                    controller:
-                                                    newProductAmountController,
-                                                    decoration: InputDecoration(
-                                                      alignLabelWithHint: true,
-                                                      hintText: 'Amount',
-                                                      filled: true,
-                                                      fillColor: Colors.orange[100],
-                                                      border: OutlineInputBorder(
-                                                        borderRadius:
-                                                        BorderRadius.circular(
-                                                            33),
-                                                        borderSide: BorderSide.none,
-                                                      ),
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                    keyboardType:
-                                                    TextInputType.number,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 16.0),
-
-                                                const SizedBox(height: 16.0),
-                                                Center(
-                                                  child: ElevatedButton(
-                                                    style: ButtonStyle(
-                                                      backgroundColor:
-                                                      MaterialStateProperty.all(
-                                                          Colors.tealAccent),
-                                                      shadowColor:
-                                                      MaterialStateProperty.all(
-                                                          Colors.tealAccent),
-                                                      elevation:
-                                                      MaterialStateProperty.all(
-                                                          10), // adjust for desired shadow effect
-                                                      shape:
-                                                      MaterialStateProperty.all<
-                                                          RoundedRectangleBorder>(
-                                                        RoundedRectangleBorder(
-                                                          borderRadius:
-                                                          BorderRadius.circular(
-                                                              18.0),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onPressed: () async {
-                                                      FocusScope.of(context)
-                                                          .unfocus();
-                                                      ref.read(
-                                                          userBonusNotifierProvider
-                                                              .notifier);
-                                                      ref
-                                                          .read(targetRatioProvider(
-                                                          userId)
-                                                          .notifier);
-                                                      String newProductName =
-                                                          newProductNameController
-                                                              .text;
-                                                      int? newProductAmount =
-                                                      int.tryParse(
-                                                          newProductAmountController
-                                                              .text);
-
-                                                      double? workingHours = ref.read(userNotifierProvider).workingHours;
-
-                                                      if ((newProductName
-                                                          .isNotEmpty &&
-                                                          newProductAmount !=
-                                                              null)) {
-                                                        await userBonusNotifier
-                                                            .saveUserBonusCalendar(
-                                                          userId,
-                                                          newProductName, // if null, set to 0
-                                                          0,
-                                                          newProductAmount,
-                                                          date,
-                                                          workingHours!,
-                                                        );
-                                                        ref
-                                                            .read(
-                                                            targetRatioProvider(
-                                                                userId)
-                                                                .notifier)
-                                                            .init();
+                                                      onSuggestionSelected:
+                                                          (suggestion) {
                                                         newProductNameController
-                                                            .clear();
-                                                        newProductAmountController
-                                                            .clear();
-                                                        Navigator.of(context)
-                                                            .pop(); // close the sheet
-                                                      } else {
-                                                        ScaffoldMessenger.of(
-                                                            context)
-                                                            .showSnackBar(
-                                                            const SnackBar(
-                                                                content: Text(
-                                                                    'Please provide more data')));
-                                                      }
-                                                    },
-                                                    child: const Text(
-                                                        style: TextStyle(
-                                                          color: Colors.brown,
-                                                        ),
-                                                        'Save'),
-                                                  ),
+                                                            .text = suggestion;
+                                                      },
+                                                      noItemsFoundBuilder:
+                                                          (context) => const Text(
+                                                              'No matches found'),
+                                                    ),
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  return Text(
+                                                      'Error: ${snapshot.error}');
+                                                }
+                                                // Show a loading indicator while waiting for the products
+                                                return const CircularProgressIndicator();
+                                              }),
+                                          const SizedBox(height: 8),
+                                          DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                Radius.circular(33),
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.orange
+                                                      .withOpacity(1),
+                                                  offset: const Offset(2, -2.5),
                                                 ),
                                               ],
                                             ),
-                                          )));
-                                },
+                                            child: TextField(
+                                              controller:
+                                                  newProductAmountController,
+                                              decoration: InputDecoration(
+                                                alignLabelWithHint: true,
+                                                hintText: 'Amount',
+                                                filled: true,
+                                                fillColor: Colors.orange[100],
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(33),
+                                                  borderSide: BorderSide.none,
+                                                ),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const SizedBox(height: 16),
+                                          Center(
+                                            child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.tealAccent),
+                                                shadowColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.tealAccent),
+                                                elevation:
+                                                    MaterialStateProperty.all(
+                                                        10), // adjust for desired shadow effect
+                                                shape:
+                                                    MaterialStateProperty.all<
+                                                        RoundedRectangleBorder>(
+                                                  RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            18),
+                                                  ),
+                                                ),
+                                              ),
+                                              onPressed: () async {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                                ref.read(
+                                                    userBonusNotifierProvider
+                                                        .notifier);
+                                                ref.read(
+                                                    targetRatioProvider(userId)
+                                                        .notifier);
+                                                final newProductName =
+                                                    newProductNameController
+                                                        .text;
+                                                final newProductAmount =
+                                                    int.tryParse(
+                                                        newProductAmountController
+                                                            .text);
+
+                                                final workingHours = ref
+                                                    .read(userNotifierProvider)
+                                                    .workingHours;
+
+                                                if (newProductName.isNotEmpty &&
+                                                    newProductAmount != null) {
+                                                  await userBonusNotifier
+                                                      .saveUserBonusCalendar(
+                                                    userId,
+                                                    newProductName, // if null, set to 0
+                                                    0,
+                                                    newProductAmount,
+                                                    date,
+                                                    workingHours!,
+                                                  );
+                                                  await ref
+                                                      .read(targetRatioProvider(
+                                                              userId)
+                                                          .notifier)
+                                                      .init();
+                                                  newProductNameController
+                                                      .clear();
+                                                  newProductAmountController
+                                                      .clear();
+                                                  Navigator.of(context)
+                                                      .pop(); // close the sheet
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              'Please provide more data')));
+                                                }
+                                              },
+                                              child: const Text(
+                                                  style: TextStyle(
+                                                    color: Colors.brown,
+                                                  ),
+                                                  'Save'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ))),
                               );
                             },
                             child: Container(
@@ -586,4 +564,3 @@ class BonusListItem extends HookConsumerWidget {
     );
   }
 }
-

@@ -1,14 +1,13 @@
 // Dart imports
 
+// Local imports
+import 'package:ballistics_wallet_flutter/firebase_options.dart';
 // Package imports
 import 'package:ballistics_wallet_flutter/providers/auth_providers/router_provider.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:ballistics_wallet_flutter/utilities.dart';
-
-// Local imports
-import 'firebase_options.dart';
 
 void main() async {
   await _initializeApp();
@@ -25,7 +24,7 @@ Future<void> _initializeApp() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,13 +41,3 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-
-MaterialColor blackMaterialColor = const MaterialColor(
-  0xFF000000,
-  <int, Color>{
-    50: Color(0xFFE5E5E5),
-    100: Color(0xFFBFBFBF),
-    200: Color(0xFF999999),
-    // ... other color shades
-  },
-);

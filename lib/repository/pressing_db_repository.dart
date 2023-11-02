@@ -1,21 +1,19 @@
+import 'package:ballistics_wallet_flutter/models/product_name.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
-import '../models/product_name.dart';
-import '../models/selected_product_history.dart';
-import '../utilities.dart';
-
 class PressingRepository {
-  final FirebaseFirestore db = FirebaseFirestore.instance;
 
   PressingRepository();
+  final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<void> addProduct(String productName, int target) async {
     // Convert the product name to title case
-    String formattedProductName = toTitleCase(productName);
+    final formattedProductName = toTitleCase(productName);
 
     // Open the Hive box
-    Box box = Hive.box('Products');
+    final box = Hive.box('Products');
 
     // Check if a product with the same name already exists
     if (box.containsKey(formattedProductName)) {
@@ -27,18 +25,16 @@ class PressingRepository {
     }
   }
   Future<String?> getImageNameForProduct(String productName) async {
-    Box<ProductName> box = Hive.box<ProductName>('Products');
+    final box = Hive.box<ProductName>('Products');
 
     // Try to find the product by its name
-    var productData = box.values.firstWhere(
+    final productData = box.values.firstWhere(
           (product) => product.name == productName,
     );
 
     if (productData.imageName != null) {
-      print("!!!!!!!!!!!!!!!!!!${productData.imageName}");
       return productData.imageName;
     } else {
-      print("No image found for product: $productName");
       return null;
     }
   }
@@ -46,16 +42,15 @@ class PressingRepository {
 
 
   Future<List<ProductName>> readProductsPressing() async {
-    Box<ProductName> box = await Hive.openBox<ProductName>('Products');
-    print('Read Products: ${box.toMap()}');
+    final box = await Hive.openBox<ProductName>('Products');
 
-    List<ProductName> products = box.values.toList();
+    final products = box.values.toList();
 
     return products;
   }
 
   Future<Map<String, dynamic>> getBonuses() async {
-    Map<String, int> swappedMap =
+    final swappedMap =
     bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
 
     return swappedMap;
@@ -64,16 +59,16 @@ class PressingRepository {
   Future<void> saveUserBonus(
       String userId, String productName, double bonus, int amount, double ratio,
       {double workingHours = 0}) async {
-    CollectionReference userBonusCollection = db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection('userBonuses');
 
-    DateTime now = DateTime.now();
-    DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
     DocumentReference docRef;
     CollectionReference producedCollection;
 
-    QuerySnapshot existingBonus = await userBonusCollection
+    final existingBonus = await userBonusCollection
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: today)
         .where('date', isLessThan: tomorrow)
@@ -87,7 +82,7 @@ class PressingRepository {
 
     if (validBonusDocs.isNotEmpty) {
       // If a bonus exists for the current day, get its ID and check 'produced' subcollection
-      String bonusId = validBonusDocs.first.id;
+      final bonusId = validBonusDocs.first.id;
       docRef = userBonusCollection.doc(bonusId);
     } else {
       // No bonus history for the current user exists for today, create a new document in the 'userBonuses' collection
@@ -101,14 +96,14 @@ class PressingRepository {
     }
 
     producedCollection = docRef.collection('produced');
-    QuerySnapshot existingProduced = await producedCollection
+    final existingProduced = await producedCollection
         .where('productName', isEqualTo: productName)
         .get();
 
     if (existingProduced.size > 0) {
       // If documents exist with the same productName, replace the amount and ratio
-      for (QueryDocumentSnapshot doc in existingProduced.docs) {
-        String producedId = doc.id;
+      for (final doc in existingProduced.docs) {
+        final producedId = doc.id;
         await producedCollection.doc(producedId).update({
           'amount': amount,
           'ratio': ratio,
@@ -131,13 +126,13 @@ class PressingRepository {
   Future<void> saveOvertimeUserBonus(
       String userId, String productName, double bonus, int amount, double ratio,
       {bool isOvertime = false, double workingHours = 0}) async {
-    CollectionReference userBonusCollection = db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection('userBonuses');
 
-    DateTime now = DateTime.now();
-    DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
-    QuerySnapshot existingBonus = await userBonusCollection
+    final existingBonus = await userBonusCollection
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: today)
         .where('date', isLessThan: tomorrow)
@@ -146,17 +141,17 @@ class PressingRepository {
 
     if (existingBonus.size > 0) {
       // If the overtime bonus exists, get its ID and check 'produced' subcollection
-      String bonusId = existingBonus.docs.first.id;
-      DocumentReference docRef = userBonusCollection.doc(bonusId);
-      CollectionReference producedCollection = docRef.collection('produced');
-      QuerySnapshot existingProduced = await producedCollection
+      final bonusId = existingBonus.docs.first.id;
+      final docRef = userBonusCollection.doc(bonusId);
+      final CollectionReference producedCollection = docRef.collection('produced');
+      final existingProduced = await producedCollection
           .where('productName', isEqualTo: productName)
           .get();
 
       if (existingProduced.size > 0) {
         // If documents exist with the same productName, replace the amount
-        for (QueryDocumentSnapshot doc in existingProduced.docs) {
-          String producedId = doc.id;
+        for (final doc in existingProduced.docs) {
+          final producedId = doc.id;
           await producedCollection.doc(producedId).update({
             'amount': amount,
             'ratio': ratio,
@@ -176,7 +171,7 @@ class PressingRepository {
       await docRef.update({'bonus': bonus});
     } else {
       // No overtime bonus history for the current user exists for today, create a new document in the 'userBonuses' collection
-      DocumentReference docRef = await userBonusCollection.add({
+      final docRef = await userBonusCollection.add({
         'userId': userId,
         'bonus': bonus,
         'timestamp': now,
@@ -186,7 +181,7 @@ class PressingRepository {
       });
 
       // Save product, amount, ratio, and workingHours to the 'produced' subcollection
-      CollectionReference producedCollection = docRef.collection('produced');
+      final CollectionReference producedCollection = docRef.collection('produced');
       await producedCollection.add({
         'productName': productName,
         'amount': amount,
@@ -209,30 +204,30 @@ class PressingRepository {
   }
 
   Future<Map<DateTime, List<dynamic>>> fetchUserBonuses(String userId) async {
-    Map<DateTime, List<dynamic>> bonuses = {};
+    final bonuses = <DateTime, List<dynamic>>{};
 
-    QuerySnapshot snapshot = await db
+    final QuerySnapshot snapshot = await db
         .collection('userBonuses')
         .where('userId', isEqualTo: userId)
         .get();
 
-    for (var doc in snapshot.docs) {
-      DateTime date = doc['date'].toDate().toLocal();
-      DateTime key = DateTime(date.year, date.month, date.day);
+    for (final doc in snapshot.docs) {
+      final DateTime date = doc['date'].toDate().toLocal();
+      final key = DateTime(date.year, date.month, date.day);
 
-      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      final data = doc.data() as Map<String, dynamic>?;
       if (data != null) {
         data['id'] = doc.id; // Include the document ID in the data
 
         // Fetch 'produced' sub-collection for each userBonus document
-        QuerySnapshot producedSnapshot =
+        final QuerySnapshot producedSnapshot =
         await doc.reference.collection('produced').get();
 
         // Create a list to store 'productName' and 'amount' for each product
-        List<Map<String, dynamic>> producedList = [];
+        final producedList = <Map<String, dynamic>>[];
 
-        for (var producedDoc in producedSnapshot.docs) {
-          Map<String, dynamic>? producedData =
+        for (final producedDoc in producedSnapshot.docs) {
+          final producedData =
           producedDoc.data() as Map<String, dynamic>?;
           if (producedData != null) {
             producedData['id'] =
@@ -257,7 +252,7 @@ class PressingRepository {
 
   Future<void> editUserBonus(
       String bonusId, String producedId, double bonus, int amount) async {
-    CollectionReference userBonusCollection = db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection('userBonuses');
 
     // Edit existing bonus
     try {
@@ -275,17 +270,17 @@ class PressingRepository {
   }
 
   Future<void> deleteUserBonus(String bonusId) async {
-    CollectionReference userBonusCollection = db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection('userBonuses');
 
     // Reference to the 'produced' subcollection
-    CollectionReference producedCollection =
+    final CollectionReference producedCollection =
     userBonusCollection.doc(bonusId).collection('produced');
 
     // Get all documents in the 'produced' subcollection
-    QuerySnapshot producedSnapshot = await producedCollection.get();
+    final producedSnapshot = await producedCollection.get();
 
     // Delete all documents in the 'produced' subcollection
-    for (DocumentSnapshot producedDoc in producedSnapshot.docs) {
+    for (final DocumentSnapshot producedDoc in producedSnapshot.docs) {
       await producedDoc.reference.delete();
     }
 
@@ -295,7 +290,7 @@ class PressingRepository {
 
   Future<void> deleteIndividualBonus(
       String userId, String bonusId, String itemId) async {
-    CollectionReference userBonusCollection = db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection('userBonuses');
     await userBonusCollection
         .doc(bonusId)
         .collection('produced')
@@ -304,15 +299,15 @@ class PressingRepository {
   }
 
   Future<Map<String, dynamic>> getUserProductInfo(String userId) async {
-    Map<String, dynamic> userInfo = {};
+    final userInfo = <String, dynamic>{};
 
     // Get current date
-    DateTime now = DateTime.now();
-    DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
     // Fetch user's bonuses for today
-    QuerySnapshot userBonusesSnapshot = await db
+    final QuerySnapshot userBonusesSnapshot = await db
         .collection('userBonuses')
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: today)
@@ -320,19 +315,19 @@ class PressingRepository {
         .get();
 
     // For each bonus, iterate through the 'produced' sub-collection
-    for (var bonusDoc in userBonusesSnapshot.docs) {
+    for (final bonusDoc in userBonusesSnapshot.docs) {
       // Check if the current bonus document isOvertime
-      bool isOvertime =
-          (bonusDoc.data() as Map<String, dynamic>)['isOvertime'] ?? false;
+      final bool isOvertime =
+          (bonusDoc.data()! as Map<String, dynamic>)['isOvertime'] ?? false;
 
       // Only process the 'produced' sub-collection if isOvertime is false
       if (!isOvertime) {
-        QuerySnapshot producedSnapshot =
+        final QuerySnapshot producedSnapshot =
         await bonusDoc.reference.collection('produced').get();
-        for (var producedDoc in producedSnapshot.docs) {
-          var data = producedDoc.data() as Map<String, dynamic>?;
-          String? productName = data?['productName'].toLowerCase().trim();
-          double? ratio = data?['ratio'];
+        for (final producedDoc in producedSnapshot.docs) {
+          final data = producedDoc.data() as Map<String, dynamic>?;
+          final String? productName = data?['productName'].toLowerCase().trim();
+          final double? ratio = data?['ratio'];
 
           // Store ratio
           if (productName != null && ratio != null) {

@@ -5,7 +5,7 @@ class UserRepository {
   final _db = FirebaseFirestore.instance;
 
   Future<Map<String, dynamic>?> getUserData(String userId) async {
-    DocumentSnapshot documentSnapshot =
+    final DocumentSnapshot documentSnapshot =
     await _db.collection('users').doc(userId).get();
 
     if (documentSnapshot.exists) {
@@ -44,12 +44,6 @@ class UserRepository {
 }
 
 class UserState {
-  final String? userId;
-  final double? workingHours; // actual working hours
-  final double? realWorkingHours; // effective working hours
-  final double? allowance;
-  final String? avatarUrl;
-  final bool? paidBreaks;
 
   UserState({
     this.userId,
@@ -59,6 +53,12 @@ class UserState {
     this.avatarUrl,
     this.paidBreaks,
   });
+  final String? userId;
+  final double? workingHours; // actual working hours
+  final double? realWorkingHours; // effective working hours
+  final double? allowance;
+  final String? avatarUrl;
+  final bool? paidBreaks;
 
   UserState copyWith({
     String? userId,
@@ -67,8 +67,7 @@ class UserState {
     double? allowance,
     String? avatarUrl,
     bool? paidBreaks,
-  }) {
-    return UserState(
+  }) => UserState(
       userId: userId ?? this.userId,
       workingHours: workingHours ?? this.workingHours,
       realWorkingHours: realWorkingHours ?? this.realWorkingHours,
@@ -76,13 +75,12 @@ class UserState {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       paidBreaks: paidBreaks ?? this.paidBreaks,
     );
-  }
 }
 
 class UserNotifier extends StateNotifier<UserState> {
-  final UserRepository userRepository;
 
   UserNotifier(this.userRepository) : super(UserState());
+  final UserRepository userRepository;
 
   double calculateEffectiveWorkingHours(double workingHours) {
     if (workingHours == 8.0) {
@@ -97,23 +95,23 @@ class UserNotifier extends StateNotifier<UserState> {
     }
   }
 
-  void loadUser(String userId) async {
+  Future<void> loadUser(String userId) async {
     final userData = await userRepository.getUserData(userId);
     if (userData != null) {
 
-      double? workingHours = userData['workingHours'] is int
+      var workingHours = userData['workingHours'] is int
           ? (userData['workingHours'] as int).toDouble()
           : userData['workingHours'] as double?;
       workingHours = calculateEffectiveWorkingHours(workingHours!);
 
-      double? realWorkingHours = userData['workingHours'];
+      final double? realWorkingHours = userData['workingHours'];
 
-      double? allowance = userData['allowance'] is int
+      final allowance = userData['allowance'] is int
           ? (userData['allowance'] as int).toDouble()
           : userData['allowance'] as double?;
 
       // Ensure paidBreaks is never null
-      bool paidBreaks = userData['paidBreaks'] ?? false;
+      final bool paidBreaks = userData['paidBreaks'] ?? false;
 
       state = UserState(
         userId: userId,
@@ -157,12 +155,9 @@ class UserNotifier extends StateNotifier<UserState> {
 
 final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
 
-final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>((ref) {
-  return UserNotifier(ref.watch(userRepositoryProvider));
-});
+final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>((ref) => UserNotifier(ref.watch(userRepositoryProvider)));
 
 final userDataProvider = FutureProvider.family<Map<String, dynamic>?, String>((ref, uid) {
   final userRepo = ref.watch(userRepositoryProvider);
   return userRepo.getUserData(uid);
 });
-

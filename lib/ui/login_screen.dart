@@ -1,12 +1,11 @@
+import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_controller.dart';
+import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../providers/auth_providers/states/login_controller.dart';
-import '../providers/auth_providers/states/login_states.dart';
-
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -109,30 +108,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 }
 
 class SplashScreen extends StatelessWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
+  Widget build(BuildContext context) => const Scaffold(
       body: Center(
         child: CircularProgressIndicator(),
       ),
     );
-  }
-}
-
-class EmailValidator {
-  static bool validate(String email) {
-    // Check if the email address is empty
-    if (email.isEmpty) {
-      return false;
-    }
-    // Check if the email address has the correct format
-    RegExp regex = RegExp(r"^[a-zA-Z\d._%+-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$");
-    if (!regex.hasMatch(email)) {
-      return false;
-    }
-    // The email address is valid
-    return true;
-  }
 }

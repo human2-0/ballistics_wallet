@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
 
-class BonusCoin extends StatelessWidget {
-  final double bonus;
+import 'package:flutter/material.dart';
 
-  const BonusCoin({Key? key, required this.bonus}) : super(key: key);
+class BonusCoin extends StatelessWidget {
+
+  const BonusCoin({required this.bonus, super.key});
+  final double bonus;
 
   @override
   Widget build(BuildContext context) {
@@ -89,17 +90,16 @@ class BonusCoin extends StatelessWidget {
 }
 
 class RainbowCircularProgressIndicator extends StatefulWidget {
+
+  const RainbowCircularProgressIndicator({required this.percentage, super.key});
   final double percentage;
 
-  const RainbowCircularProgressIndicator({Key? key, required this.percentage})
-      : super(key: key);
-
   @override
-  _RainbowCircularProgressIndicatorState createState() =>
-      _RainbowCircularProgressIndicatorState();
+  RainbowCircularProgressIndicatorState createState() =>
+      RainbowCircularProgressIndicatorState();
 }
 
-class _RainbowCircularProgressIndicatorState extends State<RainbowCircularProgressIndicator> with TickerProviderStateMixin {
+class RainbowCircularProgressIndicatorState extends State<RainbowCircularProgressIndicator> with TickerProviderStateMixin {
   late AnimationController _colorRotationController;
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
@@ -141,20 +141,16 @@ class _RainbowCircularProgressIndicatorState extends State<RainbowCircularProgre
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
+  Widget build(BuildContext context) => AnimatedBuilder(
       animation: Listenable.merge([_colorRotationController, _progressAnimation]),
-      builder: (BuildContext context, Widget? child) {
-        return CustomPaint(
+      builder: (context, child) => CustomPaint(
           painter: _RainbowCirclePainter(
             progress: _progressAnimation.value,
             rotation: _colorRotationController.value,
           ),
           size: const Size(46, 46),
-        );
-      },
+        ),
     );
-  }
 
   @override
   void dispose() {
@@ -177,8 +173,6 @@ class _RainbowCirclePainter extends CustomPainter {
     final radius = min(size.width, size.height) / 3;
 
     final gradient = SweepGradient(
-      startAngle: 0.0,
-      endAngle: 2 * pi,
       transform: GradientRotation(2 * pi * rotation),
       colors: const [
         Colors.red,
@@ -203,9 +197,9 @@ class _RainbowCirclePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     // Start angle is -pi/2 to make the progress start from the top
-    double startAngle = -pi / 2;
+    const startAngle = -pi / 2;
     // Sweep angle is 2*pi to make it a full circle
-    double sweepAngle = 2 * pi * progress;
+    final sweepAngle = 2 * pi * progress;
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -217,22 +211,20 @@ class _RainbowCirclePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 
 
 class MinimumCircle extends StatefulWidget {
+  const MinimumCircle({required this.percentage, super.key});
   final double percentage;
-  const MinimumCircle({Key? key, required this.percentage}) : super(key: key);
 
   @override
-  _MinimumCircleState createState() => _MinimumCircleState();
+  MinimumCircleState createState() => MinimumCircleState();
 }
 
-class _MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderStateMixin {
+class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
 
@@ -264,26 +256,22 @@ class _MinimumCircleState extends State<MinimumCircle> with SingleTickerProvider
         parent: _controller,
         curve: Curves.easeInOutCubic,
       ));
-      _controller.forward(from: 0.0);
+      _controller.forward(from: 0);
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
+  Widget build(BuildContext context) => AnimatedBuilder(
       animation: _controller,
-      builder: (BuildContext context, Widget? child) {
-        return CustomPaint(
+      builder: (context, child) => CustomPaint(
           painter: _MinimumCirclePainter(
             progress: _progressAnimation.value,
             color: Colors.green,
             backgroundColor: Colors.pink[50]!,
           ),
           size: const Size(46, 46),
-        );
-      },
+        ),
     );
-  }
 
   @override
   void dispose() {
@@ -327,29 +315,26 @@ class _MinimumCirclePainter extends CustomPainter {
         paint);
 
     // Draw the round caps
-    final Paint roundPaint = Paint()
+    final roundPaint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
 
-    final double strokeWidthHalf = paint.strokeWidth / 2;
+    final strokeWidthHalf = paint.strokeWidth / 2;
 
-    final Offset circleStartOffset = Offset(
+    final circleStartOffset = Offset(
       center.dx + radius * cos(-pi / 2),
       center.dy + radius * sin(-pi / 2),
     );
 
-    final Offset circleEndOffset = Offset(
+    final circleEndOffset = Offset(
       center.dx + radius * cos(-pi / 2 + angle),
       center.dy + radius * sin(-pi / 2 + angle),
     );
 
-    canvas.drawCircle(circleStartOffset, strokeWidthHalf, roundPaint);
-    canvas.drawCircle(circleEndOffset, strokeWidthHalf, roundPaint);
+    canvas..drawCircle(circleStartOffset, strokeWidthHalf, roundPaint)
+    ..drawCircle(circleEndOffset, strokeWidthHalf, roundPaint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-

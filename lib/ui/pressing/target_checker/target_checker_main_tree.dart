@@ -1,17 +1,15 @@
 import 'dart:math';
 
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/basic_shift.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/overtime_shift.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../providers/auth_providers/auth_provider.dart';
-import '../../../providers/target_check_provider.dart';
-import '../../../repository/users_repository.dart';
-import 'basic_shift/basic_shift.dart';
-import 'overtime_shift/overtime_shift.dart';
-
 class TargetChecker extends ConsumerStatefulWidget {
-  const TargetChecker({Key? key}) : super(key: key);
+  const TargetChecker({super.key});
 
   @override
   TargetCheckerCard createState() => TargetCheckerCard();
@@ -22,7 +20,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   final allowanceController = TextEditingController();
   late AnimationController _flipController;
   late Animation<double> _flipAnimation;
-  double _startPosition = 0.0;
+  double _startPosition = 0;
 
 
 
@@ -35,7 +33,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
       vsync: this,
       duration: const Duration(seconds: 1),
     );
-    _flipAnimation = Tween(begin: 0.0, end: 3.14).animate(_flipController);
+    _flipAnimation = Tween(end: 3.14).animate(_flipController);
   }
 
 
@@ -60,9 +58,9 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
     final focusNode = ref.watch(focusNodeProvider);
 
     return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      bool isWideScreen = constraints.maxWidth > 500;
-      double containerWidth = isWideScreen
+        builder: (context, constraints) {
+      final isWideScreen = constraints.maxWidth > 500;
+      final containerWidth = isWideScreen
           ? MediaQuery.of(context).size.width * 0.33
           : MediaQuery.of(context).size.width * 0.85;
 
@@ -76,8 +74,8 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
         },
         onHorizontalDragUpdate: (details) {
           setState(() {
-            double dx = details.globalPosition.dx - _startPosition;
-            _flipController.value += dx / (containerWidth);
+            final dx = details.globalPosition.dx - _startPosition;
+            _flipController.value += dx / containerWidth;
             _startPosition = details.globalPosition.dx;
           });
         },
@@ -86,12 +84,12 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
             _flipController.forward();
 
             ref.read(selectedProductProvider).state = '';
-            ref.read(searchTermProvider.notifier).state = "";
+            ref.read(searchTermProvider.notifier).state = '';
             ref.read(targetProvider.notifier).updateTarget(0);
             ref.read(textEditingControllerProvider).clear();
           } else {
             ref.read(selectedProductProvider).state = '';
-            ref.read(searchTermProvider.notifier).state = "";
+            ref.read(searchTermProvider.notifier).state = '';
             ref.read(targetProvider.notifier).updateTarget(0);
             ref.read(textEditingControllerProvider).clear();
             _flipController.reverse();
@@ -99,8 +97,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
         },
         child: AnimatedBuilder(
             animation: _flipAnimation,
-            builder: (context, child) {
-              return Transform(
+            builder: (context, child) => Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()
                     ..setEntry(3, 2, 0.001)
@@ -118,8 +115,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                           child: const OvertimeShift(),
                         ),
                         // BackFlipCard
-                      ]));
-            }),
+                      ]))),
       );
     });
   }

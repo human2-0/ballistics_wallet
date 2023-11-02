@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthRepository {
   AuthRepository(this._auth);
@@ -9,13 +9,9 @@ class AuthRepository {
 
   Stream<User?> get authStateChange => _auth.idTokenChanges();
 
-  String get userEmailAddress {
-    return _auth.currentUser?.email ?? '';
-  }
+  String get userEmailAddress => _auth.currentUser?.email ?? '';
 
-  String get currentUserId {
-    return _auth.currentUser?.uid ?? '';
-  }
+  String get currentUserId => _auth.currentUser?.uid ?? '';
 
   Future<User?> signInWithEmailAndPassword(
       String email, String password) async {
@@ -24,12 +20,12 @@ class AuthRepository {
           email: email, password: password);
       return result.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == "user-not-found") {
-        throw AuthException("User not found");
-      } else if (e.code == "wrong-password") {
-        throw AuthException("Wrong password.");
+      if (e.code == 'user-not-found') {
+        throw AuthException('User not found');
+      } else if (e.code == 'wrong-password') {
+        throw AuthException('Wrong password.');
       } else {
-        throw AuthException("An error occurred. Please try again later.");
+        throw AuthException('An error occurred. Please try again later.');
       }
     }
   }
@@ -42,20 +38,20 @@ class AuthRepository {
 
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    final googleUser = await _googleSignIn.signIn();
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth =
+    final googleAuth =
     await googleUser!.authentication;
 
     // Create a new credential
-    final OAuthCredential credential = GoogleAuthProvider.credential(
+    final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
     // Once signed in, return the UserCredential
-    final UserCredential userCredential =
+    final userCredential =
     await _auth.signInWithCredential(credential);
 
     // Checking if user data already exists
@@ -64,7 +60,7 @@ class AuthRepository {
 
     if (!snapshot.exists) {
       // If the user data does not exist, create a new document
-      usersRef.doc(userCredential.user!.uid).set({
+      await usersRef.doc(userCredential.user!.uid).set({
         'workingHours': 7, // Replace with actual working hours
         'avatarUrl': userCredential.user!.photoURL,
         // add more fields as needed
@@ -76,12 +72,10 @@ class AuthRepository {
 }
 
 class AuthException implements Exception {
-  final String message;
 
   AuthException(this.message);
+  final String message;
 
   @override
-  String toString() {
-    return message;
-  }
+  String toString() => message;
 }

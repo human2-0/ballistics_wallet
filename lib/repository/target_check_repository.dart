@@ -6,17 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
 class TargetRatioNotifier extends StateNotifier<double> {
+
+  TargetRatioNotifier(this._repository, this._userId) : super(0) {
+    Future.microtask(init);
+  }
   final PressingRepository _repository;
   final String _userId;
   Map<String, double> _productRatios = {};
 
-  TargetRatioNotifier(this._repository, this._userId) : super(0.0) {
-    init();
-  }
-
   Future<void> init() async {
     // Fetch necessary data from database
-    final Map<String, dynamic> data =
+    final data =
         await _repository.getUserProductInfo(_userId);
     if (data.isEmpty) {
       _productRatios = {};
@@ -35,7 +35,6 @@ class TargetRatioNotifier extends StateNotifier<double> {
 
   void updateRatio(String productName, int productTarget, int userNumber,
       double workingHours, double allowanceProvided) {
-    productName = productName.toLowerCase();
     int productTargetAdjusted;
 
     // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
@@ -56,22 +55,17 @@ class TargetRatioNotifier extends StateNotifier<double> {
       _productRatios.remove(productName);
     } else {
       // Calculate the ratio
-      double newRatio = userNumber / productTargetAdjusted.toDouble();
+      final newRatio = userNumber / productTargetAdjusted.toDouble();
 
       // Update the map
       _productRatios[productName] = newRatio;
     }
 
     // Recalculate the total ratio and update the state
-    state = _productRatios.values.fold(0.0, (a, b) => a + b);
+    state = _productRatios.values.fold(0, (a, b) => a + b);
   }
 
-  double getProductRatio(String productName) {
-    productName = productName.toLowerCase().trim();
-    // Normalize productName to lower case and trim spaces
-
-    return _productRatios[productName] ?? 0;
-  }
+  double getProductRatio(String productName) => _productRatios[productName] ?? 0;
 }
 
 class NumberNotifier extends StateNotifier<int> {
@@ -106,27 +100,27 @@ class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
   }
 
   int calculateMonthlyBonus() {
-    DateTime now = DateTime.now();
+    final now = DateTime.now();
 
     // if today is before the 20th, count from the 20th of the previous month
     // otherwise, count from the 20th of this month
-    int startMonth = now.day < 20 ? now.month - 1 : now.month;
-    int startYear =
+    final startMonth = now.day < 20 ? now.month - 1 : now.month;
+    final startYear =
         now.month == 1 && startMonth == 12 ? now.year - 1 : now.year;
 
-    DateTime start = DateTime(startYear, startMonth, 19);
-    DateTime end = DateTime(startYear, startMonth + 1, 18);
+    final start = DateTime(startYear, startMonth, 19);
+    final end = DateTime(startYear, startMonth + 1, 18);
 
-    int totalBonus = 0;
+    var totalBonus = 0;
 
-    for (var entry in state.entries) {
-      DateTime date = entry.key;
-      List<dynamic> bonuses = entry.value;
+    for (final entry in state.entries) {
+      final date = entry.key;
+      final bonuses = entry.value;
 
       if ((date.isAfter(start) || date.isAtSameMomentAs(start)) &&
           (date.isBefore(end) || date.isAtSameMomentAs(end))) {
-        for (var bonus in bonuses) {
-          var bonusValue = bonus['bonus'];
+        for (final bonus in bonuses) {
+          final bonusValue = bonus['bonus'];
           if (bonusValue is num) {
             totalBonus += bonusValue.round();
           }
@@ -140,7 +134,7 @@ class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
 
 class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   LastSelectedProductNotifier() : super([]) {
-    _fetchInitialData();
+    Future.microtask(_fetchInitialData);
   }
 
   Future<void> _fetchInitialData() async {
@@ -156,7 +150,7 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
     final box = await Hive.openBox<SelectedProduct>('selected_products');
 
     // Try to find an existing product with the same name
-    var existingProductKey = box.keys.firstWhere(
+    final existingProductKey = box.keys.firstWhere(
       (key) => box.get(key)!.name == product.name,
       orElse: () => null,
     );
@@ -169,10 +163,10 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
         selectedDate: DateTime.now(),
         target: existingProduct.target,
       );
-      box.put(existingProductKey, updatedProduct);
+      await box.put(existingProductKey, updatedProduct);
     } else {
       // If not found, add the new product to the box
-      box.add(product);
+      await box.add(product);
     }
 
     // Update the state with the latest values
@@ -183,16 +177,16 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
     final box = await Hive.openBox<SelectedProduct>('selected_products');
 
     // Try to find the key of the product with the given name
-    var productKey = box.keys.firstWhere(
+    final productKey = box.keys.firstWhere(
       (key) => box.get(key)!.name == productName,
       orElse: () => null,
     );
 
     if (productKey != null) {
       // If found, delete the product from the box
-      box.delete(productKey);
+      await box.delete(productKey);
     } else {
-      print("Product not found!");
+      print('Product not found!');
     }
 
     // Update the state with the latest values

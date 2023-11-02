@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class SlideToOvertime extends StatefulWidget {
-  const SlideToOvertime({Key? key}) : super(key: key);
+  const SlideToOvertime({super.key});
 
   @override
-  _SlideToOvertimeState createState() => _SlideToOvertimeState();
+  SlideToOvertimeState createState() => SlideToOvertimeState();
 }
 
-class _SlideToOvertimeState extends State<SlideToOvertime>
+class SlideToOvertimeState extends State<SlideToOvertime>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
@@ -22,8 +22,8 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(-0.15, 0.0),
-      end: Offset(0.15, 0.0),
+      begin: const Offset(-0.15, 0),
+      end: const Offset(0.15, 0),
     ).animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
     )..addStatusListener((status) {
@@ -44,9 +44,8 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.all(8),
       child: Column(
         children: <Widget>[
           Container(
@@ -58,20 +57,19 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                   blurRadius: 5,
                 ),
               ],
             ),
             child: Center(
               child: Column(
-                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text("Slide for overtime card"),
+                  const Text('Slide for overtime card'),
                   SlideTransition(
                     position: _slideAnimation,
                     child:
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: 22),
@@ -87,5 +85,4 @@ class _SlideToOvertimeState extends State<SlideToOvertime>
         ],
       ),
     );
-  }
 }

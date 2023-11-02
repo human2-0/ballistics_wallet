@@ -1,22 +1,21 @@
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_pressing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
-
-import '../../providers/wallet_provider.dart';
-import 'split_check/split_check.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeState();
@@ -42,10 +41,10 @@ class _HomeState extends ConsumerState<HomeScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
-        final String userId = ref.read(authRepositoryProvider).currentUserId;
-        ref.read(targetRatioProvider(userId).notifier).init();
+        final userId = ref.read(authRepositoryProvider).currentUserId;
+        await ref.read(targetRatioProvider(userId).notifier).init();
       }
     });
 
@@ -72,7 +71,7 @@ class _HomeState extends ConsumerState<HomeScreen>
 
     _offsetAnimation = Tween<Offset>(
       begin: Offset.zero,
-      end: const Offset(0.0, 1.0),
+      end: const Offset(0, 1),
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
@@ -81,13 +80,13 @@ class _HomeState extends ConsumerState<HomeScreen>
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
-        if (_isVisible == true) {
+        if (_isVisible) {
           _animationController.forward();
         }
       } else {
         if (_scrollController.position.userScrollDirection ==
             ScrollDirection.forward) {
-          if (_isVisible == false) {
+          if (!_isVisible) {
             _animationController.reverse();
           }
         }
@@ -98,7 +97,7 @@ class _HomeState extends ConsumerState<HomeScreen>
   void _handleTabAnimation() {
     // Use round() to convert the animation value to the nearest integer.
     // This gives the index of the tab we're swiping towards.
-    int newIndex = _tabController.animation!.value.round();
+    final newIndex = _tabController.animation!.value.round();
 
     if (newIndex != activeIndex) {
       setActiveTab(newIndex);
@@ -127,14 +126,14 @@ class _HomeState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final String userId = ref.read(authRepositoryProvider).currentUserId;
+    final userId = ref.read(authRepositoryProvider).currentUserId;
 
 
     return Scaffold(
       endDrawer: ref.watch(bonusTableSelectorProvider) ? const BonusTableOvertime() : const BonusTable() ,
       resizeToAvoidBottomInset: false,
       body: NotificationListener<ScrollNotification>(
-        onNotification: (ScrollNotification notification) {
+        onNotification: (notification) {
           handleScroll(notification);
           return true;
         },
@@ -144,8 +143,7 @@ class _HomeState extends ConsumerState<HomeScreen>
               children: [
                 SafeArea(
                   child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return TabBarView(
+                    builder: (context, constraints) => TabBarView(
                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
                         children: <Widget>[
@@ -155,8 +153,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                                   userId: userId, onNotification: handleScroll),
                           const ProfilePage(),
                         ],
-                      );
-                    },
+                      ),
                   ),
                 ),
               ],
@@ -164,8 +161,8 @@ class _HomeState extends ConsumerState<HomeScreen>
             // Always show the bottom navigation bar
             Positioned(
               bottom: 0,
-              left: 0.0,
-              right: 0.0,
+              left: 0,
+              right: 0,
               child: SlideTransition(
                 position: _offsetAnimation,
                 child: buildBottomNavigationBar(context),)
@@ -176,8 +173,7 @@ class _HomeState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget buildBottomNavigationBar(BuildContext context) {
-    return Container(
+  Widget buildBottomNavigationBar(BuildContext context) => Container(
       height: MediaQuery.of(context).size.height * 0.10,
       decoration: BoxDecoration(
         color: Colors.brown[50],
@@ -211,14 +207,13 @@ class _HomeState extends ConsumerState<HomeScreen>
             widthFactor: 1 / 4,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(33.0),
+                borderRadius: BorderRadius.circular(33),
                 color: Colors.yellow.withOpacity(0.5),
               ),
             ),
           ),
         ),
         Row(
-          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             Column(
@@ -275,7 +270,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                     });
                   },
                 ),
-                const Text("Wallet"),
+                const Text('Wallet'),
               ],
             ),
             Column(
@@ -301,5 +296,4 @@ class _HomeState extends ConsumerState<HomeScreen>
         ),
       ]),
     );
-  }
 }

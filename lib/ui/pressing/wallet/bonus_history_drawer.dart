@@ -1,29 +1,27 @@
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../providers/wallet_provider.dart';
-
 class BonusHistoryDrawer extends HookConsumerWidget {
-  final Function(ScrollNotification) onNotification;
 
-  const BonusHistoryDrawer({Key? key, required this.onNotification})
-      : super(key: key);
+  const BonusHistoryDrawer({required this.onNotification, super.key});
+  final void Function(ScrollNotification) onNotification;
 
-  double calculateTotalBonus(Map<DateTime, List<dynamic>> userBonuses,
+  num calculateTotalBonus(Map<DateTime, List<dynamic>> userBonuses,
       DateTime startDate, DateTime endDate) {
-    double totalBonus = 0;
+    num totalBonus = 0;
 
     // Iterate over all bonuses
-    for (var entry in userBonuses.entries) {
+    for (final entry in userBonuses.entries) {
       final date = entry.key;
       final bonuses = entry.value;
 
       // Check if the date of the bonuses is within the range
       if (date.isAfter(startDate) && date.isBefore(endDate)) {
         // If the date is within range, sum up the bonuses
-        for (var bonus in bonuses) {
-          totalBonus += (bonus['bonus'] as num? ?? 0);
+        for (final bonus in bonuses) {
+          totalBonus += bonus['bonus'] as num? ?? 0;
         }
       }
     }
@@ -31,20 +29,20 @@ class BonusHistoryDrawer extends HookConsumerWidget {
     return totalBonus;
   }
 
-  double calculateTotalHours(Map<DateTime, List<dynamic>> userBonuses,
+  num calculateTotalHours(Map<DateTime, List<dynamic>> userBonuses,
       DateTime startDate, DateTime endDate) {
-    double totalHours = 0;
+    num totalHours = 0;
 
     // Iterate over all bonuses
-    for (var entry in userBonuses.entries) {
+    for (final entry in userBonuses.entries) {
       final date = entry.key;
       final bonuses = entry.value;
 
       // Check if the date of the bonuses is within the range
       if (date.isAfter(startDate) && date.isBefore(endDate)) {
         // If the date is within range, sum up the hours
-        for (var bonus in bonuses) {
-          totalHours += (bonus['workingHours'] as num? ?? 0);
+        for (final bonus in bonuses) {
+          totalHours += bonus['workingHours'] as num? ?? 0;
         }
       }
     }
@@ -59,16 +57,14 @@ class BonusHistoryDrawer extends HookConsumerWidget {
     final now = DateTime.now();
 
     return NotificationListener<ScrollNotification>(
-      onNotification: (ScrollNotification notification) {
+      onNotification: (notification) {
         onNotification(notification);
         return true;
       },
       child: Drawer(
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
               stops: const [0.1, 0.3, 0.7, 0.95],
               colors: [
                 Colors.orange[700]!.withOpacity(0.9),
@@ -83,20 +79,20 @@ class BonusHistoryDrawer extends HookConsumerWidget {
             separatorBuilder: (context, index) =>
             const SizedBox(height: 8), // adds space between the items
             itemBuilder: (context, index) {
-              DateTime monthStart = DateTime(now.year, now.month - index, 19);
-              DateTime monthEnd = DateTime(now.year, now.month - index + 1, 18);
+              final monthStart = DateTime(now.year, now.month - index, 19);
+              final monthEnd = DateTime(now.year, now.month - index + 1, 18);
 
-              double totalBonusForMonth =
+              final totalBonusForMonth =
               calculateTotalBonus(bonuses, monthStart, monthEnd);
 
-              double totalHoursForMonth = calculateTotalHours(bonuses, monthStart, monthEnd);
+              final totalHoursForMonth = calculateTotalHours(bonuses, monthStart, monthEnd);
 
-              String period =
+              final period =
                   '${DateFormat('MMMM yyyy').format(monthStart)} - ${DateFormat('MMMM yyyy').format(monthEnd)}';
 
               return Padding(
                 padding: const EdgeInsets.all(4),
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(
                       Radius.circular(33),
@@ -149,4 +145,3 @@ class BonusHistoryDrawer extends HookConsumerWidget {
     );
   }
 }
-

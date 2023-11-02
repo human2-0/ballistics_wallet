@@ -1,29 +1,25 @@
 
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart'; // Import the PressingRepository
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-
-import '../../../../providers/pressing_db_provider.dart';
-import '../../../../providers/target_check_provider.dart';
-import '../../split_check/split_check.dart'; // Import the PressingRepository
 
 class BonusTable extends ConsumerWidget {
   const BonusTable({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String userId = ref.read(authRepositoryProvider).currentUserId;
-    double targetRatio = ref.watch(targetRatioProvider(userId));
+    final userId = ref.read(authRepositoryProvider).currentUserId;
+    final targetRatio = ref.watch(targetRatioProvider(userId));
     final userData = ref.watch(userNotifierProvider);
     final overtimeRatio = ref.watch(overtimeRatioProvider);
     final overtimeHours = ref.watch(overtimeWorkingHoursState);
     final workingHours = userData.workingHours ?? 0.0;
     final allowance = ref.watch(allowanceProvider);
-    print('allowance here $allowance');
-    double allowanceCheck = 0;
 
     return Stack(
       children: [
@@ -33,15 +29,13 @@ class BonusTable extends ConsumerWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
-              print('Error: ${snapshot.error}');
               return const Text('An error occurred');
             } else {
               final bonuses = snapshot.data!;
-              final int stableTarget = ref.watch(targetProvider);
-              double target = ref.watch(targetProvider) * (1 - targetRatio);
+              final stableTarget = ref.watch(targetProvider);
+              var target = ref.watch(targetProvider) * (1 - targetRatio);
               if (targetRatio == 0.0) {
-                double allowanceCheck = (workingHours - allowance) / 7;
-                print(allowanceCheck);
+                final allowanceCheck = (workingHours - allowance) / 7;
                 if (allowanceCheck > 0) {
                   target = target * allowanceCheck;
                 }
@@ -51,13 +45,13 @@ class BonusTable extends ConsumerWidget {
               final sortedKeys = bonuses.keys.toList();
 
               // Generate list of widgets
-              List<Widget> listItems = [];
+              final listItems = <Widget>[];
 
               if (target > 0) {
                 listItems.add(
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => SplitCheck(requiredAmount: target.ceil()),
@@ -65,14 +59,12 @@ class BonusTable extends ConsumerWidget {
                       );
                     },
                     child: Container(
-                      margin: const EdgeInsets.all(16.0),
+                      margin: const EdgeInsets.all(16),
                       width: MediaQuery.of(context).size.width * 0.5,
                       height: MediaQuery.of(context).size.height * 0.25,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: BorderRadius.circular(20),
                         gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                           colors: [Colors.orange[200]!, Colors.white],
                         ),
                         boxShadow: [
@@ -85,14 +77,12 @@ class BonusTable extends ConsumerWidget {
                         ],
                       ),
                       child: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.0),
+                            borderRadius: BorderRadius.circular(15),
                             color: Colors.orange.withOpacity(0.5),
                             gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
                             colors: [Colors.orange[200]!, Colors.white],
                           ),
                             boxShadow: [
@@ -110,11 +100,11 @@ class BonusTable extends ConsumerWidget {
                             children: [
                               const Text(
                                 'Minimum',
-                                style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                                style: TextStyle(fontSize: 16, color: Colors.black54),
                               ),
                               Text(
                                 '${target.ceil()}',
-                                style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -129,21 +119,20 @@ class BonusTable extends ConsumerWidget {
                 final bonus = (bonuses[key] as num).toDouble() *
                     (((overtimeHours ?? 0) > 0)
                         ? ((overtimeHours ?? 0) / 7)
-                        : (((workingHours.toDouble()) -
-                        allowance.toDouble())) / 7.0);
+                        : (workingHours -
+                        allowance) / 7.0);
                 final requiredPercentage =
                     double.parse(key) - ((overtimeRatio > 0.0)
                         ? overtimeRatio
                         : targetRatio) * 100;
-                print(requiredPercentage);
-                double allowanceCheck = (workingHours - allowance) / 7;
+                final allowanceCheck = (workingHours - allowance) / 7;
 
                 final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? stableTarget * allowanceCheck : stableTarget)) / 100).ceil();
 
                 if (requiredAmount > 0) {
                   return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => SplitCheck(requiredAmount: requiredAmount),
@@ -151,13 +140,11 @@ class BonusTable extends ConsumerWidget {
                       );
                     },
                     child: Container(
-                      margin: const EdgeInsets.all(16.0),
+                      margin: const EdgeInsets.all(16),
                       height: MediaQuery.of(context).size.height * 0.25,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: BorderRadius.circular(20),
                         gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                           colors: [Colors.orange[200]!, Colors.white],
                         ),
                         boxShadow: [
@@ -170,17 +157,15 @@ class BonusTable extends ConsumerWidget {
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8),
                         child: Row(
                           children: [
                             Expanded(
-                              child: Container(
+                              child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderRadius: BorderRadius.circular(15),
                                   color: Colors.orange.withOpacity(0.5),
                                   gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
                                     colors: [Colors.orange[200]!, Colors.white],
                                   ),
                                   boxShadow: [
@@ -197,24 +182,22 @@ class BonusTable extends ConsumerWidget {
                                   children: [
                                     const Text(
                                       'to earn',
-                                      style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                                      style: TextStyle(fontSize: 16, color: Colors.black54),
                                     ),
                                     Text(
                                     '£${formatDouble(bonus)}',
-                                    style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                                   ),]
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 16.0),
+                            const SizedBox(width: 16),
                             Expanded(
-                              child: Container(
+                              child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderRadius: BorderRadius.circular(15),
                                   color: Colors.orange.withOpacity(0.5),
                                   gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
                                     colors: [Colors.orange[200]!, Colors.white],
                                   ),
                                   boxShadow: [
@@ -230,12 +213,12 @@ class BonusTable extends ConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      '${requiredAmount}',
-                                      style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                                      '$requiredAmount',
+                                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                                     ),
                                     const Text(
                                       'more to do',
-                                      style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                                      style: TextStyle(fontSize: 16, color: Colors.black54),
                                     ),
                                   ],
                                 ),
@@ -261,7 +244,7 @@ class BonusTable extends ConsumerWidget {
           },
         ),
         Positioned(
-          top: 32.0,
+          top: 32,
           right: 0,
           child: FloatingActionButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -275,27 +258,17 @@ class BonusTable extends ConsumerWidget {
 }
 
 final updateAvailableItemsProvider = FutureProvider.autoDispose<void>((ref) async {
-  final String userId = ref.read(authRepositoryProvider).currentUserId;
-  final userData = ref.read(userNotifierProvider);
+  final userId = ref.read(authRepositoryProvider).currentUserId;
   final overtimeRatio = ref.watch(overtimeRatioProvider);
-  final overtimeHours = ref.watch(overtimeWorkingHoursState);
-  final workingHours = userData.workingHours ?? 0.0;
-  final allowance = ref.watch(allowanceProvider);
   final bonuses = await ref.read(pressingRepositoryProvider).getBonuses();
-  final int stableTarget = ref.watch(targetProvider);
+  final stableTarget = ref.watch(targetProvider);
   final targetRatio = ref.watch(targetRatioProvider(userId));
-  final target = ref.watch(targetProvider) *
-      (1 - ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio));
   final sortedKeys = bonuses.keys.toList()
     ..sort((a, b) => double.parse(a).compareTo(double.parse(b)));
 
-  List<Widget> listItems = [];
+  final listItems = <Widget>[];
 
-  for (String key in sortedKeys) {
-    final bonus = (bonuses[key] as num).toDouble() *
-        (((overtimeHours ?? 0) > 0)
-            ? ((overtimeHours ?? 0) / 7)
-            : (((workingHours.toDouble()) - allowance.toDouble())) / 7.0);
+  for (final key in sortedKeys) {
     final requiredPercentage =
         double.parse(key) - ((overtimeRatio > 0.0)
             ? overtimeRatio
@@ -311,4 +284,3 @@ final updateAvailableItemsProvider = FutureProvider.autoDispose<void>((ref) asyn
 });
 
 final availableItemsProvider = StateProvider<int>((ref) => 0);
-

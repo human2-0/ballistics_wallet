@@ -1,21 +1,18 @@
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../providers/target_check_provider.dart';
-import '../../../providers/wallet_provider.dart';
-
 
 class TargetButton extends ConsumerStatefulWidget {
+  const TargetButton({required this.productName, super.key, this.overtimes = false});
   final String productName;
   final bool overtimes;
-  const TargetButton({
-    required this.productName, this.overtimes = false}) : super();
 
   @override
-  _TargetButtonState createState() => _TargetButtonState();
+  TargetButtonState createState() => TargetButtonState();
 }
 
-class _TargetButtonState extends ConsumerState<TargetButton>
+class TargetButtonState extends ConsumerState<TargetButton>
     with TickerProviderStateMixin {
   late AnimationController _rotationController;
   late AnimationController _pulseController;
@@ -82,9 +79,8 @@ class _TargetButtonState extends ConsumerState<TargetButton>
     super.dispose();
   }
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.all(16),
       child: GestureDetector(
         onTap: () {
           ref.read(bonusTableSelectorProvider.notifier).state = widget.overtimes;
@@ -125,5 +121,4 @@ class _TargetButtonState extends ConsumerState<TargetButton>
         ),
       ),
     );
-  }
 }

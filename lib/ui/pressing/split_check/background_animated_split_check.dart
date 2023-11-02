@@ -5,11 +5,11 @@ class SplitCheckMainTree extends StatefulWidget {
   const SplitCheckMainTree({super.key});
 
   @override
-  _SplitCheckMainTreeState createState() =>
-      _SplitCheckMainTreeState();
+  SplitCheckMainTreeState createState() =>
+      SplitCheckMainTreeState();
 }
 
-class _SplitCheckMainTreeState
+class SplitCheckMainTreeState
     extends State<SplitCheckMainTree>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -24,14 +24,11 @@ class _SplitCheckMainTreeState
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
+  Widget build(BuildContext context) => AnimatedBuilder(
       animation: _controller,
-      builder: (context, child) {
-        return Container(
+      builder: (context, child) => DecoratedBox(
           decoration: BoxDecoration(
             gradient: RadialGradient(
-              center: Alignment.center,  // Adjust this if you want the center elsewhere
               radius: 1.3,  // Adjust the radius as needed
               colors: const [
                 Colors.red,
@@ -54,11 +51,9 @@ class _SplitCheckMainTreeState
             ),
           ),
           child: child,
-        );
-      },
-      child: SplitCheck(),
+        ),
+      child: const SplitCheck(),
     );
-  }
 
   List<double> _generateStops() {
     final progress = _controller.value;

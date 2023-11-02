@@ -4,6 +4,8 @@ part 'product_split.g.dart';
 
 @HiveType(typeId: 1)
 class Product {
+
+  Product(this.productName, this.productColor, this.systemG, this.systemCitric);
   @HiveField(0)
   final String productName;
 
@@ -16,8 +18,6 @@ class Product {
   @HiveField(3)
   final double systemCitric;
 
-  Product(this.productName, this.productColor, this.systemG, this.systemCitric);
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -29,10 +29,8 @@ class Product {
   }
 
   @override
-  int get hashCode {
-    return productName.hashCode ^
+  int get hashCode => productName.hashCode ^
     productColor.hashCode ^
     systemG.hashCode ^
     systemCitric.hashCode;
-  }
 }

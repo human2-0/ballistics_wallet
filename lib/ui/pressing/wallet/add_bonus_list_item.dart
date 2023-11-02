@@ -1,25 +1,22 @@
+import 'package:ballistics_wallet_flutter/models/product_name.dart';
+import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../models/product_name.dart';
-import '../../../providers/pressing_db_provider.dart';
-import '../../../providers/target_check_provider.dart';
-import '../../../providers/wallet_provider.dart';
-import '../../../repository/users_repository.dart';
-
 class AddBonusListItem extends HookConsumerWidget {
-  final Function(Map<String, dynamic>) onAdd;
+
+  const AddBonusListItem({required this.onAdd, required this.selectedDate, required this.userId, super.key,
+  });
+  final void Function(Map<String, dynamic>) onAdd;
+
   final DateTime selectedDate;
   final String userId;
-
-  const AddBonusListItem({super.key,
-    required this.onAdd,
-    required this.selectedDate,
-    required this.userId,
-  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,7 +26,7 @@ class AddBonusListItem extends HookConsumerWidget {
     final newProductAmountController =
     ref.watch(productAmountControllerProvider);
     final amountFocusNode = useFocusNode();
-    FocusNode bonusAmountFocusNode = FocusNode();
+    final bonusAmountFocusNode = FocusNode();
 
 
     final userBonusNotifier = ref.watch(userBonusNotifierProvider.notifier);
@@ -39,14 +36,12 @@ class AddBonusListItem extends HookConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(30),
       child: TextButton(
-        onPressed: () {
-          showModalBottomSheet(
+        onPressed: () async {
+          await showModalBottomSheet(
             isScrollControlled: true,
             context: context,
-            builder: (BuildContext context) {
-              return StatefulBuilder(
-                  builder: (BuildContext context, StateSetter setState) {
-                    return GestureDetector(
+            builder: (context) => StatefulBuilder(
+                  builder: (context, setState) => GestureDetector(
                       onTap: (){
                         FocusScope.of(context).requestFocus(FocusNode());
                       },
@@ -58,7 +53,7 @@ class AddBonusListItem extends HookConsumerWidget {
                               .bottom,
                         ),
                         child: Container(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
@@ -66,11 +61,11 @@ class AddBonusListItem extends HookConsumerWidget {
                                 'Add Bonus',
                                 style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 24.0,
+                                  fontSize: 24,
                                 ),
                               ),
-                              const SizedBox(height: 16.0),
-                              Container(
+                              const SizedBox(height: 16),
+                              DecoratedBox(
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(33),
@@ -98,7 +93,7 @@ class AddBonusListItem extends HookConsumerWidget {
                                   textAlign: TextAlign.center,
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                   inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]+[,.]{0,1}[0-9]*')),
+                                    FilteringTextInputFormatter.allow(RegExp('[0-9]+[,.]{0,1}[0-9]*')),
                                     TextInputFormatter.withFunction(
                                           (oldValue, newValue) => newValue.copyWith(
                                         text: newValue.text.replaceAll(',', '.'),
@@ -107,18 +102,18 @@ class AddBonusListItem extends HookConsumerWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 8.0),
+                              const SizedBox(height: 8),
                               FutureBuilder<List<ProductName>>(
                                 future: ref
                                     .watch(pressingRepositoryProvider)
                                     .readProductsPressing(),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    List<String> productList = snapshot.data!
+                                    final productList = snapshot.data!
                                         .map((product) =>
-                                        product.name.toString())
+                                        product.name)
                                         .toList();
-                                    return Container(
+                                    return DecoratedBox(
                                       decoration: BoxDecoration(
                                         borderRadius: const BorderRadius.all(
                                           Radius.circular(33),
@@ -146,19 +141,15 @@ class AddBonusListItem extends HookConsumerWidget {
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-                                        suggestionsCallback: (pattern) {
-                                          return productList
+                                        suggestionsCallback: (pattern) => productList
                                               .where((product) =>
                                               product
                                                   .toLowerCase()
                                                   .contains(pattern.toLowerCase()))
-                                              .toList();
-                                        },
-                                        itemBuilder: (context, suggestion) {
-                                          return ListTile(
+                                              .toList(),
+                                        itemBuilder: (context, suggestion) => ListTile(
                                             title: Text(suggestion),
-                                          );
-                                        },
+                                          ),
                                         onSuggestionSelected: (suggestion) {
                                           newProductNameController.text =
                                               suggestion;
@@ -174,8 +165,8 @@ class AddBonusListItem extends HookConsumerWidget {
                                   return const CircularProgressIndicator();
                                 },
                               ),
-                              const SizedBox(height: 8.0),
-                              Container(
+                              const SizedBox(height: 8),
+                              DecoratedBox(
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(33),
@@ -203,12 +194,12 @@ class AddBonusListItem extends HookConsumerWidget {
                                   keyboardType: TextInputType.number,
                                 ),
                               ),
-                              const SizedBox(height: 16.0),
+                              const SizedBox(height: 16),
                               Center(
                                 child: SwitchListTile(
                                   title: const Text('Overtime'),
                                   value: isOvertime.value,
-                                  onChanged: (bool value) {
+                                  onChanged: (value) {
                                     setState(() {
                                       isOvertime.value = value;
                                     });
@@ -217,7 +208,7 @@ class AddBonusListItem extends HookConsumerWidget {
                                 ),
                               ),
                               if (isOvertime.value)
-                                Container(
+                                DecoratedBox(
                                   decoration: BoxDecoration(
                                     borderRadius: const BorderRadius.all(
                                       Radius.circular(33),
@@ -244,7 +235,7 @@ class AddBonusListItem extends HookConsumerWidget {
                                     keyboardType: TextInputType.number,
                                   ),
                                 ),
-                              const SizedBox(height: 16.0),
+                              const SizedBox(height: 16),
                               Center(
                                 child: ElevatedButton(
                                   style: ButtonStyle(
@@ -257,7 +248,7 @@ class AddBonusListItem extends HookConsumerWidget {
                                     shape: MaterialStateProperty.all<
                                         RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
+                                        borderRadius: BorderRadius.circular(18),
                                       ),
                                     ),
                                   ),
@@ -265,13 +256,13 @@ class AddBonusListItem extends HookConsumerWidget {
                                   onPressed: () async {
                                     FocusScope.of(context).unfocus();
 
-                                    double? bonusAmount =
+                                    final bonusAmount =
                                     double.tryParse(newBonusAmountController.text);
-                                    String productName = newProductNameController
+                                    final productName = newProductNameController
                                         .text;
-                                    int? productAmount =
+                                    final productAmount =
                                     int.tryParse(newProductAmountController.text);
-                                    double? workingHours = isOvertime.value
+                                    final workingHours = isOvertime.value
                                         ? double.tryParse(overtimeHoursController.text)
                                         : ref
                                         .read(userNotifierProvider)
@@ -325,9 +316,7 @@ class AddBonusListItem extends HookConsumerWidget {
                           ),
                         ),
                       ),
-                    );
-                  });
-            },
+                    )),
           );
         },
         child: Container(
@@ -368,5 +357,3 @@ class AddBonusListItem extends HookConsumerWidget {
     );
   }
 }
-
-

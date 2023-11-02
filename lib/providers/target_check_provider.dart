@@ -1,27 +1,22 @@
+import 'package:ballistics_wallet_flutter/models/product_name.dart';
+import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
-import 'package:flutter/widgets.dart';
+import 'package:ballistics_wallet_flutter/repository/pressing_db_repository.dart';
+import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
-import '../models/product_name.dart';
-import '../models/selected_product_history.dart';
-import '../repository/pressing_db_repository.dart';
-import '../repository/target_check_repository.dart';
-
 final numberFocusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final numberFocusNode = FocusNode();
-  ref.onDispose(() {
-    numberFocusNode.dispose();
-  });
+  ref.onDispose(numberFocusNode.dispose);
   return numberFocusNode;
 });
 
 final allowanceFocusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final allowanceFocusNode = FocusNode();
-  ref.onDispose(() {
-    allowanceFocusNode.dispose();
-  });
+  ref.onDispose(allowanceFocusNode.dispose);
   return allowanceFocusNode;
 });
 
@@ -62,9 +57,7 @@ final textEditingControllerProvider = Provider.autoDispose<TextEditingController
   controller.addListener(() {
     ref.read(searchTermProvider.notifier).state = controller.text;
   });
-  ref.onDispose(() {
-    controller.dispose();
-  });
+  ref.onDispose(controller.dispose);
   return controller;
 });
 
@@ -72,18 +65,14 @@ final textEditingControllerProvider = Provider.autoDispose<TextEditingController
 final numberControllerProvider =
     Provider.autoDispose<TextEditingController>((ref) {
   final controller = TextEditingController();
-  ref.onDispose(() {
-    controller.dispose();
-  });
+  ref.onDispose(controller.dispose);
   return controller;
 });
 
 final allowanceControllerProvider =
     Provider.autoDispose<TextEditingController>((ref) {
   final controller = TextEditingController();
-  ref.onDispose(() {
-    controller.dispose();
-  });
+  ref.onDispose(controller.dispose);
   return controller;
 });
 
@@ -182,4 +171,3 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
 final lastSelectedProductProvider = StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(
       (ref) => LastSelectedProductNotifier(),
 );
-

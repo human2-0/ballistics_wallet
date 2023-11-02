@@ -1,16 +1,15 @@
+import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../providers/wallet_provider.dart';
-import '../../../utilities.dart';
-
 class MonthlyBonus extends ConsumerWidget {
-  const MonthlyBonus({Key? key}) : super(key: key);
+  const MonthlyBonus({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userBonuses = ref.watch(userBonusNotifierProvider);
-    double monthlyBonus = 0;
+    var monthlyBonus = 0.0;
 
     // Get dates for the range
     final now = DateTime.now();
@@ -27,15 +26,15 @@ class MonthlyBonus extends ConsumerWidget {
     }
 
     // Iterate over all bonuses
-    for (var entry in userBonuses.entries) {
+    for (final entry in userBonuses.entries) {
       final date = entry.key;
       final bonuses = entry.value;
 
       // Check if the date of the bonuses is within the range
       if ((date.compareTo(startDate) >= 0) && (date.compareTo(endDate) <= 0)) {
         // If the date is within range, sum up the bonuses
-        for (var bonus in bonuses) {
-          monthlyBonus += (bonus['bonus'] ?? 0);
+        for (final bonus in bonuses) {
+          monthlyBonus += bonus['bonus'] ?? 0;
         }
       }
     }
@@ -45,7 +44,7 @@ class MonthlyBonus extends ConsumerWidget {
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.4,
         height: MediaQuery.of(context).size.height * 0.1,
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(33)),
             gradient: const LinearGradient(
@@ -84,4 +83,3 @@ class MonthlyBonus extends ConsumerWidget {
     );
   }
 }
-

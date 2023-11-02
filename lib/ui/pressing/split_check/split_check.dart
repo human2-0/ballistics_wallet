@@ -1,56 +1,54 @@
+import 'package:ballistics_wallet_flutter/models/product_split.dart';
+import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
-import '../../../models/product_split.dart';
-import '../../../providers/split_provider.dart';
-
 class SplitCheck extends ConsumerStatefulWidget {
-  final int requiredAmount;
 
   const SplitCheck({super.key, this.requiredAmount = 0});
+  final int requiredAmount;
 
   @override
-  _SplitCheckState createState() => _SplitCheckState();
+  SplitCheckState createState() => SplitCheckState();
 }
 
-class _SplitCheckState extends ConsumerState<SplitCheck> {
+class SplitCheckState extends ConsumerState<SplitCheck> {
   late TextEditingController requiredAmountController;
   late TextEditingController productNameController;
   late TextEditingController amountPerBatchController;
   late Future<List<Product>> productsFuture;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     requiredAmountController =
         TextEditingController(text: widget.requiredAmount.toString());
     productNameController = TextEditingController();
-    final double workingHours =
+    final workingHours =
         ref.read(userNotifierProvider).workingHours ?? 0.0;
     amountPerBatchController = TextEditingController(
-        text: ((widget.requiredAmount > 0
+        text: (widget.requiredAmount > 0
             ? (widget.requiredAmount / (workingHours == 3.75 ? 6 : 12))
                 .toStringAsFixed(0)
-            : '')));
-    String productName = ref.read(selectedProductProvider).state;
-    print("target list bonus eloeloeloe$productName");
+            : ''));
+    final productName = ref.read(selectedProductProvider).state;
     productsFuture = getProducts(productName);
     productNameController.text = productName;
   }
 
   @override
-  void didChangeDependencies() {
+  Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    String productName = ref.read(selectedProductProvider).state;
-    final double workingHours =
+    final productName = ref.read(selectedProductProvider).state;
+    final workingHours =
         ref.read(userNotifierProvider).workingHours ?? 0.0;
-    amountPerBatchController.text = ((widget.requiredAmount > 0
+    amountPerBatchController.text = (widget.requiredAmount > 0
         ? (widget.requiredAmount / (workingHours == 3.75 ? 6 : 12))
             .toStringAsFixed(0)
-        : ''));
+        : '');
     productsFuture = getProducts(productName);
   }
 
@@ -77,15 +75,15 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(requiredAmountProvider);
-    ref.watch(amountPerBatchProvider);
-    ref.watch(selectedProductProvider);
+    ref..watch(requiredAmountProvider)
+    ..watch(amountPerBatchProvider)
+    ..watch(selectedProductProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Split check')),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: FutureBuilder<List<Product>>(
           future: productsFuture,
           builder: (context, snapshot) {
@@ -119,7 +117,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                         }
                         final products = snapshot.data!;
                         return Autocomplete<String>(
-                          optionsBuilder: (TextEditingValue textEditingValue) {
+                          optionsBuilder: (textEditingValue) {
                             if (textEditingValue.text == '') {
                               return const Iterable<String>.empty();
                             }
@@ -128,25 +126,22 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                                 .toSet()
                                 .toList();
 
-                            return uniqueProductNames.where((productName) {
-                              return productName
+                            return uniqueProductNames.where((productName) => productName
                                   .toLowerCase()
-                                  .contains(textEditingValue.text.toLowerCase());
-                            });
+                                  .contains(textEditingValue.text.toLowerCase()));
                           },
-                          onSelected: (String selection) {
+                          onSelected: (selection) {
                             productNameController.text = selection;
                             ref.read(searchTermProvider.notifier).state = selection;
-                            setState(() {
+                            setState(() async {
                               productsFuture = getProducts(selection);
                             });
                           },
-                          displayStringForOption: (String option) => option,
-                          fieldViewBuilder: (BuildContext context,
-                              TextEditingController textEditingController,
-                              FocusNode focusNode,
-                              VoidCallback onFieldSubmitted) {
-                            return TextField(
+                          displayStringForOption: (option) => option,
+                          fieldViewBuilder: (context,
+                              textEditingController,
+                              focusNode,
+                              onFieldSubmitted) => TextField(
                               controller: productNameController,
                               focusNode: focusNode,
                               onChanged: (value) => textEditingController.text = value,
@@ -162,8 +157,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                                   ),
                                 ),
                               ),
-                            );
-                          },
+                            ),
                         );
                       }),
                   TextField(
@@ -211,7 +205,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(4.0),
+                            padding: const EdgeInsets.all(4),
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -228,11 +222,11 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
                     shrinkWrap: true,
                     itemCount: products.length,
                     itemBuilder: (context, index) {
-                      Product product = products[index];
-                      String systemG =
+                      final product = products[index];
+                      final systemG =
                           ((product.systemG * amountPerBatch) / 1000)
                               .toStringAsFixed(2);
-                      String citricG =
+                      final citricG =
                           ((product.systemCitric * amountPerBatch) / 1000)
                               .toStringAsFixed(2);
 
@@ -246,7 +240,7 @@ class _SplitCheckState extends ConsumerState<SplitCheck> {
 
                       final color = getColorFromString(extractColorName(product.productColor));
                       return Padding(
-                        padding: const EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(4),
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
