@@ -1,11 +1,13 @@
+import 'package:flutter/foundation.dart'; // Needed for @immutable
 import 'package:hive/hive.dart';
 
 part 'product_split.g.dart';
 
+@immutable
 @HiveType(typeId: 1)
 class Product {
 
-  Product(this.productName, this.productColor, this.systemG, this.systemCitric);
+  const Product(this.productName, this.productColor, this.systemG, this.systemCitric);
   @HiveField(0)
   final String productName;
 
@@ -30,7 +32,7 @@ class Product {
 
   @override
   int get hashCode => productName.hashCode ^
-    productColor.hashCode ^
-    systemG.hashCode ^
-    systemCitric.hashCode;
+  productColor.hashCode ^
+  systemG.hashCode ^
+  systemCitric.hashCode;
 }
