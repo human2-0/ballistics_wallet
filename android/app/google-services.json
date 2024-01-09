@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:291226983840:android:c8230e9f0206b97b72d8c5",
+        "mobilesdk_app_id": "1:291226983840:android:1c9313beaaed665772d8c5",
         "android_client_info": {
-          "package_name": "com.example.boost_ballistics"
+          "package_name": "com.example.compounders"
         }
       },
       "oauth_client": [
@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com",
+              "client_id": "291226983840-4ntulnagh0p1qhoumuic16rdhai0anjv.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "lush.co.uk.ballisticsWalletFlutter"
+                "bundle_id": "com.example.administrators.RunnerTests"
               }
             }
           ]
@@ -50,11 +50,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com",
+          "client_id": "291226983840-jnhsuj90ug7jg9qgn099udgoore3368e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "lush.co.uk.ballistics_wallet_flutter",
-            "certificate_hash": "75fc826eccaa6d743f3e832ed9650bef656283c7"
+            "certificate_hash": "9cb677ccc17f27f3e35afad428bcb4b831524abb"
           }
         },
         {
@@ -75,10 +75,10 @@
               "client_type": 3
             },
             {
-              "client_id": "291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com",
+              "client_id": "291226983840-4ntulnagh0p1qhoumuic16rdhai0anjv.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "lush.co.uk.ballisticsWalletFlutter"
+                "bundle_id": "com.example.administrators.RunnerTests"
               }
             }
           ]

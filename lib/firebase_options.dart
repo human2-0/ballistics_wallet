@@ -44,13 +44,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-      apiKey: "AIzaSyCHZEptq_jp8HtLz4c4E-rnbQ6cjLSvQpM",
-      authDomain: "boost-ballistics.firebaseapp.com",
-      projectId: "boost-ballistics",
-      storageBucket: "boost-ballistics.appspot.com",
-      messagingSenderId: "291226983840",
-      appId: "1:291226983840:web:8923761a5598096872d8c5",
-      measurementId: "G-37NCRW3KR4"
+    apiKey: 'AIzaSyCHZEptq_jp8HtLz4c4E-rnbQ6cjLSvQpM',
+    appId: '1:291226983840:web:87a551cbea15548172d8c5',
+    messagingSenderId: '291226983840',
+    projectId: 'boost-ballistics',
+    authDomain: 'boost-ballistics.firebaseapp.com',
+    storageBucket: 'boost-ballistics.appspot.com',
+    measurementId: 'G-R1GHM6LN43',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

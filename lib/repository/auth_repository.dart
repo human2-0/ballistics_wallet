@@ -14,18 +14,21 @@ class AuthRepository {
   String get currentUserId => _auth.currentUser?.uid ?? '';
 
   Future<User?> signInWithEmailAndPassword(
-      String email, String password) async {
+      String email, String password,) async {
     try {
       final result = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email, password: password,
+      );
       return result.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw AuthException('User not found');
-      } else if (e.code == 'wrong-password') {
-        throw AuthException('Wrong password.');
-      } else {
-        throw AuthException('An error occurred. Please try again later.');
+      // More specific error handling
+      switch (e.code) {
+        case 'user-not-found':
+          throw AuthException('User not found');
+        case 'wrong-password':
+          throw AuthException('Wrong password.');
+        default:
+          throw AuthException('An error occurred: ${e.message}');
       }
     }
   }
@@ -37,42 +40,44 @@ class AuthRepository {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final googleUser = await _googleSignIn.signIn();
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw AuthException('Google sign-in was cancelled by the user');
+      }
 
-    // Obtain the auth details from the request
-    final googleAuth =
-    await googleUser!.authentication;
+      final googleAuth = await googleUser.authentication;
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-    // Once signed in, return the UserCredential
-    final userCredential =
-    await _auth.signInWithCredential(credential);
+      final userCredential = await _auth.signInWithCredential(credential);
 
-    // Checking if user data already exists
-    final usersRef = _firestore.collection('users');
-    final snapshot = await usersRef.doc(userCredential.user!.uid).get();
+      final usersRef = _firestore.collection('users');
+      final snapshot = await usersRef.doc(userCredential.user!.uid).get();
 
-    if (!snapshot.exists) {
-      // If the user data does not exist, create a new document
-      await usersRef.doc(userCredential.user!.uid).set({
-        'workingHours': 7, // Replace with actual working hours
-        'avatarUrl': userCredential.user!.photoURL,
-        // add more fields as needed
-      });
+      if (!snapshot.exists) {
+        await usersRef.doc(userCredential.user!.uid).set({
+          'workingHours': 7, // Replace with actual working hours
+          'avatarUrl': userCredential.user!.photoURL,
+          // Add more fields as needed
+        });
+      }
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      // Handling Firebase Auth exceptions
+      throw AuthException('Firebase Auth Exception: ${e.message}');
+    } catch (e) {
+      // Handling other exceptions
+      throw AuthException('An unknown error occurred: $e');
     }
-
-    return userCredential;
   }
 }
 
 class AuthException implements Exception {
-
   AuthException(this.message);
   final String message;
 

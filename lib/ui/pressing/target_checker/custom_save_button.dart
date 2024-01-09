@@ -2,7 +2,6 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,7 +23,7 @@ class CustomSaveButton extends ConsumerWidget {
     final workingHours = userState.workingHours ?? 0.0;
     return Builder(
       builder: (buttonContext) => LayoutBuilder(builder: (context,
-            constraints) => Column(
+            constraints,) => Column(
             children: [
               SizedBox(
                 width: constraints.maxWidth * 0.60,
@@ -32,7 +31,7 @@ class CustomSaveButton extends ConsumerWidget {
                   style: ButtonStyle(
                     backgroundColor:
                     MaterialStateProperty.all(
-                        Colors.yellowAccent[100]),
+                        Colors.yellowAccent[100],),
                     shape: MaterialStateProperty.all<
                         RoundedRectangleBorder>(
                       RoundedRectangleBorder(
@@ -48,10 +47,10 @@ class CustomSaveButton extends ConsumerWidget {
                     final authRepository = ref
                         .read(authRepositoryProvider);
                     final pressingRepository = ref.read(
-                        pressingRepositoryProvider);
+                        pressingRepositoryProvider,);
                     final bonusAsyncValue = ref.read(
                         bonusValueProvider(
-                            targetRatio)); // changed watch to read
+                            targetRatio,),); // changed watch to read
                     final userId =
                         authRepository.currentUserId;
                     final productName = ref
@@ -63,11 +62,11 @@ class CustomSaveButton extends ConsumerWidget {
                     final productRatioProvider =
                     ref.read(
                         targetRatioProvider(userId)
-                            .notifier);
+                            .notifier,);
                     final productRatio =
                     productRatioProvider
                         .getProductRatio(
-                        productName.toLowerCase().trim());
+                        productName.toLowerCase().trim(),);
 // Retrieve the bonus value
 
                     try {
@@ -85,14 +84,14 @@ class CustomSaveButton extends ConsumerWidget {
                               0)
                               : (userState
                               .workingHours ??
-                              0));
+                              0),);
 // Show a success message
                       ScaffoldMessenger.of(
-                          buttonContext)
+                          buttonContext,)
                           .showSnackBar(
                         const SnackBar(
                           content: Text(
-                              'Saved to Wallet successfully!'),
+                              'Saved to Wallet successfully!',),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -100,12 +99,12 @@ class CustomSaveButton extends ConsumerWidget {
                       if (e is String) {
                         await ref
                             .read(targetRatioProvider(
-                            userId)
-                            .notifier)
+                            userId,)
+                            .notifier,)
                             .init();
 // Handle the case where the bonus is already added today
                         ScaffoldMessenger.of(
-                            buttonContext)
+                            buttonContext,)
                             .showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -127,7 +126,7 @@ class CustomSaveButton extends ConsumerWidget {
                       } else {
 // Show an error message for other exceptions
                         ScaffoldMessenger.of(
-                            buttonContext)
+                            buttonContext,)
                             .showSnackBar(
                           SnackBar(
                             content: Text(e.toString()),
@@ -154,9 +153,8 @@ class CustomSaveButton extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SlideToOvertime(),
             ],
-          )),
+          ),),
     );
   }
   }

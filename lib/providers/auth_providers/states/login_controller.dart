@@ -1,6 +1,6 @@
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../auth_provider.dart';
-import 'login_states.dart';
 
 class LoginController extends StateNotifier<LoginState> {
   LoginController(this.ref) : super(const LoginStateInitial());
@@ -35,6 +35,4 @@ class LoginController extends StateNotifier<LoginState> {
 }
 
 final loginControllerProvider =
-    StateNotifierProvider<LoginController, LoginState>((ref) {
-  return LoginController(ref);
-});
+    StateNotifierProvider<LoginController, LoginState>(LoginController.new);

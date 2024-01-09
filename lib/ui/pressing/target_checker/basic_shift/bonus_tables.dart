@@ -187,7 +187,7 @@ class BonusTable extends ConsumerWidget {
                                     Text(
                                     '£${formatDouble(bonus)}',
                                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                                  ),]
+                                  ),],
                                 ),
                               ),
                             ),
@@ -232,7 +232,7 @@ class BonusTable extends ConsumerWidget {
                 } else {
                   return null;
                 }
-              }).whereType<Widget>());
+              }).whereType<Widget>(),);
 
 
               return ListWheelScrollView(

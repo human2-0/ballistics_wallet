@@ -13,17 +13,19 @@ class PressingRepository {
     final formattedProductName = toTitleCase(productName);
 
     // Open the Hive box
-    final box = Hive.box('Products');
+    final box = Hive.box<ProductName>('Products');
 
     // Check if a product with the same name already exists
     if (box.containsKey(formattedProductName)) {
       // If the product already exists, throw an error or return
       throw Exception('A product with the same name already exists');
     } else {
+      final newProduct = ProductName(name: formattedProductName, target: target);
       // If the product does not exist, add it to the Hive box
-      await box.put(formattedProductName, target);
+      await box.put(formattedProductName, newProduct); // Use formattedProductName as the key
     }
   }
+
   Future<String?> getImageNameForProduct(String productName) async {
     final box = Hive.box<ProductName>('Products');
 
@@ -58,7 +60,7 @@ class PressingRepository {
 
   Future<void> saveUserBonus(
       String userId, String productName, double bonus, int amount, double ratio,
-      {double workingHours = 0}) async {
+      {double workingHours = 0,}) async {
     final CollectionReference userBonusCollection = db.collection('userBonuses');
 
     final now = DateTime.now();
@@ -125,7 +127,7 @@ class PressingRepository {
 
   Future<void> saveOvertimeUserBonus(
       String userId, String productName, double bonus, int amount, double ratio,
-      {bool isOvertime = false, double workingHours = 0}) async {
+      {bool isOvertime = false, double workingHours = 0,}) async {
     final CollectionReference userBonusCollection = db.collection('userBonuses');
 
     final now = DateTime.now();
@@ -192,7 +194,7 @@ class PressingRepository {
   }
 
   Future<void> addUserBonus(
-      String userId, int bonus, DateTime selectedDate) async {
+      String userId, int bonus, DateTime selectedDate,) async {
     final userBonusCollection = db.collection('userBonuses');
 
     // Code to add the new bonus to Firestore
@@ -251,7 +253,7 @@ class PressingRepository {
   }
 
   Future<void> editUserBonus(
-      String bonusId, String producedId, double bonus, int amount) async {
+      String bonusId, String producedId, double bonus, int amount,) async {
     final CollectionReference userBonusCollection = db.collection('userBonuses');
 
     // Edit existing bonus
@@ -289,7 +291,7 @@ class PressingRepository {
   }
 
   Future<void> deleteIndividualBonus(
-      String userId, String bonusId, String itemId) async {
+      String userId, String bonusId, String itemId,) async {
     final CollectionReference userBonusCollection = db.collection('userBonuses');
     await userBonusCollection
         .doc(bonusId)

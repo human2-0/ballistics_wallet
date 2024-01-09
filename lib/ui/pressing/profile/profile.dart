@@ -23,7 +23,7 @@ class ProfilePage extends HookConsumerWidget {
     useEffect(() {
       userNotifier.loadUser(uid);
       return null;  // Return a null cleanup function because we don't need to cleanup anything
-    }, []);
+    }, [],);
 
     // Show loading spinner if user data is not yet loaded
     if (userDataAsyncValue is AsyncLoading) {
@@ -36,9 +36,25 @@ class ProfilePage extends HookConsumerWidget {
 
     // Show error message if there was an error loading user data
     if (userDataAsyncValue is AsyncError) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Error loading user data'),
+      return Scaffold(
+        body: Column(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Error loading user data'),
+                  IconButton(
+                    icon: const Icon(
+                        color: Colors.orange,
+                        Icons.flight_takeoff_outlined,),
+                    onPressed: authRepo.signOut,
+                  ),
+                  const Text('Log out'),
+                ],
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -102,12 +118,12 @@ class ProfilePage extends HookConsumerWidget {
                                               final success = await ref
                                                   .read(userRepositoryProvider)
                                                   .editWorkingHours(
-                                                      uid, newWorkingHours);
+                                                      uid, newWorkingHours,);
                                               if (success) {
                                                 userNotifier.updateUser(UserState(
                                                   workingHours: newWorkingHours,
                                                   avatarUrl: userState.avatarUrl,
-                                                ));
+                                                ),);
                                               }
                                               Navigator.of(context).pop();
                                             },
@@ -142,7 +158,7 @@ class ProfilePage extends HookConsumerWidget {
                                       allowance: userState.allowance,
                                       workingHours: userState.workingHours,
                                       realWorkingHours: userState.realWorkingHours,
-                                    ));
+                                    ),);
 
                                   }
                                 },
@@ -164,7 +180,7 @@ class ProfilePage extends HookConsumerWidget {
                                   IconButton(
                                     icon: const Icon(
                                         color: Colors.orange,
-                                        Icons.flight_takeoff_outlined),
+                                        Icons.flight_takeoff_outlined,),
                                     onPressed: authRepo.signOut,
                                   ),
                                   const Text('Log out'),

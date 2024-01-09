@@ -50,14 +50,26 @@ Future<void> loadDataFromCSV() async {
     final targetString = row[1]?.toString().replaceAll(RegExp('[,"]'), '').trim();
     final cleanedTargetString = targetString?.replaceAll(RegExp('[^0-9]'), '');
     final target = int.tryParse(cleanedTargetString!);
+
+    // Add print statements to debug
+    print('Row: $row');
+    print('Product Name: $productName');
+    print('Target String (Original): $targetString');
+    print('Cleaned Target String: $cleanedTargetString');
+    print('Parsed Target: $target');
+
     final imageName = row.length >= 3 ? row[2]?.toString().trim() : null;
 
     if (productName != null && productName.isNotEmpty && target != null && target != 0) {
       final product = ProductName(name: productName, target: target, imageName: imageName);
       await boxNames.put(productName, product);
+    } else {
+      // Print a message if product is skipped
+      print('Skipped product: $productName, with target: $target');
     }
   }
 }
+
 
 List<List<dynamic>> csvToList(String data) {
   final eol = data.contains('\r\n') ? '\r\n' : '\n';

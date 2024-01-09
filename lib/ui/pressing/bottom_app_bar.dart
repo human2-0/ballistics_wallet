@@ -75,7 +75,7 @@ class _HomeState extends ConsumerState<HomeScreen>
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
-    ));
+    ),);
 
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
@@ -150,7 +150,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                           const TargetChecker(),
                           const SplitCheck(),
                           BonusCalendar(
-                                  userId: userId, onNotification: handleScroll),
+                                  userId: userId, onNotification: handleScroll,),
                           const ProfilePage(),
                         ],
                       ),
@@ -165,7 +165,7 @@ class _HomeState extends ConsumerState<HomeScreen>
               right: 0,
               child: SlideTransition(
                 position: _offsetAnimation,
-                child: buildBottomNavigationBar(context),)
+                child: buildBottomNavigationBar(context),),
             ),
           ],
         ),
@@ -201,7 +201,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                   : activeIndex == 2
                   ? 0.33
                   : 1.0,
-              0),
+              0,),
 
           child: FractionallySizedBox(
             widthFactor: 1 / 4,
@@ -222,7 +222,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                 IconButton(
                   icon: Icon(
                     Icons.show_chart,
-                    size: 40,
+                    size: MediaQuery.of(context).size.aspectRatio * 60,
                     color: (activeIndex == 0) ? Colors.orange : Colors.black54,
                   ),
                   onPressed: () {
@@ -241,7 +241,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                 IconButton(
                   icon: Icon(
                     Icons.balance_outlined,
-                    size: 40,
+                    size: MediaQuery.of(context).size.aspectRatio * 60,
                     color: (activeIndex == 1) ? Colors.orange : Colors.black54,
                   ),
                   onPressed: () {
@@ -260,7 +260,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                 IconButton(
                   icon: Icon(
                     Icons.wallet_outlined,
-                    size: 40,
+                    size: MediaQuery.of(context).size.aspectRatio * 60,
                     color: (activeIndex == 2) ? Colors.orange : Colors.black54,
                   ),
                   onPressed: () {
@@ -279,7 +279,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                 IconButton(
                   icon: Icon(
                     Icons.account_circle_outlined,
-                    size: 40,
+                    size: MediaQuery.of(context).size.aspectRatio * 60,
                     color: (activeIndex == 3) ? Colors.orange : Colors.black54,
                   ),
                   onPressed: () {
@@ -294,6 +294,6 @@ class _HomeState extends ConsumerState<HomeScreen>
             ),
           ],
         ),
-      ]),
+      ],),
     );
 }

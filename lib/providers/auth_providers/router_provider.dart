@@ -4,14 +4,13 @@ import 'dart:async';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_controller.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
+import 'package:ballistics_wallet_flutter/ui/login_screen.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/bottom_app_bar.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
-import '../../ui/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../ui/pressing/split_check/split_check.dart';
 
 
 
@@ -31,7 +30,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 class RouterNotifier extends ChangeNotifier {
-  final Ref _ref;
 
   RouterNotifier(this._ref) {
     _ref.listen<LoginState>(
@@ -39,6 +37,7 @@ class RouterNotifier extends ChangeNotifier {
           (_, __) => notifyListeners(),
     );
   }
+  final Ref _ref;
 
   List<GoRoute> get _routes =>
       [
@@ -83,7 +82,7 @@ class RouterNotifier extends ChangeNotifier {
     } else {
       final email = userData.userEmailAddress ?? '';
       // Add the check for an empty string here
-      if (email.isEmpty || !email.endsWith('@lush.co.uk')) {
+      if (email.isEmpty || !email.endsWith('@gmail.com')) {
         return '/login';
       } else {
         return '/';
