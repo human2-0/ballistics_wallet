@@ -24,6 +24,7 @@ class PressingRepository {
       // If the product does not exist, add it to the Hive box
       await box.put(formattedProductName, newProduct); // Use formattedProductName as the key
     }
+    await updateRemotePressingTargets();
   }
 
   Future<String?> getImageNameForProduct(String productName) async {
@@ -341,6 +342,24 @@ class PressingRepository {
 
     return userInfo;
   }
+
+  Future<void> updateRemotePressingTargets() async {
+    final box = Hive.box<ProductName>('Products');
+    final dataToUpdate = <String, dynamic>{};
+
+    // Prepare the data to update in the 'pressing' map
+    for (final key in box.keys) {
+      final product = box.get(key);
+      if (product != null) {
+        dataToUpdate[product.name] = product.target;
+      }
+    }
+
+    // Update the Firestore document
+    await db.collection('targets').doc('pressing').set(dataToUpdate);
+  }
+
+
 
 }
 

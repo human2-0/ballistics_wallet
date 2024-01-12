@@ -171,3 +171,4 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
 final lastSelectedProductProvider = StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(
       (ref) => LastSelectedProductNotifier(),
 );
+

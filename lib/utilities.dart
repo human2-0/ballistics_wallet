@@ -52,11 +52,6 @@ Future<void> loadDataFromCSV() async {
     final target = int.tryParse(cleanedTargetString!);
 
     // Add print statements to debug
-    print('Row: $row');
-    print('Product Name: $productName');
-    print('Target String (Original): $targetString');
-    print('Cleaned Target String: $cleanedTargetString');
-    print('Parsed Target: $target');
 
     final imageName = row.length >= 3 ? row[2]?.toString().trim() : null;
 
@@ -65,7 +60,6 @@ Future<void> loadDataFromCSV() async {
       await boxNames.put(productName, product);
     } else {
       // Print a message if product is skipped
-      print('Skipped product: $productName, with target: $target');
     }
   }
 }

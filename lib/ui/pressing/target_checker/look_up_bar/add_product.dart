@@ -116,6 +116,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                       return;
                                     }
 
+
                                     try {
                                       await ref
                                           .read(
