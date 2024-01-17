@@ -27,6 +27,27 @@ class PressingRepository {
     await updateRemotePressingTargets();
   }
 
+  Future<void> deleteProduct(String productName) async {
+    // Convert the product name to title case
+    final formattedProductName = toTitleCase(productName);
+
+    // Open the Hive box
+    final box = Hive.box<ProductName>('Products');
+
+    // Check if a product with the given name exists
+    if (box.containsKey(formattedProductName)) {
+      // If the product exists, delete it from the Hive box
+      await box.delete(formattedProductName);
+    } else {
+      // If the product does not exist, throw an error or return
+      throw Exception('No product found with the given name');
+    }
+
+    // Update remote pressing targets after deletion
+    await updateRemotePressingTargets();
+  }
+
+
   Future<String?> getImageNameForProduct(String productName) async {
     final box = Hive.box<ProductName>('Products');
 
@@ -44,13 +65,44 @@ class PressingRepository {
 
 
 
+  // Future<List<ProductName>> readProductsPressing() async {
+  //   final box = await Hive.openBox<ProductName>('Products');
+  //
+  //   final products = box.values.toList();
+  //
+  //   return products;
+  // }
+
   Future<List<ProductName>> readProductsPressing() async {
-    final box = await Hive.openBox<ProductName>('Products');
+    Box<ProductName> box;
 
-    final products = box.values.toList();
+    try {
+      final DocumentSnapshot document = await db.collection('targets').doc('pressing').get();
 
-    return products;
+      if (document.exists) {
+        final data = document.data()! as Map<String, dynamic>;
+
+        // Convert targets to ProductName objects
+        final products = data.entries.map(ProductName.fromMapEntry).toList();
+
+        // Open the Hive box and update it with the new data
+        box = await Hive.openBox<ProductName>('Products');
+        await box.clear();  // Clear the box before updating it
+        for (final product in products) {
+          await box.put(product.name, product);  // Use product name as key
+        }
+
+        return products;
+      } else {
+        throw Exception('Document does not exist');
+      }
+    } on FormatException catch (e) {
+      // If fetching from Firebase fails, fallback to Hive
+      box = await Hive.openBox<ProductName>('Products');
+      return box.values.toList();
+    }
   }
+
 
   Future<Map<String, dynamic>> getBonuses() async {
     final swappedMap =

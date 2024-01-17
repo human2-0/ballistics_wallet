@@ -31,18 +31,16 @@ final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   });
 
   ref.onDispose(() {
-    focusNode.removeListener(() {
+    focusNode..removeListener(() {
       focusNotifier.setFocus(focusNode.hasFocus);
-    });
-    focusNode.dispose();
+    })
+    ..dispose();
   });
 
   return focusNode;
 });
 
-final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>((ref) {
-  return FocusNotifier();
-});
+final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>((ref) => FocusNotifier());
 
 final selectedProductFromHiveProvider = FutureProvider<String>((ref) async {
   final box = await Hive.openBox('settings');
@@ -52,7 +50,7 @@ final selectedProductFromHiveProvider = FutureProvider<String>((ref) async {
 final textEditingControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
   final textValueFromHive = ref.watch(selectedProductFromHiveProvider);
   final controller = TextEditingController(
-      text: textValueFromHive.maybeWhen(data: (data) => data, orElse: () => "")
+      text: textValueFromHive.maybeWhen(data: (data) => data, orElse: () => ''),
   );
   controller.addListener(() {
     ref.read(searchTermProvider.notifier).state = controller.text;
@@ -77,13 +75,9 @@ final allowanceControllerProvider =
 });
 
 final targetRatioProvider = StateNotifierProvider.autoDispose
-    .family<TargetRatioNotifier, double, String>((ref, userId) {
-  return TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId);
-});
+    .family<TargetRatioNotifier, double, String>((ref, userId) => TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId));
 
-final numberProvider = StateNotifierProvider<NumberNotifier, int>((ref) {
-  return NumberNotifier();
-});
+final numberProvider = StateNotifierProvider<NumberNotifier, int>((ref) => NumberNotifier());
 
 final targetProvider =
     StateNotifierProvider<TargetNotifier, int>((ref) => TargetNotifier());
@@ -97,13 +91,13 @@ final monthlyWorkingHoursProvider = StateProvider<double>((ref) => 0.0);
 
 final searchTermProvider = StateProvider<String>((ref) {
   final searchTermFromHive = ref.watch(selectedProductFromHiveProvider);
-  return searchTermFromHive.maybeWhen(data: (data) => data, orElse: () => "");
+  return searchTermFromHive.maybeWhen(data: (data) => data, orElse: () => '');
 });
 
 final selectedProductProvider = StateProvider<StateController<String>>((ref) {
   final selectedProductFromHive = ref.watch(selectedProductFromHiveProvider);
   return StateController<String>(
-      selectedProductFromHive.maybeWhen(data: (data) => data, orElse: () => "")
+      selectedProductFromHive.maybeWhen(data: (data) => data, orElse: () => ''),
   );
 });
 
@@ -111,16 +105,12 @@ final productsMade = StateProvider<int>((ref) => 0);
 
 final userBonusesProvider =
 StateNotifierProvider<UserBonusesNotifier, Map<DateTime, List<dynamic>>>(
-        (ref) {
-      return UserBonusesNotifier();
-    });
+        (ref) => UserBonusesNotifier(),);
 
 
 
 final productUpdateProvider =
-StateNotifierProvider<ProductUpdateNotifier, bool>((ref) {
-  return ProductUpdateNotifier();
-});
+StateNotifierProvider<ProductUpdateNotifier, bool>((ref) => ProductUpdateNotifier());
 
 class ProductUpdateNotifier extends StateNotifier<bool> {
   ProductUpdateNotifier() : super(false);
@@ -153,7 +143,7 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
   final sortedKeys = bonusPercentageMap.keys.toList()
     ..sort((a, b) => b.compareTo(a)); // We sort in descending order
 
-  double bonus = 0.0;
+  var bonus = 0.0;
   for (final key in sortedKeys) {
     // Check the logic
 
@@ -171,4 +161,3 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
 final lastSelectedProductProvider = StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(
       (ref) => LastSelectedProductNotifier(),
 );
-

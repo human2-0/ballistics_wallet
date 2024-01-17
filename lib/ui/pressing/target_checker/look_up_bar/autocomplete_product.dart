@@ -2,6 +2,7 @@ import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/add_product.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/delete_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -34,7 +35,7 @@ class ProductsListSuggested extends ConsumerWidget {
             final filteredProducts = data
                 .where((product) => product.name
                     .toLowerCase()
-                    .contains(ref.watch(searchTermProvider).toLowerCase()))
+                    .contains(ref.watch(searchTermProvider).toLowerCase()),)
                 .toList();
             return ListView.builder(
               itemCount: filteredProducts.isEmpty ? 1 : filteredProducts.length,
@@ -53,9 +54,10 @@ class ProductsListSuggested extends ConsumerWidget {
                     margin:
                         const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     child: ListTile(
+                      trailing: const Icon(Icons.touch_app_outlined, color: Colors.red,),
                       title: Text(product.name),
                       subtitle: Text(
-                          'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}'),
+                          'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',),
                       onTap: () async {
                         final selectedProductName = product.name;
                         ref
@@ -84,6 +86,23 @@ class ProductsListSuggested extends ConsumerWidget {
                           ),
                         );
                       },
+                      onLongPress: () async {
+                        // Show the DeleteItem dialog
+                        final result = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => DeleteItem(productName: product.name),
+                        );
+
+                        // Check the result of the dialog
+                        if (result == true) {
+                          // User confirmed deletion
+                          // Add your deletion logic here
+                        } else {
+                          // User cancelled deletion
+                          // Handle the cancellation here if needed
+                        }
+                      },
+
                     ),
                   );
                 }
