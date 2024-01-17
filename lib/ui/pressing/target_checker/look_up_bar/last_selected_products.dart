@@ -44,7 +44,7 @@ class LastSelectedProducts extends ConsumerWidget {
                         await ref
                             .read(lastSelectedProductProvider.notifier)
                             .deleteSelectedProductByName(product.name);
-                      }),
+                      },),
                   onTap: () async {
                     final selectedProductName = product.name;
 
@@ -76,7 +76,7 @@ class LastSelectedProducts extends ConsumerWidget {
                 ),
               );
             },
-          )),
+          ),),
     );
   }
 }

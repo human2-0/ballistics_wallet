@@ -37,32 +37,32 @@ DateTime nextMonday() {
   return now.add(Duration(days: daysUntilMonday));
 }
 
-Future<void> loadDataFromCSV() async {
-  final rawData = await rootBundle.loadString('new_targets.csv');
-  final rows = csvToList(rawData);
-
-  final boxNames = await Hive.openBox<ProductName>('Products');
-
-  for (final row in rows) {
-    if (row.length < 2) continue;
-
-    final productName = row[0]?.toString().trim();
-    final targetString = row[1]?.toString().replaceAll(RegExp('[,"]'), '').trim();
-    final cleanedTargetString = targetString?.replaceAll(RegExp('[^0-9]'), '');
-    final target = int.tryParse(cleanedTargetString!);
-
-    // Add print statements to debug
-
-    final imageName = row.length >= 3 ? row[2]?.toString().trim() : null;
-
-    if (productName != null && productName.isNotEmpty && target != null && target != 0) {
-      final product = ProductName(name: productName, target: target, imageName: imageName);
-      await boxNames.put(productName, product);
-    } else {
-      // Print a message if product is skipped
-    }
-  }
-}
+// Future<void> loadDataFromCSV() async {
+//   final rawData = await rootBundle.loadString('new_targets.csv');
+//   final rows = csvToList(rawData);
+//
+//   final boxNames = await Hive.openBox<ProductName>('Products');
+//
+//   for (final row in rows) {
+//     if (row.length < 2) continue;
+//
+//     final productName = row[0]?.toString().trim();
+//     final targetString = row[1]?.toString().replaceAll(RegExp('[,"]'), '').trim();
+//     final cleanedTargetString = targetString?.replaceAll(RegExp('[^0-9]'), '');
+//     final target = int.tryParse(cleanedTargetString!);
+//
+//     // Add print statements to debug
+//
+//     final imageName = row.length >= 3 ? row[2]?.toString().trim() : null;
+//
+//     if (productName != null && productName.isNotEmpty && target != null && target != 0) {
+//       final product = ProductName(name: productName, target: target, imageName: imageName);
+//       await boxNames.put(productName, product);
+//     } else {
+//       // Print a message if product is skipped
+//     }
+//   }
+// }
 
 
 List<List<dynamic>> csvToList(String data) {

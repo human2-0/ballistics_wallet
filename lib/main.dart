@@ -19,7 +19,7 @@ Future<void> _initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initHive();
-  await loadDataFromCSV();
+  // await loadDataFromCSV();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
