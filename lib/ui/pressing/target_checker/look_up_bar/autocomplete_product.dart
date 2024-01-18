@@ -70,24 +70,28 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                         'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',
                       ),
                       onTap: () async {
+                        print("Product Target: ${product.target}");
+                        print("Working Hours: $workingHours");
+                        print("Allowance: $allowance");
                         final selectedProductName = product.name;
-                        ref.read(selectedProductProvider.notifier).state.state =
-                            selectedProductName;
-                        textEditingController.text =
-                            selectedProductName; // Update the controller's text
+                        final productTarget = ((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil();
+
+                        // Save the selected product in Hive
+                        await Hive.box('settings').put('selectedProduct', product);
+
+                        // Check if the widget is still mounted before proceeding
+                        if (!mounted) return;
+
+                        // Update the state
+                        ref.read(selectedProductProvider.notifier).state.state = selectedProductName;
+                        textEditingController.text = selectedProductName; // Update the controller's text
                         ref.read(showListProvider.notifier).state = false;
                         ref.read(focusNodeProvider).unfocus();
-                        await Hive.box('settings')
-                            .put('selectedProduct', product);
 
-// Update the targetProvider state when a product is selected
-                        final productTarget = ((product.target.toDouble()) *
-                                ((workingHours - allowance) / 7.00))
-                            .ceil();
-                        await ref
-                            .read(targetProvider.notifier)
-                            .updateTarget(productTarget);
+                        // Update the targetProvider state
+                        await ref.read(targetProvider.notifier).updateTarget(productTarget);
 
+                        // Save the selected product history
                         await repo.saveSelectedProduct(
                           SelectedProduct(
                             name: product.name,
@@ -96,6 +100,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           ),
                         );
                       },
+
                       onLongPress: () async {
                         // Show the DeleteItem dialog
                         await showDialog<bool>(

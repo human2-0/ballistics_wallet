@@ -80,7 +80,7 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
             .deleteIndividualBonus(userId, parentId, childId);
 
         // Remove the child bonus from the parent's produced list immediately
-        _selectedEvents.value[parentIndex]['produced'].removeAt(childIndex);
+        // _selectedEvents.value[parentIndex]['produced'].removeAt(childIndex);
 
         // If there are no more child bonuses in the parent's produced list,
         // also remove the parent from the _selectedEvents list

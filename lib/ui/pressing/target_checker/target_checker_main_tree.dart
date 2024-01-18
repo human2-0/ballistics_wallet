@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
-import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/basic_shift.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/overtime_shift.dart';
 import 'package:flutter/material.dart';
@@ -44,24 +42,13 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
 
   @override
   Widget build(BuildContext context) {
-    @override
-    void initState() {
-      super.initState();
-      Future.microtask(() async {
-        final userId = ref.read(authRepositoryProvider).currentUserId;
-        if (mounted) {
-          await ref.read(userNotifierProvider.notifier).loadUser(userId);
-        }
-      });
-    }
-
     final focusNode = ref.watch(focusNodeProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWideScreen = constraints.maxWidth > 500;
         final containerWidth = isWideScreen
-            ? MediaQuery.of(context).size.width * 0.33
+            ? MediaQuery.of(context).size.width * 0.40
             : MediaQuery.of(context).size.width * 0.85;
 
         return GestureDetector(
@@ -101,25 +88,24 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
               alignment: Alignment.center,
               transform: Matrix4.identity()
                 ..setEntry(3, 2, 0.001)
-                ..rotateY(pi * _flipController.value)
-                ..setEntry(
-                  3,
-                  2,
-                  _flipController.value > 0.5 ? -0.001 : 0.001,
-                ),
+                ..rotateY(pi * _flipController.value),
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: IndexedStack(
                   alignment: Alignment.center,
                   index: (_flipController.value < 0.5) ? 0 : 1,
                   children: [
-                    BasicShift(
-                      onNotification: widget.onNotification,
+                    Center(
+                      child: BasicShift(
+                        onNotification: widget.onNotification,
+                      ),
                     ), // FrontFlipCard
-                    Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()..rotateY(pi),
-                      child: const OvertimeShift(),
+                    Center(
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()..rotateY(pi),
+                        child: const OvertimeShift(),
+                      ),
                     ),
                     // BackFlipCard
                   ],

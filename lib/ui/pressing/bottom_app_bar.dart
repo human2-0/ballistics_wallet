@@ -1,6 +1,7 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
@@ -46,6 +47,7 @@ class _HomeState extends ConsumerState<HomeScreen>
       if (mounted) {
         final userId = ref.read(authRepositoryProvider).currentUserId;
         await ref.read(targetRatioProvider(userId).notifier).init();
+        await ref.read(userNotifierProvider.notifier).loadUser(userId);
       }
     });
 

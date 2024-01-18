@@ -27,7 +27,6 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
     // Use useEffect to load user data when the widget is first created
     useEffect(() {
       Future.microtask(() async => userNotifier.loadUser(uid));
-      return null;  // Return a null cleanup function because we don't need to cleanup anything
     }, [],);
 
     // Show loading spinner if user data is not yet loaded
