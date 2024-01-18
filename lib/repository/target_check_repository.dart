@@ -34,7 +34,7 @@ class TargetRatioNotifier extends StateNotifier<double> {
   }
 
   void updateRatio(String productName, int productTarget, int userNumber,
-      double workingHours, double allowanceProvided) {
+      double workingHours, double allowanceProvided,) {
     int productTargetAdjusted;
 
     // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
@@ -71,7 +71,7 @@ class TargetRatioNotifier extends StateNotifier<double> {
 class NumberNotifier extends StateNotifier<int> {
   NumberNotifier() : super(0);
 
-  void updateNumber(int newNumber) {
+  Future<void> updateNumber(int newNumber) async {
     state = newNumber;
   }
 }
@@ -79,15 +79,13 @@ class NumberNotifier extends StateNotifier<int> {
 class TargetNotifier extends StateNotifier<int> {
   TargetNotifier() : super(0);
 
-  void updateTarget(int newTarget) {
-    state = newTarget;
-  }
+  Future<void> updateTarget(int newTarget) async => state = newTarget;
 }
 
 class FocusNotifier extends StateNotifier<bool> {
   FocusNotifier() : super(false);
 
-  void setFocus(bool focus) {
+  Future<void> setFocus(bool focus) async {
     state = focus;
   }
 }
@@ -95,7 +93,7 @@ class FocusNotifier extends StateNotifier<bool> {
 class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
   UserBonusesNotifier() : super({});
 
-  void setUserBonuses(Map<DateTime, List<dynamic>> userBonuses) {
+  Future<void> setUserBonuses(Map<DateTime, List<dynamic>> userBonuses) async {
     state = userBonuses;
   }
 
@@ -186,7 +184,6 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
       // If found, delete the product from the box
       await box.delete(productKey);
     } else {
-      print('Product not found!');
     }
 
     // Update the state with the latest values

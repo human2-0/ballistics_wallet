@@ -9,7 +9,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class BonusListItem extends HookConsumerWidget {
+class BonusListItem extends StatefulHookConsumerWidget {
   const BonusListItem({
     required this.date,
     required this.index,
@@ -27,12 +27,23 @@ class BonusListItem extends HookConsumerWidget {
   final int parentIndex;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  BonusListItemState createState() => BonusListItemState();
+}
+
+class BonusListItemState extends ConsumerState<BonusListItem> {
+  @override
+  Widget build(BuildContext context) {
+    final event = widget.event;
+    final onDelete = widget.onDelete;
+    final index = widget.index;
+    final userId = widget.userId;
+    final parentIndex = widget.parentIndex;
+    final date = widget.date;
     final newProductNameController = useTextEditingController();
     final newProductAmountController = useTextEditingController();
 
     // Ensure that produced is not null
-    final produced = event['produced'] ?? []; // List of produced items
+    final produced = event.getList('produced');
 
     final isEditing = useState(false);
     final newBonusAmountController =
@@ -84,56 +95,60 @@ class BonusListItem extends HookConsumerWidget {
                     MainAxisAlignment.center, // Add this line to center the row
                 children: [
                   Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(33),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaryColor[500]!.withOpacity(0.6),
-                                offset: const Offset(10, 10),
-                                blurRadius: 10,
-                                spreadRadius: -5,
-                              ),
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.4),
-                                offset: const Offset(-5, -5),
-                                blurRadius: 15,
-                                spreadRadius: -5,
-                              ),
-                            ],
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: const [0.1, 0.5, 0.7, 0.9],
-                              colors: [
-                                primaryColor.withOpacity(0.4),
-                                primaryColor[300]!,
-                                primaryColor.withOpacity(0.5),
-                                primaryColor.withOpacity(0.01),
-                              ],
-                            ),
-                            color: Colors.white,
+                    padding: const EdgeInsets.all(4),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(33),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor[500]!.withOpacity(0.6),
+                            offset: const Offset(10, 10),
+                            blurRadius: 10,
+                            spreadRadius: -5,
                           ),
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.17,
-                            height: MediaQuery.of(context).size.height * 0.09,
-                            child: Center(
-                                child: Text(
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    'Hours\n    ${formatDouble(event['workingHours'] ?? 0.0)}')),
-                          ))),
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.4),
+                            offset: const Offset(-5, -5),
+                            blurRadius: 15,
+                            spreadRadius: -5,
+                          ),
+                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            primaryColor.withOpacity(0.4),
+                            primaryColor[300]!,
+                            primaryColor.withOpacity(0.5),
+                            primaryColor.withOpacity(0.01),
+                          ],
+                        ),
+                        color: Colors.white,
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.17,
+                        height: MediaQuery.of(context).size.height * 0.09,
+                        child: Center(
+                          child: Text(
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            'Hours\n    ${formatDouble(event.getDouble('workingHours'))}',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () {
                       isEditing.value = !isEditing.value; // toggle editing mode
                       if (isEditing.value) {
                         newBonusAmountController.text =
-                            formatDouble(event['bonus']);
+                            formatDouble(event.getDouble('workingHours'));
                       }
                     },
                     child: Padding(
@@ -187,7 +202,7 @@ class BonusListItem extends HookConsumerWidget {
                                         ),
                                       )
                                     : Text(
-                                        '£${formatDouble(event['bonus'])}',
+                                        '£${formatDouble(event.getDouble('workingHours'))}',
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
@@ -202,9 +217,10 @@ class BonusListItem extends HookConsumerWidget {
                                     icon: const Icon(Icons.delete_outline),
                                     onPressed: () async {
                                       await ref
-                                          .read(userBonusNotifierProvider
-                                              .notifier)
-                                          .deleteUserBonus(event['id'], userId)
+                                          .read(
+                                            userBonusNotifierProvider.notifier,
+                                          )
+                                          .deleteUserBonus(event['id'].toString(), userId)
                                           .then((_) {
                                         event['bonus'] = 0;
                                         isEditing.value = false;
@@ -212,8 +228,10 @@ class BonusListItem extends HookConsumerWidget {
 
                                         // Only call init() after the delete operation has completed.
                                         ref
-                                            .read(targetRatioProvider(userId)
-                                                .notifier)
+                                            .read(
+                                              targetRatioProvider(userId)
+                                                  .notifier,
+                                            )
                                             .init();
                                       });
                                     },
@@ -227,13 +245,19 @@ class BonusListItem extends HookConsumerWidget {
                                         const Icon(Icons.check_circle_outline),
                                     onPressed: () async {
                                       final newBonusAmount = double.tryParse(
-                                          newBonusAmountController.text);
+                                        newBonusAmountController.text,
+                                      );
                                       if (newBonusAmount != null) {
                                         await ref
-                                            .read(userBonusNotifierProvider
-                                                .notifier)
-                                            .editBonus(userId, event['id'],
-                                                newBonusAmount);
+                                            .read(
+                                              userBonusNotifierProvider
+                                                  .notifier,
+                                            )
+                                            .editBonus(
+                                              userId,
+                                              event['id'].toString(),
+                                              newBonusAmount,
+                                            );
                                         event['bonus'] = newBonusAmount;
                                         isEditing.value = false;
                                         newBonusAmountController.clear();
@@ -258,7 +282,7 @@ class BonusListItem extends HookConsumerWidget {
                           itemBuilder: (context, i) {
                             final item = produced[i];
                             return ListTile(
-                              title: Text(item['productName']),
+                              title: Text(item['productName'].toString()),
                               subtitle: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -267,17 +291,20 @@ class BonusListItem extends HookConsumerWidget {
                                 ],
                               ),
                               trailing: IconButton(
-                                  color: Colors.red,
-                                  icon: Icon(
-                                      color: Colors.pink[50],
-                                      Icons.delete_outline),
-                                  onPressed: () async {
-                                    onDelete?.call(parentIndex, index);
-                                    await ref
-                                        .read(targetRatioProvider(userId)
-                                            .notifier)
-                                        .init();
-                                  }),
+                                color: Colors.red,
+                                icon: Icon(
+                                  color: Colors.pink[50],
+                                  Icons.delete_outline,
+                                ),
+                                onPressed: () async {
+                                  onDelete?.call(parentIndex, index);
+                                  await ref
+                                      .read(
+                                        targetRatioProvider(userId).notifier,
+                                      )
+                                      .init();
+                                },
+                              ),
                             );
                           },
                         ),
@@ -289,14 +316,14 @@ class BonusListItem extends HookConsumerWidget {
                                 isScrollControlled: true,
                                 context: context,
                                 builder: (context) => AnimatedPadding(
-                                    padding: EdgeInsets.only(
-                                      bottom: MediaQuery.of(context)
-                                          .viewInsets
-                                          .bottom,
-                                    ),
-                                    duration: const Duration(milliseconds: 100),
-                                    child: SingleChildScrollView(
-                                        child: Container(
+                                  padding: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context)
+                                        .viewInsets
+                                        .bottom,
+                                  ),
+                                  duration: const Duration(milliseconds: 100),
+                                  child: SingleChildScrollView(
+                                    child: Container(
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -310,89 +337,103 @@ class BonusListItem extends HookConsumerWidget {
                                           ),
                                           const SizedBox(height: 16),
                                           FutureBuilder<List<ProductName>>(
-                                              future: ref
-                                                  .watch(
-                                                      pressingRepositoryProvider)
-                                                  .readProductsPressing(),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.hasData) {
-                                                  final productList = snapshot
-                                                      .data!
-                                                      .map((product) =>
-                                                          product.name)
-                                                      .toList();
-                                                  return DecoratedBox(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          const BorderRadius
-                                                              .all(
-                                                        Radius.circular(33),
-                                                      ),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.orange
-                                                              .withOpacity(1),
-                                                          offset: const Offset(
-                                                              2, -2.5),
-                                                        ),
-                                                      ],
+                                            future: ref
+                                                .watch(
+                                                  pressingRepositoryProvider,
+                                                )
+                                                .readProductsPressing(),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData) {
+                                                final productList =
+                                                    snapshot.data!
+                                                        .map(
+                                                          (product) =>
+                                                              product.name,
+                                                        )
+                                                        .toList();
+                                                return DecoratedBox(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                      Radius.circular(33),
                                                     ),
-                                                    child: TypeAheadField(
-                                                      textFieldConfiguration:
-                                                          TextFieldConfiguration(
-                                                        controller:
-                                                            newProductNameController,
-                                                        decoration:
-                                                            InputDecoration(
-                                                          alignLabelWithHint:
-                                                              true,
-                                                          hintText:
-                                                              'Product Name',
-                                                          filled: true,
-                                                          fillColor: Colors
-                                                              .orange[100],
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        33),
-                                                            borderSide:
-                                                                BorderSide.none,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.orange
+                                                            .withOpacity(1),
+                                                        offset: const Offset(
+                                                          2,
+                                                          -2.5,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: TypeAheadField(
+                                                    textFieldConfiguration:
+                                                        TextFieldConfiguration(
+                                                      controller:
+                                                          newProductNameController,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        alignLabelWithHint:
+                                                            true,
+                                                        hintText:
+                                                            'Product Name',
+                                                        filled: true,
+                                                        fillColor:
+                                                            Colors.orange[100],
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                            33,
                                                           ),
+                                                          borderSide:
+                                                              BorderSide.none,
                                                         ),
-                                                        textAlign:
-                                                            TextAlign.center,
                                                       ),
-                                                      suggestionsCallback:
-                                                          (pattern) => productList
-                                                              .where((product) => product
-                                                                  .toLowerCase()
-                                                                  .contains(pattern
-                                                                      .toLowerCase()))
-                                                              .toList(),
-                                                      itemBuilder: (context,
-                                                              suggestion) =>
-                                                          ListTile(
-                                                        title: Text(suggestion),
-                                                      ),
-                                                      onSuggestionSelected:
-                                                          (suggestion) {
-                                                        newProductNameController
-                                                            .text = suggestion;
-                                                      },
-                                                      noItemsFoundBuilder:
-                                                          (context) => const Text(
-                                                              'No matches found'),
+                                                      textAlign:
+                                                          TextAlign.center,
                                                     ),
-                                                  );
-                                                } else if (snapshot.hasError) {
-                                                  return Text(
-                                                      'Error: ${snapshot.error}');
-                                                }
-                                                // Show a loading indicator while waiting for the products
-                                                return const CircularProgressIndicator();
-                                              }),
+                                                    suggestionsCallback:
+                                                        (pattern) => productList
+                                                            .where(
+                                                              (product) => product
+                                                                  .toLowerCase()
+                                                                  .contains(
+                                                                    pattern
+                                                                        .toLowerCase(),
+                                                                  ),
+                                                            )
+                                                            .toList(),
+                                                    itemBuilder: (
+                                                      context,
+                                                      suggestion,
+                                                    ) =>
+                                                        ListTile(
+                                                      title: Text(suggestion),
+                                                    ),
+                                                    onSuggestionSelected:
+                                                        (suggestion) {
+                                                      newProductNameController
+                                                          .text = suggestion;
+                                                    },
+                                                    noItemsFoundBuilder:
+                                                        (context) => const Text(
+                                                      'No matches found',
+                                                    ),
+                                                  ),
+                                                );
+                                              } else if (snapshot.hasError) {
+                                                return Text(
+                                                  'Error: ${snapshot.error}',
+                                                );
+                                              }
+                                              // Show a loading indicator while waiting for the products
+                                              return const CircularProgressIndicator();
+                                            },
+                                          ),
                                           const SizedBox(height: 8),
                                           DecoratedBox(
                                             decoration: BoxDecoration(
@@ -434,39 +475,47 @@ class BonusListItem extends HookConsumerWidget {
                                               style: ButtonStyle(
                                                 backgroundColor:
                                                     MaterialStateProperty.all(
-                                                        Colors.tealAccent),
+                                                  Colors.tealAccent,
+                                                ),
                                                 shadowColor:
                                                     MaterialStateProperty.all(
-                                                        Colors.tealAccent),
+                                                  Colors.tealAccent,
+                                                ),
                                                 elevation:
                                                     MaterialStateProperty.all(
-                                                        10), // adjust for desired shadow effect
+                                                  10,
+                                                ), // adjust for desired shadow effect
                                                 shape:
                                                     MaterialStateProperty.all<
                                                         RoundedRectangleBorder>(
                                                   RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            18),
+                                                      18,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                               onPressed: () async {
                                                 FocusScope.of(context)
                                                     .unfocus();
-                                                ref.read(
+                                                ref
+                                                  ..read(
                                                     userBonusNotifierProvider
-                                                        .notifier);
-                                                ref.read(
+                                                        .notifier,
+                                                  )
+                                                  ..read(
                                                     targetRatioProvider(userId)
-                                                        .notifier);
+                                                        .notifier,
+                                                  );
                                                 final newProductName =
                                                     newProductNameController
                                                         .text;
                                                 final newProductAmount =
                                                     int.tryParse(
-                                                        newProductAmountController
-                                                            .text);
+                                                  newProductAmountController
+                                                      .text,
+                                                );
 
                                                 final workingHours = ref
                                                     .read(userNotifierProvider)
@@ -484,33 +533,43 @@ class BonusListItem extends HookConsumerWidget {
                                                     workingHours!,
                                                   );
                                                   await ref
-                                                      .read(targetRatioProvider(
-                                                              userId)
-                                                          .notifier)
+                                                      .read(
+                                                        targetRatioProvider(
+                                                          userId,
+                                                        ).notifier,
+                                                      )
                                                       .init();
                                                   newProductNameController
                                                       .clear();
                                                   newProductAmountController
                                                       .clear();
-                                                  Navigator.of(context)
-                                                      .pop(); // close the sheet
+                                                  if (mounted) {
+                                                    Navigator.of(context).pop();
+                                                  }
                                                 } else {
                                                   ScaffoldMessenger.of(context)
-                                                      .showSnackBar(const SnackBar(
-                                                          content: Text(
-                                                              'Please provide more data')));
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Please provide more data',
+                                                      ),
+                                                    ),
+                                                  );
                                                 }
                                               },
                                               child: const Text(
-                                                  style: TextStyle(
-                                                    color: Colors.brown,
-                                                  ),
-                                                  'Save'),
+                                                style: TextStyle(
+                                                  color: Colors.brown,
+                                                ),
+                                                'Save',
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ))),
+                                    ),
+                                  ),
+                                ),
                               );
                             },
                             child: Container(
@@ -523,7 +582,7 @@ class BonusListItem extends HookConsumerWidget {
                                   end: Alignment.bottomRight,
                                   colors: [
                                     primaryColor[100]!,
-                                    primaryColor[200]!
+                                    primaryColor[200]!,
                                   ],
                                   stops: const [0.0, 1.0],
                                 ),

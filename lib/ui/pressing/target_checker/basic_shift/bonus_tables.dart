@@ -24,7 +24,7 @@ class BonusTable extends ConsumerWidget {
     return Stack(
       children: [
         FutureBuilder<Map<String, dynamic>>(
-          future: ref.read(pressingRepositoryProvider).getBonuses(),
+          future: Future.microtask(() async => ref.read(pressingRepositoryProvider).getBonuses()),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();

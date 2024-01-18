@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TargetChecker extends ConsumerStatefulWidget {
-  const TargetChecker({super.key});
+  const TargetChecker({required this.onNotification, super.key});
+  final void Function(ScrollNotification) onNotification;
 
   @override
   TargetCheckerCard createState() => TargetCheckerCard();
@@ -22,9 +23,6 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   late Animation<double> _flipAnimation;
   double _startPosition = 0;
 
-
-
-
   @override
   void initState() {
     super.initState();
@@ -36,7 +34,6 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
     _flipAnimation = Tween(end: 3.14).animate(_flipController);
   }
 
-
   @override
   void dispose() {
     _flipController.dispose();
@@ -45,78 +42,93 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
-    final userId = ref.watch(authRepositoryProvider).currentUserId;
-
-
-    ref.read(userNotifierProvider.notifier).loadUser(userId);
+    @override
+    void initState() {
+      super.initState();
+      Future.microtask(() async {
+        final userId = ref.read(authRepositoryProvider).currentUserId;
+        if (mounted) {
+          await ref.read(userNotifierProvider.notifier).loadUser(userId);
+        }
+      });
+    }
 
     final focusNode = ref.watch(focusNodeProvider);
 
     return LayoutBuilder(
-        builder: (context, constraints) {
-      final isWideScreen = constraints.maxWidth > 500;
-      final containerWidth = isWideScreen
-          ? MediaQuery.of(context).size.width * 0.33
-          : MediaQuery.of(context).size.width * 0.85;
+      builder: (context, constraints) {
+        final isWideScreen = constraints.maxWidth > 500;
+        final containerWidth = isWideScreen
+            ? MediaQuery.of(context).size.width * 0.33
+            : MediaQuery.of(context).size.width * 0.85;
 
-      return GestureDetector(
-        onTap: () {
-          focusNode.unfocus();
-          ref.read(showListProvider.notifier).state = false;
-        },
-        onHorizontalDragStart: (details) {
-          _startPosition = details.globalPosition.dx;
-        },
-        onHorizontalDragUpdate: (details) {
-          setState(() {
-            final dx = details.globalPosition.dx - _startPosition;
-            _flipController.value += dx / containerWidth;
+        return GestureDetector(
+          onTap: () {
+            focusNode.unfocus();
+            ref.read(showListProvider.notifier).state = false;
+          },
+          onHorizontalDragStart: (details) {
             _startPosition = details.globalPosition.dx;
-          });
-        },
-        onHorizontalDragEnd: (details) {
-          if (_flipController.value >= 0.5) {
-            _flipController.forward();
+          },
+          onHorizontalDragUpdate: (details) {
+            setState(() {
+              final dx = details.globalPosition.dx - _startPosition;
+              _flipController.value += dx / containerWidth;
+              _startPosition = details.globalPosition.dx;
+            });
+          },
+          onHorizontalDragEnd: (details) async {
+            if (_flipController.value >= 0.5) {
+              await _flipController.forward();
 
-            ref.read(selectedProductProvider).state = '';
-            ref.read(searchTermProvider.notifier).state = '';
-            ref.read(targetProvider.notifier).updateTarget(0);
-            ref.read(textEditingControllerProvider).clear();
-          } else {
-            ref.read(selectedProductProvider).state = '';
-            ref.read(searchTermProvider.notifier).state = '';
-            ref.read(targetProvider.notifier).updateTarget(0);
-            ref.read(textEditingControllerProvider).clear();
-            _flipController.reverse();
-          }
-        },
-        child: AnimatedBuilder(
+              ref.read(selectedProductProvider).state = '';
+              ref.read(searchTermProvider.notifier).state = '';
+              await ref.read(targetProvider.notifier).updateTarget(0);
+              ref.read(textEditingControllerProvider).clear();
+            } else {
+              ref.read(selectedProductProvider).state = '';
+              ref.read(searchTermProvider.notifier).state = '';
+              await ref.read(targetProvider.notifier).updateTarget(0);
+              ref.read(textEditingControllerProvider).clear();
+              await _flipController.reverse();
+            }
+          },
+          child: AnimatedBuilder(
             animation: _flipAnimation,
             builder: (context, child) => Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.001)
+                ..rotateY(pi * _flipController.value)
+                ..setEntry(
+                  3,
+                  2,
+                  _flipController.value > 0.5 ? -0.001 : 0.001,
+                ),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: IndexedStack(
                   alignment: Alignment.center,
-                  transform: Matrix4.identity()
-                    ..setEntry(3, 2, 0.001)
-                    ..rotateY(pi * _flipController.value)
-                    ..setEntry(
-                        3, 2, _flipController.value > 0.5 ? -0.001 : 0.001),
-                  child: IndexedStack(
+                  index: (_flipController.value < 0.5) ? 0 : 1,
+                  children: [
+                    BasicShift(
+                      onNotification: widget.onNotification,
+                    ), // FrontFlipCard
+                    Transform(
                       alignment: Alignment.center,
-                      index: (_flipController.value < 0.5) ? 0 : 1,
-                      children: [
-                        const BasicShift(), // FrontFlipCard
-                        Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()..rotateY(pi),
-                          child: const OvertimeShift(),
-                        ),
-                        // BackFlipCard
-                      ]))),
-      );
-    });
+                      transform: Matrix4.identity()..rotateY(pi),
+                      child: const OvertimeShift(),
+                    ),
+                    // BackFlipCard
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

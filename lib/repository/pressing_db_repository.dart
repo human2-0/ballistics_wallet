@@ -319,7 +319,7 @@ class PressingRepository {
         'amount': amount,
         'bonus': bonus,
       });
-    } catch (e) {
+    } on FormatException catch (e) {
       rethrow; // rethrow the caught exception while preserving the original stack trace
     }
   }

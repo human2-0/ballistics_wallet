@@ -17,9 +17,11 @@ class DeleteItemState extends ConsumerState<DeleteItem> {
   Widget build(BuildContext context) {
     final pressingRepo = ref.read(pressingRepositoryProvider);
     return AlertDialog(
-      content: Text('Would you like to permanently delete the product ${widget.productName} ?'),
+      content: Text(
+          'Would you like to permanently delete the product ${widget.productName} ?',),
       actions: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             IconButton(
               onPressed: () async {
@@ -29,15 +31,29 @@ class DeleteItemState extends ConsumerState<DeleteItem> {
                     .read(lastSelectedProductProvider.notifier)
                     .deleteSelectedProductByName(widget.productName);
                 if (mounted) {
-                  Navigator.of(context).pop(); // Close the dialog after successful deletion
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Row(
+                        children: [
+                          Icon(Icons.done, color: Colors.green),
+                          SizedBox(width: 8),
+                          Text('Deletion completed successfully!'),
+                        ],
+                      ),
+                      duration: Duration(
+                        seconds: 2,
+                      ), // Adjust duration as needed
+                    ),
+                  );
+                  Navigator.of(context)
+                      .pop(); // Close the dialog after successful deletion
                 } // Close the dialog after successful deletion
-                },
+              },
               icon: const Icon(Icons.done),
             ),
             IconButton(
               onPressed: () async {
                 context.pop();
-
               },
               icon: const Icon(Icons.cancel_outlined),
             ),

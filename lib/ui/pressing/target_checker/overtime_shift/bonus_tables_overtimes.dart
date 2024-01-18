@@ -1,21 +1,18 @@
-
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart'; // Import the PressingRepository
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-
-import '../../../../providers/pressing_db_provider.dart';
-import '../../../../providers/target_check_provider.dart'; // Import the PressingRepository
 
 class BonusTableOvertime extends ConsumerWidget {
   const BonusTableOvertime({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String userId = ref.read(authRepositoryProvider).currentUserId;
-    double targetRatio = ref.watch(targetRatioProvider(userId));
+    final userId = ref.read(authRepositoryProvider).currentUserId;
+    final targetRatio = ref.watch(targetRatioProvider(userId));
     final userData = ref.watch(userNotifierProvider);
     final overtimeRatio = ref.watch(overtimeRatioProvider);
     final overtimeHours = ref.watch(overtimeWorkingHoursState);
@@ -25,7 +22,8 @@ class BonusTableOvertime extends ConsumerWidget {
     return Stack(
       children: [
         FutureBuilder<Map<String, dynamic>>(
-          future: ref.read(pressingRepositoryProvider).getBonuses(),
+          future: Future.microtask(
+              () async => ref.read(pressingRepositoryProvider).getBonuses(),),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
@@ -33,28 +31,25 @@ class BonusTableOvertime extends ConsumerWidget {
               return const Text('An error occurred');
             } else {
               final bonuses = snapshot.data!;
-              final int stableTarget = ref.watch(targetProvider);
-              final target = ref.watch(targetProvider) *
-                  (1 - overtimeRatio);
+              final stableTarget = ref.watch(targetProvider);
+              final target = ref.watch(targetProvider) * (1 - overtimeRatio);
 
               // Sort the keys in ascending order
               final sortedKeys = bonuses.keys.toList()
                 ..sort((a, b) => double.parse(a).compareTo(double.parse(b)));
 
               // Generate list of widgets
-              List<Widget> listItems = [];
+              final listItems = <Widget>[];
 
               if (target > 0) {
                 listItems.add(
                   Container(
-                    margin: const EdgeInsets.all(16.0),
+                    margin: const EdgeInsets.all(16),
                     width: MediaQuery.of(context).size.width * 0.5,
                     height: MediaQuery.of(context).size.height * 0.25,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
+                      borderRadius: BorderRadius.circular(20),
                       gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
                         colors: [Colors.orange[200]!, Colors.white],
                       ),
                       boxShadow: [
@@ -62,41 +57,42 @@ class BonusTableOvertime extends ConsumerWidget {
                           color: Colors.grey.withOpacity(0.5),
                           spreadRadius: 5,
                           blurRadius: 7,
-                          offset: const Offset(0, 3), // changes position of shadow
+                          offset:
+                              const Offset(0, 3), // changes position of shadow
                         ),
                       ],
                     ),
                     child: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
+                      padding: const EdgeInsets.all(8),
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
+                          borderRadius: BorderRadius.circular(15),
                           color: Colors.orange.withOpacity(0.5),
                           gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [Colors.orange[200]!, Colors.white],
-                        ),
+                            colors: [Colors.orange[200]!, Colors.white],
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.withOpacity(0.5),
                               spreadRadius: 2,
                               blurRadius: 3,
-                              offset: const Offset(2, 2), // changes position of shadow
+                              offset: const Offset(
+                                  2, 2,), // changes position of shadow
                             ),
                           ],
                         ),
                         child: Column(
-
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
                               'Minimum',
-                              style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.black54,),
                             ),
                             Text(
                               '${target.ceil()}',
-                              style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold,),
                             ),
                           ],
                         ),
@@ -106,120 +102,125 @@ class BonusTableOvertime extends ConsumerWidget {
                 );
               }
 
-              listItems.addAll(sortedKeys.map((key) {
-                final bonus = (bonuses[key] as num).toDouble() *
-                    (((overtimeHours ?? 0) > 0)
-                        ? ((overtimeHours ?? 0) / 7)
-                        : (((workingHours.toDouble()) -
-                        allowance.toDouble())) / 7.0);
-                final requiredPercentage =
-                    double.parse(key) - ((overtimeRatio > 0.0)
-                        ? overtimeRatio
-                        : targetRatio) * 100;
-                final requiredAmount =
-                ((requiredPercentage * stableTarget) / 100).ceil();
+              listItems.addAll(
+                sortedKeys.map((key) {
+                  final bonus = (bonuses[key] as num).toDouble() *
+                      (((overtimeHours ?? 0) > 0)
+                          ? ((overtimeHours ?? 0) / 7)
+                          : (workingHours -
+                                  allowance) /
+                              7.0);
+                  final requiredPercentage = double.parse(key) -
+                      ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio) *
+                          100;
+                  final requiredAmount =
+                      ((requiredPercentage * stableTarget) / 100).ceil();
 
-                if (requiredAmount > 0) {
-                  return Container(
-                    margin: const EdgeInsets.all(16.0),
-                    height: MediaQuery.of(context).size.height * 0.25,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [Colors.orange[200]!, Colors.white],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3), // changes position of shadow
+                  if (requiredAmount > 0) {
+                    return Container(
+                      margin: const EdgeInsets.all(16),
+                      height: MediaQuery.of(context).size.height * 0.25,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          colors: [Colors.orange[200]!, Colors.white],
                         ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.orange.withOpacity(0.5),
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [Colors.orange[200]!, Colors.white],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 3,
-                                    offset: const Offset(2, 2), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'to earn',
-                                    style: TextStyle(fontSize: 16.0, color: Colors.black54),
-                                  ),
-                                  Text(
-                                  '£${formatDouble(bonus)}',
-                                  style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                                ),]
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.orange.withOpacity(0.5),
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [Colors.orange[200]!, Colors.white],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 3,
-                                    offset: const Offset(2, 2), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '$requiredAmount',
-                                    style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                                  ),
-                                  const Text(
-                                    'more to do',
-                                    style: TextStyle(fontSize: 16.0, color: Colors.black54),
-                                  ),
-                                ],
-                              ),
-                            ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: const Offset(
+                                0, 3,), // changes position of shadow
                           ),
                         ],
                       ),
-                    ),
-                  );
-                } else {
-                  return null;
-                }
-              }).whereType<Widget>());
-
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.orange.withOpacity(0.5),
+                                  gradient: LinearGradient(
+                                    colors: [Colors.orange[200]!, Colors.white],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 3,
+                                      offset: const Offset(
+                                          2, 2,), // changes position of shadow
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'to earn',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.black54,),
+                                    ),
+                                    Text(
+                                      '£${formatDouble(bonus)}',
+                                      style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.orange.withOpacity(0.5),
+                                  gradient: LinearGradient(
+                                    colors: [Colors.orange[200]!, Colors.white],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 3,
+                                      offset: const Offset(
+                                          2, 2,), // changes position of shadow
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '$requiredAmount',
+                                      style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,),
+                                    ),
+                                    const Text(
+                                      'more to do',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.black54,),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return null;
+                  }
+                }).whereType<Widget>(),
+              );
 
               return ListWheelScrollView(
                 diameterRatio: 1.5,
@@ -230,7 +231,7 @@ class BonusTableOvertime extends ConsumerWidget {
           },
         ),
         Positioned(
-          top: 32.0,
+          top: 32,
           right: 0,
           child: FloatingActionButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -243,32 +244,31 @@ class BonusTableOvertime extends ConsumerWidget {
   }
 }
 
-final updateAvailableItemsProvider = FutureProvider.autoDispose<void>((ref) async {
-  final String userId = ref.read(authRepositoryProvider).currentUserId;
+final updateAvailableItemsProvider =
+    FutureProvider.autoDispose<void>((ref) async {
+  final userId = ref.read(authRepositoryProvider).currentUserId;
   final userData = ref.read(userNotifierProvider);
   final overtimeRatio = ref.watch(overtimeRatioProvider);
   final overtimeHours = ref.watch(overtimeWorkingHoursState);
   final workingHours = userData.workingHours ?? 0.0;
   final allowance = ref.watch(allowanceProvider);
   final bonuses = await ref.read(pressingRepositoryProvider).getBonuses();
-  final int stableTarget = ref.watch(targetProvider);
+  final stableTarget = ref.watch(targetProvider);
   final targetRatio = ref.watch(targetRatioProvider(userId));
   final target = ref.watch(targetProvider) *
       (1 - ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio));
   final sortedKeys = bonuses.keys.toList()
     ..sort((a, b) => double.parse(a).compareTo(double.parse(b)));
 
-  List<Widget> listItems = [];
+  final listItems = <Widget>[];
 
-  for (String key in sortedKeys) {
+  for (final key in sortedKeys) {
     final bonus = (bonuses[key] as num).toDouble() *
         (((overtimeHours ?? 0) > 0)
             ? ((overtimeHours ?? 0) / 7)
-            : (((workingHours.toDouble()) - allowance.toDouble())) / 7.0);
-    final requiredPercentage =
-        double.parse(key) - ((overtimeRatio > 0.0)
-            ? overtimeRatio
-            : targetRatio * 100);
+            : (workingHours - allowance) / 7.0);
+    final requiredPercentage = double.parse(key) -
+        ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio * 100);
     final requiredAmount = ((requiredPercentage * stableTarget) / 100).ceil();
 
     if (requiredAmount > 0) {
@@ -280,4 +280,3 @@ final updateAvailableItemsProvider = FutureProvider.autoDispose<void>((ref) asyn
 });
 
 final availableItemsProvider = StateProvider<int>((ref) => 0);
-

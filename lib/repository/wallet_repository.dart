@@ -11,16 +11,16 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
 
   Future<void> saveUserBonusCalendar(String userId, String productName,
       double bonus, int amount, DateTime selectedEventDate, double workingHours,
-      {bool isOvertime = false}) async {
+      {bool isOvertime = false,}) async {
     try {
-      CollectionReference userBonusCollection =
+      final CollectionReference userBonusCollection =
       _repository.db.collection('userBonuses');
-      DateTime date = DateTime(selectedEventDate.year, selectedEventDate.month,
-          selectedEventDate.day);
-      DateTime nextDate = DateTime(selectedEventDate.year,
-          selectedEventDate.month, selectedEventDate.day + 1);
+      final date = DateTime(selectedEventDate.year, selectedEventDate.month,
+          selectedEventDate.day,);
+      final nextDate = DateTime(selectedEventDate.year,
+          selectedEventDate.month, selectedEventDate.day + 1,);
 
-      QuerySnapshot existingBonus = await userBonusCollection
+      final existingBonus = await userBonusCollection
           .where('userId', isEqualTo: userId)
           .where('date', isGreaterThanOrEqualTo: date)
           .where('date', isLessThan: nextDate)
@@ -32,7 +32,7 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
 
       if (existingBonus.size > 0) {
         // If the bonus exists for the selected date with the same 'isOvertime' status, get its ID
-        String bonusId = existingBonus.docs.first.id;
+        final bonusId = existingBonus.docs.first.id;
         docRef = userBonusCollection.doc(bonusId);
       } else {
         // Create new bonus document for the selected date
@@ -47,14 +47,14 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
 
       producedCollection = docRef.collection('produced');
 
-      QuerySnapshot existingProduced = await producedCollection
+      final existingProduced = await producedCollection
           .where('productName', isEqualTo: productName)
           .get();
 
       if (existingProduced.size > 0) {
         // If documents exist with the same productName, update the amount
-        for (QueryDocumentSnapshot doc in existingProduced.docs) {
-          String producedId = doc.id;
+        for (final doc in existingProduced.docs) {
+          final producedId = doc.id;
           await _repository.db.runTransaction((transaction) async {
             transaction
                 .update(producedCollection.doc(producedId), {'amount': amount});
@@ -67,18 +67,18 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
           'amount': amount,
         });
       }
-    } catch (e) {}
+    } on FormatException catch (e) {debugPrint(e.message);}
   }
 
 
   Future<void> fetchUserBonuses(String userId) async {
-    Map<DateTime, List<dynamic>> bonuses =
+    final bonuses =
     await _repository.fetchUserBonuses(userId);
-    setUserBonuses(bonuses);
+    state = bonuses;
   }
 
   Future<void> editBonus(
-      String userId, String bonusId, double newBonusAmount) async {
+      String userId, String bonusId, double newBonusAmount,) async {
     // Update the bonus in the database
     await _repository.db
         .collection('userBonuses')
@@ -86,10 +86,16 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
         .update({'bonus': newBonusAmount});
 
     // Update the bonus in the state
-    for (var date in state.keys) {
-      if (state[date] != null) {
-        if (state[date]!.any((bonus) => bonus['id'] == bonusId)) {
-          state[date] = state[date]!.map((bonus) {
+    for (final date in state.keys) {
+      // Ensure that each value in the map is a List<Map<String, dynamic>>
+      if (state[date] is List<Map<String, dynamic>>) {
+        // Cast the value to the correct type
+        final bonuses = state[date]! as List<Map<String, dynamic>>;
+
+        // Check if any bonus in the list matches the condition
+        if (bonuses.any((bonus) => bonus['id'] == bonusId)) {
+          // Map each bonus, updating the one that matches the condition
+          state[date] = bonuses.map((bonus) {
             if (bonus['id'] == bonusId) {
               return {
                 ...bonus,
@@ -106,9 +112,9 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
 
   Future<void> deleteUserBonus(String bonusId, String userId) async {
     await _repository.deleteUserBonus(bonusId);
-    Map<DateTime, List<dynamic>> updatedBonuses =
+    final updatedBonuses =
     await _repository.fetchUserBonuses(userId);
-    setUserBonuses(updatedBonuses);
+    state = updatedBonuses;
     // Update the state by removing the deleted bonus
     state.removeWhere((date, bonuses) {
       bonuses.removeWhere((bonus) => bonus['id'] == bonusId);
@@ -118,11 +124,11 @@ class UserBonusNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
   }
 
   Future<void> deleteIndividualBonus(
-      String userId, String bonusId, String itemId) async {
+      String userId, String bonusId, String itemId,) async {
     await _repository.deleteIndividualBonus(userId, bonusId, itemId);
-    Map<DateTime, List<dynamic>> updatedBonuses =
+    final updatedBonuses =
     await _repository.fetchUserBonuses(userId);
-    setUserBonuses(updatedBonuses);
+    state = updatedBonuses;
   }
 
   void setUserBonuses(Map<DateTime, List<dynamic>> bonuses) {
@@ -136,7 +142,6 @@ class BonusTableSelector extends StateNotifier<bool> {
 
   void toggle() {
     state = !state;
-    print('State is now: $state');
   }
 }
 
@@ -148,4 +153,3 @@ class TextFieldStateNotifier extends StateNotifier<TextEditingController> {
     state.text = value;
   }
 }
-

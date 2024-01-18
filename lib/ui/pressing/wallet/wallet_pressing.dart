@@ -15,7 +15,7 @@ import 'package:table_calendar/table_calendar.dart';
 class BonusCalendar extends HookConsumerWidget { // Add ScrollController
 
   const BonusCalendar(
-      {required this.userId, required this.onNotification, super.key});
+      {required this.userId, required this.onNotification, super.key,});
   final String userId;
   final void Function(ScrollNotification) onNotification;
 
@@ -45,12 +45,12 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
       _fetchUserBonuses(ref);
       if (_selectedDay.value != null) {
         final localDay = DateTime(_selectedDay.value!.year,
-                _selectedDay.value!.month, _selectedDay.value!.day)
+                _selectedDay.value!.month, _selectedDay.value!.day,)
             .toLocal();
         _selectedEvents.value = userBonuses[localDay] ?? [];
       }
       return null;
-    }, [userBonuses]);
+    }, [userBonuses],);
 
     void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
       final localDay =
@@ -130,31 +130,20 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
           await ref
               .read(userBonusNotifierProvider.notifier)
               .saveUserBonusCalendar(userId, productName, bonus, amount,
-                  selectedEventDate, workingHours!)
-              .then((_) {
-            // Update selectedEvents using the new provider
-            //ref.read(selectedEventsProvider.notifier).addBonus(newBonus);
-            //var previousDay = _selectedDay.value;
-            //_selectedDay.value = null;
-            //_selectedDay.value = previousDay;
-          }).catchError((error) {});
+                  selectedEventDate, workingHours!,)
+              .catchError((error) {});
         } else {}
-      } catch (e) {}
+      } on FormatException catch (e) { rethrow;}
     }
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           onNotification(notification);
           return true;
         },
         child: Stack(children: [
-          Image.asset(
-            'assets/wallet_screen.jpg',
-            fit: BoxFit.cover,
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-          ),
           Column(
             children: [
               Row(
@@ -171,7 +160,7 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(
-                                15), // This gives the rounded corner for the decoration
+                                15,), // This gives the rounded corner for the decoration
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -203,7 +192,7 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
                             },
                           ),
                         ),
-                      )),
+                      ),),
                 ],
               ),
               Center(
@@ -279,7 +268,7 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
                 ),
             ],
           ),
-        ]),
+        ],),
       ),
       endDrawer: BonusHistoryDrawer(onNotification: onNotification),
     );

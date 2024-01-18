@@ -5,14 +5,19 @@ import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomSaveButton extends ConsumerWidget {
+class CustomSaveButton extends ConsumerStatefulWidget{
+  const CustomSaveButton({super.key});
 
-  const CustomSaveButton({super.key,
-  });
+  @override
+  CustomSaveButtonState createState() => CustomSaveButtonState();
+}
+
+
+class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
 
 
   @override
-    Widget build(BuildContext context, WidgetRef ref) {
+    Widget build(BuildContext context) {
     final userId = ref.watch(authRepositoryProvider).currentUserId;
     final targetRatio = ref.watch(targetRatioProvider(userId));
     final productName =
@@ -85,17 +90,19 @@ class CustomSaveButton extends ConsumerWidget {
                               : (userState
                               .workingHours ??
                               0),);
-// Show a success message
-                      ScaffoldMessenger.of(
-                          buttonContext,)
-                          .showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Saved to Wallet successfully!',),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } catch (e) {
+if(mounted) {
+                            ScaffoldMessenger.of(
+                              buttonContext,
+                            ).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Saved to Wallet successfully!',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        } on FormatException catch (e) {
                       if (e is String) {
                         await ref
                             .read(targetRatioProvider(
@@ -103,38 +110,40 @@ class CustomSaveButton extends ConsumerWidget {
                             .notifier,)
                             .init();
 // Handle the case where the bonus is already added today
-                        ScaffoldMessenger.of(
-                            buttonContext,)
-                            .showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'This product has been overwritten because it was already added today.',
-                            ),
-                            backgroundColor:
-                            Colors.orange,
-                          ),
-                        );
+                            if (mounted){
+                              ScaffoldMessenger.of(
+                                buttonContext,
+                              ).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'This product has been overwritten because it was already added today.',
+                                  ),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                            }
 // Call editUserBonus if saveUserBonus fails
                         await pressingRepository
                             .editUserBonus(
-                          e,
+                          e.message,
 // Pass the bonusId as the first parameter
                           productName,
                           bonus,
                           amount,
                         );
                       } else {
-// Show an error message for other exceptions
-                        ScaffoldMessenger.of(
-                            buttonContext,)
-                            .showSnackBar(
-                          SnackBar(
-                            content: Text(e.toString()),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
+if(mounted) {
+                              ScaffoldMessenger.of(
+                                buttonContext,
+                              ).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString()),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        }
 
 // Show a success message or navigate to another screen
                   },

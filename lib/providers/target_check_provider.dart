@@ -44,8 +44,12 @@ final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>((ref) =
 
 final selectedProductFromHiveProvider = FutureProvider<String>((ref) async {
   final box = await Hive.openBox('settings');
-  return box.get('selectedProduct', defaultValue: '');
+  // Use `as String?` to cast the result to a nullable String
+  final result = box.get('selectedProduct', defaultValue: '') as String?;
+  // Return the result if it's not null, otherwise return an empty string
+  return result ?? '';
 });
+
 
 final textEditingControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
   final textValueFromHive = ref.watch(selectedProductFromHiveProvider);
@@ -77,7 +81,7 @@ final allowanceControllerProvider =
 final targetRatioProvider = StateNotifierProvider.autoDispose
     .family<TargetRatioNotifier, double, String>((ref, userId) => TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId));
 
-final numberProvider = StateNotifierProvider<NumberNotifier, int>((ref) => NumberNotifier());
+final numberProvider = StateProvider< int>((ref) => 0);
 
 final targetProvider =
     StateNotifierProvider<TargetNotifier, int>((ref) => TargetNotifier());

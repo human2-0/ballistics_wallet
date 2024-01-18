@@ -7,11 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
-class ProductsListSuggested extends ConsumerWidget {
+class ProductsListSuggested extends ConsumerStatefulWidget {
   const ProductsListSuggested({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ProductsListSuggestedState createState() => ProductsListSuggestedState();
+}
+
+class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
+  @override
+  Widget build(BuildContext context) {
     final updated = ref.watch(productUpdateProvider);
     final repo = ref.read(lastSelectedProductProvider.notifier);
     final products = ref.watch(productsProvider(updated));
@@ -33,9 +38,11 @@ class ProductsListSuggested extends ConsumerWidget {
         child: products.when(
           data: (data) {
             final filteredProducts = data
-                .where((product) => product.name
-                    .toLowerCase()
-                    .contains(ref.watch(searchTermProvider).toLowerCase()),)
+                .where(
+                  (product) => product.name
+                      .toLowerCase()
+                      .contains(ref.watch(searchTermProvider).toLowerCase()),
+                )
                 .toList();
             return ListView.builder(
               itemCount: filteredProducts.isEmpty ? 1 : filteredProducts.length,
@@ -54,27 +61,30 @@ class ProductsListSuggested extends ConsumerWidget {
                     margin:
                         const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     child: ListTile(
-                      trailing: const Icon(Icons.touch_app_outlined, color: Colors.red,),
+                      trailing: const Icon(
+                        Icons.touch_app_outlined,
+                        color: Colors.red,
+                      ),
                       title: Text(product.name),
                       subtitle: Text(
-                          'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',),
+                        'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',
+                      ),
                       onTap: () async {
                         final selectedProductName = product.name;
-                        ref
-                            .read(selectedProductProvider.notifier)
-                            .state
-                            .state = selectedProductName;
-                        textEditingController.text = selectedProductName
-                            ; // Update the controller's text
+                        ref.read(selectedProductProvider.notifier).state.state =
+                            selectedProductName;
+                        textEditingController.text =
+                            selectedProductName; // Update the controller's text
                         ref.read(showListProvider.notifier).state = false;
                         ref.read(focusNodeProvider).unfocus();
-                        await Hive.box('settings').put('selectedProduct', product);
+                        await Hive.box('settings')
+                            .put('selectedProduct', product);
 
 // Update the targetProvider state when a product is selected
                         final productTarget = ((product.target.toDouble()) *
                                 ((workingHours - allowance) / 7.00))
                             .ceil();
-                        ref
+                        await ref
                             .read(targetProvider.notifier)
                             .updateTarget(productTarget);
 
@@ -88,21 +98,12 @@ class ProductsListSuggested extends ConsumerWidget {
                       },
                       onLongPress: () async {
                         // Show the DeleteItem dialog
-                        final result = await showDialog<bool>(
+                        await showDialog<bool>(
                           context: context,
-                          builder: (context) => DeleteItem(productName: product.name),
+                          builder: (context) =>
+                              DeleteItem(productName: product.name),
                         );
-
-                        // Check the result of the dialog
-                        if (result == true) {
-                          // User confirmed deletion
-                          // Add your deletion logic here
-                        } else {
-                          // User cancelled deletion
-                          // Handle the cancellation here if needed
-                        }
                       },
-
                     ),
                   );
                 }

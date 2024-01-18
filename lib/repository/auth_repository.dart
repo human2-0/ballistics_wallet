@@ -70,7 +70,7 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       // Handling Firebase Auth exceptions
       throw AuthException('Firebase Auth Exception: ${e.message}');
-    } catch (e) {
+    } on FormatException catch (e) {
       // Handling other exceptions
       throw AuthException('An unknown error occurred: $e');
     }

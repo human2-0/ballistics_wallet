@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class SlideToBasicShift extends StatefulWidget {
-  const SlideToBasicShift({Key? key}) : super(key: key);
+  const SlideToBasicShift({super.key});
 
   @override
-  _SlideToBasicShiftState createState() => _SlideToBasicShiftState();
+  SlideToBasicShiftState createState() => SlideToBasicShiftState();
 }
 
-class _SlideToBasicShiftState extends State<SlideToBasicShift>
+class SlideToBasicShiftState extends State<SlideToBasicShift>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
@@ -22,8 +22,8 @@ class _SlideToBasicShiftState extends State<SlideToBasicShift>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(-0.15, 0.0),
-      end: Offset(0.15, 0.0),
+      begin: const Offset(-0.15, 0),
+      end: const Offset(0.15, 0),
     ).animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
     )..addStatusListener((status) {
@@ -44,9 +44,8 @@ class _SlideToBasicShiftState extends State<SlideToBasicShift>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.all(8),
       child: Column(
         children: <Widget>[
           Container(
@@ -58,7 +57,7 @@ class _SlideToBasicShiftState extends State<SlideToBasicShift>
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                   blurRadius: 5,
                 ),
               ],
@@ -66,16 +65,16 @@ class _SlideToBasicShiftState extends State<SlideToBasicShift>
             child: Center(
               child: Column(
                 children: [
-                  Text("Slide to return"),
+                  const Text('Slide to return'),
                   SlideTransition(
                     position: _slideAnimation,
                     child:
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: 25),
-                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: 25),
-                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: 25),
+                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
+                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
+                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
                       ],
                     ),
                   ),
@@ -86,5 +85,4 @@ class _SlideToBasicShiftState extends State<SlideToBasicShift>
         ],
       ),
     );
-  }
 }

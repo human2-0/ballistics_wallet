@@ -16,7 +16,6 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
 
   @override
   Widget build(BuildContext context) {
-
     final productNameController = ref.watch(textEditingControllerProvider);
     return Container(
       decoration: BoxDecoration(
@@ -60,96 +59,95 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
             onPressed: () async {
               await showDialog(
                 context: context,
-                builder: (context) =>
-                    Dialog(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        height: MediaQuery
-                            .of(context)
-                            .size
-                            .height * 0.35,
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.80,
-                        child: Column(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            const Text('Add a new product'),
-                            TextField(
-                              controller: productNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Product Name',),
+                builder: (context) => Dialog(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    width: MediaQuery.of(context).size.width * 0.80,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        const Text('Add a new product'),
+                        TextField(
+                          controller: productNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Product Name',
+                          ),
+                        ),
+                        TextField(
+                          controller: targetController,
+                          decoration: const InputDecoration(
+                            labelText: 'Target',
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                              child: const Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
                             ),
-                            TextField(
-                              controller: targetController,
-                              decoration: const InputDecoration(
-                                labelText: 'Target',),
-                              keyboardType: TextInputType.number,
-                            ),
-                            Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
-                              children: [
-                                TextButton(
-                                  child: const Text('Cancel'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                TextButton(
-                                  child: const Text('Add'),
-                                  onPressed: () async {
-                                    final productName =
-                                        productNameController.text;
-                                    final targetString =
-                                        targetController.text;
+                            TextButton(
+                              child: const Text('Add'),
+                              onPressed: () async {
+                                final productName = productNameController.text;
+                                final targetString = targetController.text;
 
-                                    if (productName.isEmpty) {
-                                      return;
-                                    }
+                                if (productName.isEmpty) {
+                                  return;
+                                }
 
-                                    final target =
-                                    int.tryParse(targetString);
-                                    if (target == null) {
-                                      return;
-                                    }
+                                final target = int.tryParse(targetString);
+                                if (target == null) {
+                                  return;
+                                }
 
-
-                                    try {
-                                      await ref
-                                          .read(
-                                        pressingRepositoryProvider,)
-                                          .addProduct(
-                                        productName, target,);
-                                      ref
-                                          .read(productUpdateProvider
-                                          .notifier,)
-                                          .update();
-                                      Navigator.of(context).pop();
-                                    } on FormatException catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content:
-                                          Text('Error: ${e.message}'),
-                                          behavior:
-                                          SnackBarBehavior.floating,
-                                          duration:
-                                          const Duration(seconds: 3),
-                                        ),
+                                try {
+                                  await ref
+                                      .read(
+                                        pressingRepositoryProvider,
+                                      )
+                                      .addProduct(
+                                        productName,
+                                        target,
                                       );
-                                    }
-                                  },
-                                ),
-                              ],
+                                  ref
+                                      .read(
+                                        productUpdateProvider.notifier,
+                                      )
+                                      .update();
+                                  ref
+                                      .read(selectedProductProvider.notifier)
+                                      .state
+                                      .state = productName;
+                                  if (mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                } on FormatException catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error: ${e.message}'),
+                                        behavior: SnackBarBehavior.floating,
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
                             ),
                           ],
                         ),
-                      ),
-                    ),);
-            },),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

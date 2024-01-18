@@ -241,7 +241,7 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOutCubic,
-    ));
+    ),);
     _controller.forward();
   }
 
@@ -255,7 +255,7 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
       ).animate(CurvedAnimation(
         parent: _controller,
         curve: Curves.easeInOutCubic,
-      ));
+      ),);
       _controller.forward(from: 0);
     }
   }
@@ -312,7 +312,7 @@ class _MinimumCirclePainter extends CustomPainter {
         -pi / 2,
         angle,
         false,
-        paint);
+        paint,);
 
     // Draw the round caps
     final roundPaint = Paint()

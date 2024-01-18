@@ -24,9 +24,9 @@ class BonusListView extends HookConsumerWidget {
 
     // Fetch bonuses on initial render
     useEffect(() {
-      userBonusNotifier.fetchUserBonuses(userId);
+      Future.microtask(() async => userBonusNotifier.fetchUserBonuses(userId));
       return null;
-    }, const []);
+    }, const [],);
 
 
     return ListView.builder(
@@ -64,12 +64,12 @@ class BonusListView extends HookConsumerWidget {
           secondaryBackground: ClipRRect(
             borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(33),
-                bottomRight: Radius.circular(33)),
+                bottomRight: Radius.circular(33),),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(33),
-                    bottomRight: Radius.circular(33)),
+                    bottomRight: Radius.circular(33),),
                 gradient: LinearGradient(
                   begin: Alignment.centerRight,
                   end: Alignment.centerLeft,

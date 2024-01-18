@@ -5,7 +5,9 @@ import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hive_flutter/adapters.dart';
 
-String formatDouble(double value) => value == value.floor() ? value.floor().toString() : value.toStringAsFixed(2);
+String formatDouble(double value) => value == value.floor()
+    ? value.floor().toString()
+    : value.toStringAsFixed(2);
 
 String formatProductNameToFileName(String productName) {
   var fileName = productName.toLowerCase();
@@ -64,7 +66,6 @@ DateTime nextMonday() {
 //   }
 // }
 
-
 List<List<dynamic>> csvToList(String data) {
   final eol = data.contains('\r\n') ? '\r\n' : '\n';
   return CsvToListConverter(eol: eol).convert(data);
@@ -102,17 +103,35 @@ Future<void> addDataToHiveBoxProductSplit(Box<Product> boxSplit) async {
 Future<void> initHive() async {
   await Hive.initFlutter();
 
-
-  Hive..registerAdapter(ProductNameAdapter())
-  ..registerAdapter(ProductAdapter())
-  ..registerAdapter(SelectedProductAdapter());
+  Hive
+    ..registerAdapter(ProductNameAdapter())
+    ..registerAdapter(ProductAdapter())
+    ..registerAdapter(SelectedProductAdapter());
 
   final boxNames = await Hive.openBox<ProductName>('Products');
   final boxSplit = await Hive.openBox<Product>('products_split');
-
 
   await boxNames.clear();
   await boxSplit.clear();
 
   await addDataToHiveBoxProductSplit(boxSplit);
+}
+
+extension MapExtensions on Map<String, dynamic> {
+  double getDouble(String key, [double defaultValue = 0.0]) {
+    final value = this[key];
+    return value is double ? value : defaultValue;
+  }
+
+  List<T> getList<T>(String key) =>
+      this[key] is List<T> ? this[key] as List<T> : [];
+
+  T getValue<T>(String key, {T? defaultValue}) {
+    final value = this[key];
+    if (value is T) {
+      return value;
+    } else {
+      return defaultValue as T;
+    }
+  }
 }

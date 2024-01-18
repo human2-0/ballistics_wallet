@@ -14,7 +14,8 @@ class ProductName {
     } else if (entry.value is int) {
       target = entry.value as int;
     } else {
-      throw FormatException('Expected an integer for target but found: ${entry.value.runtimeType}');
+      final error = entry.value as int;
+      throw FormatException('Expected an integer for target but found: ${error.runtimeType}');
     }
 
     return ProductName(

@@ -5,7 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SearchProductBar extends ConsumerWidget {
   const SearchProductBar({
-    required this.textEditingController, required this.numberController, required this.focusNode, super.key,
+    required this.textEditingController,
+    required this.numberController,
+    required this.focusNode,
+    super.key,
   });
   final TextEditingController textEditingController;
   final TextEditingController numberController;
@@ -15,7 +18,6 @@ class SearchProductBar extends ConsumerWidget {
     final showList = ref.watch(showListProvider);
 
     final userId = ref.watch(authRepositoryProvider).currentUserId;
-
 
     return Padding(
       padding: const EdgeInsets.all(8),
@@ -62,9 +64,11 @@ class SearchProductBar extends ConsumerWidget {
                       focusNode.unfocus();
                       numberController.clear();
 
-                      ref.read(targetProvider.notifier).updateTarget(0);
+                      await ref.read(targetProvider.notifier).updateTarget(0);
                       ref.read(allowanceProvider.notifier).state = 0.0;
-                      await ref.read(targetRatioProvider(userId).notifier).init();
+                      await ref
+                          .read(targetRatioProvider(userId).notifier)
+                          .init();
                       ref.read(numberProvider.notifier).state = 0;
                     },
                   ),
@@ -82,7 +86,6 @@ class SearchProductBar extends ConsumerWidget {
           onChanged: (value) {
             ref.read(searchTermProvider.notifier).state = value;
             ref.read(selectedProductProvider.notifier).state.state = value;
-
           },
           onSubmitted: (value) {
             ref.read(showListProvider.notifier).state = false;

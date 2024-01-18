@@ -9,7 +9,7 @@ class BonusHistoryDrawer extends HookConsumerWidget {
   final void Function(ScrollNotification) onNotification;
 
   num calculateTotalBonus(Map<DateTime, List<dynamic>> userBonuses,
-      DateTime startDate, DateTime endDate) {
+      DateTime startDate, DateTime endDate,) {
     num totalBonus = 0;
 
     // Iterate over all bonuses
@@ -30,7 +30,7 @@ class BonusHistoryDrawer extends HookConsumerWidget {
   }
 
   num calculateTotalHours(Map<DateTime, List<dynamic>> userBonuses,
-      DateTime startDate, DateTime endDate) {
+      DateTime startDate, DateTime endDate,) {
     num totalHours = 0;
 
     // Iterate over all bonuses
@@ -128,12 +128,12 @@ class BonusHistoryDrawer extends HookConsumerWidget {
                     title: Text(
                       period,
                       style: const TextStyle(
-                          color: Colors.white), // adjusts the text color
+                          color: Colors.white,), // adjusts the text color
                     ),
                     subtitle: Text(
                       'Total bonus: £$totalBonusForMonth\nTotal Hours: $totalHoursForMonth ',
                       style: const TextStyle(
-                          color: Colors.white70), // adjusts the subtitle color
+                          color: Colors.white70,), // adjusts the subtitle color
                     ),
                   ),
                 ),

@@ -6,10 +6,10 @@ class UserRepository {
 
   Future<Map<String, dynamic>?> getUserData(String userId) async {
     final DocumentSnapshot documentSnapshot =
-    await _db.collection('users').doc(userId).get();
+        await _db.collection('users').doc(userId).get();
 
     if (documentSnapshot.exists) {
-      return documentSnapshot.data() as Map<String, dynamic>;
+      return documentSnapshot.data()! as Map<String, dynamic>;
     } else {
       return null;
     }
@@ -22,7 +22,7 @@ class UserRepository {
           .doc(userId)
           .update({'workingHours': newWorkingHours});
       return true;
-    } catch (e) {
+    } on FormatException catch (e) {
       return false;
     }
   }
@@ -34,17 +34,13 @@ class UserRepository {
           .doc(userId)
           .update({'paidBreaks': newPaidBreaks});
       return true;
-    } catch (e) {
+    } on FormatException catch (e) {
       return false;
     }
   }
-
-
-
 }
 
 class UserState {
-
   UserState({
     this.userId,
     this.workingHours,
@@ -67,18 +63,18 @@ class UserState {
     double? allowance,
     String? avatarUrl,
     bool? paidBreaks,
-  }) => UserState(
-      userId: userId ?? this.userId,
-      workingHours: workingHours ?? this.workingHours,
-      realWorkingHours: realWorkingHours ?? this.realWorkingHours,
-      allowance: allowance ?? this.allowance,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-      paidBreaks: paidBreaks ?? this.paidBreaks,
-    );
+  }) =>
+      UserState(
+        userId: userId ?? this.userId,
+        workingHours: workingHours ?? this.workingHours,
+        realWorkingHours: realWorkingHours ?? this.realWorkingHours,
+        allowance: allowance ?? this.allowance,
+        avatarUrl: avatarUrl ?? this.avatarUrl,
+        paidBreaks: paidBreaks ?? this.paidBreaks,
+      );
 }
 
 class UserNotifier extends StateNotifier<UserState> {
-
   UserNotifier(this.userRepository) : super(UserState());
   final UserRepository userRepository;
 
@@ -98,7 +94,6 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<void> loadUser(String userId) async {
     final userData = await userRepository.getUserData(userId);
     if (userData != null) {
-
       var workingHours = userData['workingHours'] is int
           ? (userData['workingHours'] as int).toDouble()
           : userData['workingHours'] as double?;
@@ -117,47 +112,53 @@ class UserNotifier extends StateNotifier<UserState> {
         userId: userId,
         workingHours: workingHours,
         allowance: allowance,
-        avatarUrl: userData['avatarUrl'],
+        avatarUrl: userData['avatarUrl'] as String,
         paidBreaks: paidBreaks,
-        realWorkingHours: realWorkingHours,// Update with non-null value
+        realWorkingHours: realWorkingHours, // Update with non-null value
       );
     }
   }
-
 
   Future<bool> editWorkingHours(double newWorkingHours) async {
     if (state.userId == null) return false;
     final result = await userRepository.editWorkingHours(state.userId!, newWorkingHours);
     if (result) {
-      state = UserState(
-        userId: state.userId,
+      state = state.copyWith(
         workingHours: newWorkingHours,
-        allowance: state.allowance,
-        avatarUrl: state.avatarUrl,
+        realWorkingHours: calculateEffectiveWorkingHours(newWorkingHours),
       );
     }
     return result;
   }
 
+
   void updateAllowance(double allowanceProvided) {
     state = state.copyWith(
       allowance: allowanceProvided,
     );
-    print('new state of allowance ${state.allowance}');
   }
 
-  void updateUser(UserState user) {
-    state = user;
+  Future<void> updateUser(UserState user) async {
+    state = state.copyWith(
+      userId: user.userId ?? state.userId,
+      workingHours: user.workingHours ?? state.workingHours,
+      realWorkingHours: user.realWorkingHours ?? state.realWorkingHours,
+      allowance: user.allowance ?? state.allowance,
+      avatarUrl: user.avatarUrl ?? state.avatarUrl,
+      paidBreaks: user.paidBreaks ?? state.paidBreaks,
+    );
   }
+
 }
 
+final userRepositoryProvider =
+    Provider<UserRepository>((ref) => UserRepository());
 
+final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>(
+    (ref) => UserNotifier(ref.watch(userRepositoryProvider)),);
 
-final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
-
-final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>((ref) => UserNotifier(ref.watch(userRepositoryProvider)));
-
-final userDataProvider = FutureProvider.family<Map<String, dynamic>?, String>((ref, uid) {
+final userDataProvider =
+    FutureProvider.family<Map<String, dynamic>?, String>((ref, uid) {
   final userRepo = ref.watch(userRepositoryProvider);
   return userRepo.getUserData(uid);
 });
