@@ -70,9 +70,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                         'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',
                       ),
                       onTap: () async {
-                        print("Product Target: ${product.target}");
-                        print("Working Hours: $workingHours");
-                        print("Allowance: $allowance");
                         final selectedProductName = product.name;
                         final productTarget = ((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil();
 

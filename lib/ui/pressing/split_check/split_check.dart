@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
 class SplitCheck extends ConsumerStatefulWidget {
-
   const SplitCheck({super.key, this.requiredAmount = 0});
   final int requiredAmount;
 
@@ -16,26 +15,28 @@ class SplitCheck extends ConsumerStatefulWidget {
 }
 
 class SplitCheckState extends ConsumerState<SplitCheck> {
-  late TextEditingController requiredAmountController;
+  late TextEditingController targetController;
   late TextEditingController productNameController;
   late TextEditingController amountPerBatchController;
   late Future<List<Product>> productsFuture;
-  late FocusNode focusNode;
+  late FocusNode focusNodeTarget;
+  late FocusNode focusNodeAmount;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    focusNode = FocusNode();
-    requiredAmountController =
+    focusNodeTarget = FocusNode();
+    focusNodeAmount = FocusNode();
+    targetController =
         TextEditingController(text: widget.requiredAmount.toString());
     productNameController = TextEditingController();
-    final workingHours =
-        ref.read(userNotifierProvider).workingHours ?? 0.0;
+    final workingHours = ref.read(userNotifierProvider).workingHours ?? 0.0;
     amountPerBatchController = TextEditingController(
-        text: (widget.requiredAmount > 0
-            ? (widget.requiredAmount / (workingHours == 3.75 ? 6 : 12))
-                .toStringAsFixed(0)
-            : ''),);
+      text: (widget.requiredAmount > 0
+          ? (widget.requiredAmount / (workingHours == 3.75 ? 6 : 12))
+              .toStringAsFixed(0)
+          : ''),
+    );
     final productName = ref.read(selectedProductProvider).state;
     productsFuture = Future.microtask(() async => getProducts(productName));
     productNameController.text = productName;
@@ -45,8 +46,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
     final productName = ref.read(selectedProductProvider).state;
-    final workingHours =
-        ref.read(userNotifierProvider).workingHours ?? 0.0;
+    final workingHours = ref.read(userNotifierProvider).workingHours ?? 0.0;
     amountPerBatchController.text = (widget.requiredAmount > 0
         ? (widget.requiredAmount / (workingHours == 3.75 ? 6 : 12))
             .toStringAsFixed(0)
@@ -56,8 +56,9 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
 
   @override
   void dispose() {
-    focusNode.dispose();
-    requiredAmountController.dispose();
+    focusNodeTarget.dispose();
+    focusNodeAmount.dispose();
+    targetController.dispose();
     productNameController.dispose();
     amountPerBatchController.dispose();
     super.dispose();
@@ -78,9 +79,10 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
 
   @override
   Widget build(BuildContext context) {
-    ref..watch(requiredAmountProvider)
-    ..watch(amountPerBatchProvider)
-    ..watch(selectedProductProvider);
+    ref
+      ..watch(requiredAmountProvider)
+      ..watch(amountPerBatchProvider)
+      ..watch(selectedProductProvider);
     return Stack(
       children: [
         Positioned.fill(
@@ -90,41 +92,49 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
           ),
         ),
         GestureDetector(
-          onTap: (){
-            focusNode.unfocus();
+          onTap: () {
+            focusNodeTarget.unfocus();
+            focusNodeAmount.unfocus();
           },
           child: Scaffold(
-            appBar: AppBar(backgroundColor: Colors.transparent,),
-          backgroundColor: Colors.transparent,
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: FutureBuilder<List<Product>>(
-              future: productsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                final products = snapshot.data!;
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+            ),
+            backgroundColor: Colors.transparent,
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: FutureBuilder<List<Product>>(
+                future: productsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  final products = snapshot.data!;
 
-                final requiredAmount =
-                    double.tryParse(requiredAmountController.text) ?? 0.0;
-                final amountPerBatch =
-                    double.tryParse(amountPerBatchController.text) ?? 0.0;
-                final rounds = amountPerBatch != 0
-                    ? (requiredAmount / amountPerBatch).floor()
-                    : 0;
-                final extraBombs =
-                    amountPerBatch != 0 ? (requiredAmount % amountPerBatch) : 0;
-                products.sort((a, b) => ((b.systemG * amountPerBatch) / 1000).compareTo((a.systemG * amountPerBatch) / 1000));
+                  final requiredAmount =
+                      double.tryParse(targetController.text) ?? 0.0;
+                  final amountPerBatch =
+                      double.tryParse(amountPerBatchController.text) ?? 0.0;
+                  final rounds = amountPerBatch != 0
+                      ? (requiredAmount / amountPerBatch).floor()
+                      : 0;
+                  final extraBombs = amountPerBatch != 0
+                      ? (requiredAmount % amountPerBatch)
+                      : 0;
+                  products.sort(
+                    (a, b) => ((b.systemG * amountPerBatch) / 1000)
+                        .compareTo((a.systemG * amountPerBatch) / 1000),
+                  );
 
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      FutureBuilder<List<Product>>(
-                          future: Future.microtask(() async => getAllProducts()),
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        FutureBuilder<List<Product>>(
+                          future:
+                              Future.microtask(() async => getAllProducts()),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return const CircularProgressIndicator();
@@ -140,185 +150,334 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                     .toSet()
                                     .toList();
 
-                                return uniqueProductNames.where((productName) => productName
-                                      .toLowerCase()
-                                      .contains(textEditingValue.text.toLowerCase()),);
+                                return uniqueProductNames.where(
+                                  (productName) =>
+                                      productName.toLowerCase().contains(
+                                            textEditingValue.text.toLowerCase(),
+                                          ),
+                                );
                               },
                               onSelected: (selection) {
                                 productNameController.text = selection;
                                 ref.read(searchTermProvider.notifier).state = selection;
-                                setState(() async {
-                                  productsFuture = getProducts(selection);
+
+                                // Assign the Future directly to productsFuture
+                                setState(() {
+                                  productsFuture = Future.microtask(() async => getProducts(selection));
                                 });
                               },
+
+
                               displayStringForOption: (option) => option,
-                              fieldViewBuilder: (context,
-                                  textEditingController,
-                                  focusNode,
-                                  onFieldSubmitted,) => TextField(
-                                  controller: productNameController,
-                                  focusNode: focusNode,
-                                  onChanged: (value) => textEditingController.text = value,
-                                  decoration: InputDecoration(
-                                    labelStyle: const TextStyle(color: Colors.black), // Sets the label text color to black
-                                    hintStyle: const TextStyle(color: Colors.black), // Sets the hint text color to black
-                                    labelText: 'Product Name',
-                                    suffixIcon: Visibility(
-                                      visible: textEditingController.text.isNotEmpty,
-                                        child: IconButton(onPressed: (){focusNode.unfocus();},icon: const Icon(Icons.keyboard_hide)),),
+                              fieldViewBuilder: (
+                                context,
+                                textEditingController,
+                                focusNode,
+                                onFieldSubmitted,
+                              ) =>
+                                  TextField(
+                                controller: productNameController,
+                                focusNode: focusNode,
+                                onChanged: (value) {
+                                  ref.read(searchTermProvider.notifier).state = value;
+                                  productNameController.text = value;
+                                  textEditingController.text = value;
+                                },
+                                    style: const TextStyle(
+                                      color: Colors.lightBlueAccent, // Set the color of entered text
+                                      fontSize: 20, // Set the font size of entered text
+                                      fontWeight: FontWeight.bold, // Set the font weight of entered text
+                                    ),
+                                decoration: InputDecoration(
+                                  labelText: 'Product name',
+                                  labelStyle: const TextStyle(
+                                    color: Colors.lightBlueAccent,
+                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontSize: 18, // Slightly bigger font
+                                  ),
+                                  hintText: 'Add product name',
+                                  hintStyle: TextStyle(
+                                    color: Colors.lightBlueAccent.withOpacity(0.5),
+                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontSize: 20, // Slightly bigger font
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent
+                                          .withOpacity(0.7),
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent
+                                          .withOpacity(0.5),
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: const BorderSide(
+                                      color: Colors.blue,
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  suffixIcon: Visibility(
+                                    visible:
+                                        productNameController.text.isNotEmpty,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        focusNode.unfocus();
+                                      },
+                                      icon: Icon(Icons.keyboard_hide, color: Colors.blue[800],),
+                                    ),
                                   ),
                                 ),
-                            );
-                          },),
-                      TextField(
-                        controller: requiredAmountController,
-                        focusNode: focusNode,
-                        onChanged: (value) => requiredAmountController.text = value,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Target',
-                          labelStyle: const TextStyle(color: Colors.black), // Label text color
-                          hintStyle: const TextStyle(color: Colors.black), // Hint text color
-                          suffixIcon: Visibility(
-                            visible: productNameController.text.isNotEmpty,
-                            child: IconButton(
-                              icon: const Icon(Icons.clear, color: Colors.black),
-                              onPressed: () {
-                                productNameController.clear();
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      TextField(
-                        focusNode: focusNode,
-                        controller: amountPerBatchController,
-                        decoration: const InputDecoration(
-                          labelText: 'Amount per batch',
-                          labelStyle: TextStyle(color: Colors.black), // Sets the label text color to black
-                          hintText: 'enter amount',
-                          hintStyle: TextStyle(color: Colors.black), // Sets the hint text color to black
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          final amount = int.tryParse(value) ?? 0;
-                          ref.read(amountPerBatchProvider.notifier).state = amount;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.orangeAccent[100]!.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(33),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.orangeAccent.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-
-                                child: const Text('To achieve your goal:'),),
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.orangeAccent[100],
-                                borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text('Rounds: $rounds'),
-                                      Text('Extra Bombs: $extraBombs'),
-                                    ],),
+                            );
+                          },
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.45,
+                              child: TextField(
+                                controller: targetController,
+                                focusNode: focusNodeTarget,
+                                onChanged: (value) =>
+                                    targetController.text = value,
+                                keyboardType: TextInputType.number,
+                                style: const TextStyle(
+                                  color: Colors.lightBlueAccent, // Set the color of entered text
+                                  fontSize: 20, // Set the font size of entered text
+                                  fontWeight: FontWeight.bold, // Set the font weight of entered text
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Target',
+                                  labelStyle: const TextStyle(
+                                    color: Colors.lightBlueAccent,
+                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontSize: 18, // Slightly bigger font
+                                  ),
+                                  hintText: 'Add target',
+                                  hintStyle: TextStyle(
+                                    color: Colors.lightBlueAccent.withOpacity(0.5),
+                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontSize: 20, // Slightly bigger font
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent
+                                          .withOpacity(0.7),
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent
+                                          .withOpacity(0.5),
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: const BorderSide(
+                                      color: Colors.blue,
+                                      width: 4, // Bolder border
+                                    ),
+                                  ), // Hint text color
+                                  suffixIcon: Visibility(
+                                    visible: targetController.text.isNotEmpty,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        Icons.clear,
+                                        color: Colors.blue[800],
+                                      ),
+                                      onPressed: () {
+                                        targetController.clear();
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.45,
+                              child: TextField(
+                                focusNode: focusNodeAmount,
+                                controller: amountPerBatchController,
+                                style: const TextStyle(
+                                  color: Colors.lightBlueAccent, // Set the color of entered text
+                                  fontSize: 20, // Set the font size of entered text
+                                  fontWeight: FontWeight.bold, // Set the font weight of entered text
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Amount per batch',
+                                  labelStyle: const TextStyle(
+                                    color: Colors.lightBlueAccent,
+                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontSize: 18, // Slightly bigger font
+                                  ),
+                                  hintText: 'Enter amount',
+                                  hintStyle: TextStyle(
+                                    color:
+                                        Colors.lightBlueAccent.withOpacity(0.5),
+                                    fontWeight: FontWeight.bold, // Bold text
+                                    fontSize: 20, // Slightly bigger font
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent
+                                          .withOpacity(0.7),
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: Colors.lightBlueAccent
+                                          .withOpacity(0.5),
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: const BorderSide(
+                                      color: Colors.blue,
+                                      width: 4, // Bolder border
+                                    ),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  final amount = int.tryParse(value) ?? 0;
+                                  ref
+                                      .read(amountPerBatchProvider.notifier)
+                                      .state = amount;
+                                },
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          final product = products[index];
-                          final systemG =
-                              ((product.systemG * amountPerBatch) / 1000)
-                                  .toStringAsFixed(2);
-                          final citricG =
-                              ((product.systemCitric * amountPerBatch) / 1000)
-                                  .toStringAsFixed(2);
-
-                          String extractColorName(String colorString) {
-                            if (colorString.contains('-')) {
-                              return colorString.split('-').last.trim();
-                            } else {
-                              return colorString.split(' ').last.trim();
-                            }
-                          }
-
-                          final color = getColorFromString(extractColorName(product.productColor));
-                          return Padding(
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.lightBlueAccent[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
                             padding: const EdgeInsets.all(4),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: getColorFromString(
-                                    extractColorName(product.productColor),
-                                    accent: true,),
-                                borderRadius: BorderRadius.circular(33),
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(style: const TextStyle(fontWeight: FontWeight.bold,),'Batches: $rounds'),
+                                Text(style: const TextStyle(fontWeight: FontWeight.bold,),'Extra Bombs: $extraBombs'),
+                              ],
+                            ),
+                          ),
+                        ),
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            final product = products[index];
+                            final systemG =
+                                ((product.systemG * amountPerBatch) / 1000)
+                                    .toStringAsFixed(2);
+                            final citricG =
+                                ((product.systemCitric * amountPerBatch) / 1000)
+                                    .toStringAsFixed(2);
+
+                            String extractColorName(String colorString) {
+                              if (colorString.contains('-')) {
+                                return colorString.split('-').last.trim();
+                              } else {
+                                return colorString.split(' ').last.trim();
+                              }
+                            }
+
+                            final color = getColorFromString(
+                              extractColorName(product.productColor),
+                            );
+                            return Padding(
+                              padding: const EdgeInsets.all(4),
                               child: Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: color,
-                                  borderRadius: BorderRadius.circular(25),
+                                  color: getColorFromString(
+                                    extractColorName(product.productColor),
+                                    accent: true,
+                                  ),
+                                  borderRadius: BorderRadius.circular(33),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.sizeOf(context).width * 0.25,
-                                      child: Center(
-                                        child: Text(
-                                        extractColorName(product.productColor),
-                                            style: const TextStyle(fontSize: 20),),
-                                      ),
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          'Powder: $systemG kg',
-                                          style: const TextStyle(fontSize: 20),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.sizeOf(context).width *
+                                                0.25,
+                                        child: Center(
+                                          child: Text(
+                                            extractColorName(
+                                              product.productColor,
+                                            ),
+                                            style:
+                                                const TextStyle(fontSize: 20),
+                                          ),
                                         ),
-                                        Text('Citric: $citricG kg',
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            'Powder: $systemG kg',
+                                            style:
+                                                const TextStyle(fontSize: 20),
+                                          ),
+                                          Text(
+                                            'Citric: $citricG kg',
                                             style: const TextStyle(
                                               fontSize: 20,
-                                            ),),
-                                      ],
-                                    ),
-                                  ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
-                ),
-        ),],
+        ),
+      ],
     );
   }
 }

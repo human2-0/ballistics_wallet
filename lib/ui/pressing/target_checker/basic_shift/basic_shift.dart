@@ -64,7 +64,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
         },
         child: Container(
           width: MediaQuery.of(context).size.width * 0.95,
-          height: MediaQuery.of(context).size.height * 0.82,
+          height: MediaQuery.of(context).size.height * 0.83,
           margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(50),

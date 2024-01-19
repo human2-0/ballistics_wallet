@@ -85,27 +85,23 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
           child: AnimatedBuilder(
             animation: _flipAnimation,
             builder: (context, child) => Transform(
-              alignment: Alignment.center,
+              alignment: Alignment.topCenter,
               transform: Matrix4.identity()
                 ..setEntry(3, 2, 0.001)
                 ..rotateY(pi * _flipController.value),
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: IndexedStack(
-                  alignment: Alignment.center,
+                  alignment: Alignment.topCenter,
                   index: (_flipController.value < 0.5) ? 0 : 1,
                   children: [
-                    Center(
-                      child: BasicShift(
-                        onNotification: widget.onNotification,
-                      ),
+                    BasicShift(
+                      onNotification: widget.onNotification,
                     ), // FrontFlipCard
-                    Center(
-                      child: Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()..rotateY(pi),
-                        child: const OvertimeShift(),
-                      ),
+                    Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.identity()..rotateY(pi),
+                      child: const OvertimeShift(),
                     ),
                     // BackFlipCard
                   ],
