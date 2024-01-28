@@ -27,7 +27,8 @@ class LastSelectedProducts extends ConsumerWidget {
         child: ListView.builder(
           itemCount: products.length,
           itemBuilder: (context, index) {
-            final product = products[index];
+            final reversedIndex = products.length - 1 - index;
+            final product = products[reversedIndex];
 
             return Container(
               decoration: BoxDecoration(

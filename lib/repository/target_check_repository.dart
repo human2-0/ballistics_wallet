@@ -190,10 +190,5 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
     state = box.values.toList();
   }
 
-  Future<void> fetchLast7SelectedProducts() async {
-    final box = await Hive.openBox<SelectedProduct>('selected_products');
-    final last7Products = box.values.toList()
-      ..sort((a, b) => b.selectedDate.compareTo(a.selectedDate));
-    state = last7Products.take(7).toList();
-  }
+
 }

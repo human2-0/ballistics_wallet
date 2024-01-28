@@ -3,7 +3,7 @@
 // Local imports
 import 'package:ballistics_wallet_flutter/firebase_options.dart';
 // Package imports
-import 'package:ballistics_wallet_flutter/providers/auth_providers/router_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

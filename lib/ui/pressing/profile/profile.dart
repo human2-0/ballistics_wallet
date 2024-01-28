@@ -83,6 +83,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
             ),
           ),
           Card(
+            color: Colors.lightBlueAccent[100]!.withOpacity(0.5),
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Row(
@@ -98,7 +99,9 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                     children: [
                       Column(
                         children: [
-                          Text('Working Hours: ${userState.realWorkingHours}'),
+                          Text(style: const TextStyle(fontWeight: FontWeight.bold,
+
+                          ),'Working Hours: ${userState.realWorkingHours}',),
                           IconButton(
                             icon: const Icon(Icons.edit, size: 39,),
                             onPressed: () async {
@@ -155,7 +158,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Paid breaks'),
+                      const Text(style: TextStyle(fontWeight: FontWeight.bold,),'Paid breaks'),
                       IconButton(
                         icon: CircleAvatar(
                           radius: 20,

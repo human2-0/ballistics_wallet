@@ -212,7 +212,7 @@ class _HomeState extends ConsumerState<HomeScreen>
         height: MediaQuery.of(context).size.height * 0.10,
         decoration: BoxDecoration(
           color: Colors.brown[50]?.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(33),
           boxShadow: const [
             BoxShadow(
               color: Color(0x80D7BEB1),

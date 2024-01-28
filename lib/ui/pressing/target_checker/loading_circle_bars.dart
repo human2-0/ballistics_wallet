@@ -267,7 +267,7 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
           painter: _MinimumCirclePainter(
             progress: _progressAnimation.value,
             color: Colors.green,
-            backgroundColor: Colors.pink[50]!,
+            backgroundColor: Colors.pink[50]!.withOpacity(0.3),
           ),
           size: const Size(46, 46),
         ),
