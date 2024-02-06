@@ -1,5 +1,6 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
+import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LoginController extends StateNotifier<LoginState> {
@@ -7,28 +8,29 @@ class LoginController extends StateNotifier<LoginState> {
 
   final Ref ref;
 
-  void login(String email, String password) async {
+  Future<void> login(String email, String password) async {
     try {
       await ref.read(authRepositoryProvider).signInWithEmailAndPassword(
             email,
             password,
           );
       state = const LoginStateInitial();
-    } catch (e) {
+    } on FormatException catch (e) {
       state = LoginStateError(e.toString());
     }
   }
 
-  void signOut() async {
+  Future<void> signOut() async {
     await ref.read(authRepositoryProvider).signOut();
     state = const LoginStateInitial();
   }
 
-  void loginWithGoogle() async {
+  Future<void> loginWithGoogle() async {
     try {
       await ref.read(authRepositoryProvider).signInWithGoogle();
       state = const LoginStateSuccess();
-    } catch (e) {
+      ref.read(toastMessageProvider.notifier).state = "Welcome on board, Lush's Warrior!";
+    } on FormatException catch (e) {
       state = LoginStateError(e.toString());
     }
   }

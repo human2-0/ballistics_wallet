@@ -38,6 +38,18 @@ class UserRepository {
       return false;
     }
   }
+
+  Future<bool> editHourlyRate(String userId, double newHourlyRate) async {
+    try {
+      await _db
+          .collection('users')
+          .doc(userId)
+          .update({'hourlyRate': newHourlyRate});
+      return true;
+    } on FormatException catch (e) {
+      return false;
+    }
+  }
 }
 
 class UserState {
@@ -48,6 +60,7 @@ class UserState {
     this.allowance,
     this.avatarUrl,
     this.paidBreaks,
+    this.hourlyRate,
   });
   final String? userId;
   final double? workingHours; // actual working hours
@@ -55,6 +68,7 @@ class UserState {
   final double? allowance;
   final String? avatarUrl;
   final bool? paidBreaks;
+  final double? hourlyRate;
 
   UserState copyWith({
     String? userId,
@@ -63,6 +77,7 @@ class UserState {
     double? allowance,
     String? avatarUrl,
     bool? paidBreaks,
+    double? hourlyRate,
   }) =>
       UserState(
         userId: userId ?? this.userId,
@@ -71,6 +86,7 @@ class UserState {
         allowance: allowance ?? this.allowance,
         avatarUrl: avatarUrl ?? this.avatarUrl,
         paidBreaks: paidBreaks ?? this.paidBreaks,
+        hourlyRate: hourlyRate ?? this.hourlyRate,
       );
 }
 
@@ -108,6 +124,8 @@ class UserNotifier extends StateNotifier<UserState> {
       // Ensure paidBreaks is never null
       final bool paidBreaks = userData['paidBreaks'] ?? false;
 
+      final double? hourlyRate = userData['hourlyRate'] ?? 0;
+
       state = UserState(
         userId: userId,
         workingHours: workingHours,
@@ -115,6 +133,7 @@ class UserNotifier extends StateNotifier<UserState> {
         avatarUrl: userData['avatarUrl'] as String,
         paidBreaks: paidBreaks,
         realWorkingHours: realWorkingHours, // Update with non-null value
+        hourlyRate: hourlyRate,
       );
     }
   }
@@ -126,6 +145,17 @@ class UserNotifier extends StateNotifier<UserState> {
       state = state.copyWith(
         workingHours: newWorkingHours,
         realWorkingHours: calculateEffectiveWorkingHours(newWorkingHours),
+      );
+    }
+    return result;
+  }
+
+  Future<bool> editHourlyRate(double newHourlyRate) async {
+    if (state.userId == null) return false;
+    final result = await userRepository.editHourlyRate(state.userId!, newHourlyRate);
+    if (result) {
+      state = state.copyWith(
+        hourlyRate: newHourlyRate,
       );
     }
     return result;

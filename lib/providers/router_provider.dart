@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 
-
+final toastMessageProvider = StateProvider<String>((ref)=> '');
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = RouterNotifier(ref);
@@ -76,17 +76,21 @@ class RouterNotifier extends ChangeNotifier {
 
 
   FutureOr<String?> _redirect(user, userData) async {
-    // The logic remains the same.
+    // Check for null user
     if (user == null) {
       return '/login';
-    } else {
-      final email = userData.userEmailAddress ?? '';
-      // Add the check for an empty string here
-      if (email.isEmpty || !email.endsWith('@gmail.com')) {
-        return '/login';
-      } else {
-        return '/';
-      }
     }
+
+    // Extract email address, handling potential null values
+    final email = userData.userEmailAddress ?? '';
+
+    // Validate email address
+    final allowedDomains = ['gmail.com', 'lush.co.uk'];
+    if (email.isEmpty || !allowedDomains.any((domain) => email.endsWith('@$domain'))) {
+      return '/login';
+    }
+
+    // If email is valid, redirect to '/'
+    return '/';
   }
 }

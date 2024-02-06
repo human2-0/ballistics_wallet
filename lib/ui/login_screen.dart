@@ -1,5 +1,7 @@
+import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_controller.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
+import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -88,8 +90,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       ElevatedButton(
-                        onPressed: () {
-                          ref.read(loginControllerProvider.notifier).loginWithGoogle();
+                        onPressed: () async {
+                          await ref.read(loginControllerProvider.notifier).loginWithGoogle();
                         },
                         child: const Text('Sign in with Google'),
                       ),
