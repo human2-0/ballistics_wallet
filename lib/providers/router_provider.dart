@@ -8,6 +8,7 @@ import 'package:ballistics_wallet_flutter/ui/login_screen.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/bottom_app_bar.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
+import 'package:ballistics_wallet_flutter/ui/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -60,7 +61,6 @@ class RouterNotifier extends ChangeNotifier {
             );
           },
           path: '/split',
-
         ),
         GoRoute(
           name: 'splash',
@@ -72,25 +72,37 @@ class RouterNotifier extends ChangeNotifier {
           builder: (context, state) => const ProtectScreen(),
           path: '/protect',
         ),
+        GoRoute(
+          name: 'test',
+          builder: (context, state) => const TestScreen(),
+          path: '/test',
+        ),
       ];
 
 
   FutureOr<String?> _redirect(user, userData) async {
-    // Check for null user
+    // Check if the user is already on the '/' route
+    if (user != null && userData != null && userData.userEmailAddress != null) {
+      final email = userData.userEmailAddress;
+      final allowedDomains = ['gmail.com', 'lush.co.uk'];
+      if (email.isNotEmpty && allowedDomains.any((domain) => email.endsWith('@$domain'))) {
+        // User is already authenticated and on the home route, no need to redirect
+        return null;
+      }
+    }
+
+    // For other cases, perform redirection logic as before
     if (user == null) {
       return '/login';
     }
 
-    // Extract email address, handling potential null values
-    final email = userData.userEmailAddress ?? '';
-
-    // Validate email address
+    final email = userData?.userEmailAddress ?? '';
     final allowedDomains = ['gmail.com', 'lush.co.uk'];
     if (email.isEmpty || !allowedDomains.any((domain) => email.endsWith('@$domain'))) {
       return '/login';
     }
 
-    // If email is valid, redirect to '/'
+    // If email is valid and not on the home route, redirect to '/'
     return '/';
   }
 }

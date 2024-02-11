@@ -125,9 +125,9 @@ class BonusTable extends ConsumerWidget {
                     double.parse(key) - ((overtimeRatio > 0.0)
                         ? overtimeRatio
                         : targetRatio) * 100;
-                final allowanceCheck = (workingHours - allowance) / 7;
+                final allowanceCheck = ((workingHours - allowance) / 7).ceil();
 
-                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? (stableTarget * allowanceCheck).ceil() : stableTarget)) / 100).ceil();
+                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? stableTarget * allowanceCheck : stableTarget)) / 100).ceil();
 
                 if (requiredAmount > 0) {
                   return GestureDetector(

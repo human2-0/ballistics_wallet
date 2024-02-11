@@ -149,27 +149,30 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
 
     // Try to find an existing product with the same name
     final existingProductKey = box.keys.firstWhere(
-      (key) => box.get(key)!.name == product.name,
+          (k) => box.get(k)!.name == product.name,
       orElse: () => null,
     );
 
     if (existingProductKey != null) {
-      // If found, update the existing product's selectedDate
-      final existingProduct = box.get(existingProductKey);
-      final updatedProduct = SelectedProduct(
-        name: existingProduct!.name,
-        selectedDate: DateTime.now(),
-        target: existingProduct.target,
-      );
-      await box.put(existingProductKey, updatedProduct);
-    } else {
-      // If not found, add the new product to the box
-      await box.add(product);
+      // If found, delete the existing product
+      await box.delete(existingProductKey);
     }
 
-    // Update the state with the latest values
-    state = box.values.toList();
+    // Whether new or existing, add the product to ensure it's placed at the end
+    // Update the product with the current date to ensure chronological order
+    final updatedProduct = SelectedProduct(
+      name: product.name,
+      selectedDate: DateTime.now(), // Ensure the date is updated to now
+      target: product.target, // Assuming 'target' is a property you want to keep
+    );
+    await box.add(updatedProduct);
+
+    // Fetch all products, sort them by selectedDate, and update the state
+    final products = box.values.toList()
+      ..sort((a, b) => a.selectedDate.compareTo(b.selectedDate));
+    state = products;
   }
+
 
   Future<void> deleteSelectedProductByName(String productName) async {
     final box = await Hive.openBox<SelectedProduct>('selected_products');

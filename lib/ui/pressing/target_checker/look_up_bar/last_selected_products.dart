@@ -12,7 +12,7 @@ class LastSelectedProducts extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final products = ref.watch(lastSelectedProductProvider);
     final allowance = ref.watch(allowanceProvider);
-    final userState = ref.watch(userNotifierProvider.notifier).state;
+    final userState = ref.watch(userNotifierProvider);
     final workingHours = userState.workingHours ?? 0.0;
     final textEditingController = ref.watch(textEditingControllerProvider);
 
@@ -71,7 +71,6 @@ class LastSelectedProducts extends ConsumerWidget {
                       selectedProductName; // Update the controller's text
                   ref.read(showListProvider.notifier).state = false;
                   ref.read(focusNodeProvider).unfocus();
-                  await Hive.box('settings').put('selectedProduct', product);
                 },
                 // Add any additional fields and UI customizations you need here...
               ),

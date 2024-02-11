@@ -1,5 +1,4 @@
-import 'package:ballistics_wallet_flutter/models/product_name.dart';
-import 'package:ballistics_wallet_flutter/models/product_split.dart';
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -8,21 +7,6 @@ import 'package:hive_flutter/adapters.dart';
 String formatDouble(double value) => value == value.floor()
     ? value.floor().toString()
     : value.toStringAsFixed(2);
-
-String formatProductNameToFileName(String productName) {
-  var fileName = productName.toLowerCase();
-
-  // Remove any special characters or numbers
-  fileName = fileName.replaceAll(RegExp('[^a-z ]'), '');
-
-  // Replace spaces with underscores
-  fileName = fileName.replaceAll(' ', '_');
-
-  // Remove any trailing underscores
-  fileName = fileName.replaceAll(RegExp(r'_+$'), '');
-
-  return fileName;
-}
 
 String toTitleCase(String text) {
   if (text.isEmpty) return text;
@@ -33,69 +17,65 @@ String toTitleCase(String text) {
   }).join(' ');
 }
 
-DateTime nextMonday() {
-  final now = DateTime.now();
-  final daysUntilMonday = (DateTime.monday - now.weekday) % 7;
-  return now.add(Duration(days: daysUntilMonday));
-}
-
-// Future<void> loadDataFromCSV() async {
-//   final rawData = await rootBundle.loadString('new_targets.csv');
-//   final rows = csvToList(rawData);
-//
-//   final boxNames = await Hive.openBox<ProductName>('Products');
-//
-//   for (final row in rows) {
-//     if (row.length < 2) continue;
-//
-//     final productName = row[0]?.toString().trim();
-//     final targetString = row[1]?.toString().replaceAll(RegExp('[,"]'), '').trim();
-//     final cleanedTargetString = targetString?.replaceAll(RegExp('[^0-9]'), '');
-//     final target = int.tryParse(cleanedTargetString!);
-//
-//     // Add print statements to debug
-//
-//     final imageName = row.length >= 3 ? row[2]?.toString().trim() : null;
-//
-//     if (productName != null && productName.isNotEmpty && target != null && target != 0) {
-//       final product = ProductName(name: productName, target: target, imageName: imageName);
-//       await boxNames.put(productName, product);
-//     } else {
-//       // Print a message if product is skipped
-//     }
-//   }
-// }
-
 List<List<dynamic>> csvToList(String data) {
   final eol = data.contains('\r\n') ? '\r\n' : '\n';
   return CsvToListConverter(eol: eol).convert(data);
 }
 
-Future<void> addDataToHiveBoxProductSplit(Box<Product> boxSplit) async {
-  final data = await rootBundle.loadString('split_data.csv');
+Future<void> addDataToProductInfoBox(Box<ProductInfo> boxProductInfo) async {
+  final data = await rootBundle.loadString('merged_data_final.csv');
   final rows = csvToList(data);
 
-  for (final row in rows) {
-    if (row.isEmpty ||
-        row[0] == null ||
-        row[1] == null ||
-        row[2] == null ||
-        row[3] == null) {
-      continue;
-    }
+  // Map to hold products grouped by productName
+  final productsByProductName = <String, List<Pressing>>{};
 
-    final product = Product(
-      row[0].toString(),
-      row[1].toString(),
-      double.tryParse(row[2].toString()) ?? 0.0,
-      double.tryParse(row[3].toString()) ?? 0.0,
+  for (final row in rows) {
+    // Ensure the row has at least 7 columns for merged data
+    if (row.length < 7) continue;
+
+    final productName = row[0]?.toString().trim();
+
+    // Parsing Pressing fields from the merged CSV
+    final product = Pressing(
+      row[3].toString(),
+      double.tryParse(row[4].toString()) ?? 0.0,
+      double.tryParse(row[5].toString()) ?? 0.0,
     );
 
-    if (product.productName.isNotEmpty &&
-        product.productColor.isNotEmpty &&
-        product.systemG != 0.0 &&
-        product.systemCitric != 0.0) {
-      await boxSplit.add(product);
+    // Group products by productName
+    if (productName != null && productName.isNotEmpty) {
+      productsByProductName.putIfAbsent(productName, () => []);
+      productsByProductName[productName]!.add(product);
+    }
+  }
+
+  // Create and store ProductInfo instances
+  for (final entry in productsByProductName.entries) {
+    final productName = entry.key;
+    final products = entry.value;
+
+    // Assuming the target and imageName are the same for all products of the same productName.
+    // Adjust this logic if target and imageName vary per product within the same productName.
+    final targetString = rows
+        .firstWhere((row) => row[0]?.toString().trim() == productName)[1]
+        ?.toString()
+        .replaceAll(RegExp('[,"]'), '')
+        .trim();
+    final cleanedTargetString = targetString?.replaceAll(RegExp('[^0-9]'), '');
+    final target = int.tryParse(cleanedTargetString!);
+    final imageName = rows
+        .firstWhere((row) => row[0]?.toString().trim() == productName)[2]
+        ?.toString()
+        .trim();
+
+    if (target != null && target != 0) {
+      final productInfo = ProductInfo(
+        productName: productName,
+        target: target,
+        imageName: imageName ?? '',
+        product: products,
+      );
+      await boxProductInfo.put(productName, productInfo);
     }
   }
 }
@@ -104,17 +84,14 @@ Future<void> initHive() async {
   await Hive.initFlutter();
 
   Hive
-    ..registerAdapter(ProductNameAdapter())
-    ..registerAdapter(ProductAdapter())
-    ..registerAdapter(SelectedProductAdapter());
+    ..registerAdapter(SelectedProductAdapter())
+    ..registerAdapter(ProductInfoAdapter())
+    ..registerAdapter(PressingAdapter());
 
-  final boxNames = await Hive.openBox<ProductName>('Products');
-  final boxSplit = await Hive.openBox<Product>('products_split');
-
-  await boxNames.clear();
-  await boxSplit.clear();
-
-  await addDataToHiveBoxProductSplit(boxSplit);
+  final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
+  if (boxProductInfo.isEmpty) {
+    await addDataToProductInfoBox(boxProductInfo);
+  }
 }
 
 extension MapExtensions on Map<String, dynamic> {
@@ -135,3 +112,28 @@ extension MapExtensions on Map<String, dynamic> {
     }
   }
 }
+
+
+const Map<int, double> bonusPercentageMap = {
+  1: 102.00,
+  2: 104.10,
+  3: 106.10,
+  4: 108.20,
+  5: 110.20,
+  6: 112.20,
+  7: 114.29,
+  8: 118.37,
+  9: 122.45,
+  10: 126.53,
+  11: 130.61,
+  12: 134.69,
+  13: 138.78,
+  14: 142.86,
+  15: 146.94,
+  16: 151.02,
+  17: 155.10,
+  18: 159.18,
+  19: 163.27,
+  20: 167.35,
+  21: 171.43, //Add more values as per your requirements
+};

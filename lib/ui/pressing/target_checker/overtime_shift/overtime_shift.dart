@@ -1,20 +1,18 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
+import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/slide_to_basicshift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../../providers/pressing_db_provider.dart';
-import '../../../../providers/target_check_provider.dart';
-import 'slide_to_basicshift.dart';
-
 class OvertimeShift extends ConsumerStatefulWidget {
-  const OvertimeShift({Key? key}) : super(key: key);
+  const OvertimeShift({super.key});
 
   @override
   OvertimeShiftCard createState() => OvertimeShiftCard();
@@ -22,9 +20,9 @@ class OvertimeShift extends ConsumerStatefulWidget {
 
 class OvertimeShiftCard extends ConsumerState<OvertimeShift>
     with TickerProviderStateMixin {
-  double overtimeHours = 0.0;
+  double overtimeHours = 0;
   int overtimeAmount = 0;
-  double effectiveWorkingHours = 0.0;
+  double effectiveWorkingHours = 0;
 
   final TextEditingController overtimeAmountController =
       TextEditingController();
@@ -65,11 +63,11 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
     final focusNode = ref.read(focusNodeProvider);
     final numberFocusNode = ref.read(numberFocusNodeProvider);
     final allowanceFocusNode = ref.read(allowanceFocusNodeProvider);
-    bool isSearchBarFocused = false;
+    var isSearchBarFocused = false;
 
-    final TextEditingController textEditingController =
+    final textEditingController =
         ref.watch(textEditingControllerProvider);
-    final TextEditingController numberController = TextEditingController();
+    final numberController = TextEditingController();
     final allowanceController = TextEditingController();
 
     final userId = ref.watch(authRepositoryProvider).currentUserId;
@@ -77,26 +75,25 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
     final products = ref.watch(productsProvider(updated));
     final productName =
         ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
-    int productTarget = ref.watch(targetProvider);
-    final double percentage = ref.watch(targetRatioProvider(userId)) * 100;
-    final double targetRatio = ref.watch(targetRatioProvider(userId));
-    final int amount = ref.watch(numberProvider);
+    final productTarget = ref.watch(targetProvider);
+    final percentage = ref.watch(targetRatioProvider(userId)) * 100;
+    final targetRatio = ref.watch(targetRatioProvider(userId));
+    final amount = ref.watch(numberProvider);
 
-    double effectiveOvertimeHours = ref
+    final effectiveOvertimeHours = ref
         .read(userNotifierProvider.notifier)
         .calculateEffectiveWorkingHours(overtimeHours);
-    double overtimePercents = 0.0;
+    var overtimePercents = 0.0;
     if (_overtimeAmount != 0 &&
         productTarget != 0 &&
         effectiveOvertimeHours != 0) {
-      overtimePercents = (overtimeAmount / (productTarget)) * 100;
+      overtimePercents = (overtimeAmount / productTarget) * 100;
     }
 
     final userState = ref.watch(userNotifierProvider.notifier).state;
     final allowance = ref.watch(allowanceProvider);
-    final double workingHours = userState.workingHours ?? 0.0;
-
-    final imageNameFuture = ref.watch(imageNameProvider(textEditingController.text));
+    final workingHours = userState.workingHours ?? 0.0;
+   final focusedProduct = ref.watch(focusedProductProvider);
 
     return Column(
       children: [
@@ -104,9 +101,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
           Column(
             children: [
               Center(child: Container(
-                padding: EdgeInsets.fromLTRB(4, 4, 4, 0),
+                padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25.0),
+                    borderRadius: BorderRadius.circular(25),
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -127,17 +124,17 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                         blurRadius: 10,
                       ),
                     ],
-                  ),child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("Overtime"),
-                  ))),
+                  ),child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text('Overtime'),
+                  ),),),
               Center(
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.95,
                   height: MediaQuery.of(context).size.height * 0.82,
                   margin: const EdgeInsets.fromLTRB(20, 10, 10, 10),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50.0),
+                    borderRadius: BorderRadius.circular(50),
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -168,7 +165,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                           Padding(
                             padding: const EdgeInsets.all(4),
                             child: AnimatedContainer(
-                                duration: Duration(milliseconds: 400),
+                                duration: const Duration(milliseconds: 400),
                                 width: ((isFocused ||
                                         showList ||
                                         productName.isNotEmpty)
@@ -176,7 +173,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     : MediaQuery.of(context).size.width * 0.15),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(33),
-                                    color: Colors.yellowAccent[100]),
+                                    color: Colors.yellowAccent[100],),
                                 child: TextField(
                                   controller: textEditingController,
                                   textAlign: TextAlign.center,
@@ -189,20 +186,20 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                 .text.isEmpty &&
                                             !isSearchBarFocused
                                         ? const Center(
-                                            child: Icon(Icons.search_rounded))
+                                            child: Icon(Icons.search_rounded),)
                                         : IconButton(
                                             icon: const Icon(Icons.clear),
                                             onPressed: () {
-                                              setState(() {
+                                              setState(() async {
                                                 ref
                                                     .read(
-                                                        searchTermProvider.notifier)
-                                                    .state = "";
+                                                        searchTermProvider.notifier,)
+                                                    .state = '';
                                                 ref
                                                     .read(selectedProductProvider
-                                                        .notifier)
+                                                        .notifier,)
                                                     .state
-                                                    .state = "";
+                                                    .state = '';
                                                 textEditingController.clear();
                                                 overtimeAmountController.text = '';
                                                 ref
@@ -216,36 +213,36 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                     .requestFocus(FocusNode());
                                                 numberController.clear();
 
-                                                int productTarget =
+                                                final productTarget =
                                                     ref.read(targetProvider);
 
-                                                ref
+                                                await ref
                                                     .read(targetProvider.notifier)
                                                     .updateTarget(0);
-                                                ref
+                                                await ref
                                                     .read(
                                                         targetRatioProvider(userId)
-                                                            .notifier)
+                                                            .notifier,)
                                                     .init();
                                               });
                                             },
                                           ),
                                     hintStyle: const TextStyle(color: Colors.grey),
-                                    hintText: "Search",
+                                    hintText: 'Search',
                                   ),
-                                  onTap: () {
+                                  onTap: () async {
                                     if (overtimeHours == 0.0) {
                                       // If _overtimeHours is not set, show a dialog
-                                      showDialog(
+                                      await showDialog(
                                         context: context,
                                         builder: (context) => Dialog(
                                           shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(
-                                                  20.0)), //this right here
-                                          child: Container(
+                                                  20,),), //this right here
+                                          child: SizedBox(
                                             height: 300,
                                             child: Padding(
-                                              padding: const EdgeInsets.all(12.0),
+                                              padding: const EdgeInsets.all(12),
                                               child: Column(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
@@ -257,21 +254,21 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                         'assets/lottie/alert.json',
                                                         width: 100,
                                                         height:
-                                                            100), // Lottie animation
+                                                            100,), // Lottie animation
                                                   ),
-                                                  SizedBox(height: 20),
-                                                  Text(
+                                                  const SizedBox(height: 20),
+                                                  const Text(
                                                     'Hey there!',
                                                     style: TextStyle(
                                                         fontWeight: FontWeight.bold,
-                                                        fontSize: 16),
+                                                        fontSize: 16,),
                                                   ),
-                                                  SizedBox(height: 10),
-                                                  Text(
+                                                  const SizedBox(height: 10),
+                                                  const Text(
                                                     'Before you proceed with searching products, please set your overtime hours.',
                                                     style: TextStyle(fontSize: 14),
                                                   ),
-                                                  SizedBox(height: 20),
+                                                  const SizedBox(height: 20),
                                                   Align(
                                                     alignment:
                                                         Alignment.bottomRight,
@@ -280,7 +277,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                           Navigator.of(context)
                                                               .pop();
                                                         },
-                                                        child: Text('Got it!')),
+                                                        child: const Text('Got it!'),),
                                                   ),
                                                 ],
                                               ),
@@ -317,10 +314,10 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                           false;
                                     });
                                   },
-                                )),
+                                ),),
                           ),
                           AnimatedContainer(
-                            duration: Duration(milliseconds: 400),
+                            duration: const Duration(milliseconds: 400),
                             width: ((isFocused || showList)
                                 ? MediaQuery.of(context).size.width * 0.15
                                 : MediaQuery.of(context).size.width * 0.25),
@@ -335,7 +332,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 alignLabelWithHint: true,
                                 labelText: 'Hours',
                                 contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 1.0,
+                                  vertical: 1,
                                 ),
                                 fillColor: Colors.yellowAccent[100],
                                 filled: true,
@@ -346,7 +343,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 prefixIcon: const Icon(Icons.timer),
                               ),
                               keyboardType: const TextInputType.numberWithOptions(
-                                  decimal: false, signed: false),
+                                  ),
                               enabled: ((productName != '' || isSearchBarFocused)
                                   ? false
                                   : true), // disable TextField when productName is empty
@@ -356,7 +353,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                       ),
                       if (showList)
                         Expanded(
-                          child: Container(
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
                               borderRadius: const BorderRadius.all(
                                 Radius.circular(33),
@@ -366,11 +363,11 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                             child: products.when(
                               data: (data) {
                                 final filteredProducts = data
-                                    .where((product) => product.name
+                                    .where((product) => product.productName
                                         .toLowerCase()
                                         .contains(ref
                                             .watch(searchTermProvider)
-                                            .toLowerCase()))
+                                            .toLowerCase(),),)
                                     .toList();
                                 return ListView.builder(
                                   itemCount: filteredProducts.length,
@@ -382,21 +379,21 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                         color: Colors.white,
                                       ),
                                       margin: const EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 10),
+                                          vertical: 5, horizontal: 10,),
                                       child: ListTile(
-                                        title: Text(product.name),
+                                        title: Text(product.productName),
                                         subtitle: Text(
-                                            'Target: ${((product.target.toDouble() ?? 0) * (effectiveOvertimeHours / 7.00)).ceil()}'),
-                                        onTap: () {
-                                          String selectedProductName = product.name;
+                                            'Target: ${((product.target.toDouble() ?? 0) * (effectiveOvertimeHours / 7.00)).ceil()}',),
+                                        onTap: () async {
+                                          final selectedProductName = product.productName;
                                           ref
                                               .watch(
-                                                  selectedProductProvider.notifier)
+                                                  selectedProductProvider.notifier,)
                                               .state
                                               .state = selectedProductName;
                                           textEditingController.text =
                                               selectedProductName
-                                                  .toString(); // Update the controller's text
+                                                  ; // Update the controller's text
                                           ref
                                               .read(showListProvider.notifier)
                                               .state = false;
@@ -405,11 +402,11 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                               .requestFocus();
 
                                           // Update the targetProvider state when a product is selected
-                                          int productTarget = (((product.target
+                                          final productTarget = ((product.target
                                                       .toDouble()) *
-                                                  ((effectiveOvertimeHours) / 7.00))
-                                              .ceil());
-                                          ref
+                                                  (effectiveOvertimeHours / 7.00))
+                                              .ceil();
+                                          await ref
                                               .read(targetProvider.notifier)
                                               .updateTarget(productTarget);
                                           overtimeAmountController.text = '';
@@ -425,33 +422,23 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                             ),
                           ),
                         ),
-                      if (!showList && productName != '')
-                        imageNameFuture.when(
-                          data: (imageName) {
-                            print("Image Name: $imageName");
-                            if (imageName != null) {
-                              return SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.66,
-                                height: MediaQuery.of(context).size.width * 0.66,
-                                child: Image.asset(
-                                  'assets/images/$imageName.png',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                                    print("Image Error: $exception");
-                                    return Lottie.asset('assets/lottie/product_image_not_found.json');
-                                  },
-                                ),
-                              );
-                            } else {
-                              return Lottie.asset(
-                                  'assets/lottie/product_image_not_found.json');
-                            }
-                          },
-                          loading: () => CircularProgressIndicator(),
-                          error: (error, stack) => Lottie.asset(
-                              'assets/lottie/product_image_not_found.json'),
-                        ),
-                      if (!showList && productName == "")
+                      if (!showList)
+                        if (focusedProduct.imageName.isNotEmpty)
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.66,
+                            height: MediaQuery.of(context).size.width * 0.66,
+                            child: Image.asset(
+                              'assets/images/${focusedProduct.imageName}.png', // Removed the additional quotes around ${focusedProduct.imageName}
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, exception, stackTrace) {
+                                return Lottie.asset(
+                                  'assets/lottie/product_image_not_found.json',
+                                );
+                              },
+                            ),
+                          )
+                        else
+                      if (!showList && focusedProduct.imageName == '')
                         Container(
                           width: 256,
                           height: 256,
@@ -465,19 +452,19 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 Colors.blue[400]!,
                                 Colors.black,
                               ],
-                              stops: [
+                              stops: const [
                                 0.0,
                                 0.3,
                                 0.5,
                                 0.7,
-                                1.0
+                                1.0,
                               ], // controls the color transition positions
-                              center: Alignment(-0.5,
-                                  -0.5), // shift the center alignment to mimic light reflection
+                              center: const Alignment(-0.5,
+                                  -0.5,), // shift the center alignment to mimic light reflection
                               radius:
                                   1.5, // controls the overall radius of the gradient
-                              focal: Alignment(-0.5,
-                                  -0.5), // controls the focal point of the gradient
+                              focal: const Alignment(-0.5,
+                                  -0.5,), // controls the focal point of the gradient
                               focalRadius:
                                   0.1, // controls the radius of the focal point
                             ),
@@ -486,7 +473,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 color: Colors.black.withOpacity(0.2),
                                 spreadRadius: 5,
                                 blurRadius: 12,
-                                offset: Offset(4, 4), // changes position of shadow
+                                offset: const Offset(4, 4), // changes position of shadow
                               ),
                             ],
                           ),
@@ -515,7 +502,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     alignLabelWithHint: true,
                                     labelText: 'Amount',
                                     contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 4.0),
+                                        const EdgeInsets.symmetric(vertical: 4),
                                     fillColor: Colors.yellowAccent[100],
                                     // Add the color of the search bar widget here
                                     filled: true,
@@ -525,13 +512,13 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                       borderSide: BorderSide.none,
                                     ),
                                     prefixIcon: const Icon(Icons
-                                        .numbers_outlined), // Add an icon symbolizing number input here
+                                        .numbers_outlined,), // Add an icon symbolizing number input here
                                   ),
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
-                                          decimal: false, signed: false),
+                                          ),
                                   inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly
+                                    FilteringTextInputFormatter.digitsOnly,
                                   ],
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -541,7 +528,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                   },
                                   onChanged: (value) {
                                     ref.read(overtimeRatioProvider.notifier).state =
-                                        (overtimeAmount / productTarget);
+                                        overtimeAmount / productTarget;
                                   },
                                 ),
                               ),
@@ -558,22 +545,22 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 children: [
                                   Center(
                                     child: Transform.scale(
-                                      scale: 4.0,
+                                      scale: 4,
                                       child: CircularProgressIndicator(
-                                        strokeWidth: 10.0,
+                                        strokeWidth: 10,
                                         // Divide by the scale factor
                                         backgroundColor:
                                             Colors.greenAccent.shade100,
                                         valueColor:
                                             const AlwaysStoppedAnimation<Color>(
-                                                Colors.transparent),
-                                        value: 1.0,
+                                                Colors.transparent,),
+                                        value: 1,
                                       ),
                                     ),
                                   ),
                                   Center(
                                     child: Transform.scale(
-                                      scale: 4.0,
+                                      scale: 4,
                                       child: MinimumCircle(
                                         percentage: overtimePercents,
                                       ),
@@ -581,7 +568,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                   ),
                                   Center(
                                     child: Transform.scale(
-                                      scale: 4.0,
+                                      scale: 4,
                                       child: ClipOval(
                                         child: RainbowCircularProgressIndicator(
                                           percentage:
@@ -604,7 +591,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     child: Consumer(
                                       builder: (context, watch, _) {
                                         return Text(
-                                          '${(overtimePercents).toStringAsFixed(2)}%',
+                                          '${overtimePercents.toStringAsFixed(2)}%',
                                           style: const TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
@@ -619,37 +606,35 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                             Expanded(
                               child: Column(children: [
                                 TargetButton(
-                                    productName: productName, overtimes: true),
+                                    productName: productName, overtimes: true,),
                                 Padding(
-                                  padding: const EdgeInsets.only(right: 3.0),
+                                  padding: const EdgeInsets.only(right: 3),
                                   child: Align(
-                                    alignment: Alignment.center,
                                     child:
                                         Consumer(builder: (context, watch, child) {
                                       final userState = ref
-                                          .watch(userNotifierProvider.notifier)
-                                          .state;
+                                          .watch(userNotifierProvider);
                                       final bonus = ref.watch(bonusValueProvider(
-                                          overtimePercents / 100));
+                                          overtimePercents / 100,),);
                                       final allowance = userState.allowance;
 
                                       return BonusCoin(
-                                          bonus: bonus * (overtimeHours / 7.00));
-                                    }),
+                                          bonus: bonus * (overtimeHours / 7.00),);
+                                    },),
                                   ),
                                 ),
-                              ]),
+                              ],),
                             ),
                           ],
                         ),
                       //add a new widget to the row
                       if (!showList)
                         Builder(
-                          builder: (BuildContext buttonContext) {
+                          builder: (buttonContext) {
                             return Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: LayoutBuilder(builder: (BuildContext context,
-                                    BoxConstraints constraints) {
+                                padding: const EdgeInsets.all(4),
+                                child: LayoutBuilder(builder: (context,
+                                    constraints,) {
                                   return SizedBox(
                                     // 10
                                     width: constraints.maxWidth *
@@ -658,7 +643,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     child: ElevatedButton(
                                       style: ButtonStyle(
                                         backgroundColor: MaterialStateProperty.all(
-                                            Colors.yellowAccent[100]),
+                                            Colors.yellowAccent[100],),
                                         shape: MaterialStateProperty.all<
                                             RoundedRectangleBorder>(
                                           RoundedRectangleBorder(
@@ -678,18 +663,18 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                               print(overtimePercents);
                                               final bonusChecker = ref.read(
                                                   bonusValueProvider(
-                                                      overtimePercents / 100));
-                                              final double bonus = bonusChecker *
+                                                      overtimePercents / 100,),);
+                                              final bonus = bonusChecker *
                                                   (overtimeHours / 7);
-                                              final String userId =
+                                              final userId =
                                                   authRepository.currentUserId;
-                                              final String productName = ref
+                                              final productName = ref
                                                   .read(selectedProductProvider)
                                                   .state;
                                               final productRatioProvider = ref.read(
                                                   targetRatioProvider(userId)
-                                                      .notifier);
-                                              final double productRatio =
+                                                      .notifier,);
+                                              final productRatio =
                                                   productRatioProvider
                                                       .getProductRatio(productName);
                                               print(productRatio);
@@ -708,39 +693,46 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                                     .paidBreaks ??
                                                                 false
                                                             ? overtimeHours
-                                                            : effectiveOvertimeHours);
+                                                            : effectiveOvertimeHours,);
                                                 // Show a success message
-                                                ScaffoldMessenger.of(buttonContext)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                        'Saved to Wallet successfully!'),
-                                                    backgroundColor: Colors.green,
-                                                  ),
-                                                );
-                                              } catch (e) {
+                                                if (mounted) {
+                                                    ScaffoldMessenger.of(
+                                                            buttonContext,)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          'Saved to Wallet successfully!',
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                      ),
+                                                    );
+                                                  }
+                                                }on FormatException catch (e) {
                                                 if (e is String) {
-                                                  ref
+                                                  await ref
                                                       .read(targetRatioProvider(
-                                                              userId)
-                                                          .notifier)
+                                                              userId,)
+                                                          .notifier,)
                                                       .init();
                                                   // Handle the case where the bonus is already added today
-                                                  ScaffoldMessenger.of(
-                                                          buttonContext)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                        'This product has been overwritten because it was already added today.',
-                                                      ),
-                                                      backgroundColor:
-                                                          Colors.orange,
-                                                    ),
-                                                  );
-                                                  // Call editUserBonus if saveUserBonus fails
+                                                  if (mounted) {
+                                                      ScaffoldMessenger.of(
+                                                        buttonContext,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            'This product has been overwritten because it was already added today.',
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.orange,
+                                                        ),
+                                                      );
+                                                    }
+                                                    // Call editUserBonus if saveUserBonus fails
                                                   await pressingRepository
                                                       .editUserBonus(
-                                                    e,
+                                                    e.message,
                                                     // Pass the bonusId as the first parameter
                                                     productName,
                                                     bonus,
@@ -748,19 +740,23 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                   );
                                                 } else {
                                                   // Show an error message for other exceptions
-                                                  ScaffoldMessenger.of(
-                                                          buttonContext)
-                                                      .showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(e.toString()),
-                                                      backgroundColor: Colors.red,
-                                                    ),
-                                                  );
-                                                }
+                                                  if (mounted) {
+                                                      ScaffoldMessenger.of(
+                                                        buttonContext,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                              e.toString(),),
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                        ),
+                                                      );
+                                                    }
+                                                  }
                                               }
-                                              ref
+                                              await ref
                                                   .read(targetRatioProvider(userId)
-                                                      .notifier)
+                                                      .notifier,)
                                                   .init();
 
                                               // Show a success message or navigate to another screen
@@ -778,17 +774,17 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                       ),
                                     ),
                                   );
-                                }));
+                                },),);
                           },
                         ),
-                      SlideToBasicShift(),
+                      const SlideToBasicShift(),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-        ]),
+        ],),
       ],
     );
   }

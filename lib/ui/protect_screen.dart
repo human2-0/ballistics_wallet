@@ -23,8 +23,8 @@ class _ProtectState extends ConsumerState<ProtectScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                ref.read(loginControllerProvider.notifier).signOut();
+              onPressed: () async {
+                await ref.read(loginControllerProvider.notifier).signOut();
               },
               child: const Text('Sign Out'),
             ),

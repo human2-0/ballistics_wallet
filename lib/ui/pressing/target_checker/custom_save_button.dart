@@ -24,7 +24,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
     ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
     final amount = ref.watch(numberProvider);
     final allowance = ref.watch(allowanceProvider);
-    final userState = ref.watch(userNotifierProvider.notifier).state;
+    final userState = ref.watch(userNotifierProvider);
     final workingHours = userState.workingHours ?? 0.0;
     return Builder(
       builder: (buttonContext) => LayoutBuilder(builder: (context,

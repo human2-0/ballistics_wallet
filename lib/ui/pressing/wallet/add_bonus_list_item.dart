@@ -1,5 +1,5 @@
-import 'package:ballistics_wallet_flutter/models/product_name.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/pressing_db_repository.dart';
@@ -44,8 +44,7 @@ class AddBonusListItemState extends ConsumerState<AddBonusListItem> {
 
     Future<void> showAddBottomModalSheet(
         BuildContext context, PressingRepository pressingRepository,) async {
-      final productFuture =
-          ref.watch(pressingRepositoryProvider).readProductsPressing();
+      final productList = ref.watch(productInfoProvider);
       await showModalBottomSheet(
         isScrollControlled: true,
         context: context,
@@ -114,71 +113,55 @@ class AddBonusListItemState extends ConsumerState<AddBonusListItem> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    FutureBuilder<List<ProductName>>(
-                      future: productFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          final productList = snapshot.data!
-                              .map(
-                                (product) => product.name,
-                              )
-                              .toList();
-                          return DecoratedBox(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(33),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(1),
-                                  offset: const Offset(2, -2.5),
-                                ),
-                              ],
-                            ),
-                            child: TypeAheadFormField<String>(
-                              textFieldConfiguration: TextFieldConfiguration(
-                                onChanged: (value) {
-                                  newProductNameController.text = value;
-                                },
-                                controller: newProductNameController,
-                                decoration: InputDecoration(
-                                  alignLabelWithHint: true,
-                                  hintText: 'Product Name',
-                                  filled: true,
-                                  fillColor: Colors.orange[100],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      33,
-                                    ),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              suggestionsCallback: (pattern) => productList
-                                  .where(
-                                    (product) => product
-                                        .toLowerCase()
-                                        .contains(pattern.toLowerCase()),
-                                  )
-                                  .toList(),
-                              itemBuilder: (context, suggestion) => ListTile(
-                                title: Text(suggestion),
-                              ),
-                              onSuggestionSelected: (suggestion) {
-                                newProductNameController.text = suggestion;
-                              },
-                              noItemsFoundBuilder: (context) =>
-                                  const Text('No matches found'),
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-                        // Show a loading indicator while waiting for the products
-                        return const CircularProgressIndicator();
-                      },
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(33),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.orange.withOpacity(1),
+                          offset: const Offset(2, -2.5),
+                        ),
+                      ],
                     ),
+                    child: TypeAheadFormField<String>(
+                      textFieldConfiguration: TextFieldConfiguration(
+                        onChanged: (value) {
+                          newProductNameController.text = value;
+                        },
+                        controller: newProductNameController,
+                        decoration: InputDecoration(
+                          alignLabelWithHint: true,
+                          hintText: 'Product Name',
+                          filled: true,
+                          fillColor: Colors.orange[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              33,
+                            ),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      suggestionsCallback: (pattern) {
+                        return productList
+                            .map((product) => product.productName)
+                            .where((productName) => productName.toLowerCase().contains(pattern.toLowerCase()))
+                            .toList();
+                      },
+                      itemBuilder: (context, suggestion) {
+                        return ListTile(
+                          title: Text(suggestion),
+                        );
+                      },
+                      onSuggestionSelected: (suggestion) {
+                        newProductNameController.text = suggestion;
+                      },
+                      noItemsFoundBuilder: (context) => const Text('No matches found'),
+                    ),
+                  ),
                     const SizedBox(height: 8),
                     DecoratedBox(
                       decoration: BoxDecoration(

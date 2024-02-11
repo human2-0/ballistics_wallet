@@ -1,7 +1,9 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfilePage extends StatefulHookConsumerWidget {
@@ -29,6 +31,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
     useEffect(
       () {
         Future.microtask(() async => userNotifier.loadUser(uid));
+        return null;
       },
       [],
     );
@@ -69,6 +72,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
       );
     }
 
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
@@ -96,10 +100,14 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage(userState.avatarUrl ??
-                          'https://media.istockphoto.com/id/1207566766/photo/3d-emoji-with-smiley-face.jpg?s=1024x1024&w=is&k=20&c=Xjh-ij_drKQXCsTleoExXAyq-Leb4wraBt36BwPjuso=',),
+                      backgroundImage: NetworkImage(
+                        userState.avatarUrl ??
+                            'https://media.istockphoto.com/id/1207566766/photo/3d-emoji-with-smiley-face.jpg?s=1024x1024&w=is&k=20&c=Xjh-ij_drKQXCsTleoExXAyq-Leb4wraBt36BwPjuso=',
+                      ),
                     ),
-                    const SizedBox(height: 4,),
+                    const SizedBox(
+                      height: 4,
+                    ),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -115,7 +123,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                               Column(
                                 children: [
                                   Container(
-                                    padding:const EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: Colors.blue[100],
                                       borderRadius: BorderRadius.circular(16),
@@ -127,9 +135,9 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                       'Working Hours: ${userState.realWorkingHours}',
                                     ),
                                   ),
-                                  const SizedBox(height:8),
+                                  const SizedBox(height: 8),
                                   Container(
-                                    padding:const EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: Colors.blue[100],
                                       borderRadius: BorderRadius.circular(16),
@@ -152,14 +160,16 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                   await showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: const Text('Edit your information'),
+                                      title:
+                                          const Text('Edit your information'),
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           TextField(
                                             controller: workingHoursController,
                                             decoration: const InputDecoration(
-                                              hintText: 'Enter new working hours',
+                                              hintText:
+                                                  'Enter new working hours',
                                             ),
                                           ),
                                           TextField(
@@ -180,10 +190,13 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                         TextButton(
                                           child: const Text('Submit'),
                                           onPressed: () async {
-                                            final newWorkingHours = double.parse(
-                                              workingHoursController.text,);
+                                            final newWorkingHours =
+                                                double.parse(
+                                              workingHoursController.text,
+                                            );
                                             final newHourlyRate = double.parse(
-                                              hourlyRateController.text,);
+                                              hourlyRateController.text,
+                                            );
                                             // await ref
                                             //     .read(userRepositoryProvider)
                                             //     .editWorkingHours(
@@ -199,7 +212,8 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                             await userNotifier
                                                 .editHourlyRate(newHourlyRate);
                                             final result = await userNotifier
-                                                .editWorkingHours(newWorkingHours);
+                                                .editWorkingHours(
+                                                    newWorkingHours,);
                                             if (result) {
                                               await userNotifier.loadUser(uid);
                                             }
@@ -218,9 +232,11 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8,),
+                    const SizedBox(
+                      height: 8,
+                    ),
                     Container(
-                      padding:const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.blue[200]!.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(16),
@@ -229,16 +245,17 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding:const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.blue[100],
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: const Text(
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                'Paid breaks',),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              'Paid breaks',
+                            ),
                           ),
                           IconButton(
                             icon: CircleAvatar(
@@ -254,15 +271,19 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                               final success = await ref
                                   .read(userRepositoryProvider)
                                   .editPaidBreaks(
-                                uid, !(userState.paidBreaks ?? false),);
+                                    uid,
+                                    !(userState.paidBreaks ?? false),
+                                  );
                               if (success) {
                                 await userNotifier.updateUser(
                                   UserState(
-                                    paidBreaks: !(userState.paidBreaks ?? false),
+                                    paidBreaks:
+                                        !(userState.paidBreaks ?? false),
                                     avatarUrl: userState.avatarUrl,
                                     allowance: userState.allowance,
                                     workingHours: userState.workingHours,
-                                    realWorkingHours: userState.realWorkingHours,
+                                    realWorkingHours:
+                                        userState.realWorkingHours,
                                   ),
                                 );
                               }
@@ -277,14 +298,16 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
             ),
           ),
           Container(
-            padding:const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             height: MediaQuery.sizeOf(context).height * 0.33,
             width: MediaQuery.sizeOf(context).width * 0.70,
             decoration: BoxDecoration(
               color: Colors.blue[100],
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Center(child: Text('Here will be the chart showing avarage holiday rate')),
+            child: const Center(
+                child: Text(
+                    'Here will be the chart showing avarage holiday rate',),),
           ),
         ],
       ),

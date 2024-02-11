@@ -1,12 +1,12 @@
-import 'package:ballistics_wallet_flutter/models/product_name.dart';
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
-import 'package:ballistics_wallet_flutter/repository/pressing_db_repository.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 
 final numberFocusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final numberFocusNode = FocusNode();
@@ -42,26 +42,13 @@ final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
 
 final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>((ref) => FocusNotifier());
 
-final selectedProductFromHiveProvider = FutureProvider<String>((ref) async {
-  final box = await Hive.openBox('settings');
-  // Use `as String?` to cast the result to a nullable String
-  final result = box.get('selectedProduct', defaultValue: '') as String?;
-  // Return the result if it's not null, otherwise return an empty string
-  return result ?? '';
-});
 
 
 final textEditingControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
-  final textValueFromHive = ref.watch(selectedProductFromHiveProvider);
-  final controller = TextEditingController(
-      text: textValueFromHive.maybeWhen(data: (data) => data, orElse: () => ''),
-  );
-  controller.addListener(() {
-    ref.read(searchTermProvider.notifier).state = controller.text;
-  });
-  ref.onDispose(controller.dispose);
+  final controller = TextEditingController();
   return controller;
 });
+
 
 // Similarly for other controllers
 final numberControllerProvider =
@@ -94,16 +81,23 @@ final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);
 final monthlyWorkingHoursProvider = StateProvider<double>((ref) => 0.0);
 
 final searchTermProvider = StateProvider<String>((ref) {
-  final searchTermFromHive = ref.watch(selectedProductFromHiveProvider);
-  return searchTermFromHive.maybeWhen(data: (data) => data, orElse: () => '');
+  // Watch the lastSelectedProductProvider
+  final lastSelectedProducts = ref.watch(lastSelectedProductProvider);
+
+  // Return the name of the first product if the list is not empty, otherwise return an empty string
+  return lastSelectedProducts.isNotEmpty ? lastSelectedProducts.last.name : '';
 });
 
 final selectedProductProvider = StateProvider<StateController<String>>((ref) {
-  final selectedProductFromHive = ref.watch(selectedProductFromHiveProvider);
+  // Watch the lastSelectedProductProvider
+  final lastSelectedProducts = ref.watch(lastSelectedProductProvider);
+
+  // Initialize the StateController with the name of the first product if the list is not empty, otherwise use an empty string
   return StateController<String>(
-      selectedProductFromHive.maybeWhen(data: (data) => data, orElse: () => ''),
+    lastSelectedProducts.isNotEmpty ? lastSelectedProducts[0].name : '',
   );
 });
+
 
 final productsMade = StateProvider<int>((ref) => 0);
 
@@ -125,17 +119,9 @@ class ProductUpdateNotifier extends StateNotifier<bool> {
 }
 
 final productsProvider = FutureProvider.autoDispose
-    .family<List<ProductName>, bool>((ref, updated) async {
-  final repository = ref.read(pressingRepositoryProvider);
-  final products = await repository.readProductsPressing();
-  return products;
-});
-
-final imageNameProvider = FutureProvider.autoDispose
-    .family<String?, String>((ref, productName) async {
-  final repository = ref.read(pressingRepositoryProvider);
-  final imageName = await repository.getImageNameForProduct(productName);
-  return imageName;
+    .family<List<ProductInfo>, bool>((ref, updated) async {
+  final productsList = ref.watch(productInfoProvider);
+  return productsList;
 });
 
 final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {

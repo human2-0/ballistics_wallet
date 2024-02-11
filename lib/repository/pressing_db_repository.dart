@@ -1,120 +1,27 @@
-import 'package:ballistics_wallet_flutter/models/product_name.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hive/hive.dart';
 
 class PressingRepository {
-
   PressingRepository();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  Future<void> addProduct(String productName, int target) async {
-    // Convert the product name to title case
-    final formattedProductName = toTitleCase(productName);
-
-    // Open the Hive box
-    final box = Hive.box<ProductName>('Products');
-
-    // Check if a product with the same name already exists
-    if (box.containsKey(formattedProductName)) {
-      // If the product already exists, throw an error or return
-      throw Exception('A product with the same name already exists');
-    } else {
-      final newProduct = ProductName(name: formattedProductName, target: target);
-      // If the product does not exist, add it to the Hive box
-      await box.put(formattedProductName, newProduct); // Use formattedProductName as the key
-    }
-    await updateRemotePressingTargets();
-  }
-
-  Future<void> deleteProduct(String productName) async {
-    // Convert the product name to title case
-    final formattedProductName = toTitleCase(productName);
-
-    // Open the Hive box
-    final box = Hive.box<ProductName>('Products');
-
-    // Check if a product with the given name exists
-    if (box.containsKey(formattedProductName)) {
-      // If the product exists, delete it from the Hive box
-      await box.delete(formattedProductName);
-    } else {
-      // If the product does not exist, throw an error or return
-      throw Exception('No product found with the given name');
-    }
-
-    // Update remote pressing targets after deletion
-    await updateRemotePressingTargets();
-  }
-
-
-  Future<String?> getImageNameForProduct(String productName) async {
-    final box = Hive.box<ProductName>('Products');
-
-    // Try to find the product by its name
-    final productData = box.values.firstWhere(
-          (product) => product.name == productName,
-    );
-
-    if (productData.imageName != null) {
-      return productData.imageName;
-    } else {
-      return null;
-    }
-  }
-
-
-
-  // Future<List<ProductName>> readProductsPressing() async {
-  //   final box = await Hive.openBox<ProductName>('Products');
-  //
-  //   final products = box.values.toList();
-  //
-  //   return products;
-  // }
-
-  Future<List<ProductName>> readProductsPressing() async {
-    Box<ProductName> box;
-
-    try {
-      final DocumentSnapshot document = await db.collection('targets').doc('pressing').get();
-
-      if (document.exists) {
-        final data = document.data()! as Map<String, dynamic>;
-
-        // Convert targets to ProductName objects
-        final products = data.entries.map(ProductName.fromMapEntry).toList();
-
-        // Open the Hive box and update it with the new data
-        box = await Hive.openBox<ProductName>('Products');
-        await box.clear();  // Clear the box before updating it
-        for (final product in products) {
-          await box.put(product.name, product);  // Use product name as key
-        }
-
-        return products;
-      } else {
-        throw Exception('Document does not exist');
-      }
-    } on FormatException catch (e) {
-      // If fetching from Firebase fails, fallback to Hive
-      box = await Hive.openBox<ProductName>('Products');
-      return box.values.toList();
-    }
-  }
-
-
   Future<Map<String, dynamic>> getBonuses() async {
     final swappedMap =
-    bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
+        bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
 
     return swappedMap;
   }
 
   Future<void> saveUserBonus(
-      String userId, String productName, double bonus, int amount, double ratio,
-      {double workingHours = 0,}) async {
-    final CollectionReference userBonusCollection = db.collection('userBonuses');
+    String userId,
+    String productName,
+    double bonus,
+    int amount,
+    double ratio, {
+    double workingHours = 0,
+  }) async {
+    final CollectionReference userBonusCollection =
+        db.collection('userBonuses');
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -179,9 +86,16 @@ class PressingRepository {
   }
 
   Future<void> saveOvertimeUserBonus(
-      String userId, String productName, double bonus, int amount, double ratio,
-      {bool isOvertime = false, double workingHours = 0,}) async {
-    final CollectionReference userBonusCollection = db.collection('userBonuses');
+    String userId,
+    String productName,
+    double bonus,
+    int amount,
+    double ratio, {
+    bool isOvertime = false,
+    double workingHours = 0,
+  }) async {
+    final CollectionReference userBonusCollection =
+        db.collection('userBonuses');
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -198,7 +112,8 @@ class PressingRepository {
       // If the overtime bonus exists, get its ID and check 'produced' subcollection
       final bonusId = existingBonus.docs.first.id;
       final docRef = userBonusCollection.doc(bonusId);
-      final CollectionReference producedCollection = docRef.collection('produced');
+      final CollectionReference producedCollection =
+          docRef.collection('produced');
       final existingProduced = await producedCollection
           .where('productName', isEqualTo: productName)
           .get();
@@ -236,7 +151,8 @@ class PressingRepository {
       });
 
       // Save product, amount, ratio, and workingHours to the 'produced' subcollection
-      final CollectionReference producedCollection = docRef.collection('produced');
+      final CollectionReference producedCollection =
+          docRef.collection('produced');
       await producedCollection.add({
         'productName': productName,
         'amount': amount,
@@ -247,7 +163,10 @@ class PressingRepository {
   }
 
   Future<void> addUserBonus(
-      String userId, int bonus, DateTime selectedDate,) async {
+    String userId,
+    int bonus,
+    DateTime selectedDate,
+  ) async {
     final userBonusCollection = db.collection('userBonuses');
 
     // Code to add the new bonus to Firestore
@@ -276,14 +195,13 @@ class PressingRepository {
 
         // Fetch 'produced' sub-collection for each userBonus document
         final QuerySnapshot producedSnapshot =
-        await doc.reference.collection('produced').get();
+            await doc.reference.collection('produced').get();
 
         // Create a list to store 'productName' and 'amount' for each product
         final producedList = <Map<String, dynamic>>[];
 
         for (final producedDoc in producedSnapshot.docs) {
-          final producedData =
-          producedDoc.data() as Map<String, dynamic>?;
+          final producedData = producedDoc.data() as Map<String, dynamic>?;
           if (producedData != null) {
             producedData['id'] =
                 producedDoc.id; // Include the document ID in the data
@@ -306,8 +224,13 @@ class PressingRepository {
   }
 
   Future<void> editUserBonus(
-      String bonusId, String producedId, double bonus, int amount,) async {
-    final CollectionReference userBonusCollection = db.collection('userBonuses');
+    String bonusId,
+    String producedId,
+    double bonus,
+    int amount,
+  ) async {
+    final CollectionReference userBonusCollection =
+        db.collection('userBonuses');
 
     // Edit existing bonus
     try {
@@ -325,11 +248,12 @@ class PressingRepository {
   }
 
   Future<void> deleteUserBonus(String bonusId) async {
-    final CollectionReference userBonusCollection = db.collection('userBonuses');
+    final CollectionReference userBonusCollection =
+        db.collection('userBonuses');
 
     // Reference to the 'produced' subcollection
     final CollectionReference producedCollection =
-    userBonusCollection.doc(bonusId).collection('produced');
+        userBonusCollection.doc(bonusId).collection('produced');
 
     // Get all documents in the 'produced' subcollection
     final producedSnapshot = await producedCollection.get();
@@ -344,8 +268,12 @@ class PressingRepository {
   }
 
   Future<void> deleteIndividualBonus(
-      String userId, String bonusId, String itemId,) async {
-    final CollectionReference userBonusCollection = db.collection('userBonuses');
+    String userId,
+    String bonusId,
+    String itemId,
+  ) async {
+    final CollectionReference userBonusCollection =
+        db.collection('userBonuses');
     await userBonusCollection
         .doc(bonusId)
         .collection('produced')
@@ -378,7 +306,7 @@ class PressingRepository {
       // Only process the 'produced' sub-collection if isOvertime is false
       if (!isOvertime) {
         final QuerySnapshot producedSnapshot =
-        await bonusDoc.reference.collection('produced').get();
+            await bonusDoc.reference.collection('produced').get();
         for (final producedDoc in producedSnapshot.docs) {
           final data = producedDoc.data() as Map<String, dynamic>?;
           final String? productName = data?['productName'].toLowerCase().trim();
@@ -394,47 +322,4 @@ class PressingRepository {
 
     return userInfo;
   }
-
-  Future<void> updateRemotePressingTargets() async {
-    final box = Hive.box<ProductName>('Products');
-    final dataToUpdate = <String, dynamic>{};
-
-    // Prepare the data to update in the 'pressing' map
-    for (final key in box.keys) {
-      final product = box.get(key);
-      if (product != null) {
-        dataToUpdate[product.name] = product.target;
-      }
-    }
-
-    // Update the Firestore document
-    await db.collection('targets').doc('pressing').set(dataToUpdate);
-  }
-
-
-
 }
-
-const Map<int, double> bonusPercentageMap = {
-  1: 102.00,
-  2: 104.10,
-  3: 106.10,
-  4: 108.20,
-  5: 110.20,
-  6: 112.20,
-  7: 114.29,
-  8: 118.37,
-  9: 122.45,
-  10: 126.53,
-  11: 130.61,
-  12: 134.69,
-  13: 138.78,
-  14: 142.86,
-  15: 146.94,
-  16: 151.02,
-  17: 155.10,
-  18: 159.18,
-  19: 163.27,
-  20: 167.35,
-  21: 171.43, //Add more values as per your requirements
-};
