@@ -165,6 +165,7 @@ Future<void> saveToWallet({
   required BuildContext context,
   required WidgetRef ref,
   required int amountPressed,
+  required bool mounted,
 }) async {
   final authRepository = ref.read(authRepositoryProvider);
   final userId = authRepository.currentUserId;
@@ -194,9 +195,19 @@ Future<void> saveToWallet({
       productRatio,
       workingHours: (userState.paidBreaks ?? false) ? (userState.realWorkingHours ?? 0) : (userState.workingHours ?? 0),
     );
-    await Future.microtask(() => showToast(context, 'Hurray! More money went to your pocket'));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(mounted) {
+        showToast(context, 'Hurray! More money went to your pocket');
+      }
+    });
+
 
   } on FormatException{
-    await Future.microtask(() => showToast(context, 'Oops, something went wrong.'));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(mounted) {
+        showToast(context, 'Hurray! More money went to your pocket');
+      }
+    });
+
   }
 }

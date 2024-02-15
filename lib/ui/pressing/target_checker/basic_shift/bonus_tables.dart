@@ -64,8 +64,8 @@ class BonusTableState extends ConsumerState {
                     onLongPressComplete: (){
                       // Actions to perform after the long press completes
                       // For example, navigating away or showing a message
-                      Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: target.ceil()));
                     context.pop();
+                    Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: target.ceil(), mounted: mounted));
                     },
                   ),
                 );
@@ -159,7 +159,7 @@ class BonusTableState extends ConsumerState {
                     requiredAmount: requiredAmount,
                     onLongPressComplete: () {
                       // Define what happens when the long press completes, e.g., saving to wallet
-                      Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: requiredAmount));
+                      Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: requiredAmount,mounted: mounted));
                       context.pop();
                     },
                   );
