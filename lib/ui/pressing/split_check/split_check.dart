@@ -1,7 +1,7 @@
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/colors.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,6 @@ class SplitCheck extends ConsumerStatefulWidget {
 
 class SplitCheckState extends ConsumerState<SplitCheck> {
   late TextEditingController targetController;
-  late TextEditingController productNameController;
   late TextEditingController amountPerBatchController;
   late FocusNode focusNodeTarget;
   late FocusNode focusNodeAmount;
@@ -29,7 +28,6 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
     focusNodeAmount = FocusNode();
     targetController =
         TextEditingController(text: widget.requiredAmount.toString());
-    productNameController = TextEditingController();
     final workingHours = ref.read(userNotifierProvider).workingHours ?? 0.0;
     amountPerBatchController = TextEditingController(
       text: (widget.requiredAmount > 0
@@ -37,8 +35,6 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
               .toStringAsFixed(0)
           : ''),
     );
-    final productName = ref.read(selectedProductProvider).state;
-    productNameController.text = productName;
   }
 
   @override
@@ -46,7 +42,6 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
     focusNodeTarget.dispose();
     focusNodeAmount.dispose();
     targetController.dispose();
-    productNameController.dispose();
     amountPerBatchController.dispose();
     super.dispose();
   }
@@ -55,8 +50,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
   Widget build(BuildContext context) {
     ref
       ..watch(requiredAmountProvider)
-      ..watch(amountPerBatchProvider)
-      ..watch(selectedProductProvider);
+      ..watch(amountPerBatchProvider);
 
     final products = ref.watch(productInfoProvider); // Directly use the state
     final productInfo = ref.watch(focusedProductProvider);
@@ -69,6 +63,12 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
         amountPerBatch != 0 ? (requiredAmount / amountPerBatch).floor() : 0;
     final extraBombs =
         amountPerBatch != 0 ? (requiredAmount % amountPerBatch) : 0;
+
+    if (targetController.text != productInfo.target.toString()) {
+      targetController.text = productInfo.target.toString();
+    }
+
+    final productNameController = ref.read(productNameControllerProvider.notifier).controller;
     return Stack(
       children: [
         Positioned.fill(
@@ -106,8 +106,6 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                       },
                       onSelected: (selection) {
                         productNameController.text = selection.productName;
-                        ref.read(searchTermProvider.notifier).state =
-                            selection.productName;
                         ref.read(focusedProductProvider.notifier).state =
                             selection;
                         targetController.text = selection.target.toString();
@@ -122,11 +120,6 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           TextField(
                         controller: productNameController,
                         focusNode: focusNode,
-                        onChanged: (value) {
-                          ref.read(searchTermProvider.notifier).state = value;
-                          productNameController.text = value;
-                          textEditingController.text = value;
-                        },
                         style: const TextStyle(
                           color: Colors
                               .lightBlueAccent, // Set the color of entered text
@@ -347,7 +340,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                       height: 8,
                     ),
                     ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: hasProducts ? productInfo.product.length : 0,
                       itemBuilder: (context, index) {

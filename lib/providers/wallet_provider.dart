@@ -22,7 +22,7 @@ StateNotifierProvider<TextFieldStateNotifier, TextEditingController>(
       (ref) => TextFieldStateNotifier(''),
 );
 
-final productNameControllerProvider =
+final walletProductNameControllerProvider =
 StateNotifierProvider<TextFieldStateNotifier, TextEditingController>(
       (ref) => TextFieldStateNotifier(''),
 );

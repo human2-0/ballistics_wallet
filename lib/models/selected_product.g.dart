@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'selected_product_history.dart';
+part of 'selected_product.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
@@ -8,7 +8,7 @@ part of 'selected_product_history.dart';
 
 class SelectedProductAdapter extends TypeAdapter<SelectedProduct> {
   @override
-  final int typeId = 2;
+  final int typeId = 6;
 
   @override
   SelectedProduct read(BinaryReader reader) {
@@ -17,22 +17,19 @@ class SelectedProductAdapter extends TypeAdapter<SelectedProduct> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return SelectedProduct(
-      name: fields[0] as String,
-      selectedDate: fields[1] as DateTime,
-      target: fields[2] as int,
+      date: fields[0] as DateTime,
+      productInfo: fields[1] as ProductInfo,
     );
   }
 
   @override
   void write(BinaryWriter writer, SelectedProduct obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.name)
-      ..writeByte(1)
-      ..write(obj.selectedDate)
       ..writeByte(2)
-      ..write(obj.target);
+      ..writeByte(0)
+      ..write(obj.date)
+      ..writeByte(1)
+      ..write(obj.productInfo);
   }
 
   @override

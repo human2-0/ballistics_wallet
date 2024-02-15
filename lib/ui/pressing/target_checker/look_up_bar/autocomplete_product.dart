@@ -1,4 +1,4 @@
-import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -18,18 +18,21 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(
-        productInfoProvider,); // Assuming this now returns a List directly
-    final searchTerm = ref.watch(searchTermProvider).toLowerCase();
+      productInfoProvider,
+    ); // Assuming this now returns a List directly
+    // final searchTerm = ref.watch(searchTermProvider).toLowerCase().trim();
+
+    final controller = ref.watch(productNameControllerProvider);
     final filteredProducts = products
         .where(
-            (product) => product.productName.toLowerCase().contains(searchTerm),)
+          (product) =>
+              product.productName.toLowerCase().trim().contains(controller.toLowerCase()),
+        )
         .toList();
 
     final userState = ref.watch(userNotifierProvider);
     final allowance = ref.watch(allowanceProvider);
     final workingHours = userState.workingHours ?? 0.0;
-
-    final textEditingController = ref.watch(textEditingControllerProvider);
 
     return Expanded(
       child: DecoratedBox(
@@ -57,7 +60,9 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                         color: Colors.white,
                       ),
                       margin: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10,),
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
                       child: ListTile(
                         trailing: const Icon(
                           Icons.touch_app_outlined,
@@ -68,26 +73,18 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',
                         ),
                         onTap: () async {
-                          final selectedProductName = product.productName;
+                          FocusScope.of(context).unfocus();
                           final productTarget = ((product.target.toDouble()) *
                                   ((workingHours - allowance) / 7.00))
                               .ceil();
+                          ref.read(focusedProductProvider.notifier).state =
+                              product;
 
-
-                          // Check if the widget is still mounted before proceeding
-                          if (!mounted) return;
-
-                          // Update the state
-                          ref
-                              .read(selectedProductProvider.notifier)
-                              .state
-                              .state = selectedProductName;
-                          textEditingController.text =
-                              selectedProductName; // Update the controller's text
-                          ref.read(showListProvider.notifier).state = false;
-                          ref.read(focusNodeProvider).unfocus();
-
+                          // ref.read(searchTermProvider.notifier).state =
+                          //     product.productName;
                           // Update the targetProvider state
+
+                          ref.read(productNameControllerProvider.notifier).controller.text = product.productName;
                           await ref
                               .read(targetProvider.notifier)
                               .updateTarget(productTarget);
@@ -96,16 +93,10 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           await ref
                               .read(lastSelectedProductProvider.notifier)
                               .saveSelectedProduct(
-                                SelectedProduct(
-                                  name: product.productName,
-                                  selectedDate: DateTime.now(),
-                                  target: productTarget,
-                                ),
+                                product,
                               );
-                          if (mounted) {
-                            ref.read(focusedProductProvider.notifier).state =
-                                product;
-                          }
+                          ref.read(showListProvider.notifier).state = false;
+                          ref.read(focusNodeProvider).unfocus();
                         },
                         onLongPress: () async {
                           // Show the DeleteItem dialog

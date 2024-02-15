@@ -1,8 +1,9 @@
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
-import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
+import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -31,44 +32,33 @@ final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   });
 
   ref.onDispose(() {
-    focusNode..removeListener(() {
-      focusNotifier.setFocus(focusNode.hasFocus);
-    })
-    ..dispose();
+    focusNode
+      ..removeListener(() {
+        focusNotifier.setFocus(focusNode.hasFocus);
+      })
+      ..dispose();
   });
 
   return focusNode;
 });
 
-final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>((ref) => FocusNotifier());
+final focusNotifierProvider =
+    StateNotifierProvider<FocusNotifier, bool>((ref) => FocusNotifier());
 
-
-
-final textEditingControllerProvider = Provider.autoDispose<TextEditingController>((ref) {
-  final controller = TextEditingController();
-  return controller;
-});
-
-
-// Similarly for other controllers
-final numberControllerProvider =
+final textEditingControllerProvider =
     Provider.autoDispose<TextEditingController>((ref) {
   final controller = TextEditingController();
   ref.onDispose(controller.dispose);
   return controller;
 });
 
-final allowanceControllerProvider =
-    Provider.autoDispose<TextEditingController>((ref) {
-  final controller = TextEditingController();
-  ref.onDispose(controller.dispose);
-  return controller;
-});
+final targetRatioProvider = StateNotifierProvider
+    .family<TargetRatioNotifier, double, String>(
+  (ref, userId) =>
+      TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId),
+);
 
-final targetRatioProvider = StateNotifierProvider.autoDispose
-    .family<TargetRatioNotifier, double, String>((ref, userId) => TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId));
-
-final numberProvider = StateProvider< int>((ref) => 0);
+final numberProvider = StateProvider<int>((ref) => 0);
 
 final targetProvider =
     StateNotifierProvider<TargetNotifier, int>((ref) => TargetNotifier());
@@ -80,35 +70,17 @@ final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);
 
 final monthlyWorkingHoursProvider = StateProvider<double>((ref) => 0.0);
 
-final searchTermProvider = StateProvider<String>((ref) {
-  // Watch the lastSelectedProductProvider
-  final lastSelectedProducts = ref.watch(lastSelectedProductProvider);
-
-  // Return the name of the first product if the list is not empty, otherwise return an empty string
-  return lastSelectedProducts.isNotEmpty ? lastSelectedProducts.last.name : '';
-});
-
-final selectedProductProvider = StateProvider<StateController<String>>((ref) {
-  // Watch the lastSelectedProductProvider
-  final lastSelectedProducts = ref.watch(lastSelectedProductProvider);
-
-  // Initialize the StateController with the name of the first product if the list is not empty, otherwise use an empty string
-  return StateController<String>(
-    lastSelectedProducts.isNotEmpty ? lastSelectedProducts[0].name : '',
-  );
-});
-
-
 final productsMade = StateProvider<int>((ref) => 0);
 
 final userBonusesProvider =
-StateNotifierProvider<UserBonusesNotifier, Map<DateTime, List<dynamic>>>(
-        (ref) => UserBonusesNotifier(),);
-
-
+    StateNotifierProvider<UserBonusesNotifier, Map<DateTime, List<dynamic>>>(
+  (ref) => UserBonusesNotifier(),
+);
 
 final productUpdateProvider =
-StateNotifierProvider<ProductUpdateNotifier, bool>((ref) => ProductUpdateNotifier());
+    StateNotifierProvider<ProductUpdateNotifier, bool>(
+  (ref) => ProductUpdateNotifier(),
+);
 
 class ProductUpdateNotifier extends StateNotifier<bool> {
   ProductUpdateNotifier() : super(false);
@@ -126,8 +98,8 @@ final productsProvider = FutureProvider.autoDispose
 
 final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
   targetRatio *= 100; // Convert targetRatio to percentage
-
-  // Check the input
+  final workingHours = ref.read(userNotifierProvider).workingHours ?? 0;
+  final allowance = ref.read(userNotifierProvider).workingHours ?? 0;
 
   // Sort the keys in ascending order
   final sortedKeys = bonusPercentageMap.keys.toList()
@@ -138,16 +110,15 @@ final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
     // Check the logic
 
     if (targetRatio >= (bonusPercentageMap[key] ?? 0)) {
+      bonus = key * (workingHours - allowance / 7);
       bonus = key.toDouble();
       break;
     }
   }
-
-  // Check the output
-
   return bonus;
 });
 
-final lastSelectedProductProvider = StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(
-      (ref) => LastSelectedProductNotifier(),
+final lastSelectedProductProvider =
+    StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(
+  (ref) => LastSelectedProductNotifier(),
 );

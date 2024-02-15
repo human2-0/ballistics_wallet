@@ -1,5 +1,5 @@
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
-import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
+import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hive_flutter/adapters.dart';

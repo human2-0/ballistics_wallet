@@ -1,9 +1,7 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfilePage extends StatefulHookConsumerWidget {

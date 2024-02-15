@@ -60,24 +60,16 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
   Widget build(BuildContext context) {
     final showList = ref.watch(showListProvider);
     final isFocused = ref.watch(focusNotifierProvider);
-    final focusNode = ref.read(focusNodeProvider);
-    final numberFocusNode = ref.read(numberFocusNodeProvider);
-    final allowanceFocusNode = ref.read(allowanceFocusNodeProvider);
     var isSearchBarFocused = false;
 
-    final textEditingController =
-        ref.watch(textEditingControllerProvider);
+    final textEditingController = ref.watch(textEditingControllerProvider);
     final numberController = TextEditingController();
-    final allowanceController = TextEditingController();
 
     final userId = ref.watch(authRepositoryProvider).currentUserId;
     final updated = ref.watch(productUpdateProvider);
     final products = ref.watch(productsProvider(updated));
-    final productName =
-        ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
     final productTarget = ref.watch(targetProvider);
-    final percentage = ref.watch(targetRatioProvider(userId)) * 100;
-    final targetRatio = ref.watch(targetRatioProvider(userId));
+    ref.watch(targetRatioProvider(userId));
     final amount = ref.watch(numberProvider);
 
     final effectiveOvertimeHours = ref
@@ -91,89 +83,94 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
     }
 
     final userState = ref.watch(userNotifierProvider.notifier).state;
-    final allowance = ref.watch(allowanceProvider);
-    final workingHours = userState.workingHours ?? 0.0;
-   final focusedProduct = ref.watch(focusedProductProvider);
+    ref.watch(allowanceProvider);
+    final focusedProduct = ref.watch(focusedProductProvider);
 
     return Column(
       children: [
-        Stack(children: [
-          Column(
-            children: [
-              Center(child: Container(
-                padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.lightBlue[100]!,
-                        Colors.lightBlueAccent,
+        Stack(
+          children: [
+            Column(
+              children: [
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.lightBlue[100]!,
+                          Colors.lightBlueAccent,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.6),
+                          offset: const Offset(0, 4),
+                          blurRadius: 10,
+                        ),
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.4),
+                          offset: const Offset(0, -4),
+                          blurRadius: 10,
+                        ),
                       ],
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.6),
-                        offset: const Offset(0, 4),
-                        blurRadius: 10,
-                      ),
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.4),
-                        offset: const Offset(0, -4),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),child: const Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Text('Overtime'),
-                  ),),),
-              Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.95,
-                  height: MediaQuery.of(context).size.height * 0.82,
-                  margin: const EdgeInsets.fromLTRB(20, 10, 10, 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.lightBlue[100]!,
-                        Colors.lightBlueAccent,
-                      ],
+                    child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text('Overtime'),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.6),
-                        offset: const Offset(0, 4),
-                        blurRadius: 10,
-                      ),
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.4),
-                        offset: const Offset(0, -4),
-                        blurRadius: 10,
-                      ),
-                    ],
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: AnimatedContainer(
+                ),
+                Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.95,
+                    height: MediaQuery.of(context).size.height * 0.82,
+                    margin: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.lightBlue[100]!,
+                          Colors.lightBlueAccent,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.6),
+                          offset: const Offset(0, 4),
+                          blurRadius: 10,
+                        ),
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.4),
+                          offset: const Offset(0, -4),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 400),
                                 width: ((isFocused ||
                                         showList ||
-                                        productName.isNotEmpty)
+                                        focusedProduct.productName.isNotEmpty)
                                     ? MediaQuery.of(context).size.width * 0.5
                                     : MediaQuery.of(context).size.width * 0.15),
                                 decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(33),
-                                    color: Colors.yellowAccent[100],),
+                                  borderRadius: BorderRadius.circular(33),
+                                  color: Colors.yellowAccent[100],
+                                ),
                                 child: TextField(
                                   controller: textEditingController,
                                   textAlign: TextAlign.center,
@@ -186,48 +183,47 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                 .text.isEmpty &&
                                             !isSearchBarFocused
                                         ? const Center(
-                                            child: Icon(Icons.search_rounded),)
+                                            child: Icon(Icons.search_rounded),
+                                          )
                                         : IconButton(
                                             icon: const Icon(Icons.clear),
                                             onPressed: () {
                                               setState(() async {
+                                                textEditingController.clear();
+                                                overtimeAmountController.text =
+                                                    '';
                                                 ref
                                                     .read(
-                                                        searchTermProvider.notifier,)
-                                                    .state = '';
-                                                ref
-                                                    .read(selectedProductProvider
-                                                        .notifier,)
-                                                    .state
-                                                    .state = '';
-                                                textEditingController.clear();
-                                                overtimeAmountController.text = '';
-                                                ref
-                                                    .read(showListProvider.notifier)
+                                                      showListProvider.notifier,
+                                                    )
                                                     .state = false;
                                                 isSearchBarFocused = false;
                                                 ref
-                                                    .read(showListProvider.notifier)
+                                                    .read(
+                                                      showListProvider.notifier,
+                                                    )
                                                     .state = false;
                                                 FocusScope.of(context)
                                                     .requestFocus(FocusNode());
                                                 numberController.clear();
 
-                                                final productTarget =
-                                                    ref.read(targetProvider);
-
                                                 await ref
-                                                    .read(targetProvider.notifier)
+                                                    .read(
+                                                      targetProvider.notifier,
+                                                    )
                                                     .updateTarget(0);
                                                 await ref
                                                     .read(
-                                                        targetRatioProvider(userId)
-                                                            .notifier,)
+                                                      targetRatioProvider(
+                                                        userId,
+                                                      ).notifier,
+                                                    )
                                                     .init();
                                               });
                                             },
                                           ),
-                                    hintStyle: const TextStyle(color: Colors.grey),
+                                    hintStyle:
+                                        const TextStyle(color: Colors.grey),
                                     hintText: 'Search',
                                   ),
                                   onTap: () async {
@@ -237,8 +233,10 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                         context: context,
                                         builder: (context) => Dialog(
                                           shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(
-                                                  20,),), //this right here
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ), //this right here
                                           child: SizedBox(
                                             height: 300,
                                             child: Padding(
@@ -251,33 +249,38 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                 children: [
                                                   Center(
                                                     child: Lottie.asset(
-                                                        'assets/lottie/alert.json',
-                                                        width: 100,
-                                                        height:
-                                                            100,), // Lottie animation
+                                                      'assets/lottie/alert.json',
+                                                      width: 100,
+                                                      height: 100,
+                                                    ), // Lottie animation
                                                   ),
                                                   const SizedBox(height: 20),
                                                   const Text(
                                                     'Hey there!',
                                                     style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 16,),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                    ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   const Text(
                                                     'Before you proceed with searching products, please set your overtime hours.',
-                                                    style: TextStyle(fontSize: 14),
+                                                    style:
+                                                        TextStyle(fontSize: 14),
                                                   ),
                                                   const SizedBox(height: 20),
                                                   Align(
                                                     alignment:
                                                         Alignment.bottomRight,
                                                     child: TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: const Text('Got it!'),),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child:
+                                                          const Text('Got it!'),
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -301,404 +304,441 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     }
                                   },
                                   onChanged: (value) {
-                                    ref.read(searchTermProvider.notifier).state =
-                                        value;
-                                    ref
-                                        .read(selectedProductProvider.notifier)
-                                        .state
-                                        .state = value;
                                   },
                                   onSubmitted: (value) {
                                     setState(() {
-                                      ref.read(showListProvider.notifier).state =
-                                          false;
+                                      ref
+                                          .read(showListProvider.notifier)
+                                          .state = false;
                                     });
                                   },
-                                ),),
-                          ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
-                            width: ((isFocused || showList)
-                                ? MediaQuery.of(context).size.width * 0.15
-                                : MediaQuery.of(context).size.width * 0.25),
-                            child: TextFormField(
-                              onChanged: (value) {
-                                ref
-                                    .watch(overtimeWorkingHoursState.notifier)
-                                    .state = int.tryParse(value);
-                              },
-                              controller: overtimeWorkingHoursController,
-                              decoration: InputDecoration(
-                                alignLabelWithHint: true,
-                                labelText: 'Hours',
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 1,
-                                ),
-                                fillColor: Colors.yellowAccent[100],
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(33),
-                                  borderSide: BorderSide.none,
-                                ),
-                                prefixIcon: const Icon(Icons.timer),
-                              ),
-                              keyboardType: const TextInputType.numberWithOptions(
-                                  ),
-                              enabled: ((productName != '' || isSearchBarFocused)
-                                  ? false
-                                  : true), // disable TextField when productName is empty
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (showList)
-                        Expanded(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(33),
-                              ),
-                              color: Colors.orange[50],
-                            ),
-                            child: products.when(
-                              data: (data) {
-                                final filteredProducts = data
-                                    .where((product) => product.productName
-                                        .toLowerCase()
-                                        .contains(ref
-                                            .watch(searchTermProvider)
-                                            .toLowerCase(),),)
-                                    .toList();
-                                return ListView.builder(
-                                  itemCount: filteredProducts.length,
-                                  itemBuilder: (context, index) {
-                                    final product = filteredProducts[index];
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(33),
-                                        color: Colors.white,
-                                      ),
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 10,),
-                                      child: ListTile(
-                                        title: Text(product.productName),
-                                        subtitle: Text(
-                                            'Target: ${((product.target.toDouble() ?? 0) * (effectiveOvertimeHours / 7.00)).ceil()}',),
-                                        onTap: () async {
-                                          final selectedProductName = product.productName;
-                                          ref
-                                              .watch(
-                                                  selectedProductProvider.notifier,)
-                                              .state
-                                              .state = selectedProductName;
-                                          textEditingController.text =
-                                              selectedProductName
-                                                  ; // Update the controller's text
-                                          ref
-                                              .read(showListProvider.notifier)
-                                              .state = false;
-                                          ref
-                                              .read(focusNodeProvider)
-                                              .requestFocus();
-
-                                          // Update the targetProvider state when a product is selected
-                                          final productTarget = ((product.target
-                                                      .toDouble()) *
-                                                  (effectiveOvertimeHours / 7.00))
-                                              .ceil();
-                                          await ref
-                                              .read(targetProvider.notifier)
-                                              .updateTarget(productTarget);
-                                          overtimeAmountController.text = '';
-                                        },
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              loading: () =>
-                                  const Center(child: CircularProgressIndicator()),
-                              error: (error, stackTrace) => Text('Error: $error'),
-                            ),
-                          ),
-                        ),
-                      if (!showList)
-                        if (focusedProduct.imageName.isNotEmpty)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.66,
-                            height: MediaQuery.of(context).size.width * 0.66,
-                            child: Image.asset(
-                              'assets/images/${focusedProduct.imageName}.png', // Removed the additional quotes around ${focusedProduct.imageName}
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, exception, stackTrace) {
-                                return Lottie.asset(
-                                  'assets/lottie/product_image_not_found.json',
-                                );
-                              },
-                            ),
-                          )
-                        else
-                      if (!showList && focusedProduct.imageName == '')
-                        Container(
-                          width: 256,
-                          height: 256,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                Colors.blue[100]!,
-                                Colors.blue[200]!,
-                                Colors.blue[300]!,
-                                Colors.blue[400]!,
-                                Colors.black,
-                              ],
-                              stops: const [
-                                0.0,
-                                0.3,
-                                0.5,
-                                0.7,
-                                1.0,
-                              ], // controls the color transition positions
-                              center: const Alignment(-0.5,
-                                  -0.5,), // shift the center alignment to mimic light reflection
-                              radius:
-                                  1.5, // controls the overall radius of the gradient
-                              focal: const Alignment(-0.5,
-                                  -0.5,), // controls the focal point of the gradient
-                              focalRadius:
-                                  0.1, // controls the radius of the focal point
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                spreadRadius: 5,
-                                blurRadius: 12,
-                                offset: const Offset(4, 4), // changes position of shadow
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Text(
-                              '?',
-                              style: TextStyle(
-                                fontSize: 75,
-                                color: Colors.indigo,
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (!showList)
-                        Form(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                            child: Center(
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.40,
-                                child: TextFormField(
-                                  controller: overtimeAmountController,
-                                  textAlign: TextAlign.center,
-                                  // Center the text
-                                  decoration: InputDecoration(
-                                    alignLabelWithHint: true,
-                                    labelText: 'Amount',
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    fillColor: Colors.yellowAccent[100],
-                                    // Add the color of the search bar widget here
-                                    filled: true,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(33),
-                                      // Rounded edges
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    prefixIcon: const Icon(Icons
-                                        .numbers_outlined,), // Add an icon symbolizing number input here
-                                  ),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          ),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a number';
-                                    }
-                                    return null;
-                                  },
-                                  onChanged: (value) {
-                                    ref.read(overtimeRatioProvider.notifier).state =
-                                        overtimeAmount / productTarget;
-                                  },
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      if (!showList)
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 200,
-                              height: 200,
-                              child: Stack(
-                                children: [
-                                  Center(
-                                    child: Transform.scale(
-                                      scale: 4,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 10,
-                                        // Divide by the scale factor
-                                        backgroundColor:
-                                            Colors.greenAccent.shade100,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation<Color>(
-                                                Colors.transparent,),
-                                        value: 1,
-                                      ),
-                                    ),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 400),
+                              width: ((isFocused || showList)
+                                  ? MediaQuery.of(context).size.width * 0.15
+                                  : MediaQuery.of(context).size.width * 0.25),
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  ref
+                                      .watch(overtimeWorkingHoursState.notifier)
+                                      .state = int.tryParse(value);
+                                },
+                                controller: overtimeWorkingHoursController,
+                                decoration: InputDecoration(
+                                  alignLabelWithHint: true,
+                                  labelText: 'Hours',
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 1,
                                   ),
-                                  Center(
-                                    child: Transform.scale(
-                                      scale: 4,
-                                      child: MinimumCircle(
-                                        percentage: overtimePercents,
-                                      ),
-                                    ),
+                                  fillColor: Colors.yellowAccent[100],
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(33),
+                                    borderSide: BorderSide.none,
                                   ),
-                                  Center(
-                                    child: Transform.scale(
-                                      scale: 4,
-                                      child: ClipOval(
-                                        child: RainbowCircularProgressIndicator(
-                                          percentage:
-                                              overtimePercents, // Substitute your actual percentage here
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Container(
-                                      width: 105,
-                                      height: 105,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.green.shade50,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Consumer(
-                                      builder: (context, watch, _) {
-                                        return Text(
-                                          '${overtimePercents.toStringAsFixed(2)}%',
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(children: [
-                                TargetButton(
-                                    productName: productName, overtimes: true,),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 3),
-                                  child: Align(
-                                    child:
-                                        Consumer(builder: (context, watch, child) {
-                                      final userState = ref
-                                          .watch(userNotifierProvider);
-                                      final bonus = ref.watch(bonusValueProvider(
-                                          overtimePercents / 100,),);
-                                      final allowance = userState.allowance;
-
-                                      return BonusCoin(
-                                          bonus: bonus * (overtimeHours / 7.00),);
-                                    },),
-                                  ),
+                                  prefixIcon: const Icon(Icons.timer),
                                 ),
-                              ],),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(),
+                                enabled: ((focusedProduct
+                                            .productName.isNotEmpty ||
+                                        isSearchBarFocused)
+                                    ? false
+                                    : true), // disable TextField when productName is empty
+                              ),
                             ),
                           ],
                         ),
-                      //add a new widget to the row
-                      if (!showList)
-                        Builder(
-                          builder: (buttonContext) {
-                            return Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: LayoutBuilder(builder: (context,
-                                    constraints,) {
-                                  return SizedBox(
-                                    // 10
-                                    width: constraints.maxWidth *
-                                        0.6, // % of the Container height
-                                    // 10% of the Container height
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.all(
-                                            Colors.yellowAccent[100],),
-                                        shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(20),
+                        if (showList)
+                          Expanded(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(33),
+                                ),
+                                color: Colors.orange[50],
+                              ),
+                              child: products.when(
+                                data: (data) {
+                                  final filteredProducts = data
+                                      .where(
+                                        (product) => product.productName
+                                            .toLowerCase()
+                                            .contains(
+                                          textEditingController.text
+                                                  .toLowerCase(),
+                                            ),
+                                      )
+                                      .toList();
+                                  return ListView.builder(
+                                    itemCount: filteredProducts.length,
+                                    itemBuilder: (context, index) {
+                                      final product = filteredProducts[index];
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(33),
+                                          color: Colors.white,
+                                        ),
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 5,
+                                          horizontal: 10,
+                                        ),
+                                        child: ListTile(
+                                          title: Text(product.productName),
+                                          subtitle: Text(
+                                            'Target: ${((product.target.toDouble() ?? 0) * (effectiveOvertimeHours / 7.00)).ceil()}',
+                                          ),
+                                          onTap: () async {
+                                            final selectedProductName =
+                                                product.productName;
+                                            textEditingController.text =
+                                                selectedProductName; // Update the controller's text
+                                            ref
+                                                .read(showListProvider.notifier)
+                                                .state = false;
+                                            ref
+                                                .read(focusNodeProvider)
+                                                .requestFocus();
+
+                                            // Update the targetProvider state when a product is selected
+                                            final productTarget = ((product
+                                                        .target
+                                                        .toDouble()) *
+                                                    (effectiveOvertimeHours /
+                                                        7.00))
+                                                .ceil();
+                                            await ref
+                                                .read(targetProvider.notifier)
+                                                .updateTarget(productTarget);
+                                            overtimeAmountController.text = '';
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                error: (error, stackTrace) =>
+                                    Text('Error: $error'),
+                              ),
+                            ),
+                          ),
+                        if (!showList)
+                          if (focusedProduct.imageName.isNotEmpty)
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.66,
+                              height: MediaQuery.of(context).size.width * 0.66,
+                              child: Image.asset(
+                                'assets/images/${focusedProduct.imageName}.png', // Removed the additional quotes around ${focusedProduct.imageName}
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, exception, stackTrace) {
+                                  return Lottie.asset(
+                                    'assets/lottie/product_image_not_found.json',
+                                  );
+                                },
+                              ),
+                            )
+                          else if (!showList && focusedProduct.imageName == '')
+                            Container(
+                              width: 256,
+                              height: 256,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
+                                  colors: [
+                                    Colors.blue[100]!,
+                                    Colors.blue[200]!,
+                                    Colors.blue[300]!,
+                                    Colors.blue[400]!,
+                                    Colors.black,
+                                  ],
+                                  stops: const [
+                                    0.0,
+                                    0.3,
+                                    0.5,
+                                    0.7,
+                                    1.0,
+                                  ], // controls the color transition positions
+                                  center: const Alignment(
+                                    -0.5,
+                                    -0.5,
+                                  ), // shift the center alignment to mimic light reflection
+                                  radius:
+                                      1.5, // controls the overall radius of the gradient
+                                  focal: const Alignment(
+                                    -0.5,
+                                    -0.5,
+                                  ), // controls the focal point of the gradient
+                                  focalRadius:
+                                      0.1, // controls the radius of the focal point
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 5,
+                                    blurRadius: 12,
+                                    offset: const Offset(
+                                      4,
+                                      4,
+                                    ), // changes position of shadow
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '?',
+                                  style: TextStyle(
+                                    fontSize: 75,
+                                    color: Colors.indigo,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        if (!showList)
+                          Form(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                              child: Center(
+                                child: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.40,
+                                  child: TextFormField(
+                                    controller: overtimeAmountController,
+                                    textAlign: TextAlign.center,
+                                    // Center the text
+                                    decoration: InputDecoration(
+                                      alignLabelWithHint: true,
+                                      labelText: 'Amount',
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        vertical: 4,
+                                      ),
+                                      fillColor: Colors.yellowAccent[100],
+                                      // Add the color of the search bar widget here
+                                      filled: true,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(33),
+                                        // Rounded edges
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      prefixIcon: const Icon(
+                                        Icons.numbers_outlined,
+                                      ), // Add an icon symbolizing number input here
+                                    ),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter a number';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+                                      ref
+                                          .read(overtimeRatioProvider.notifier)
+                                          .state = overtimeAmount / productTarget;
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (!showList)
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: Transform.scale(
+                                        scale: 4,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 10,
+                                          // Divide by the scale factor
+                                          backgroundColor:
+                                              Colors.greenAccent.shade100,
+                                          valueColor:
+                                              const AlwaysStoppedAnimation<
+                                                  Color>(
+                                            Colors.transparent,
+                                          ),
+                                          value: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Transform.scale(
+                                        scale: 4,
+                                        child: MinimumCircle(
+                                          percentage: overtimePercents,
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Transform.scale(
+                                        scale: 4,
+                                        child: ClipOval(
+                                          child:
+                                              RainbowCircularProgressIndicator(
+                                            percentage:
+                                                overtimePercents, // Substitute your actual percentage here
                                           ),
                                         ),
                                       ),
-                                      onPressed: (productName.isEmpty ||
-                                              overtimeAmount == 0 ||
-                                              overtimeHours == 0)
-                                          ? null
-                                          : () async {
-                                              final authRepository =
-                                                  ref.read(authRepositoryProvider);
-                                              final pressingRepository = ref
-                                                  .read(pressingRepositoryProvider);
-                                              print(overtimePercents);
-                                              final bonusChecker = ref.read(
-                                                  bonusValueProvider(
-                                                      overtimePercents / 100,),);
-                                              final bonus = bonusChecker *
-                                                  (overtimeHours / 7);
-                                              final userId =
-                                                  authRepository.currentUserId;
-                                              final productName = ref
-                                                  .read(selectedProductProvider)
-                                                  .state;
-                                              final productRatioProvider = ref.read(
-                                                  targetRatioProvider(userId)
-                                                      .notifier,);
-                                              final productRatio =
-                                                  productRatioProvider
-                                                      .getProductRatio(productName);
-                                              print(productRatio);
-                                              // Retrieve the bonus value
+                                    ),
+                                    Center(
+                                      child: Container(
+                                        width: 105,
+                                        height: 105,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.green.shade50,
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Consumer(
+                                        builder: (context, watch, _) {
+                                          return Text(
+                                            '${overtimePercents.toStringAsFixed(2)}%',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    TargetButton(
+                                      productName: focusedProduct.productName,
+                                      overtimes: true,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 3),
+                                      child: Align(
+                                        child: Consumer(
+                                          builder: (context, watch, child) {
+                                            ref.watch(userNotifierProvider);
+                                            final bonus = ref.watch(
+                                              bonusValueProvider(
+                                                overtimePercents / 100,
+                                              ),
+                                            );
 
-                                              try {
-                                                await pressingRepository
-                                                    .saveOvertimeUserBonus(
+                                            return BonusCoin(
+                                              bonus: bonus *
+                                                  (overtimeHours / 7.00),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        //add a new widget to the row
+                        if (!showList)
+                          Builder(
+                            builder: (buttonContext) {
+                              return Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: LayoutBuilder(
+                                  builder: (
+                                    context,
+                                    constraints,
+                                  ) {
+                                    return SizedBox(
+                                      // 10
+                                      width: constraints.maxWidth *
+                                          0.6, // % of the Container height
+                                      // 10% of the Container height
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                            Colors.yellowAccent[100],
+                                          ),
+                                          shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: (focusedProduct
+                                                    .productName.isEmpty ||
+                                                overtimeAmount == 0 ||
+                                                overtimeHours == 0)
+                                            ? null
+                                            : () async {
+                                                final authRepository = ref.read(
+                                                  authRepositoryProvider,
+                                                );
+                                                final pressingRepository =
+                                                    ref.read(
+                                                  pressingRepositoryProvider,
+                                                );
+                                                final bonusChecker = ref.read(
+                                                  bonusValueProvider(
+                                                    overtimePercents / 100,
+                                                  ),
+                                                );
+                                                final bonus = bonusChecker *
+                                                    (overtimeHours / 7);
+                                                final userId = authRepository
+                                                    .currentUserId;
+                                                ref
+                                                    .read(
+                                                      targetRatioProvider(
                                                         userId,
-                                                        productName,
-                                                        bonus,
-                                                        overtimeAmount,
-                                                        overtimePercents / 100,
-                                                        isOvertime: true,
-                                                        workingHours: userState
-                                                                    .paidBreaks ??
-                                                                false
-                                                            ? overtimeHours
-                                                            : effectiveOvertimeHours,);
-                                                // Show a success message
-                                                if (mounted) {
+                                                      ).notifier,
+                                                    )
+                                                    .getProductRatio(
+                                                      focusedProduct
+                                                          .productName,
+                                                    );
+                                                // Retrieve the bonus value
+
+                                                try {
+                                                  await pressingRepository
+                                                      .saveOvertimeUserBonus(
+                                                    userId,
+                                                    focusedProduct.productName,
+                                                    bonus,
+                                                    overtimeAmount,
+                                                    overtimePercents / 100,
+                                                    isOvertime: true,
+                                                    workingHours: userState
+                                                                .paidBreaks ??
+                                                            false
+                                                        ? overtimeHours
+                                                        : effectiveOvertimeHours,
+                                                  );
+                                                  // Show a success message
+                                                  if (mounted) {
                                                     ScaffoldMessenger.of(
-                                                            buttonContext,)
-                                                        .showSnackBar(
+                                                      buttonContext,
+                                                    ).showSnackBar(
                                                       const SnackBar(
                                                         content: Text(
                                                           'Saved to Wallet successfully!',
@@ -708,15 +748,17 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                       ),
                                                     );
                                                   }
-                                                }on FormatException catch (e) {
-                                                if (e is String) {
-                                                  await ref
-                                                      .read(targetRatioProvider(
-                                                              userId,)
-                                                          .notifier,)
-                                                      .init();
-                                                  // Handle the case where the bonus is already added today
-                                                  if (mounted) {
+                                                } on FormatException catch (e) {
+                                                  if (e is String) {
+                                                    await ref
+                                                        .read(
+                                                          targetRatioProvider(
+                                                            userId,
+                                                          ).notifier,
+                                                        )
+                                                        .init();
+                                                    // Handle the case where the bonus is already added today
+                                                    if (mounted) {
                                                       ScaffoldMessenger.of(
                                                         buttonContext,
                                                       ).showSnackBar(
@@ -730,61 +772,70 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                       );
                                                     }
                                                     // Call editUserBonus if saveUserBonus fails
-                                                  await pressingRepository
-                                                      .editUserBonus(
-                                                    e.message,
-                                                    // Pass the bonusId as the first parameter
-                                                    productName,
-                                                    bonus,
-                                                    amount,
-                                                  );
-                                                } else {
-                                                  // Show an error message for other exceptions
-                                                  if (mounted) {
+                                                    await pressingRepository
+                                                        .editUserBonus(
+                                                      e.message,
+                                                      // Pass the bonusId as the first parameter
+                                                      focusedProduct
+                                                          .productName,
+                                                      bonus,
+                                                      amount,
+                                                    );
+                                                  } else {
+                                                    // Show an error message for other exceptions
+                                                    if (mounted) {
                                                       ScaffoldMessenger.of(
                                                         buttonContext,
                                                       ).showSnackBar(
                                                         SnackBar(
                                                           content: Text(
-                                                              e.toString(),),
+                                                            e.toString(),
+                                                          ),
                                                           backgroundColor:
                                                               Colors.red,
                                                         ),
                                                       );
                                                     }
                                                   }
-                                              }
-                                              await ref
-                                                  .read(targetRatioProvider(userId)
-                                                      .notifier,)
-                                                  .init();
+                                                }
+                                                await ref
+                                                    .read(
+                                                      targetRatioProvider(
+                                                        userId,
+                                                      ).notifier,
+                                                    )
+                                                    .init();
 
-                                              // Show a success message or navigate to another screen
-                                            },
-                                      child: const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        // Center the content horizontally
-                                        children: [
-                                          Icon(Icons.wallet),
-                                          // Add your desired icon
-                                          SizedBox(width: 8),
-                                          // Add some space between the icon and the text
-                                          Text('Save to Wallet'),
-                                        ],
+                                                // Show a success message or navigate to another screen
+                                              },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          // Center the content horizontally
+                                          children: [
+                                            Icon(Icons.wallet),
+                                            // Add your desired icon
+                                            SizedBox(width: 8),
+                                            // Add some space between the icon and the text
+                                            Text('Save to Wallet'),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },),);
-                          },
-                        ),
-                      const SlideToBasicShift(),
-                    ],
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        const SlideToBasicShift(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }

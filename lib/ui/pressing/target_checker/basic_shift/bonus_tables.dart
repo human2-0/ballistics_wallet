@@ -1,18 +1,28 @@
 
+import 'package:ballistics_wallet_flutter/custom_widgets/animated_tile.dart';
+import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart'; // Import the PressingRepository
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class BonusTable extends ConsumerWidget {
+import 'package:go_router/go_router.dart';
+class BonusTable extends ConsumerStatefulWidget {
   const BonusTable({super.key});
 
+
+@override
+BonusTableState createState() => BonusTableState();
+
+}
+class BonusTableState extends ConsumerState {
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final userId = ref.read(authRepositoryProvider).currentUserId;
     final targetRatio = ref.watch(targetRatioProvider(userId));
     final userData = ref.watch(userNotifierProvider);
@@ -49,71 +59,85 @@ class BonusTable extends ConsumerWidget {
 
               if (target > 0) {
                 listItems.add(
-                  GestureDetector(
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SplitCheck(requiredAmount: target.ceil()),
-                        ),
-                      );
+                  AnimatedTile(
+                    target: target.ceil(),
+                    onLongPressComplete: (){
+                      // Actions to perform after the long press completes
+                      // For example, navigating away or showing a message
+                      Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: target.ceil()));
+                    context.pop();
                     },
-                    child: Container(
-                      margin: const EdgeInsets.all(16),
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.25,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [Colors.orange[200]!, Colors.white],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: const Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.orange.withOpacity(0.5),
-                            gradient: LinearGradient(
-                            colors: [Colors.orange[200]!, Colors.white],
-                          ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 3,
-                                offset: const Offset(2, 2), // changes position of shadow
-                              ),
-                            ],
-                          ),
-                          child: Column(
-
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Minimum',
-                                style: TextStyle(fontSize: 16, color: Colors.black54),
-                              ),
-                              Text(
-                                '${target.ceil()}',
-                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 );
               }
+
+              // if (target > 0) {
+              //   listItems.add(
+              //     GestureDetector(
+              //       onTap: () async {
+              //         await Navigator.push(
+              //           context,
+              //           MaterialPageRoute(
+              //             builder: (context) => SplitCheck(requiredAmount: target.ceil()),
+              //           ),
+              //         );
+              //       },
+              //       child: Container(
+              //         margin: const EdgeInsets.all(16),
+              //         width: MediaQuery.of(context).size.width * 0.5,
+              //         height: MediaQuery.of(context).size.height * 0.25,
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(20),
+              //           gradient: LinearGradient(
+              //             colors: [Colors.orange[200]!, Colors.white],
+              //           ),
+              //           boxShadow: [
+              //             BoxShadow(
+              //               color: Colors.grey.withOpacity(0.5),
+              //               spreadRadius: 5,
+              //               blurRadius: 7,
+              //               offset: const Offset(0, 3), // changes position of shadow
+              //             ),
+              //           ],
+              //         ),
+              //         child: Container(
+              //           padding: const EdgeInsets.all(8),
+              //           child: DecoratedBox(
+              //             decoration: BoxDecoration(
+              //               borderRadius: BorderRadius.circular(15),
+              //               color: Colors.orange.withOpacity(0.5),
+              //               gradient: LinearGradient(
+              //               colors: [Colors.orange[200]!, Colors.white],
+              //             ),
+              //               boxShadow: [
+              //                 BoxShadow(
+              //                   color: Colors.grey.withOpacity(0.5),
+              //                   spreadRadius: 2,
+              //                   blurRadius: 3,
+              //                   offset: const Offset(2, 2), // changes position of shadow
+              //                 ),
+              //               ],
+              //             ),
+              //             child: Column(
+              //
+              //               mainAxisAlignment: MainAxisAlignment.center,
+              //               children: [
+              //                 const Text(
+              //                   'Minimum',
+              //                   style: TextStyle(fontSize: 16, color: Colors.black54),
+              //                 ),
+              //                 Text(
+              //                   '${target.ceil()}',
+              //                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              //                 ),
+              //               ],
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   );
+              // }
 
               listItems.addAll(sortedKeys.map((key) {
                 final bonus = (bonuses[key] as num).toDouble() *
@@ -125,115 +149,23 @@ class BonusTable extends ConsumerWidget {
                     double.parse(key) - ((overtimeRatio > 0.0)
                         ? overtimeRatio
                         : targetRatio) * 100;
-                final allowanceCheck = ((workingHours - allowance) / 7).ceil();
+                final allowanceCheck = (workingHours - allowance) / 7;
 
-                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? stableTarget * allowanceCheck : stableTarget)) / 100).ceil();
+                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? (stableTarget * allowanceCheck).ceil() : stableTarget)) / 100).ceil();
 
                 if (requiredAmount > 0) {
-                  return GestureDetector(
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SplitCheck(requiredAmount: requiredAmount),
-                        ),
-                      );
+                  return BonusAnimatedTile(
+                    bonus: bonus,
+                    requiredAmount: requiredAmount,
+                    onLongPressComplete: () {
+                      // Define what happens when the long press completes, e.g., saving to wallet
+                      Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: requiredAmount));
+                      context.pop();
                     },
-                    child: Container(
-                      margin: const EdgeInsets.all(16),
-                      height: MediaQuery.of(context).size.height * 0.25,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [Colors.orange[200]!, Colors.white],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: const Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color: Colors.orange.withOpacity(0.5),
-                                  gradient: LinearGradient(
-                                    colors: [Colors.orange[200]!, Colors.white],
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 3,
-                                      offset: const Offset(2, 2), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      'to earn',
-                                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                                    ),
-                                    Text(
-                                    '£${formatDouble(bonus)}',
-                                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                                  ),],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color: Colors.orange.withOpacity(0.5),
-                                  gradient: LinearGradient(
-                                    colors: [Colors.orange[200]!, Colors.white],
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 3,
-                                      offset: const Offset(2, 2), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '$requiredAmount',
-                                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                                    ),
-                                    const Text(
-                                      'more to do',
-                                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   );
-                } else {
-                  return null;
                 }
+                return null;
               }).whereType<Widget>(),);
-
 
               return ListWheelScrollView(
                 diameterRatio: 1.5,

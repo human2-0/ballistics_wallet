@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:ballistics_wallet_flutter/models/selected_product_history.dart';
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
+import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:ballistics_wallet_flutter/repository/pressing_db_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -132,66 +133,52 @@ class UserBonusesNotifier extends StateNotifier<Map<DateTime, List<dynamic>>> {
 
 class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   LastSelectedProductNotifier() : super([]) {
-    Future.microtask(_fetchInitialData);
+    Future.microtask(_initBoxes);
+  }
+
+  Future<void> _initBoxes() async {
+    // Assuming Hive is initialized and SelectedProduct adapter is registered elsewhere
+    await Hive.openBox<SelectedProduct>('selected_products');
+    await _fetchInitialData();
   }
 
   Future<void> _fetchInitialData() async {
-    // Set state to a loading state if you have one, otherwise skip this step
-    // state = LoadingState();
-
-    final box = await Hive.openBox<SelectedProduct>('selected_products');
-    final products = box.values.toList();
-    state = products;
-  }
-
-  Future<void> saveSelectedProduct(SelectedProduct product) async {
-    final box = await Hive.openBox<SelectedProduct>('selected_products');
-
-    // Try to find an existing product with the same name
-    final existingProductKey = box.keys.firstWhere(
-          (k) => box.get(k)!.name == product.name,
-      orElse: () => null,
-    );
-
-    if (existingProductKey != null) {
-      // If found, delete the existing product
-      await box.delete(existingProductKey);
-    }
-
-    // Whether new or existing, add the product to ensure it's placed at the end
-    // Update the product with the current date to ensure chronological order
-    final updatedProduct = SelectedProduct(
-      name: product.name,
-      selectedDate: DateTime.now(), // Ensure the date is updated to now
-      target: product.target, // Assuming 'target' is a property you want to keep
-    );
-    await box.add(updatedProduct);
-
-    // Fetch all products, sort them by selectedDate, and update the state
+    final box = Hive.box<SelectedProduct>('selected_products');
+    // Products are already sorted by date due to the box's structure
     final products = box.values.toList()
-      ..sort((a, b) => a.selectedDate.compareTo(b.selectedDate));
+      ..sort((a, b) => a.date.compareTo(b.date));
     state = products;
   }
 
+  Future<void> saveSelectedProduct(ProductInfo productInfo) async {
+    final box = Hive.box<SelectedProduct>('selected_products');
+    final productKey = box.values.firstWhere(
+          (item) => item.productInfo.productName == productInfo.productName,
+      orElse: () => SelectedProduct(date: DateTime.now(), productInfo: productInfo),
+    )?.key;
+    if (productKey != null) {
+      await box.delete(productKey);}
+    final selectedProduct = SelectedProduct(
+      date: DateTime.now(),
+      productInfo: productInfo,
+    );
+    // Since DateTime.now() is used as a key, ensure uniqueness or handle potential collisions
+    await box.add(selectedProduct); // Using add as we don't need to specify a key
+
+    await _fetchInitialData();
+  }
 
   Future<void> deleteSelectedProductByName(String productName) async {
-    final box = await Hive.openBox<SelectedProduct>('selected_products');
-
-    // Try to find the key of the product with the given name
-    final productKey = box.keys.firstWhere(
-      (key) => box.get(key)!.name == productName,
-      orElse: () => null,
-    );
+    final box = Hive.box<SelectedProduct>('selected_products');
+    // Find and delete the product by name
+    final productKey = box.values.firstWhere(
+          (item) => item.productInfo.productName == productName,
+      orElse: () => SelectedProduct(date: DateTime.now(), productInfo: ProductInfo(productName: '', imageName: '', target: 0, product: [])),
+    )?.key;
 
     if (productKey != null) {
-      // If found, delete the product from the box
       await box.delete(productKey);
-    } else {
+      await _fetchInitialData();
     }
-
-    // Update the state with the latest values
-    state = box.values.toList();
   }
-
-
 }

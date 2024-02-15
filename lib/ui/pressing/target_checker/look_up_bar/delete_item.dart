@@ -46,8 +46,7 @@ class DeleteItemState extends ConsumerState<DeleteItem> {
                       ), // Adjust duration as needed
                     ),
                   );
-                  Navigator.of(context)
-                      .pop(); // Close the dialog after successful deletion
+                  context.pop(); // Close the dialog after successful deletion
                 } // Close the dialog after successful deletion
               },
               icon: const Icon(Icons.done),

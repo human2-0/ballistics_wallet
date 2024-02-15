@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -33,8 +34,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final allowanceFocusNode = ref.watch(allowanceFocusNodeProvider);
 
     final userId = ref.watch(authRepositoryProvider).currentUserId;
-    final productName =
-        ref.watch(selectedProductProvider).state.toLowerCase().trimRight();
 
     final productTarget = ref.watch(targetProvider);
     final percentage = ref.watch(targetRatioProvider(userId)) * 100;
@@ -44,9 +43,10 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final allowance = ref.watch(allowanceProvider);
     final workingHours = userState.workingHours ?? 0.0;
 
-    final textEditingController = ref.watch(textEditingControllerProvider);
-    final numberController = ref.watch(numberControllerProvider);
-    final allowanceController = ref.watch(allowanceControllerProvider);
+    final numberController =
+        ref.watch(numberControllerProvider.notifier).controller;
+    final allowanceController =
+        ref.watch(allowanceControllerProvider.notifier).controller;
     final focusedProduct = ref.watch(focusedProductProvider);
 
     return GestureDetector(
@@ -92,7 +92,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SearchProductBar(
-                textEditingController: textEditingController,
                 numberController: numberController,
                 focusNode: focusNode,
               ),
@@ -163,18 +162,15 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                             return null;
                           },
                           onChanged: (value) {
-                            final parsedValue = int.tryParse(value) ?? 0;
-                            ref.read(numberProvider.notifier).state =
-                                parsedValue;
 
                             ref
                                 .read(
                                   targetRatioProvider(userId).notifier,
                                 )
                                 .updateRatio(
-                                  productName.toLowerCase(),
+                                  focusedProduct.productName.toLowerCase(),
                                   productTarget,
-                                  parsedValue,
+                                  int.parse(value),
                                   workingHours,
                                   allowance,
                                 );
@@ -218,17 +214,16 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               ref.read(allowanceProvider.notifier).state =
                                   allowanceProvided;
 
-                              // allowanceController.text = value; // Remove this line
-
-                              final declaredAmount = ref.read(numberProvider);
                               ref
                                   .read(
                                     targetRatioProvider(userId).notifier,
                                   )
                                   .updateRatio(
-                                    productName.toLowerCase(),
+                                    focusedProduct.productName
+                                        .toLowerCase()
+                                        .trimRight(),
                                     productTarget,
-                                    declaredAmount,
+                                    int.parse(numberController.text),
                                     workingHours,
                                     allowanceProvided,
                                   );
@@ -298,7 +293,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                     Expanded(
                       child: Column(
                         children: [
-                          TargetButton(productName: productName),
+                          TargetButton(productName: focusedProduct.productName),
                           Padding(
                             padding: const EdgeInsets.only(right: 3),
                             child: Align(
@@ -331,21 +326,14 @@ class BasicShiftCard extends ConsumerState<BasicShift>
   }
 
   Widget _buildProductList(WidgetRef ref) {
-    // Watch the state of our SelectedProductNotifier
-    final selectedProducts = ref.watch(lastSelectedProductProvider);
-
     // Watch the current search term
-    final currentSearchTerm = ref.watch(searchTermProvider);
+    final productNameController = ref.watch(productNameControllerProvider);
 
-    // Check if the search term is empty
-    final textIsEmpty = currentSearchTerm.isEmpty;
-
-    // If the text is empty and there are recent products, show LastSelectedProducts
-    if (textIsEmpty && selectedProducts.isNotEmpty) {
+    // If the text is empty show LastSelectedProducts
+    if (productNameController.isEmpty) {
       return const LastSelectedProducts();
     } else {
       return const ProductsListSuggested();
     }
   }
-
 }

@@ -203,13 +203,6 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                 target,
                                                 pressings,
                                               );
-                                          ref
-                                              .read(
-                                                selectedProductProvider
-                                                    .notifier,
-                                              )
-                                              .state
-                                              .state = productName;
                                           if (mounted) {
                                             Navigator.of(context).pop();
                                           }

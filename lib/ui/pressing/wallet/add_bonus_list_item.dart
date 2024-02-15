@@ -31,11 +31,11 @@ class AddBonusListItemState extends ConsumerState<AddBonusListItem> {
   @override
   Widget build(BuildContext context) {
     final newBonusAmountController = ref.watch(bonusAmountControllerProvider);
-    final newProductNameController = ref.watch(productNameControllerProvider);
+    final newProductNameController = ref.watch(walletProductNameControllerProvider);
     final overtimeHoursController = ref.watch(overtimeHoursControllerProvider);
     final newProductAmountController =
         ref.watch(productAmountControllerProvider);
-    final amountFocusNode = useFocusNode();
+    // final amountFocusNode = useFocusNode();
     final bonusAmountFocusNode = FocusNode();
 
     final userBonusNotifier = ref.watch(userBonusNotifierProvider.notifier);
