@@ -4,12 +4,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class ProductInfoRepository {
-  ProductInfoRepository(this._productInfoBox);
-  final Box<ProductInfo> _productInfoBox;
+  ProductInfoRepository();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<List<ProductInfo>> fetchProductInfo() async {
-    return _productInfoBox.values.toList();
+    // Fetch data from Firestore instead of the local Hive box
+    final querySnapshot = await db.collection('targets').doc('pressing').get();
+
+    if (querySnapshot.exists) {
+      final data = querySnapshot.data()!;
+      final products = <ProductInfo>[];
+      data.forEach((productName, productData) {
+        // Correctly cast productData to Map<String, dynamic>
+        products.add(_fromMapToProductInfo(productName, productData as Map<String, dynamic>));
+      });
+      return products;
+    } else {
+      return [];
+    }
+  }
+
+  // Helper method to convert Firestore data to ProductInfo objects
+  ProductInfo _fromMapToProductInfo(String productName, Map<String, dynamic> data) {
+    return ProductInfo(
+      productName: productName,
+      target: data['target'] as int,
+      imageName: productName, // Assuming the imageName follows the productName
+      // Correctly cast and map pressings to Pressing objects
+      product: (data['pressings'] as List).map((pressing) => Pressing.fromMap(pressing as Map<String, dynamic>)).toList(),
+    );
   }
 
   Future<void> addProduct(String productName, int target, List<Pressing> pressings) async {
@@ -57,22 +80,31 @@ class ProductInfoRepository {
   }
 
   Future<void> deleteProduct(String productName) async {
-    // Convert the product name to title case
-    final formattedProductName = toTitleCase(productName);
-
-    // Open the Hive box
+    // Assume productName is used exactly as it's received, without conversion
     final box = Hive.box<ProductInfo>('ProductInfo');
 
-    // Check if a product with the given name exists
-    if (box.containsKey(formattedProductName)) {
-      // If the product exists, delete it from the Hive box
-      await box.delete(formattedProductName);
-    } else {
-      // If the product does not exist, throw an error or return
-      throw Exception('No product found with the given name');
+    ProductInfo? productToDelete;
+    try {
+      productToDelete = box.values.firstWhere((product) => product.productName == productName);
+    } on FormatException {
+      productToDelete = null;
     }
 
-    // Update remote pressing targets after deletion
-    await updateRemotePressingTargets();
+    if (productToDelete != null) {
+      await productToDelete.delete(); // Delete from Hive
+    } else {
+      // Optionally, handle the non-existence case, e.g., UI feedback
+    }
+
+    await db.collection('targets').doc('pressing').update({
+      productName: FieldValue.delete(), // Delete from Firestore
+    });
+
+    await updateRemotePressingTargets(); // Update Firestore after deletion
   }
+
+
+
+
+
 }

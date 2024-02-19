@@ -1,16 +1,13 @@
 
 import 'package:ballistics_wallet_flutter/custom_widgets/animated_tile.dart';
-import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart'; // Import the PressingRepository
+// Import the PressingRepository
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
-import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 class BonusTable extends ConsumerStatefulWidget {
   const BonusTable({super.key});
 
@@ -64,7 +61,6 @@ class BonusTableState extends ConsumerState {
                     onLongPressComplete: (){
                       // Actions to perform after the long press completes
                       // For example, navigating away or showing a message
-                    context.pop();
                     Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: target.ceil(), mounted: mounted));
                     },
                   ),
@@ -160,7 +156,6 @@ class BonusTableState extends ConsumerState {
                     onLongPressComplete: () {
                       // Define what happens when the long press completes, e.g., saving to wallet
                       Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: requiredAmount,mounted: mounted));
-                      context.pop();
                     },
                   );
                 }

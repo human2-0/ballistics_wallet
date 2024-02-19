@@ -20,12 +20,15 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
   late TextEditingController amountPerBatchController;
   late FocusNode focusNodeTarget;
   late FocusNode focusNodeAmount;
+  late FocusNode focusNodeAutocomplete;
+  bool shouldUpdateTargetController = true;
 
   @override
   void initState() {
     super.initState();
     focusNodeTarget = FocusNode();
     focusNodeAmount = FocusNode();
+    focusNodeAutocomplete = FocusNode();
     targetController =
         TextEditingController(text: widget.requiredAmount.toString());
     final workingHours = ref.read(userNotifierProvider).workingHours ?? 0.0;
@@ -35,6 +38,15 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
               .toStringAsFixed(0)
           : ''),
     );
+
+    focusNodeTarget.addListener(() {});
+    focusNodeAmount.addListener(() {});
+
+    // void onTargetChanged() {
+    //   // Implement logic if needed when target changes. For example, you might want to reset the flag here.
+    // }
+    //
+    // targetController.addListener(onTargetChanged);
   }
 
   @override
@@ -64,11 +76,15 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
     final extraBombs =
         amountPerBatch != 0 ? (requiredAmount % amountPerBatch) : 0;
 
-    if (targetController.text != productInfo.target.toString()) {
+    if (shouldUpdateTargetController &&
+        targetController.text != productInfo.target.toString()) {
       targetController.text = productInfo.target.toString();
+      shouldUpdateTargetController = false; // Reset the flag after updating
     }
 
-    final productNameController = ref.read(productNameControllerProvider.notifier).controller;
+    final productNameController =
+        ref.watch(productNameControllerProvider.notifier).controller;
+
     return Stack(
       children: [
         Positioned.fill(
@@ -92,89 +108,142 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    if (productInfo.productName.isNotEmpty)
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent, // Optional: background color of the box
+                          borderRadius: BorderRadius.circular(15), // Rounded corners
+                          border: Border.all(
+                            color: Colors.lightBlueAccent.withOpacity(0.7), // Border color
+                            width: 4, // Border thickness
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  productInfo.productName,
+                                  style: const TextStyle(
+                                    color: Colors.lightBlueAccent,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.clear, color: Colors.blue[800]),
+                                onPressed: () {
+                                  // Logic to clear the focused product
+                                  ref.read(focusedProductProvider.notifier).state =
+                                      ProductInfo(
+                                    productName: '',
+                                    product: [const Pressing('', 0, 0)],
+                                    imageName: 'question',
+                                    target: 0,
+                                  );
+                                  // Optionally reset the productNameController if you use it for input
+                                  productNameController.clear();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (productInfo.productName.isEmpty)
                     Autocomplete<ProductInfo>(
                       optionsBuilder: (textEditingValue) {
-                        if (textEditingValue.text == '') {
-                          return const Iterable<ProductInfo>.empty();
-                        }
-                        // Assuming `products` is a List<ProductInfo>
+                        // Your filtering logic here
                         return products.where(
-                          (productInfo) => productInfo.productName
-                              .toLowerCase()
-                              .contains(textEditingValue.text.toLowerCase()),
+                          (productInfo) =>
+                              productInfo.productName.toLowerCase().contains(
+                                    textEditingValue.text.toLowerCase(),
+                                  ),
                         );
                       },
+                      displayStringForOption: (option) => option.productName,
                       onSelected: (selection) {
                         productNameController.text = selection.productName;
                         ref.read(focusedProductProvider.notifier).state =
                             selection;
-                        targetController.text = selection.target.toString();
+                        focusNodeAutocomplete
+                            .unfocus(); // Unfocus using the locally stored focusNode
                       },
-                      displayStringForOption: (option) => option.productName,
                       fieldViewBuilder: (
                         context,
                         textEditingController,
+                        // This controller should be used within your TextField
                         focusNode,
                         onFieldSubmitted,
-                      ) =>
-                          TextField(
-                        controller: productNameController,
-                        focusNode: focusNode,
-                        style: const TextStyle(
-                          color: Colors
-                              .lightBlueAccent, // Set the color of entered text
-                          fontSize: 20, // Set the font size of entered text
-                          fontWeight: FontWeight
-                              .bold, // Set the font weight of entered text
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Product name',
-                          labelStyle: const TextStyle(
+                      ) {
+                        focusNodeAutocomplete = focusNode;
+
+                        return TextField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          // Synchronize text changes with your custom controller if necessary
+                          onChanged: (text) {
+                            // Update your custom controller if needed
+                          },
+                          style: const TextStyle(
                             color: Colors.lightBlueAccent,
-                            fontWeight: FontWeight.bold, // Bold text
-                            fontSize: 18, // Slightly bigger font
+                            // Set the color of entered text
+                            fontSize: 20,
+                            // Set the font size of entered text
+                            fontWeight: FontWeight
+                                .bold, // Set the font weight of entered text
                           ),
-                          hintText: 'Add product name',
-                          hintStyle: TextStyle(
-                            color: Colors.lightBlueAccent.withOpacity(0.5),
-                            fontWeight: FontWeight.bold, // Bold text
-                            fontSize: 20, // Slightly bigger font
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: Colors.lightBlueAccent.withOpacity(0.7),
-                              width: 4, // Bolder border
+                          decoration: InputDecoration(
+                            labelText: 'Product name',
+                            labelStyle: const TextStyle(
+                              color: Colors.lightBlueAccent,
+                              fontWeight: FontWeight.bold, // Bold text
+                              fontSize: 18, // Slightly bigger font
                             ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
+                            hintText: 'Add product name',
+                            hintStyle: TextStyle(
                               color: Colors.lightBlueAccent.withOpacity(0.5),
-                              width: 4, // Bolder border
+                              fontWeight: FontWeight.bold, // Bold text
+                              fontSize: 20, // Slightly bigger font
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: const BorderSide(
-                              color: Colors.blue,
-                              width: 4, // Bolder border
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.lightBlueAccent.withOpacity(0.7),
+                                width: 4, // Bolder border
+                              ),
                             ),
-                          ),
-                          suffixIcon: Visibility(
-                            visible: productNameController.text.isNotEmpty,
-                            child: IconButton(
-                              onPressed: () {
-                                focusNode.unfocus();
-                              },
-                              icon: Icon(
-                                Icons.keyboard_hide,
-                                color: Colors.blue[800],
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.lightBlueAccent.withOpacity(0.5),
+                                width: 4, // Bolder border
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: const BorderSide(
+                                color: Colors.blue,
+                                width: 4, // Bolder border
+                              ),
+                            ),
+                            suffixIcon: Visibility(
+                              visible: focusNodeAutocomplete.hasFocus,
+                              child: IconButton(
+                                onPressed: () {
+                                  focusNodeAutocomplete.unfocus();
+                                },
+                                icon: Icon(
+                                  Icons.keyboard_hide,
+                                  color: Colors.blue[800],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                     const SizedBox(
                       height: 8,

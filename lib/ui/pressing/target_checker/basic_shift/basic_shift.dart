@@ -44,9 +44,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final workingHours = userState.workingHours ?? 0.0;
 
     final numberController =
-        ref.watch(numberControllerProvider.notifier).controller;
+        ref.read(numberControllerProvider.notifier).controller;
     final allowanceController =
-        ref.watch(allowanceControllerProvider.notifier).controller;
+        ref.read(allowanceControllerProvider.notifier).controller;
     final focusedProduct = ref.watch(focusedProductProvider);
 
     return GestureDetector(
@@ -97,12 +97,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
               ),
               if (showList) _buildProductList(ref),
               if (!showList)
-                if (focusedProduct.imageName.isNotEmpty)
+                if (focusedProduct.imageName != 'question')
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.66,
                     height: MediaQuery.of(context).size.width * 0.66,
                     child: Image.asset(
-                      'assets/images/${focusedProduct.imageName}.png', // Removed the additional quotes around ${focusedProduct.imageName}
+                      'assets/images/${focusedProduct.imageName}.png',
                       fit: BoxFit.cover,
                       errorBuilder: (context, exception, stackTrace) {
                         return Lottie.asset(
@@ -170,7 +170,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                 .updateRatio(
                                   focusedProduct.productName.toLowerCase(),
                                   productTarget,
-                                  int.parse(value),
+                                  int.tryParse(value) ?? 0,
                                   workingHours,
                                   allowance,
                                 );
@@ -328,9 +328,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
   Widget _buildProductList(WidgetRef ref) {
     // Watch the current search term
     final productNameController = ref.watch(productNameControllerProvider);
-
-    // If the text is empty show LastSelectedProducts
-    if (productNameController.isEmpty) {
+    final products = ref.watch(lastSelectedProductProvider);
+    if (productNameController.isEmpty && products.isNotEmpty) {
       return const LastSelectedProducts();
     } else {
       return const ProductsListSuggested();

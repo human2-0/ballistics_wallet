@@ -54,7 +54,10 @@ class BonusListItemState extends ConsumerState<BonusListItem> {
             ? Colors.blue
             : Colors.orange;
 
-    final productList = ref.watch(productInfoProvider).map((product) => product.productName).toList();
+    final productList = ref
+        .watch(productInfoProvider)
+        .map((product) => product.productName)
+        .toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
@@ -203,7 +206,7 @@ class BonusListItemState extends ConsumerState<BonusListItem> {
                                         ),
                                       )
                                     : Text(
-                                        '£${formatDouble(event.getDouble('workingHours'))}',
+                                        '£${formatDouble(event.getDouble('bonus'))}',
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
@@ -221,7 +224,8 @@ class BonusListItemState extends ConsumerState<BonusListItem> {
                                           .read(
                                             userBonusNotifierProvider.notifier,
                                           )
-                                          .deleteUserBonus(event['id'].toString(), userId)
+                                          .deleteUserBonus(
+                                              event['id'].toString(), userId,)
                                           .then((_) {
                                         event['bonus'] = 0;
                                         isEditing.value = false;
@@ -337,45 +341,66 @@ class BonusListItemState extends ConsumerState<BonusListItem> {
                                             ),
                                           ),
                                           const SizedBox(height: 16),
-                                        DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            borderRadius: const BorderRadius.all(Radius.circular(33)),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.orange.withOpacity(1),
-                                                offset: const Offset(2, -2.5),
-                                              ),
-                                            ],
-                                          ),
-                                          child: TypeAheadField(
-                                            textFieldConfiguration: TextFieldConfiguration(
-                                              controller: newProductNameController,
-                                              decoration: InputDecoration(
-                                                alignLabelWithHint: true,
-                                                hintText: 'Product Name',
-                                                filled: true,
-                                                fillColor: Colors.orange[100],
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(33),
-                                                  borderSide: BorderSide.none,
+                                          DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(33),),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.orange
+                                                      .withOpacity(1),
+                                                  offset: const Offset(2, -2.5),
                                                 ),
-                                              ),
-                                              textAlign: TextAlign.center,
+                                              ],
                                             ),
-                                            suggestionsCallback: (pattern) => productList.where((product) => product.toLowerCase().contains(pattern.toLowerCase())).toList(),
-                                            itemBuilder: (context, suggestion) {
-                                              // The suggestion parameter needs to be explicitly cast to String
-                                              final suggestionStr = suggestion;
-                                              return ListTile(title: Text(suggestionStr));
-                                            },
-                                            onSuggestionSelected: (suggestion) {
-                                              // The suggestion parameter needs to be explicitly cast to String
-                                              final suggestionStr = suggestion;
-                                              newProductNameController.text = suggestionStr;
-                                            },
-                                            noItemsFoundBuilder: (context) => const Text('No matches found'),
+                                            child: TypeAheadField(
+                                              textFieldConfiguration:
+                                                  TextFieldConfiguration(
+                                                controller:
+                                                    newProductNameController,
+                                                decoration: InputDecoration(
+                                                  alignLabelWithHint: true,
+                                                  hintText: 'Product Name',
+                                                  filled: true,
+                                                  fillColor: Colors.orange[100],
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            33,),
+                                                    borderSide: BorderSide.none,
+                                                  ),
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              suggestionsCallback: (pattern) =>
+                                                  productList
+                                                      .where((product) => product
+                                                          .toLowerCase()
+                                                          .contains(pattern
+                                                              .toLowerCase(),),)
+                                                      .toList(),
+                                              itemBuilder:
+                                                  (context, suggestion) {
+                                                // The suggestion parameter needs to be explicitly cast to String
+                                                final suggestionStr =
+                                                    suggestion;
+                                                return ListTile(
+                                                    title: Text(suggestionStr),);
+                                              },
+                                              onSuggestionSelected:
+                                                  (suggestion) {
+                                                // The suggestion parameter needs to be explicitly cast to String
+                                                final suggestionStr =
+                                                    suggestion;
+                                                newProductNameController.text =
+                                                    suggestionStr;
+                                              },
+                                              noItemsFoundBuilder: (context) =>
+                                                  const Text(
+                                                      'No matches found',),
+                                            ),
                                           ),
-                                        ),
                                           const SizedBox(height: 8),
                                           DecoratedBox(
                                             decoration: BoxDecoration(

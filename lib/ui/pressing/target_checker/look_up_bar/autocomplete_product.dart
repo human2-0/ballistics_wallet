@@ -73,7 +73,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',
                         ),
                         onTap: () async {
-                          FocusScope.of(context).unfocus();
                           final productTarget = ((product.target.toDouble()) *
                                   ((workingHours - allowance) / 7.00))
                               .ceil();
@@ -97,6 +96,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                               );
                           ref.read(showListProvider.notifier).state = false;
                           ref.read(focusNodeProvider).unfocus();
+                          // FocusScope.of(context).unfocus();
                         },
                         onLongPress: () async {
                           // Show the DeleteItem dialog

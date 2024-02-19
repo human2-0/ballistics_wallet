@@ -1,5 +1,6 @@
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AnimatedTile extends StatefulWidget {
   const AnimatedTile({
@@ -48,7 +49,7 @@ class _AnimatedTileState extends State<AnimatedTile>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {},
+      onTap: () async {await context.push('/split');},
       onLongPress: () {
         _controller.forward();
       },
@@ -170,6 +171,7 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () async {await context.push('/split');},
       onLongPress: () {
         _controller.forward();
       },
@@ -209,7 +211,10 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
                         borderRadius: BorderRadius.circular(15),
                         color: Colors.orange.withOpacity(0.5),
                         gradient: LinearGradient(
-                          colors: [Colors.orange[200]!, Colors.white],
+                          colors: [
+                            _colorAnimation.value ?? Colors.orange[200]!,
+                            Colors.white,
+                          ],
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -244,7 +249,10 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
                         borderRadius: BorderRadius.circular(15),
                         color: Colors.orange.withOpacity(0.5),
                         gradient: LinearGradient(
-                          colors: [Colors.orange[200]!, Colors.white],
+                          colors: [
+                            _colorAnimation.value ?? Colors.orange[200]!,
+                            Colors.white,
+                          ],
                         ),
                         boxShadow: [
                           BoxShadow(

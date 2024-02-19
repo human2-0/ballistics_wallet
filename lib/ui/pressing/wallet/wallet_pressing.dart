@@ -28,7 +28,7 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
 
     final userBonuses = ref.watch(userBonusNotifierProvider);
 
-    Future<void> _fetchUserBonuses(WidgetRef ref) async {
+    Future<void> fetchUserBonuses(WidgetRef ref) async {
       final pressingRepository = ref.read(pressingRepositoryProvider);
       final userBonusesNotifier = ref.read(userBonusNotifierProvider.notifier);
 
@@ -42,7 +42,7 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
 
     // Re-fetch bonuses when userId changes
     useEffect(() {
-      _fetchUserBonuses(ref);
+      Future.microtask(() async => fetchUserBonuses(ref));
       if (_selectedDay.value != null) {
         final localDay = DateTime(_selectedDay.value!.year,
                 _selectedDay.value!.month, _selectedDay.value!.day,)

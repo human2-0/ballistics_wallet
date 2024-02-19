@@ -22,7 +22,7 @@ class UserRepository {
           .doc(userId)
           .update({'workingHours': newWorkingHours});
       return true;
-    } on FormatException catch (e) {
+    } on FormatException {
       return false;
     }
   }
@@ -34,7 +34,7 @@ class UserRepository {
           .doc(userId)
           .update({'paidBreaks': newPaidBreaks});
       return true;
-    } on FormatException catch (e) {
+    } on FormatException {
       return false;
     }
   }
@@ -46,7 +46,7 @@ class UserRepository {
           .doc(userId)
           .update({'hourlyRate': newHourlyRate});
       return true;
-    } on FormatException catch (e) {
+    } on FormatException {
       return false;
     }
   }
@@ -110,25 +110,25 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<void> loadUser(String userId) async {
     final userData = await userRepository.getUserData(userId);
     if (userData != null) {
-      var workingHours = userData['workingHours'] is int
+      final workingHours = userData['workingHours'] is int
           ? (userData['workingHours'] as int).toDouble()
           : userData['workingHours'] as double?;
-      workingHours = calculateEffectiveWorkingHours(workingHours!);
+      final contractedWorkingHours = calculateEffectiveWorkingHours(workingHours!);
 
-      final double? realWorkingHours = userData['workingHours'];
+      final realWorkingHours = workingHours;
 
       final allowance = userData['allowance'] is int
           ? (userData['allowance'] as int).toDouble()
           : userData['allowance'] as double?;
 
       // Ensure paidBreaks is never null
-      final bool paidBreaks = userData['paidBreaks'] ?? false;
+      final paidBreaks = bool.tryParse(userData['paidBreaks'].toString()) ?? false;
 
-      final double? hourlyRate = userData['hourlyRate'] ?? 0;
+      final hourlyRate = double.tryParse(userData['hourlyRate'].toString()) ?? 0;
 
       state = UserState(
         userId: userId,
-        workingHours: workingHours,
+        workingHours: contractedWorkingHours,
         allowance: allowance,
         avatarUrl: userData['avatarUrl'] as String,
         paidBreaks: paidBreaks,

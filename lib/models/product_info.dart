@@ -31,6 +31,15 @@ class ProductInfo extends HiveObject {
 class Pressing {
   const Pressing(this.productColor, this.systemG, this.systemCitric);
 
+  // Factory constructor to create a Pressing instance from a map
+  factory Pressing.fromMap(Map<String, dynamic> map) {
+    return Pressing(
+      map['color'] as String,
+      (map['systemG'] as num).toDouble(), // Ensuring type conversion to double
+      (map['systemCitric'] as num).toDouble(), // Ensuring type conversion to double
+    );
+  }
+
   @HiveField(1)
   final String productColor;
 

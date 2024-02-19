@@ -1,6 +1,6 @@
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,7 +28,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final productNameController = ref.watch(textEditingControllerProvider);
+    final productNameController = ref.read(productNameControllerProvider.notifier).controller;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

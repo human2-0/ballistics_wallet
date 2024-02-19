@@ -1,4 +1,5 @@
 
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -22,40 +23,12 @@ class SearchProductBar extends ConsumerStatefulWidget {
 
 class SearchProductBarState extends ConsumerState<SearchProductBar> {
 
-  late TextEditingController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final showList = ref.watch(showListProvider);
     final userId = ref.watch(authRepositoryProvider).currentUserId;
 
-    // final searchTerm = ref.watch(searchTermProvider);
-    // // Update the controller's text if it's different from the current search term
-    // // This is necessary to prevent overriding user input while typing
-    // if (controller.text != searchTerm) {
-    //   controller.value = TextEditingValue(
-    //     text: searchTerm,
-    //     // Preserves the cursor position if possible
-    //     selection: controller.selection.copyWith(
-    //       baseOffset: min(searchTerm.length, controller.selection.start),
-    //       extentOffset: min(searchTerm.length, controller.selection.end),
-    //     ),
-    //   );
-    // }
-
-    final controller = ref.read(productNameControllerProvider.notifier).controller;
+    final controller = ref.watch(productNameControllerProvider.notifier).controller;
     return Padding(
       padding: const EdgeInsets.all(8),
       child: AnimatedContainer(
@@ -91,7 +64,13 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                 : IconButton(
                     icon: const Icon(Icons.clear),
                     onPressed: () async {
-                      ref.read(focusedProductProvider.notifier);
+                      ref.read(focusedProductProvider.notifier).state = ProductInfo(
+                        productName: '',
+                        product: [const Pressing('', 0, 0)],
+                        imageName: 'question',
+                        target: 0,
+                      );
+
                       controller.clear();
                       ref.read(showListProvider.notifier).state = false;
                       ref.read(focusNodeProvider).unfocus();
@@ -103,7 +82,7 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                       await ref
                           .read(targetRatioProvider(userId).notifier)
                           .init();
-                      ref.read(numberControllerProvider.notifier).controller.dispose();
+                      ref.read(numberControllerProvider.notifier).controller.clear();
                     },
                   ),
             hintStyle: const TextStyle(color: Colors.grey),

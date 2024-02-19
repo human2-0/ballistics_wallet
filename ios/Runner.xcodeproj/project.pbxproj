@@ -687,8 +687,8 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9YGMDQ82UZ;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.1.0;
-				FLUTTER_BUILD_NUMBER = 2;
+				FLUTTER_BUILD_NAME = 1.2.0;
+				FLUTTER_BUILD_NUMBER = 3;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ballistics LUSH";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -717,8 +717,8 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9YGMDQ82UZ;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.1.0;
-				FLUTTER_BUILD_NUMBER = 2;
+				FLUTTER_BUILD_NAME = 1.2.0;
+				FLUTTER_BUILD_NUMBER = 3;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ballistics LUSH";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
