@@ -6,9 +6,9 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
 import 'package:ballistics_wallet_flutter/ui/login_screen.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/bottom_app_bar.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/wallet_root.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
-import 'package:ballistics_wallet_flutter/ui/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -73,9 +73,12 @@ class RouterNotifier extends ChangeNotifier {
           path: '/protect',
         ),
         GoRoute(
-          name: 'test',
-          builder: (context, state) => const TestScreen(),
-          path: '/test',
+          name: 'new_wallet',
+          builder: (context, state)
+          {
+
+            return const WalletRoot();},
+          path: '/new_wallet',
         ),
       ];
 
@@ -83,7 +86,7 @@ class RouterNotifier extends ChangeNotifier {
   FutureOr<String?> _redirect(user, userData) async {
     // Check if the user is already on the '/' route
     if (user != null && userData != null && userData.userEmailAddress != null) {
-      final email = userData.userEmailAddress;
+      final email = userData.userEmailAddress.toString();
       final allowedDomains = ['gmail.com', 'lush.co.uk'];
       if (email.isNotEmpty && allowedDomains.any((domain) => email.endsWith('@$domain'))) {
         // User is already authenticated and on the home route, no need to redirect

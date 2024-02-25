@@ -61,7 +61,7 @@ class _ToastWidgetState extends State<ToastWidget>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             gradient: LinearGradient(
-              colors: widget.colors ?? [Colors.black.withOpacity(0.7)],
+              colors: widget.colors ?? [Colors.black.withOpacity(0.7), Colors.black.withOpacity(0.7)],
             ),
           ),
           child: Center(

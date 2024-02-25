@@ -76,13 +76,13 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
         .read(userNotifierProvider.notifier)
         .calculateEffectiveWorkingHours(overtimeHours);
     var overtimePercents = 0.0;
-    if (_overtimeAmount != 0 &&
+    if (overtimeAmount != 0 &&
         productTarget != 0 &&
         effectiveOvertimeHours != 0) {
       overtimePercents = (overtimeAmount / productTarget) * 100;
     }
 
-    final userState = ref.watch(userNotifierProvider.notifier).state;
+    final userState = ref.watch(userNotifierProvider);
     ref.watch(allowanceProvider);
     final focusedProduct = ref.watch(focusedProductProvider);
 
@@ -342,12 +342,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                   prefixIcon: const Icon(Icons.timer),
                                 ),
                                 keyboardType:
-                                    const TextInputType.numberWithOptions(),
-                                enabled: ((focusedProduct
-                                            .productName.isNotEmpty ||
-                                        isSearchBarFocused)
-                                    ? false
-                                    : true), // disable TextField when productName is empty
+                                TextInputType.number,
+                                enabled: focusedProduct.productName.isNotEmpty || isSearchBarFocused,
+
                               ),
                             ),
                           ],
@@ -532,7 +529,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                       ), // Add an icon symbolizing number input here
                                     ),
                                     keyboardType:
-                                        const TextInputType.numberWithOptions(),
+                                       TextInputType.number,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                     ],

@@ -41,16 +41,16 @@ class BonusCalendar extends HookConsumerWidget { // Add ScrollController
     }
 
     // Re-fetch bonuses when userId changes
-    useEffect(() {
-      Future.microtask(() async => fetchUserBonuses(ref));
-      if (_selectedDay.value != null) {
-        final localDay = DateTime(_selectedDay.value!.year,
-                _selectedDay.value!.month, _selectedDay.value!.day,)
-            .toLocal();
-        _selectedEvents.value = userBonuses[localDay] ?? [];
-      }
-      return null;
-    }, [userBonuses],);
+    // useEffect(() {
+    //   Future.microtask(() async => fetchUserBonuses(ref));
+    //   if (_selectedDay.value != null) {
+    //     final localDay = DateTime(_selectedDay.value!.year,
+    //             _selectedDay.value!.month, _selectedDay.value!.day,)
+    //         .toLocal();
+    //     _selectedEvents.value = userBonuses[localDay] ?? [];
+    //   }
+    //   return null;
+    // }, [userBonuses],);
 
     void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
       final localDay =

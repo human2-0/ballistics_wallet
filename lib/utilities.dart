@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:csv/csv.dart';
@@ -86,7 +87,9 @@ Future<void> initHive() async {
   Hive
     ..registerAdapter(SelectedProductAdapter())
     ..registerAdapter(ProductInfoAdapter())
-    ..registerAdapter(PressingAdapter());
+    ..registerAdapter(PressingAdapter())
+  ..registerAdapter(BonusInfoAdapter())
+  ..registerAdapter(ProducedAdapter());
 
   final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
   if (boxProductInfo.isEmpty) {

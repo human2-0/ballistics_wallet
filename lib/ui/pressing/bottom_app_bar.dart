@@ -43,13 +43,11 @@ class _HomeState extends ConsumerState<HomeScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         final userId = ref.read(authRepositoryProvider).currentUserId;
-        await ref.read(targetRatioProvider(userId).notifier).init();
-        await ref.read(userNotifierProvider.notifier).loadUser(userId);
-      }
-    });
+        Future.microtask(() async => ref.read(targetRatioProvider(userId).notifier).init());
+        Future.microtask(() async => ref.read(userNotifierProvider.notifier).loadUser(userId) );
+    }
 
     _tabController = TabController(length: 4, vsync: this);
     _tabController.animation!.addListener(_handleTabAnimation);

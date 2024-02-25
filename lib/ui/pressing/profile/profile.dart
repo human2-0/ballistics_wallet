@@ -2,6 +2,7 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfilePage extends StatefulHookConsumerWidget {
@@ -155,7 +156,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                   size: 39,
                                 ),
                                 onPressed: () async {
-                                  await showDialog(
+                                  await showDialog<String>(
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title:
@@ -307,6 +308,9 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                 child: Text(
                     'Here will be the chart showing avarage holiday rate',),),
           ),
+          IconButton(onPressed: () async {
+            await context.push('/new_wallet');
+          }, icon: const Icon(Icons.wallet),),
         ],
       ),
     );

@@ -15,7 +15,7 @@ StateNotifierProvider<UserBonusNotifier, Map<DateTime, List<dynamic>>>(
 
 
 final bonusTableSelectorProvider =
-StateNotifierProvider<BonusTableSelector, bool>((ref) => BonusTableSelector());
+StateProvider<bool>((ref) => false);
 
 final bonusAmountControllerProvider =
 StateNotifierProvider<TextFieldStateNotifier, TextEditingController>(
