@@ -317,7 +317,7 @@ class BonusListItemState extends ConsumerState<BonusListItem> {
                           padding: const EdgeInsets.fromLTRB(0, 0, 115, 0),
                           child: TextButton(
                             onPressed: () async {
-                              await showModalBottomSheet(
+                              await showModalBottomSheet<Widget>(
                                 isScrollControlled: true,
                                 context: context,
                                 builder: (context) => AnimatedPadding(

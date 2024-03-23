@@ -45,7 +45,7 @@ class AddBonusListItemState extends ConsumerState<AddBonusListItem> {
     Future<void> showAddBottomModalSheet(
         BuildContext context, PressingRepository pressingRepository,) async {
       final productList = ref.watch(productInfoProvider);
-      await showModalBottomSheet(
+      await showModalBottomSheet<Widget>(
         isScrollControlled: true,
         context: context,
         builder: (context) => StatefulBuilder(

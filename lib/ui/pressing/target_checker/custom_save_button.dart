@@ -82,7 +82,8 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                 ? (userState.realWorkingHours ?? 0)
                                 : (userState.workingHours ?? 0),
                           );
-                          if (mounted) {
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((timeStamp) {
                             ScaffoldMessenger.of(
                               buttonContext,
                             ).showSnackBar(
@@ -93,7 +94,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                 backgroundColor: Colors.green,
                               ),
                             );
-                          }
+                          });
                         } on FormatException catch (e) {
                           if (e is String) {
                             await ref
@@ -104,7 +105,8 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                 )
                                 .init();
 // Handle the case where the bonus is already added today
-                            if (mounted) {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
                               ScaffoldMessenger.of(
                                 buttonContext,
                               ).showSnackBar(
@@ -115,7 +117,8 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                   backgroundColor: Colors.orange,
                                 ),
                               );
-                            }
+                            });
+
 // Call editUserBonus if saveUserBonus fails
                             await pressingRepository.editUserBonus(
                               e.message,
@@ -125,7 +128,8 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                               amount,
                             );
                           } else {
-                            if (mounted) {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
                               ScaffoldMessenger.of(
                                 buttonContext,
                               ).showSnackBar(
@@ -134,7 +138,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                   backgroundColor: Colors.red,
                                 ),
                               );
-                            }
+                            });
                           }
                         }
 
@@ -170,7 +174,8 @@ Future<void> saveToWallet({
   final authRepository = ref.read(authRepositoryProvider);
   final userId = authRepository.currentUserId;
   final targetRatio = ref.watch(targetRatioProvider(userId));
-  final productName = ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
+  final productName =
+      ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
   final amount = amountPressed;
   final allowance = ref.watch(allowanceProvider);
   final userState = ref.watch(userNotifierProvider);
@@ -181,10 +186,12 @@ Future<void> saveToWallet({
   }
 
   final pressingRepository = ref.read(pressingRepositoryProvider);
-  final bonusAsyncValue = ref.read(bonusValueProvider(targetRatio)); // changed watch to read
+  final bonusAsyncValue =
+      ref.read(bonusValueProvider(targetRatio)); // changed watch to read
   final bonus = bonusAsyncValue * ((workingHours - allowance) / 7.0);
   final productRatioProvider = ref.read(targetRatioProvider(userId).notifier);
-  final productRatio = productRatioProvider.getProductRatio(productName.toLowerCase().trim());
+  final productRatio =
+      productRatioProvider.getProductRatio(productName.toLowerCase().trim());
 
   try {
     await pressingRepository.saveUserBonus(
@@ -193,21 +200,20 @@ Future<void> saveToWallet({
       bonus,
       amount,
       productRatio,
-      workingHours: (userState.paidBreaks ?? false) ? (userState.realWorkingHours ?? 0) : (userState.workingHours ?? 0),
+      workingHours: (userState.paidBreaks ?? false)
+          ? (userState.realWorkingHours ?? 0)
+          : (userState.workingHours ?? 0),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(mounted) {
+      if (mounted) {
         showToast(context, 'Hurray! More money went to your pocket');
       }
     });
-
-
-  } on FormatException{
+  } on FormatException {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(mounted) {
+      if (mounted) {
         showToast(context, 'Hurray! More money went to your pocket');
       }
     });
-
   }
 }

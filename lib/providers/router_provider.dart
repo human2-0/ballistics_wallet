@@ -72,14 +72,6 @@ class RouterNotifier extends ChangeNotifier {
           builder: (context, state) => const ProtectScreen(),
           path: '/protect',
         ),
-        GoRoute(
-          name: 'new_wallet',
-          builder: (context, state)
-          {
-
-            return const WalletRoot();},
-          path: '/new_wallet',
-        ),
       ];
 
 

@@ -31,7 +31,7 @@ class DeleteItemState extends ConsumerState<DeleteItem> {
                 await ref
                     .read(lastSelectedProductProvider.notifier)
                     .deleteSelectedProductByName(widget.productName);
-                if (mounted) {
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Row(
@@ -47,7 +47,7 @@ class DeleteItemState extends ConsumerState<DeleteItem> {
                     ),
                   );
                   context.pop(); // Close the dialog after successful deletion
-                } // Close the dialog after successful deletion
+                });
               },
               icon: const Icon(Icons.done),
             ),

@@ -12,7 +12,7 @@ class BonusInfoRepository {
 
   Future<void> addBonusInfo(BonusInfo bonusInfo) async {
     final box = await openBox();
-    await box.add(bonusInfo);
+    await box.put(bonusInfo.id,bonusInfo);
   }
 
   Future<List<BonusInfo>> getAllBonusInfos() async {
@@ -21,48 +21,57 @@ class BonusInfoRepository {
   }
 
   Future<void> updateBonusInfo(BonusInfo updatedBonusInfo) async {
-    final box = await Hive.openBox<BonusInfo>('bonusInfoBox');
-    // Use the unique ID for finding the existing BonusInfo object
-    final existingIndex = box.values.toList().indexWhere(
-          (bonusInfo) => bonusInfo.id == updatedBonusInfo.id,
-    );
-    if (existingIndex != -1) {
-      await box.putAt(existingIndex, updatedBonusInfo);
+    final box = await openBox();
+
+    // Search for the key that matches the updatedBonusInfo.id
+    dynamic targetKey;
+    box.toMap().forEach((key, value) {
+      if (key == updatedBonusInfo.id) {
+        targetKey = key;
+      }
+    });
+
+    // If a matching key is found, update the BonusInfo at that key
+    if (targetKey != null) {
+      await box.put(targetKey, updatedBonusInfo);
+    } else {
     }
   }
 
 
-
-  Future<void> deleteBonusInfo(int index) async {
+  Future<void> deleteBonusInfo(BonusInfo info) async {
     final box = await openBox();
-    await box.deleteAt(index);
+    await box.delete(info.id);
   }
 
-  Future<void> deleteProducedFromBonusInfo(int bonusInfoIndex, int producedIndex) async {
+  Future<void> deleteProducedFromBonusInfo(
+      int bonusInfoIndex, int producedIndex,) async {
     final box = await openBox();
     final bonusInfo = box.getAt(bonusInfoIndex)!;
-    final updatedProduced = List<Produced>.from(bonusInfo.produced)..removeAt(producedIndex);
+    final updatedProduced = List<Produced>.from(bonusInfo.produced)
+      ..removeAt(producedIndex);
     // Assume BonusInfo has a method `copyWith` for immutability
-    final updatedBonusInfo = bonusInfo.copyWith(produced: updatedProduced);
+    final updatedBonusInfo =
+        bonusInfo.copyWith(id: bonusInfo.id, produced: updatedProduced);
     await box.putAt(bonusInfoIndex, updatedBonusInfo);
   }
 
-  Future<Map<DateTime, List<BonusInfo>>> fetchUserBonuses(String userId) async {
-   final bonuses = <DateTime, List<BonusInfo>>{};
+  Future<Map<String, List<BonusInfo>>> fetchUserBonuses(String userId) async {
+    final bonuses = <String, List<BonusInfo>>{};
 
     final QuerySnapshot snapshot = await db
         .collection('userBonuses')
         .where('userId', isEqualTo: userId)
         .get();
 
+    final box = await openBox();
     for (final doc in snapshot.docs) {
       final data = doc.data()! as Map<String, dynamic>;
 // Correctly retrieve the Timestamp and convert it to a DateTime
-      final timestamp = data['date'] as Timestamp; // Correctly retrieve as Timestamp
+      final timestamp =
+          data['date'] as Timestamp; // Correctly retrieve as Timestamp
       final date = timestamp.toDate(); // Convert to DateTime
       final key = DateTime(date.year, date.month, date.day);
-
-
 
       // Fetch 'produced' sub-collection for each 'userBonuses' document
       final producedList = <Map<String, dynamic>>[];
@@ -82,13 +91,17 @@ class BonusInfoRepository {
         'date': key, // Use 'key' as the date
         'workingHours': data['workingHours'],
         'isOvertime': data['isOvertime'],
-        'produced': producedList, // Ensure this matches your model's expected structure
+        'produced':
+            producedList, // Ensure this matches your model's expected structure
       });
 
-      if (!bonuses.containsKey(key)) {
-        bonuses[key] = [];
+      await box.put(bonusInfo.id, bonusInfo);
+
+      if (!bonuses.containsKey(bonusInfo.id)) {
+        bonuses[bonusInfo.id] = [];
       }
-      bonuses[key]!.add(bonusInfo);
+
+      bonuses[bonusInfo.id]!.add(bonusInfo);
     }
 
     return bonuses;

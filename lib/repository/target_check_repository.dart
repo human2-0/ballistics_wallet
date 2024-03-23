@@ -155,7 +155,7 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
     final productKey = box.values.firstWhere(
           (item) => item.productInfo.productName == productInfo.productName,
       orElse: () => SelectedProduct(date: DateTime.now(), productInfo: productInfo),
-    )?.key;
+    ).key;
     if (productKey != null) {
       await box.delete(productKey);}
     final selectedProduct = SelectedProduct(
@@ -174,7 +174,7 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
     final productKey = box.values.firstWhere(
           (item) => item.productInfo.productName == productName,
       orElse: () => SelectedProduct(date: DateTime.now(), productInfo: ProductInfo(productName: '', imageName: '', target: 0, product: [])),
-    )?.key;
+    ).key;
 
     if (productKey != null) {
       await box.delete(productKey);

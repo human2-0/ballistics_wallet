@@ -247,26 +247,26 @@ class BonusTableOvertime extends ConsumerWidget {
 final updateAvailableItemsProvider =
     FutureProvider.autoDispose<void>((ref) async {
   final userId = ref.read(authRepositoryProvider).currentUserId;
-  final userData = ref.read(userNotifierProvider);
+  // final userData = ref.read(userNotifierProvider);
   final overtimeRatio = ref.watch(overtimeRatioProvider);
-  final overtimeHours = ref.watch(overtimeWorkingHoursState);
-  final workingHours = userData.workingHours ?? 0.0;
-  final allowance = ref.watch(allowanceProvider);
+  // final overtimeHours = ref.watch(overtimeWorkingHoursState);
+  // final workingHours = userData.workingHours ?? 0.0;
+  // final allowance = ref.watch(allowanceProvider);
   final bonuses = await ref.read(pressingRepositoryProvider).getBonuses();
   final stableTarget = ref.watch(targetProvider);
   final targetRatio = ref.watch(targetRatioProvider(userId));
-  final target = ref.watch(targetProvider) *
-      (1 - ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio));
+  // final target = ref.watch(targetProvider) *
+  //     (1 - ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio));
   final sortedKeys = bonuses.keys.toList()
     ..sort((a, b) => double.parse(a).compareTo(double.parse(b)));
 
   final listItems = <Widget>[];
 
   for (final key in sortedKeys) {
-    final bonus = (bonuses[key] as num).toDouble() *
-        (((overtimeHours ?? 0) > 0)
-            ? ((overtimeHours ?? 0) / 7)
-            : (workingHours - allowance) / 7.0);
+    // final bonus = (bonuses[key] as num).toDouble() *
+    //     (((overtimeHours ?? 0) > 0)
+    //         ? ((overtimeHours ?? 0) / 7)
+    //         : (workingHours - allowance) / 7.0);
     final requiredPercentage = double.parse(key) -
         ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio * 100);
     final requiredAmount = ((requiredPercentage * stableTarget) / 100).ceil();

@@ -71,23 +71,36 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
       );
     }
 
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          DecoratedBox(
+          Container(
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.orange[200],
-            ),
-            child: IconButton(
-              icon: Icon(
-                color: Colors.orange[600],
-                Icons.flight_takeoff_outlined,
+              color: Colors.blue[100],
+              borderRadius: const BorderRadius.all(
+                Radius.circular(33),
               ),
-              onPressed: authRepo.signOut,
+            ),
+            child: Column(
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.orange[200],
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      color: Colors.orange[600],
+                      Icons.flight_takeoff_outlined,
+                    ),
+                    onPressed: authRepo.signOut,
+                  ),
+                ),
+                Text('Sign out', style: TextStyle(color: Colors.blue[900])),
+              ],
             ),
           ),
           Center(
@@ -212,13 +225,16 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                                 .editHourlyRate(newHourlyRate);
                                             final result = await userNotifier
                                                 .editWorkingHours(
-                                                    newWorkingHours,);
+                                              newWorkingHours,
+                                            );
                                             if (result) {
                                               await userNotifier.loadUser(uid);
                                             }
-                                            if (mounted) {
-                                              Navigator.of(context).pop();
-                                            }
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback(
+                                                    (timeStamp) {
+                                              context.pop();
+                                            });
                                           },
                                         ),
                                       ],
@@ -305,12 +321,11 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
-                child: Text(
-                    'Here will be the chart showing avarage holiday rate',),),
+              child: Text(
+                'Here will be the chart showing avarage holiday rate',
+              ),
+            ),
           ),
-          IconButton(onPressed: () async {
-            await context.push('/new_wallet');
-          }, icon: const Icon(Icons.wallet),),
         ],
       ),
     );

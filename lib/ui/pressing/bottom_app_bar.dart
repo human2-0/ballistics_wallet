@@ -2,16 +2,17 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/wallet_root.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_pressing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -109,6 +110,7 @@ class _HomeState extends ConsumerState<HomeScreen>
 
   @override
   void dispose() {
+    Future.microtask(Hive.close);
     _tabController.animation!.removeListener(_handleTabAnimation);
     _tabController.dispose();
     _scrollController.dispose();
@@ -147,7 +149,6 @@ class _HomeState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final userId = ref.read(authRepositoryProvider).currentUserId;
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark, // adjust icon brightness as needed
@@ -181,8 +182,7 @@ class _HomeState extends ConsumerState<HomeScreen>
                       onNotification: handleScroll,
                     ),
                     const SplitCheck(),
-                    BonusCalendar(
-                      userId: userId,
+                    WalletRoot(
                       onNotification: handleScroll,
                     ),
                     const ProfilePage(),

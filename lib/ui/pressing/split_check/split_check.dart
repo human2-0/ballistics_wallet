@@ -2,6 +2,7 @@ import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/colors.dart';
 import 'package:flutter/material.dart';
@@ -85,6 +86,10 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
     final productNameController =
         ref.watch(productNameControllerProvider.notifier).controller;
 
+    final userState = ref.watch(userNotifierProvider);
+    final allowance = ref.watch(allowanceProvider);
+    final workingHours = userState.workingHours ?? 0.0;
+
     return Stack(
       children: [
         Positioned.fill(
@@ -114,7 +119,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           color: Colors.transparent, // Optional: background color of the box
                           borderRadius: BorderRadius.circular(15), // Rounded corners
                           border: Border.all(
-                            color: Colors.lightBlueAccent.withOpacity(0.7), // Border color
+                            color: Colors.orangeAccent[100]!.withOpacity(0.7), // Border color
                             width: 4, // Border thickness
                           ),
                         ),
@@ -126,15 +131,16 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                               Expanded(
                                 child: Text(
                                   productInfo.productName,
-                                  style: const TextStyle(
-                                    color: Colors.lightBlueAccent,
+                                  style: TextStyle(
+                                    color: Colors.orange[100],
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.clear, color: Colors.blue[800]),
+                                style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.orangeAccent[100]!)),
+                                icon: Icon(Icons.clear, size: 30, color: Colors.deepOrange[800]),
                                 onPressed: () {
                                   // Logic to clear the focused product
                                   ref.read(focusedProductProvider.notifier).state =
@@ -164,10 +170,21 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                         );
                       },
                       displayStringForOption: (option) => option.productName,
-                      onSelected: (selection) {
+                      onSelected: (selection) async {
+                        final productTarget = ((selection.target.toDouble()) *
+                            ((workingHours - allowance) / 7.00))
+                            .ceil();
+                        await ref
+                            .read(targetProvider.notifier)
+                            .updateTarget(productTarget);
                         productNameController.text = selection.productName;
                         ref.read(focusedProductProvider.notifier).state =
                             selection;
+                        await ref
+                            .read(lastSelectedProductProvider.notifier)
+                            .saveSelectedProduct(
+                          selection,
+                        );
                         focusNodeAutocomplete
                             .unfocus(); // Unfocus using the locally stored focusNode
                       },
@@ -187,8 +204,8 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           onChanged: (text) {
                             // Update your custom controller if needed
                           },
-                          style: const TextStyle(
-                            color: Colors.lightBlueAccent,
+                          style: TextStyle(
+                            color: Colors.orange[100],
                             // Set the color of entered text
                             fontSize: 20,
                             // Set the font size of entered text
@@ -197,35 +214,35 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           ),
                           decoration: InputDecoration(
                             labelText: 'Product name',
-                            labelStyle: const TextStyle(
-                              color: Colors.lightBlueAccent,
+                            labelStyle: TextStyle(
+                              color: Colors.orange[100],
                               fontWeight: FontWeight.bold, // Bold text
                               fontSize: 18, // Slightly bigger font
                             ),
                             hintText: 'Add product name',
                             hintStyle: TextStyle(
-                              color: Colors.lightBlueAccent.withOpacity(0.5),
+                              color: Colors.orangeAccent[100]!.withOpacity(0.5),
                               fontWeight: FontWeight.bold, // Bold text
                               fontSize: 20, // Slightly bigger font
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                               borderSide: BorderSide(
-                                color: Colors.lightBlueAccent.withOpacity(0.7),
+                                color: Colors.orangeAccent[100]!.withOpacity(0.7),
                                 width: 4, // Bolder border
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                               borderSide: BorderSide(
-                                color: Colors.lightBlueAccent.withOpacity(0.5),
+                                color: Colors.orangeAccent[100]!.withOpacity(0.5),
                                 width: 4, // Bolder border
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: const BorderSide(
-                                color: Colors.blue,
+                              borderSide: BorderSide(
+                                color: Colors.orangeAccent[100]!,
                                 width: 4, // Bolder border
                               ),
                             ),
@@ -235,9 +252,14 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 onPressed: () {
                                   focusNodeAutocomplete.unfocus();
                                 },
-                                icon: Icon(
-                                  Icons.keyboard_hide,
-                                  color: Colors.blue[800],
+                                icon: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(color: Colors.orangeAccent[100], shape: BoxShape.circle),
+                                  child: Icon(
+                                    size: 30,
+                                    Icons.keyboard_hide,
+                                    color: Colors.deepOrange[800],
+                                  ),
                                 ),
                               ),
                             ),
@@ -259,23 +281,23 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                             focusNode: focusNodeTarget,
                             onChanged: (value) => targetController.text = value,
                             keyboardType: TextInputType.number,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors
-                                  .lightBlueAccent, // Set the color of entered text
+                                  .orange[100], // Set the color of entered text
                               fontSize: 20, // Set the font size of entered text
                               fontWeight: FontWeight
                                   .bold, // Set the font weight of entered text
                             ),
                             decoration: InputDecoration(
                               labelText: 'Target',
-                              labelStyle: const TextStyle(
-                                color: Colors.lightBlueAccent,
+                              labelStyle: TextStyle(
+                                color: Colors.orange[100],
                                 fontWeight: FontWeight.bold, // Bold text
                                 fontSize: 18, // Slightly bigger font
                               ),
                               hintText: 'Add target',
                               hintStyle: TextStyle(
-                                color: Colors.lightBlueAccent.withOpacity(0.5),
+                                color: Colors.orangeAccent[100]!.withOpacity(0.5),
                                 fontWeight: FontWeight.bold, // Bold text
                                 fontSize: 20, // Slightly bigger font
                               ),
@@ -283,7 +305,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
                                   color:
-                                      Colors.lightBlueAccent.withOpacity(0.7),
+                                      Colors.orangeAccent[100]!.withOpacity(0.7),
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -291,14 +313,14 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
                                   color:
-                                      Colors.lightBlueAccent.withOpacity(0.5),
+                                      Colors.orangeAccent[100]!.withOpacity(0.5),
                                   width: 4, // Bolder border
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
-                                borderSide: const BorderSide(
-                                  color: Colors.blue,
+                                borderSide: BorderSide(
+                                  color: Colors.orangeAccent[100]!,
                                   width: 4, // Bolder border
                                 ),
                               ), // Hint text color
@@ -307,7 +329,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 child: IconButton(
                                   icon: Icon(
                                     Icons.clear,
-                                    color: Colors.blue[800],
+                                    color: Colors.orange[100],
                                   ),
                                   onPressed: () {
                                     targetController.clear();
@@ -323,23 +345,23 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           child: TextField(
                             focusNode: focusNodeAmount,
                             controller: amountPerBatchController,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors
-                                  .lightBlueAccent, // Set the color of entered text
+                                  .orange[100], // Set the color of entered text
                               fontSize: 20, // Set the font size of entered text
                               fontWeight: FontWeight
                                   .bold, // Set the font weight of entered text
                             ),
                             decoration: InputDecoration(
                               labelText: 'Amount per batch',
-                              labelStyle: const TextStyle(
-                                color: Colors.lightBlueAccent,
+                              labelStyle: TextStyle(
+                                color: Colors.orange[100],
                                 fontWeight: FontWeight.bold, // Bold text
                                 fontSize: 18, // Slightly bigger font
                               ),
                               hintText: 'Enter amount',
                               hintStyle: TextStyle(
-                                color: Colors.lightBlueAccent.withOpacity(0.5),
+                                color: Colors.orangeAccent[100]!.withOpacity(0.5),
                                 fontWeight: FontWeight.bold, // Bold text
                                 fontSize: 20, // Slightly bigger font
                               ),
@@ -347,7 +369,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
                                   color:
-                                      Colors.lightBlueAccent.withOpacity(0.7),
+                                      Colors.orangeAccent[100]!.withOpacity(0.7),
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -355,14 +377,14 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
                                   color:
-                                      Colors.lightBlueAccent.withOpacity(0.5),
+                                      Colors.orangeAccent[100]!.withOpacity(0.5),
                                   width: 4, // Bolder border
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
-                                borderSide: const BorderSide(
-                                  color: Colors.blue,
+                                borderSide: BorderSide(
+                                  color: Colors.orange[100]!,
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -381,7 +403,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.lightBlueAccent[100],
+                        color: Colors.orangeAccent[100],
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Padding(

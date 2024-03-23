@@ -12,8 +12,8 @@ class BonusInfo {
     required this.workingHours,
     required this.isOvertime,
     required this.produced,
-    required this.id,
-  });
+    String? id,
+  }) : id = id ?? BonusInfo._uuid.v4();
 
   factory BonusInfo.fromMap(Map<String, dynamic> map) {
     const uuid = Uuid();
@@ -30,8 +30,11 @@ class BonusInfo {
           [],
     );
   }
+
+  static const Uuid _uuid = Uuid();
+
   BonusInfo copyWith({
-    required String id,
+    String? id,
     String? userId,
     double? bonus,
     DateTime? date,
@@ -40,7 +43,7 @@ class BonusInfo {
     List<Produced>? produced,
   }) {
     return BonusInfo(
-      id: id,
+      id: id ?? this.id,
       userId: userId ?? this.userId,
       bonus: bonus ?? this.bonus,
       date: date ?? this.date,

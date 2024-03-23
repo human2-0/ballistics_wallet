@@ -26,8 +26,8 @@ class _AnimatedTileState extends State<AnimatedTile>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(
-        seconds:
-        2,), // Adjust the duration to control the speed of the color change
+        seconds: 2,
+      ), // Adjust the duration to control the speed of the color change
     );
     _colorAnimation = ColorTween(
       begin: Colors.orange[200],
@@ -49,7 +49,9 @@ class _AnimatedTileState extends State<AnimatedTile>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {await context.push('/split');},
+      onTap: () async {
+        await context.push('/split');
+      },
       onLongPress: () {
         _controller.forward();
       },
@@ -111,7 +113,9 @@ class _AnimatedTileState extends State<AnimatedTile>
                     Text(
                       '${widget.target}',
                       style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold,),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -171,7 +175,9 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {await context.push('/split');},
+      onTap: () async {
+        await context.push('/split');
+      },
       onLongPress: () {
         _controller.forward();
       },
@@ -236,7 +242,9 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
                           Text(
                             '£${formatDouble(widget.bonus)}',
                             style: const TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold,),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -269,7 +277,9 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
                           Text(
                             '${widget.requiredAmount}',
                             style: const TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold,),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const Text(
                             'more to do',

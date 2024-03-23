@@ -229,7 +229,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                   onTap: () async {
                                     if (overtimeHours == 0.0) {
                                       // If _overtimeHours is not set, show a dialog
-                                      await showDialog(
+                                      await showDialog<Widget>(
                                         context: context,
                                         builder: (context) => Dialog(
                                           shape: RoundedRectangleBorder(
@@ -303,8 +303,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                       }
                                     }
                                   },
-                                  onChanged: (value) {
-                                  },
+                                  onChanged: (value) {},
                                   onSubmitted: (value) {
                                     setState(() {
                                       ref
@@ -341,10 +340,10 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                   ),
                                   prefixIcon: const Icon(Icons.timer),
                                 ),
-                                keyboardType:
-                                TextInputType.number,
-                                enabled: focusedProduct.productName.isNotEmpty || isSearchBarFocused,
-
+                                keyboardType: TextInputType.number,
+                                enabled:
+                                    focusedProduct.productName.isNotEmpty ||
+                                        isSearchBarFocused,
                               ),
                             ),
                           ],
@@ -365,7 +364,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                         (product) => product.productName
                                             .toLowerCase()
                                             .contains(
-                                          textEditingController.text
+                                              textEditingController.text
                                                   .toLowerCase(),
                                             ),
                                       )
@@ -387,7 +386,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                         child: ListTile(
                                           title: Text(product.productName),
                                           subtitle: Text(
-                                            'Target: ${((product.target.toDouble() ?? 0) * (effectiveOvertimeHours / 7.00)).ceil()}',
+                                            'Target: ${((product.target.toDouble()) * (effectiveOvertimeHours / 7.00)).ceil()}',
                                           ),
                                           onTap: () async {
                                             final selectedProductName =
@@ -528,8 +527,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                         Icons.numbers_outlined,
                                       ), // Add an icon symbolizing number input here
                                     ),
-                                    keyboardType:
-                                       TextInputType.number,
+                                    keyboardType: TextInputType.number,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                     ],
@@ -732,7 +730,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                         : effectiveOvertimeHours,
                                                   );
                                                   // Show a success message
-                                                  if (mounted) {
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback(
+                                                          (timeStamp) {
                                                     ScaffoldMessenger.of(
                                                       buttonContext,
                                                     ).showSnackBar(
@@ -744,7 +744,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                             Colors.green,
                                                       ),
                                                     );
-                                                  }
+                                                  });
                                                 } on FormatException catch (e) {
                                                   if (e is String) {
                                                     await ref
@@ -755,7 +755,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                         )
                                                         .init();
                                                     // Handle the case where the bonus is already added today
-                                                    if (mounted) {
+                                                    WidgetsBinding.instance
+                                                        .addPostFrameCallback(
+                                                            (timeStamp) {
                                                       ScaffoldMessenger.of(
                                                         buttonContext,
                                                       ).showSnackBar(
@@ -767,7 +769,8 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                               Colors.orange,
                                                         ),
                                                       );
-                                                    }
+                                                    });
+
                                                     // Call editUserBonus if saveUserBonus fails
                                                     await pressingRepository
                                                         .editUserBonus(
@@ -780,7 +783,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                     );
                                                   } else {
                                                     // Show an error message for other exceptions
-                                                    if (mounted) {
+                                                    WidgetsBinding.instance
+                                                        .addPostFrameCallback(
+                                                            (timeStamp) {
                                                       ScaffoldMessenger.of(
                                                         buttonContext,
                                                       ).showSnackBar(
@@ -792,7 +797,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                               Colors.red,
                                                         ),
                                                       );
-                                                    }
+                                                    });
                                                   }
                                                 }
                                                 await ref

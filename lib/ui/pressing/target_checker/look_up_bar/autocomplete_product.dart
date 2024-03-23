@@ -20,7 +20,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
     final products = ref.watch(
       productInfoProvider,
     ); // Assuming this now returns a List directly
-    // final searchTerm = ref.watch(searchTermProvider).toLowerCase().trim();
 
     final controller = ref.watch(productNameControllerProvider);
     final filteredProducts = products
@@ -79,10 +78,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           ref.read(focusedProductProvider.notifier).state =
                               product;
 
-                          // ref.read(searchTermProvider.notifier).state =
-                          //     product.productName;
-                          // Update the targetProvider state
-
                           ref.read(productNameControllerProvider.notifier).controller.text = product.productName;
                           await ref
                               .read(targetProvider.notifier)
@@ -96,7 +91,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                               );
                           ref.read(showListProvider.notifier).state = false;
                           ref.read(focusNodeProvider).unfocus();
-                          // FocusScope.of(context).unfocus();
                         },
                         onLongPress: () async {
                           // Show the DeleteItem dialog

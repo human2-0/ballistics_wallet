@@ -1,20 +1,76 @@
-import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/add_item_bottom_sheet.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/edit_item_bottom_sheet.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/new_wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BonusInfoList extends ConsumerWidget {
+class BonusInfoList extends ConsumerStatefulWidget {
   const BonusInfoList({super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _BonusInfoListState createState() => _BonusInfoListState();
+}
 
+class _BonusInfoListState extends ConsumerState<BonusInfoList> {
+  @override
+  Widget build(BuildContext context) {
     final bonusInfoList = ref.watch(bonusInfoListProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
-    return Expanded(
+    if (bonusInfoList
+        .where((info) => isSameDay(info.date, selectedDate))
+        .isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(25)),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: const [0.1, 0.5, 0.7, 0.9],
+                colors: [
+                  Colors.orange[300]!.withOpacity(0.4),
+                  Colors.orange[200]!,
+                  Colors.orange[100]!,
+                  Colors.orange[100]!,
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.orange[500]!.withOpacity(0.4),
+                  offset: const Offset(-10, -10),
+                  blurRadius: 10,
+                  spreadRadius: -5,
+                ),
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.4),
+                  offset: const Offset(5, 5),
+                  blurRadius: 15,
+                  spreadRadius: -5,
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.add, color: Colors.black),
+              onPressed: () async {
+                await showModalBottomSheet<Widget>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (context) => AddBonusInfoModal(context: context),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Flexible(
       child: ListView.builder(
+        shrinkWrap: true,
         itemCount: bonusInfoList
             .where((info) => isSameDay(info.date, selectedDate))
             .length,
@@ -23,6 +79,7 @@ class BonusInfoList extends ConsumerWidget {
               .where((info) => isSameDay(info.date, selectedDate))
               .toList();
           final info = dailyBonusInfo[index];
+
           return Dismissible(
             key: Key(
               index.toString(),
@@ -43,8 +100,7 @@ class BonusInfoList extends ConsumerWidget {
                       Colors.red[600]!,
                     ],
                   ),
-                  borderRadius:
-                  const BorderRadius.all(Radius.circular(33)),
+                  borderRadius: const BorderRadius.all(Radius.circular(33)),
                 ),
                 alignment: Alignment.centerRight,
                 child: const Row(
@@ -87,18 +143,26 @@ class BonusInfoList extends ConsumerWidget {
 
                 switch (action) {
                   case 'delete':
-                  // Implement deletion logic here
+                    await ref
+                        .read(bonusInfoListProvider.notifier)
+                        .deleteBonusInfo(info);
                     return true;
                   case 'edit':
-                  // Implement edit logic here, showing another modal to edit the item
-                    if (mounted) {
-                      await showEditModal(context,
-                        ref, info,); // Assuming 'index' is available
-                    }
+                    // Implement edit logic here, showing another modal to edit the item
+                    WidgetsBinding.instance
+                        .addPostFrameCallback((timeStamp) async {
+                      await showEditModal(
+                        context,
+                        ref,
+                        info,
+                        index,
+                      );
+                    });
+
                     return false; // Return false to not dismiss the item on edit
                   case 'cancel':
                   default:
-                  // Do nothing for cancel or undefined actions
+                    // Do nothing for cancel or undefined actions
                     return false;
                 }
               }
@@ -108,8 +172,7 @@ class BonusInfoList extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  borderRadius:
-                  const BorderRadius.all(Radius.circular(33)),
+                  borderRadius: const BorderRadius.all(Radius.circular(33)),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -157,13 +220,12 @@ class BonusInfoList extends ConsumerWidget {
                                 Colors.orange[300]!.withOpacity(0.4),
                                 Colors.orange[200]!,
                                 Colors.orange[100]!,
-                                Colors.orange[50]!,
+                                Colors.orange[100]!,
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.orange[500]!
-                                    .withOpacity(0.6),
+                                color: Colors.orange[500]!.withOpacity(0.4),
                                 offset: const Offset(-10, -10),
                                 blurRadius: 10,
                                 spreadRadius: -5,
@@ -200,13 +262,12 @@ class BonusInfoList extends ConsumerWidget {
                                 Colors.orange[300]!.withOpacity(0.4),
                                 Colors.orange[200]!,
                                 Colors.orange[100]!,
-                                Colors.orange[50]!,
+                                Colors.orange[100]!,
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.orange[500]!
-                                    .withOpacity(0.6),
+                                color: Colors.orange[500]!.withOpacity(0.4),
                                 offset: const Offset(-10, -10),
                                 blurRadius: 10,
                                 spreadRadius: -5,
@@ -247,31 +308,27 @@ class BonusInfoList extends ConsumerWidget {
                                   end: Alignment.bottomRight,
                                   stops: const [0.1, 0.5, 0.7, 0.9],
                                   colors: [
-                                    Colors.orange[300]!
-                                        .withOpacity(0.4),
+                                    Colors.orange[300]!.withOpacity(0.4),
                                     Colors.orange[200]!,
                                     Colors.orange[100]!,
-                                    Colors.orange[50]!,
+                                    Colors.orange[100]!,
                                   ],
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.orange[500]!
-                                        .withOpacity(0.6),
+                                    color: Colors.orange[500]!.withOpacity(0.4),
                                     offset: const Offset(-10, -10),
                                     blurRadius: 10,
                                     spreadRadius: -5,
                                   ),
                                   BoxShadow(
-                                    color:
-                                    Colors.white.withOpacity(0.4),
+                                    color: Colors.white.withOpacity(0.4),
                                     offset: const Offset(5, 5),
                                     blurRadius: 15,
                                     spreadRadius: -5,
                                   ),
                                   BoxShadow(
-                                    color:
-                                    Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withOpacity(0.6),
                                     offset: const Offset(15, 0),
                                     blurRadius: 10,
                                   ),
@@ -299,34 +356,4 @@ class BonusInfoList extends ConsumerWidget {
       ),
     );
   }
-}
-
-Future<void> showEditModal(BuildContext context, WidgetRef ref, BonusInfo bonusInfo) async {
-
-  await showModalBottomSheet<void>(
-    context: context,
-    builder: (context) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            TextField(
-              controller: TextEditingController(text: bonusInfo.workingHours.toString()), // Example for a name field
-              decoration: const InputDecoration(labelText: 'Working hours'),
-              onChanged: (value) => bonusInfo.workingHours = double.tryParse(value) ?? 0.0,
-            ),
-            // Add more fields as needed
-            ElevatedButton(
-              child: const Text('Save'),
-              onPressed: () async {
-                await ref.read(bonusInfoListProvider.notifier).updateBonusInfo(bonusInfo);
-                Navigator.pop(context); // Close the modal after saving
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
 }

@@ -28,7 +28,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final productNameController = ref.read(productNameControllerProvider.notifier).controller;
+    final productNameController =
+        ref.read(productNameControllerProvider.notifier).controller;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -72,7 +73,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                 color: Colors.brown[400],
                 tooltip: 'Add product',
                 onPressed: () async {
-                  await showDialog(
+                  await showDialog<Widget>(
                     context: context,
                     builder: (context) => Dialog(
                       child: StatefulBuilder(
@@ -125,7 +126,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                               ),
                                               keyboardType: const TextInputType
                                                   .numberWithOptions(
-                                                  decimal: true,),
+                                                decimal: true,
+                                              ),
                                             ),
                                           ),
                                           Expanded(
@@ -137,7 +139,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                               ),
                                               keyboardType: const TextInputType
                                                   .numberWithOptions(
-                                                  decimal: true,),
+                                                decimal: true,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -203,11 +206,15 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                 target,
                                                 pressings,
                                               );
-                                          if (mounted) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback(
+                                                  (timeStamp) {
                                             Navigator.of(context).pop();
-                                          }
+                                          });
                                         } on FormatException catch (e) {
-                                          if (mounted) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback(
+                                                  (timeStamp) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(
@@ -219,7 +226,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                     const Duration(seconds: 3),
                                               ),
                                             );
-                                          }
+                                          });
                                         }
                                       },
                                     ),

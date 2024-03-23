@@ -1,4 +1,3 @@
-
 import 'package:ballistics_wallet_flutter/custom_widgets/animated_tile.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
@@ -8,16 +7,15 @@ import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 class BonusTable extends ConsumerStatefulWidget {
   const BonusTable({super.key});
 
-
-@override
-BonusTableState createState() => BonusTableState();
-
+  @override
+  BonusTableState createState() => BonusTableState();
 }
-class BonusTableState extends ConsumerState {
 
+class BonusTableState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final userId = ref.read(authRepositoryProvider).currentUserId;
@@ -31,7 +29,8 @@ class BonusTableState extends ConsumerState {
     return Stack(
       children: [
         FutureBuilder<Map<String, dynamic>>(
-          future: Future.microtask(() async => ref.read(pressingRepositoryProvider).getBonuses()),
+          future: Future.microtask(
+              () async => ref.read(pressingRepositoryProvider).getBonuses(),),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
@@ -44,7 +43,7 @@ class BonusTableState extends ConsumerState {
               if (targetRatio == 0.0) {
                 final allowanceCheck = (workingHours - allowance) / 7;
                 if (allowanceCheck > 0) {
-                  target = target * allowanceCheck;
+                  target = (target * allowanceCheck).ceilToDouble();
                 }
               }
 
@@ -58,109 +57,54 @@ class BonusTableState extends ConsumerState {
                 listItems.add(
                   AnimatedTile(
                     target: target.ceil(),
-                    onLongPressComplete: (){
+                    onLongPressComplete: () {
                       // Actions to perform after the long press completes
                       // For example, navigating away or showing a message
-                    Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: target.ceil(), mounted: mounted));
+                      Future.microtask(() async => saveToWallet(
+                          context: context,
+                          ref: ref,
+                          amountPressed: target.ceil(),
+                          mounted: mounted,),);
                     },
                   ),
                 );
               }
 
-              // if (target > 0) {
-              //   listItems.add(
-              //     GestureDetector(
-              //       onTap: () async {
-              //         await Navigator.push(
-              //           context,
-              //           MaterialPageRoute(
-              //             builder: (context) => SplitCheck(requiredAmount: target.ceil()),
-              //           ),
-              //         );
-              //       },
-              //       child: Container(
-              //         margin: const EdgeInsets.all(16),
-              //         width: MediaQuery.of(context).size.width * 0.5,
-              //         height: MediaQuery.of(context).size.height * 0.25,
-              //         decoration: BoxDecoration(
-              //           borderRadius: BorderRadius.circular(20),
-              //           gradient: LinearGradient(
-              //             colors: [Colors.orange[200]!, Colors.white],
-              //           ),
-              //           boxShadow: [
-              //             BoxShadow(
-              //               color: Colors.grey.withOpacity(0.5),
-              //               spreadRadius: 5,
-              //               blurRadius: 7,
-              //               offset: const Offset(0, 3), // changes position of shadow
-              //             ),
-              //           ],
-              //         ),
-              //         child: Container(
-              //           padding: const EdgeInsets.all(8),
-              //           child: DecoratedBox(
-              //             decoration: BoxDecoration(
-              //               borderRadius: BorderRadius.circular(15),
-              //               color: Colors.orange.withOpacity(0.5),
-              //               gradient: LinearGradient(
-              //               colors: [Colors.orange[200]!, Colors.white],
-              //             ),
-              //               boxShadow: [
-              //                 BoxShadow(
-              //                   color: Colors.grey.withOpacity(0.5),
-              //                   spreadRadius: 2,
-              //                   blurRadius: 3,
-              //                   offset: const Offset(2, 2), // changes position of shadow
-              //                 ),
-              //               ],
-              //             ),
-              //             child: Column(
-              //
-              //               mainAxisAlignment: MainAxisAlignment.center,
-              //               children: [
-              //                 const Text(
-              //                   'Minimum',
-              //                   style: TextStyle(fontSize: 16, color: Colors.black54),
-              //                 ),
-              //                 Text(
-              //                   '${target.ceil()}',
-              //                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              //                 ),
-              //               ],
-              //             ),
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   );
-              // }
+              listItems.addAll(
+                sortedKeys.map((key) {
+                  final bonus = (bonuses[key] as num).toDouble() *
+                      (((overtimeHours ?? 0) > 0)
+                          ? ((overtimeHours ?? 0) / 7)
+                          : (workingHours - allowance) / 7.0);
+                  final requiredPercentage = double.parse(key) -
+                      ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio) *
+                          100;
+                  final allowanceCheck = (workingHours - allowance) / 7;
 
-              listItems.addAll(sortedKeys.map((key) {
-                final bonus = (bonuses[key] as num).toDouble() *
-                    (((overtimeHours ?? 0) > 0)
-                        ? ((overtimeHours ?? 0) / 7)
-                        : (workingHours -
-                        allowance) / 7.0);
-                final requiredPercentage =
-                    double.parse(key) - ((overtimeRatio > 0.0)
-                        ? overtimeRatio
-                        : targetRatio) * 100;
-                final allowanceCheck = (workingHours - allowance) / 7;
+                  final requiredAmount = ((requiredPercentage *
+                              (allowanceCheck > 0
+                                  ? (stableTarget * allowanceCheck).ceil()
+                                  : stableTarget)) /
+                          100)
+                      .ceil();
 
-                final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? (stableTarget * allowanceCheck).ceil() : stableTarget)) / 100).ceil();
-
-                if (requiredAmount > 0) {
-                  return BonusAnimatedTile(
-                    bonus: bonus,
-                    requiredAmount: requiredAmount,
-                    onLongPressComplete: () {
-                      // Define what happens when the long press completes, e.g., saving to wallet
-                      Future.microtask(() async => saveToWallet(context: context, ref: ref, amountPressed: requiredAmount,mounted: mounted));
-                    },
-                  );
-                }
-                return null;
-              }).whereType<Widget>(),);
+                  if (requiredAmount > 0) {
+                    return BonusAnimatedTile(
+                      bonus: bonus,
+                      requiredAmount: requiredAmount,
+                      onLongPressComplete: () {
+                        // Define what happens when the long press completes, e.g., saving to wallet
+                        Future.microtask(() async => saveToWallet(
+                            context: context,
+                            ref: ref,
+                            amountPressed: requiredAmount,
+                            mounted: mounted,),);
+                      },
+                    );
+                  }
+                  return null;
+                }).whereType<Widget>(),
+              );
 
               return ListWheelScrollView(
                 diameterRatio: 1.5,
@@ -183,31 +127,3 @@ class BonusTableState extends ConsumerState {
     );
   }
 }
-
-final updateAvailableItemsProvider = FutureProvider.autoDispose<void>((ref) async {
-  final userId = ref.read(authRepositoryProvider).currentUserId;
-  final overtimeRatio = ref.watch(overtimeRatioProvider);
-  final bonuses = await ref.read(pressingRepositoryProvider).getBonuses();
-  final stableTarget = ref.watch(targetProvider);
-  final targetRatio = ref.watch(targetRatioProvider(userId));
-  final sortedKeys = bonuses.keys.toList()
-    ..sort((a, b) => double.parse(a).compareTo(double.parse(b)));
-
-  final listItems = <Widget>[];
-
-  for (final key in sortedKeys) {
-    final requiredPercentage =
-        double.parse(key) - ((overtimeRatio > 0.0)
-            ? overtimeRatio
-            : targetRatio * 100);
-    final requiredAmount = ((requiredPercentage * stableTarget) / 100).ceil();
-
-    if (requiredAmount > 0) {
-      listItems.add(Container());
-    }
-  }
-
-  ref.read(availableItemsProvider.notifier).state = listItems.length;
-});
-
-final availableItemsProvider = StateProvider<int>((ref) => 0);

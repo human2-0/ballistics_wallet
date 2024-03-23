@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WalletRoot extends ConsumerStatefulWidget {
-  const WalletRoot({super.key});
-  // final void Function(ScrollNotification) onNotification;
+  const WalletRoot({required this.onNotification, super.key});
+  final void Function(ScrollNotification) onNotification;
   @override
   ConsumerState<WalletRoot> createState() => _WalletRootState();
 }
@@ -14,18 +14,17 @@ class WalletRoot extends ConsumerStatefulWidget {
 class _WalletRootState extends ConsumerState<WalletRoot> {
   @override
   Widget build(BuildContext context) {
-
+    ref.watch(bonusInfoListProvider);
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: NotificationListener<ScrollNotification>(
-        // onNotification: (notification) {
-        //   widget.onNotification(notification);
-        //   return true;
-        // },
+        onNotification: (notification) {
+          widget.onNotification(notification);
+          return true;
+        },
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: 128,
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -120,7 +119,19 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                 ),
               ],
             ),
-            const DatePickerCalendar(),
+            Padding(
+              padding: const EdgeInsets.all(4),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.white70,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(33),
+                  ),
+                ),
+                child: const DatePickerCalendar(),
+              ),
+            ),
             const BonusInfoList(),
           ],
         ),

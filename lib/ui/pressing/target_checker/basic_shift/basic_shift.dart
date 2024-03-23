@@ -223,7 +223,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                         .toLowerCase()
                                         .trimRight(),
                                     productTarget,
-                                    int.parse(numberController.text),
+                                    int.tryParse(numberController.text) ?? 0,
                                     workingHours,
                                     allowanceProvided,
                                   );

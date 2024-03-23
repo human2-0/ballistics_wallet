@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 
+final isOvertimeProvider = StateProvider<bool>((ref)=> false);
+
 final bonusInfoListProvider =
     StateNotifierProvider<BonusInfoNotifier, List<BonusInfo>>(
   (ref) => BonusInfoNotifier(
@@ -20,7 +22,6 @@ class BonusInfoNotifier extends StateNotifier<List<BonusInfo>> {
 
   Future<void> loadBonusInfos() async {
     final box = await _repository.openBox(); // Ensure this method is accessible
-    await box.clear();
     if (box.isEmpty) {
       final bonuses = await _repository.fetchUserBonuses(userId);
       // Flatten the Map<DateTime, List<BonusInfo>> to a single List<BonusInfo>
@@ -35,13 +36,13 @@ class BonusInfoNotifier extends StateNotifier<List<BonusInfo>> {
     await loadBonusInfos(); // Reload the list after adding
   }
 
-  Future<void> updateBonusInfo(int index, BonusInfo bonusInfo) async {
+  Future<void> updateBonusInfo(BonusInfo bonusInfo) async {
     await _repository.updateBonusInfo(bonusInfo);
     await loadBonusInfos(); // Reload the list after updating
   }
 
-  Future<void> deleteBonusInfo(int index) async {
-    await _repository.deleteBonusInfo(index);
+  Future<void> deleteBonusInfo(BonusInfo info) async {
+    await _repository.deleteBonusInfo(info);
     await loadBonusInfos(); // Reload the list after deleting
   }
 
