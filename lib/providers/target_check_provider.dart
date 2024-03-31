@@ -1,6 +1,5 @@
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
-import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/target_check_repository.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -52,51 +51,23 @@ final textEditingControllerProvider =
   return controller;
 });
 
-final targetRatioProvider = StateNotifierProvider
-    .family<TargetRatioNotifier, double, String>(
-  (ref, userId) =>
-      TargetRatioNotifier(ref.watch(pressingRepositoryProvider), userId),
-);
-
 final numberProvider = StateProvider<int>((ref) => 0);
 
 final targetProvider =
-    StateNotifierProvider<TargetNotifier, int>((ref) => TargetNotifier());
+    StateProvider<int>((ref) => 0);
 
 final allowanceProvider = StateProvider<double>((ref) => 0.0);
 
 final overtimeRatioProvider = StateProvider<double>((ref) => 0.0);
 final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);
 
-final monthlyWorkingHoursProvider = StateProvider<double>((ref) => 0.0);
-
-final productsMade = StateProvider<int>((ref) => 0);
-
-final userBonusesProvider =
-    StateNotifierProvider<UserBonusesNotifier, Map<DateTime, List<dynamic>>>(
-  (ref) => UserBonusesNotifier(),
-);
-
-final productUpdateProvider =
-    StateNotifierProvider<ProductUpdateNotifier, bool>(
-  (ref) => ProductUpdateNotifier(),
-);
-
-class ProductUpdateNotifier extends StateNotifier<bool> {
-  ProductUpdateNotifier() : super(false);
-
-  void update() {
-    state = !state;
-  }
-}
-
-final productsProvider = FutureProvider.autoDispose
-    .family<List<ProductInfo>, bool>((ref, updated) async {
+final productsProvider =
+    FutureProvider.autoDispose<List<ProductInfo>>((ref) async {
   final productsList = ref.watch(productInfoProvider);
   return productsList;
 });
 
-final bonusValueProvider = Provider.family<double, double>((ref, targetRatio) {
+final bonusCalculator = Provider.family<double, double>((ref, targetRatio) {
   targetRatio *= 100; // Convert targetRatio to percentage
   final workingHours = ref.read(userNotifierProvider).workingHours ?? 0;
   final allowance = ref.read(userNotifierProvider).workingHours ?? 0;

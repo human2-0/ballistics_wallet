@@ -116,10 +116,13 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                     if (productInfo.productName.isNotEmpty)
                       DecoratedBox(
                         decoration: BoxDecoration(
-                          color: Colors.transparent, // Optional: background color of the box
-                          borderRadius: BorderRadius.circular(15), // Rounded corners
+                          color: Colors
+                              .transparent, // Optional: background color of the box
+                          borderRadius:
+                              BorderRadius.circular(15), // Rounded corners
                           border: Border.all(
-                            color: Colors.orangeAccent[100]!.withOpacity(0.7), // Border color
+                            color: Colors.orangeAccent[100]!
+                                .withOpacity(0.7), // Border color
                             width: 4, // Border thickness
                           ),
                         ),
@@ -139,12 +142,18 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 ),
                               ),
                               IconButton(
-                                style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.orangeAccent[100]!)),
-                                icon: Icon(Icons.clear, size: 30, color: Colors.deepOrange[800]),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) =>
+                                                Colors.orangeAccent[100]!,),),
+                                icon: Icon(Icons.clear,
+                                    size: 30, color: Colors.deepOrange[800],),
                                 onPressed: () {
                                   // Logic to clear the focused product
-                                  ref.read(focusedProductProvider.notifier).state =
-                                      ProductInfo(
+                                  ref
+                                      .read(focusedProductProvider.notifier)
+                                      .state = ProductInfo(
                                     productName: '',
                                     product: [const Pressing('', 0, 0)],
                                     imageName: 'question',
@@ -159,114 +168,120 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                         ),
                       ),
                     if (productInfo.productName.isEmpty)
-                    Autocomplete<ProductInfo>(
-                      optionsBuilder: (textEditingValue) {
-                        // Your filtering logic here
-                        return products.where(
-                          (productInfo) =>
-                              productInfo.productName.toLowerCase().contains(
-                                    textEditingValue.text.toLowerCase(),
-                                  ),
-                        );
-                      },
-                      displayStringForOption: (option) => option.productName,
-                      onSelected: (selection) async {
-                        final productTarget = ((selection.target.toDouble()) *
-                            ((workingHours - allowance) / 7.00))
-                            .ceil();
-                        await ref
-                            .read(targetProvider.notifier)
-                            .updateTarget(productTarget);
-                        productNameController.text = selection.productName;
-                        ref.read(focusedProductProvider.notifier).state =
-                            selection;
-                        await ref
-                            .read(lastSelectedProductProvider.notifier)
-                            .saveSelectedProduct(
-                          selection,
-                        );
-                        focusNodeAutocomplete
-                            .unfocus(); // Unfocus using the locally stored focusNode
-                      },
-                      fieldViewBuilder: (
-                        context,
-                        textEditingController,
-                        // This controller should be used within your TextField
-                        focusNode,
-                        onFieldSubmitted,
-                      ) {
-                        focusNodeAutocomplete = focusNode;
+                      Autocomplete<ProductInfo>(
+                        optionsBuilder: (textEditingValue) {
+                          // Your filtering logic here
+                          return products.where(
+                            (productInfo) =>
+                                productInfo.productName.toLowerCase().contains(
+                                      textEditingValue.text.toLowerCase(),
+                                    ),
+                          );
+                        },
+                        displayStringForOption: (option) => option.productName,
+                        onSelected: (selection) async {
+                          final productTarget = ((selection.target.toDouble()) *
+                                  ((workingHours - allowance) / 7.00))
+                              .ceil();
+                          ref
+                              .read(targetProvider.notifier)
+                              .state = productTarget;
+                          productNameController.text = selection.productName;
+                          ref.read(focusedProductProvider.notifier).state =
+                              selection;
+                          await ref
+                              .read(lastSelectedProductProvider.notifier)
+                              .saveSelectedProduct(
+                                selection,
+                              );
+                          targetController.text = selection.target.toString();
+                          focusNodeAutocomplete
+                              .unfocus(); // Unfocus using the locally stored focusNode
+                        },
+                        fieldViewBuilder: (
+                          context,
+                          textEditingController,
+                          // This controller should be used within your TextField
+                          focusNode,
+                          onFieldSubmitted,
+                        ) {
+                          focusNodeAutocomplete = focusNode;
 
-                        return TextField(
-                          controller: textEditingController,
-                          focusNode: focusNode,
-                          // Synchronize text changes with your custom controller if necessary
-                          onChanged: (text) {
-                            // Update your custom controller if needed
-                          },
-                          style: TextStyle(
-                            color: Colors.orange[100],
-                            // Set the color of entered text
-                            fontSize: 20,
-                            // Set the font size of entered text
-                            fontWeight: FontWeight
-                                .bold, // Set the font weight of entered text
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Product name',
-                            labelStyle: TextStyle(
+                          return TextField(
+                            controller: textEditingController,
+                            focusNode: focusNode,
+                            // Synchronize text changes with your custom controller if necessary
+                            onChanged: (text) {
+                              // Update your custom controller if needed
+                            },
+                            style: TextStyle(
                               color: Colors.orange[100],
-                              fontWeight: FontWeight.bold, // Bold text
-                              fontSize: 18, // Slightly bigger font
+                              // Set the color of entered text
+                              fontSize: 20,
+                              // Set the font size of entered text
+                              fontWeight: FontWeight
+                                  .bold, // Set the font weight of entered text
                             ),
-                            hintText: 'Add product name',
-                            hintStyle: TextStyle(
-                              color: Colors.orangeAccent[100]!.withOpacity(0.5),
-                              fontWeight: FontWeight.bold, // Bold text
-                              fontSize: 20, // Slightly bigger font
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.orangeAccent[100]!.withOpacity(0.7),
-                                width: 4, // Bolder border
+                            decoration: InputDecoration(
+                              labelText: 'Product name',
+                              labelStyle: TextStyle(
+                                color: Colors.orange[100],
+                                fontWeight: FontWeight.bold, // Bold text
+                                fontSize: 18, // Slightly bigger font
                               ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.orangeAccent[100]!.withOpacity(0.5),
-                                width: 4, // Bolder border
+                              hintText: 'Add product name',
+                              hintStyle: TextStyle(
+                                color:
+                                    Colors.orangeAccent[100]!.withOpacity(0.5),
+                                fontWeight: FontWeight.bold, // Bold text
+                                fontSize: 20, // Slightly bigger font
                               ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.orangeAccent[100]!,
-                                width: 4, // Bolder border
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(
+                                  color: Colors.orangeAccent[100]!
+                                      .withOpacity(0.7),
+                                  width: 4, // Bolder border
+                                ),
                               ),
-                            ),
-                            suffixIcon: Visibility(
-                              visible: focusNodeAutocomplete.hasFocus,
-                              child: IconButton(
-                                onPressed: () {
-                                  focusNodeAutocomplete.unfocus();
-                                },
-                                icon: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(color: Colors.orangeAccent[100], shape: BoxShape.circle),
-                                  child: Icon(
-                                    size: 30,
-                                    Icons.keyboard_hide,
-                                    color: Colors.deepOrange[800],
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(
+                                  color: Colors.orangeAccent[100]!
+                                      .withOpacity(0.5),
+                                  width: 4, // Bolder border
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide(
+                                  color: Colors.orangeAccent[100]!,
+                                  width: 4, // Bolder border
+                                ),
+                              ),
+                              suffixIcon: Visibility(
+                                visible: focusNodeAutocomplete.hasFocus,
+                                child: IconButton(
+                                  onPressed: () {
+                                    focusNodeAutocomplete.unfocus();
+                                  },
+                                  icon: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                        color: Colors.orangeAccent[100],
+                                        shape: BoxShape.circle,),
+                                    child: Icon(
+                                      size: 30,
+                                      Icons.keyboard_hide,
+                                      color: Colors.deepOrange[800],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
                     const SizedBox(
                       height: 8,
                     ),
@@ -305,7 +320,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
                                   color:
-                                      Colors.orangeAccent[100]!.withOpacity(0.7),
+                                  Colors.orangeAccent[100]!.withOpacity(0.7),
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -313,7 +328,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
                                   color:
-                                      Colors.orangeAccent[100]!.withOpacity(0.5),
+                                  Colors.orangeAccent[100]!.withOpacity(0.5),
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -339,7 +354,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                             ),
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8,),
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.45,
                           child: TextField(
@@ -361,23 +376,24 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                               ),
                               hintText: 'Enter amount',
                               hintStyle: TextStyle(
-                                color: Colors.orangeAccent[100]!.withOpacity(0.5),
+                                color:
+                                    Colors.orangeAccent[100]!.withOpacity(0.5),
                                 fontWeight: FontWeight.bold, // Bold text
                                 fontSize: 20, // Slightly bigger font
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
-                                  color:
-                                      Colors.orangeAccent[100]!.withOpacity(0.7),
+                                  color: Colors.orangeAccent[100]!
+                                      .withOpacity(0.7),
                                   width: 4, // Bolder border
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
-                                  color:
-                                      Colors.orangeAccent[100]!.withOpacity(0.5),
+                                  color: Colors.orangeAccent[100]!
+                                      .withOpacity(0.5),
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -386,6 +402,19 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                 borderSide: BorderSide(
                                   color: Colors.orange[100]!,
                                   width: 4, // Bolder border
+                                ),
+                              ),
+                              suffixIcon: Visibility(
+                                visible:
+                                    amountPerBatchController.text.isNotEmpty,
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.clear,
+                                    color: Colors.orange[100],
+                                  ),
+                                  onPressed: () {
+                                    amountPerBatchController.clear();
+                                  },
                                 ),
                               ),
                             ),

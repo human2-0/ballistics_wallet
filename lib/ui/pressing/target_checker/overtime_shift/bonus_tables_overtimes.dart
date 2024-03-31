@@ -1,6 +1,6 @@
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart'; // Import the PressingRepository
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +11,7 @@ class BonusTableOvertime extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId = ref.read(authRepositoryProvider).currentUserId;
-    final targetRatio = ref.watch(targetRatioProvider(userId));
+    final targetRatio = ref.watch(bonusInfoListProvider).ratio;
     final userData = ref.watch(userNotifierProvider);
     final overtimeRatio = ref.watch(overtimeRatioProvider);
     final overtimeHours = ref.watch(overtimeWorkingHoursState);
@@ -23,7 +22,8 @@ class BonusTableOvertime extends ConsumerWidget {
       children: [
         FutureBuilder<Map<String, dynamic>>(
           future: Future.microtask(
-              () async => ref.read(pressingRepositoryProvider).getBonuses(),),
+            () async => ref.read(pressingRepositoryProvider).getBonuses(),
+          ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
@@ -77,7 +77,9 @@ class BonusTableOvertime extends ConsumerWidget {
                               spreadRadius: 2,
                               blurRadius: 3,
                               offset: const Offset(
-                                  2, 2,), // changes position of shadow
+                                2,
+                                2,
+                              ), // changes position of shadow
                             ),
                           ],
                         ),
@@ -87,12 +89,16 @@ class BonusTableOvertime extends ConsumerWidget {
                             const Text(
                               'Minimum',
                               style: TextStyle(
-                                  fontSize: 16, color: Colors.black54,),
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
                             ),
                             Text(
                               '${target.ceil()}',
                               style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold,),
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -107,9 +113,7 @@ class BonusTableOvertime extends ConsumerWidget {
                   final bonus = (bonuses[key] as num).toDouble() *
                       (((overtimeHours ?? 0) > 0)
                           ? ((overtimeHours ?? 0) / 7)
-                          : (workingHours -
-                                  allowance) /
-                              7.0);
+                          : (workingHours - allowance) / 7.0);
                   final requiredPercentage = double.parse(key) -
                       ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio) *
                           100;
@@ -131,7 +135,9 @@ class BonusTableOvertime extends ConsumerWidget {
                             spreadRadius: 5,
                             blurRadius: 7,
                             offset: const Offset(
-                                0, 3,), // changes position of shadow
+                              0,
+                              3,
+                            ), // changes position of shadow
                           ),
                         ],
                       ),
@@ -153,7 +159,9 @@ class BonusTableOvertime extends ConsumerWidget {
                                       spreadRadius: 2,
                                       blurRadius: 3,
                                       offset: const Offset(
-                                          2, 2,), // changes position of shadow
+                                        2,
+                                        2,
+                                      ), // changes position of shadow
                                     ),
                                   ],
                                 ),
@@ -163,13 +171,16 @@ class BonusTableOvertime extends ConsumerWidget {
                                     const Text(
                                       'to earn',
                                       style: TextStyle(
-                                          fontSize: 16, color: Colors.black54,),
+                                        fontSize: 16,
+                                        color: Colors.black54,
+                                      ),
                                     ),
                                     Text(
                                       '£${formatDouble(bonus)}',
                                       style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,),
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -190,7 +201,9 @@ class BonusTableOvertime extends ConsumerWidget {
                                       spreadRadius: 2,
                                       blurRadius: 3,
                                       offset: const Offset(
-                                          2, 2,), // changes position of shadow
+                                        2,
+                                        2,
+                                      ), // changes position of shadow
                                     ),
                                   ],
                                 ),
@@ -200,13 +213,16 @@ class BonusTableOvertime extends ConsumerWidget {
                                     Text(
                                       '$requiredAmount',
                                       style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,),
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const Text(
                                       'more to do',
                                       style: TextStyle(
-                                          fontSize: 16, color: Colors.black54,),
+                                        fontSize: 16,
+                                        color: Colors.black54,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -246,27 +262,18 @@ class BonusTableOvertime extends ConsumerWidget {
 
 final updateAvailableItemsProvider =
     FutureProvider.autoDispose<void>((ref) async {
-  final userId = ref.read(authRepositoryProvider).currentUserId;
-  // final userData = ref.read(userNotifierProvider);
   final overtimeRatio = ref.watch(overtimeRatioProvider);
-  // final overtimeHours = ref.watch(overtimeWorkingHoursState);
-  // final workingHours = userData.workingHours ?? 0.0;
-  // final allowance = ref.watch(allowanceProvider);
+
   final bonuses = await ref.read(pressingRepositoryProvider).getBonuses();
   final stableTarget = ref.watch(targetProvider);
-  final targetRatio = ref.watch(targetRatioProvider(userId));
-  // final target = ref.watch(targetProvider) *
-  //     (1 - ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio));
+  final targetRatio = ref.watch(bonusInfoListProvider).ratio;
+
   final sortedKeys = bonuses.keys.toList()
     ..sort((a, b) => double.parse(a).compareTo(double.parse(b)));
 
   final listItems = <Widget>[];
 
   for (final key in sortedKeys) {
-    // final bonus = (bonuses[key] as num).toDouble() *
-    //     (((overtimeHours ?? 0) > 0)
-    //         ? ((overtimeHours ?? 0) / 7)
-    //         : (workingHours - allowance) / 7.0);
     final requiredPercentage = double.parse(key) -
         ((overtimeRatio > 0.0) ? overtimeRatio : targetRatio * 100);
     final requiredAmount = ((requiredPercentage * stableTarget) / 100).ceil();

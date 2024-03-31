@@ -39,8 +39,10 @@ class PressingRepository {
     // Filter out documents where 'isOvertime' is true
     final validBonusDocs = existingBonus.docs.where((doc) {
       final data = doc.data() as Map<String, dynamic>?;
-      return data != null ? data['isOvertime'] != true : true;
+      // Directly return the condition. If data is null, the condition evaluates to false.
+      return data?['isOvertime'] != true;
     }).toList();
+
 
     if (validBonusDocs.isNotEmpty) {
       // If a bonus exists for the current day, get its ID and check 'produced' subcollection
@@ -186,7 +188,9 @@ class PressingRepository {
         .get();
 
     for (final doc in snapshot.docs) {
-      final DateTime date = doc['date'].toDate().toLocal();
+      // Safely cast the dynamic type to Timestamp and then convert to DateTime
+      final timestamp = doc['date'] as Timestamp; // Safe cast to Timestamp
+      final date = timestamp.toDate().toLocal();
       final key = DateTime(date.year, date.month, date.day);
 
       final data = doc.data() as Map<String, dynamic>?;
@@ -284,6 +288,9 @@ class PressingRepository {
   Future<Map<String, dynamic>> getUserProductInfo(String userId) async {
     final userInfo = <String, dynamic>{};
 
+    // Initialize Firestore instance
+    final db = FirebaseFirestore.instance;
+
     // Get current date
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -297,24 +304,24 @@ class PressingRepository {
         .where('date', isLessThan: tomorrow)
         .get();
 
-    // For each bonus, iterate through the 'produced' sub-collection
-    for (final bonusDoc in userBonusesSnapshot.docs) {
-      // Check if the current bonus document isOvertime
-      final bool isOvertime =
-          (bonusDoc.data()! as Map<String, dynamic>)['isOvertime'] ?? false;
+    for (final DocumentSnapshot bonusDoc in userBonusesSnapshot.docs) {
+      // Safely cast isOvertime to bool, defaulting to false if not present or not a bool
+      final data = bonusDoc.data() as Map<String, dynamic>?;
+      final isOvertime = data?['isOvertime'] == true;
 
-      // Only process the 'produced' sub-collection if isOvertime is false
       if (!isOvertime) {
         final QuerySnapshot producedSnapshot =
-            await bonusDoc.reference.collection('produced').get();
-        for (final producedDoc in producedSnapshot.docs) {
+        await bonusDoc.reference.collection('produced').get();
+        for (final DocumentSnapshot producedDoc in producedSnapshot.docs) {
           final data = producedDoc.data() as Map<String, dynamic>?;
-          final String? productName = data?['productName'].toLowerCase().trim();
-          final double? ratio = data?['ratio'];
+          if (data != null) {
+            final productName = data['productName'] as String?;
+            final ratio = data['ratio'] as num?; // Cast to num to handle both int and double
 
-          // Store ratio
-          if (productName != null && ratio != null) {
-            userInfo[productName] = ratio;
+            // Process productName and ratio
+            if (productName != null && ratio != null) {
+              userInfo[productName.toLowerCase().trim()] = ratio.toDouble(); // Ensure ratio is treated as double
+            }
           }
         }
       }

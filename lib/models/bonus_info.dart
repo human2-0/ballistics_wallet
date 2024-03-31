@@ -80,22 +80,26 @@ class Produced {
   Produced({
     required this.productName,
     required this.amount,
+    required this.ratio,
   });
 
   factory Produced.fromMap(Map<String, dynamic> map) {
     return Produced(
       productName: map['productName'] as String,
       amount: map['amount'] as int,
+      ratio: (map['ratio'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   Produced copyWith({
     String? productName,
     int? amount,
+    double? ratio,
   }) {
     return Produced(
       productName: productName ?? this.productName,
       amount: amount ?? this.amount,
+      ratio: ratio ?? this.ratio,
     );
   }
 
@@ -104,4 +108,7 @@ class Produced {
 
   @HiveField(1)
   final int amount;
+
+  @HiveField(2)
+  final double ratio;
 }

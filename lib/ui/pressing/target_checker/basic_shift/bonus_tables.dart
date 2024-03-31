@@ -1,7 +1,7 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/animated_tile.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 // Import the PressingRepository
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
@@ -18,8 +18,7 @@ class BonusTable extends ConsumerStatefulWidget {
 class BonusTableState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
-    final userId = ref.read(authRepositoryProvider).currentUserId;
-    final targetRatio = ref.watch(targetRatioProvider(userId));
+    final targetRatio = ref.watch(bonusInfoListProvider).ratio;
     final userData = ref.watch(userNotifierProvider);
     final overtimeRatio = ref.watch(overtimeRatioProvider);
     final overtimeHours = ref.watch(overtimeWorkingHoursState);

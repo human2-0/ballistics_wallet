@@ -24,6 +24,20 @@ class ProductInfo extends HiveObject {
 
   @HiveField(3)
   final List<Pressing> product;
+
+  ProductInfo copyWith({
+    String? productName,
+    int? target,
+    String? imageName,
+    List<Pressing>? product,
+  }) {
+    return ProductInfo(
+      productName: productName ?? this.productName,
+      target: target ?? this.target,
+      imageName: imageName ?? this.imageName,
+      product: product ?? this.product,
+    );
+  }
 }
 
 @immutable
@@ -36,7 +50,8 @@ class Pressing {
     return Pressing(
       map['color'] as String,
       (map['systemG'] as num).toDouble(), // Ensuring type conversion to double
-      (map['systemCitric'] as num).toDouble(), // Ensuring type conversion to double
+      (map['systemCitric'] as num)
+          .toDouble(), // Ensuring type conversion to double
     );
   }
 
@@ -48,6 +63,26 @@ class Pressing {
 
   @HiveField(3)
   final double systemCitric;
+
+  Pressing copyWith({
+    String? productColor,
+    double? systemG,
+    double? systemCitric,
+  }) {
+    return Pressing(
+      productColor ?? this.productColor,
+      systemG ?? this.systemG,
+      systemCitric ?? this.systemCitric,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'color': productColor,
+      'systemG': systemG,
+      'systemCitric': systemCitric,
+    };
+  }
 
   @override
   bool operator ==(Object other) {

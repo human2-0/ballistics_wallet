@@ -26,6 +26,17 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
     await loadProductInfo();
   }
 
+  Future<bool> editProductInfo(ProductInfo product) async {
+    final success = await _repository.editProductInfo(product);
+    if (success) {
+      await loadProductInfo();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
   Future<void> deleteProduct(String productName) async {
     await _repository.deleteProduct(productName);
     // Reload the product info to update the state
@@ -46,3 +57,6 @@ final focusedProductProvider = StateProvider<ProductInfo>((ref) => ProductInfo(
     product: [const Pressing('', 0, 0)],
     imageName: 'question',
     target: 0,),);
+
+final bonusTableSelectorProvider =
+StateProvider<bool>((ref) => false);

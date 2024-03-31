@@ -1,9 +1,8 @@
-
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,13 +21,12 @@ class SearchProductBar extends ConsumerStatefulWidget {
 }
 
 class SearchProductBarState extends ConsumerState<SearchProductBar> {
-
   @override
   Widget build(BuildContext context) {
     final showList = ref.watch(showListProvider);
-    final userId = ref.watch(authRepositoryProvider).currentUserId;
 
-    final controller = ref.watch(productNameControllerProvider.notifier).controller;
+    final controller =
+        ref.watch(productNameControllerProvider.notifier).controller;
     return Padding(
       padding: const EdgeInsets.all(8),
       child: AnimatedContainer(
@@ -64,7 +62,8 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                 : IconButton(
                     icon: const Icon(Icons.clear),
                     onPressed: () async {
-                      ref.read(focusedProductProvider.notifier).state = ProductInfo(
+                      ref.read(focusedProductProvider.notifier).state =
+                          ProductInfo(
                         productName: '',
                         product: [const Pressing('', 0, 0)],
                         imageName: 'question',
@@ -77,12 +76,13 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                       widget.focusNode.unfocus();
                       widget.numberController.clear();
 
-                      await ref.read(targetProvider.notifier).updateTarget(0);
+                      ref.read(targetProvider.notifier).state = 0;
                       ref.read(allowanceProvider.notifier).state = 0.0;
-                      await ref
-                          .read(targetRatioProvider(userId).notifier)
-                          .init();
-                      ref.read(numberControllerProvider.notifier).controller.clear();
+                      await ref.read(bonusInfoListProvider.notifier).init();
+                      ref
+                          .read(numberControllerProvider.notifier)
+                          .controller
+                          .clear();
                     },
                   ),
             hintStyle: const TextStyle(color: Colors.grey),
@@ -96,7 +96,7 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
               widget.numberController.clear();
             }
           },
-          onChanged: (value){
+          onChanged: (value) {
             controller.text = value;
           },
           onSubmitted: (value) {

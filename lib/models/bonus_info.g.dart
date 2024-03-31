@@ -23,7 +23,7 @@ class BonusInfoAdapter extends TypeAdapter<BonusInfo> {
       workingHours: fields[4] as double,
       isOvertime: fields[5] as bool,
       produced: (fields[6] as List).cast<Produced>(),
-      id: fields[0] as String,
+      id: fields[0] as String?,
     );
   }
 
@@ -71,17 +71,21 @@ class ProducedAdapter extends TypeAdapter<Produced> {
     return Produced(
       productName: fields[0] as String,
       amount: fields[1] as int,
+      // Use `as double?` to allow null values, and `?? 0.0` to provide a default value if null
+      ratio: fields[2] as double? ?? 0.0,
     );
   }
 
   @override
   void write(BinaryWriter writer, Produced obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.productName)
       ..writeByte(1)
-      ..write(obj.amount);
+      ..write(obj.amount)
+      ..writeByte(2)
+      ..write(obj.ratio);
   }
 
   @override

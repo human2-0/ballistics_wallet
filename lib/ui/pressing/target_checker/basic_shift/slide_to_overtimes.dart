@@ -68,15 +68,14 @@ class SlideToOvertimeState extends State<SlideToOvertime>
                   const Text('Slide for overtime card'),
                   SlideTransition(
                     position: _slideAnimation,
-                    child:
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
-                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
-                            Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
-                          ],
-                        ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
+                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
+                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
+                      ],
+                    ),
                   ),
                 ],
               ),

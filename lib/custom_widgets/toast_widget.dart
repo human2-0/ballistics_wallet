@@ -67,7 +67,7 @@ class _ToastWidgetState extends State<ToastWidget>
           child: Center(
             child: Text(
               widget.message,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: Colors.black, fontSize: 16,fontWeight: FontWeight.bold),
             ),
           ),
         ),

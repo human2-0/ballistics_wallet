@@ -1,13 +1,13 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/wallet_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/new_wallet/wallet_root.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_root.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -46,7 +46,7 @@ class _HomeState extends ConsumerState<HomeScreen>
     super.initState();
       if (mounted) {
         final userId = ref.read(authRepositoryProvider).currentUserId;
-        Future.microtask(() async => ref.read(targetRatioProvider(userId).notifier).init());
+        Future.microtask(() async => ref.read(bonusInfoListProvider.notifier).init());
         Future.microtask(() async => ref.read(userNotifierProvider.notifier).loadUser(userId) );
     }
 

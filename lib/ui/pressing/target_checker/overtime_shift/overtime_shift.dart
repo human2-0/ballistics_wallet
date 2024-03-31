@@ -2,6 +2,7 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
@@ -65,11 +66,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
     final textEditingController = ref.watch(textEditingControllerProvider);
     final numberController = TextEditingController();
 
-    final userId = ref.watch(authRepositoryProvider).currentUserId;
-    final updated = ref.watch(productUpdateProvider);
-    final products = ref.watch(productsProvider(updated));
+    final products = ref.watch(productsProvider);
     final productTarget = ref.watch(targetProvider);
-    ref.watch(targetRatioProvider(userId));
+    ref.watch(bonusInfoListProvider);
     final amount = ref.watch(numberProvider);
 
     final effectiveOvertimeHours = ref
@@ -207,16 +206,11 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                     .requestFocus(FocusNode());
                                                 numberController.clear();
 
+                                                ref.read(targetProvider.notifier).state = 0;
                                                 await ref
                                                     .read(
-                                                      targetProvider.notifier,
-                                                    )
-                                                    .updateTarget(0);
-                                                await ref
-                                                    .read(
-                                                      targetRatioProvider(
-                                                        userId,
-                                                      ).notifier,
+                                                      bonusInfoListProvider
+                                                          .notifier,
                                                     )
                                                     .init();
                                               });
@@ -407,9 +401,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                     (effectiveOvertimeHours /
                                                         7.00))
                                                 .ceil();
-                                            await ref
+                                            ref
                                                 .read(targetProvider.notifier)
-                                                .updateTarget(productTarget);
+                                                .state = productTarget;
                                             overtimeAmountController.text = '';
                                           },
                                         ),
@@ -632,7 +626,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                           builder: (context, watch, child) {
                                             ref.watch(userNotifierProvider);
                                             final bonus = ref.watch(
-                                              bonusValueProvider(
+                                              bonusCalculator(
                                                 overtimePercents / 100,
                                               ),
                                             );
@@ -694,7 +688,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                   pressingRepositoryProvider,
                                                 );
                                                 final bonusChecker = ref.read(
-                                                  bonusValueProvider(
+                                                  bonusCalculator(
                                                     overtimePercents / 100,
                                                   ),
                                                 );
@@ -704,9 +698,8 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                     .currentUserId;
                                                 ref
                                                     .read(
-                                                      targetRatioProvider(
-                                                        userId,
-                                                      ).notifier,
+                                                      bonusInfoListProvider
+                                                          .notifier,
                                                     )
                                                     .getProductRatio(
                                                       focusedProduct
@@ -749,9 +742,8 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                   if (e is String) {
                                                     await ref
                                                         .read(
-                                                          targetRatioProvider(
-                                                            userId,
-                                                          ).notifier,
+                                                          bonusInfoListProvider
+                                                              .notifier,
                                                         )
                                                         .init();
                                                     // Handle the case where the bonus is already added today
@@ -802,9 +794,8 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                 }
                                                 await ref
                                                     .read(
-                                                      targetRatioProvider(
-                                                        userId,
-                                                      ).notifier,
+                                                      bonusInfoListProvider
+                                                          .notifier,
                                                     )
                                                     .init();
 

@@ -68,8 +68,7 @@ class SlideToBasicShiftState extends State<SlideToBasicShift>
                   const Text('Slide to return'),
                   SlideTransition(
                     position: _slideAnimation,
-                    child:
-                    Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),

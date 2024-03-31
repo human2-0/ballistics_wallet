@@ -1,7 +1,7 @@
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
@@ -33,11 +33,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final numberFocusNode = ref.watch(numberFocusNodeProvider);
     final allowanceFocusNode = ref.watch(allowanceFocusNodeProvider);
 
-    final userId = ref.watch(authRepositoryProvider).currentUserId;
-
     final productTarget = ref.watch(targetProvider);
-    final percentage = ref.watch(targetRatioProvider(userId)) * 100;
-    final targetRatio = ref.watch(targetRatioProvider(userId));
+    final percentage = ref.watch(bonusInfoListProvider).ratio * 100;
+    final targetRatio = ref.watch(bonusInfoListProvider).ratio;
 
     final userState = ref.watch(userNotifierProvider);
     final allowance = ref.watch(allowanceProvider);
@@ -162,10 +160,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                             return null;
                           },
                           onChanged: (value) {
-
                             ref
                                 .read(
-                                  targetRatioProvider(userId).notifier,
+                                  bonusInfoListProvider.notifier,
                                 )
                                 .updateRatio(
                                   focusedProduct.productName.toLowerCase(),
@@ -178,56 +175,73 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                         ),
                       ),
                       Expanded(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.40,
-                          child: TextFormField(
-                            focusNode: allowanceFocusNode,
-                            controller: allowanceController,
-                            decoration: InputDecoration(
-                              alignLabelWithHint: true,
-                              labelText: 'Allowance',
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                              ),
-                              fillColor: Colors.yellowAccent[100],
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(33),
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: const Icon(Icons.timer),
-                              suffixIcon: Visibility(
-                                visible: allowanceFocusNode.hasFocus,
-                                child: IconButton(
-                                  icon: const Icon(Icons.keyboard_hide),
-                                  onPressed: allowanceFocusNode.unfocus,
+                        child: GestureDetector(
+                          onTap: () {
+                            // Check if the allowance field is disabled
+                            if (targetRatio >= 0) {
+                              // Show a SnackBar or other user feedback mechanism
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Please set the allowance before adding anything to wallet.',),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          },
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.40,
+                            child: TextFormField(
+                              enabled: targetRatio <= 0,
+                              focusNode: allowanceFocusNode,
+                              controller: allowanceController,
+                              decoration: InputDecoration(
+                                alignLabelWithHint: true,
+                                labelText: 'Allowance',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                fillColor: Colors.yellowAccent[100],
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(33),
+                                  borderSide: BorderSide.none,
+                                ),
+                                prefixIcon: const Icon(Icons.timer),
+                                suffixIcon: Visibility(
+                                  visible: allowanceFocusNode.hasFocus,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.keyboard_hide),
+                                    onPressed: allowanceFocusNode.unfocus,
+                                  ),
                                 ),
                               ),
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            onChanged: (value) {
-                              final parsedValue = int.tryParse(value) ?? 0;
-                              final allowanceProvided =
-                                  parsedValue == 0 ? 0.0 : parsedValue / 60;
-                              ref.read(allowanceProvider.notifier).state =
-                                  allowanceProvided;
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              onChanged: (value) {
+                                final parsedValue = int.tryParse(value) ?? 0;
+                                final allowanceProvided =
+                                    parsedValue == 0 ? 0.0 : parsedValue / 60;
+                                ref.read(allowanceProvider.notifier).state =
+                                    allowanceProvided;
 
-                              ref
-                                  .read(
-                                    targetRatioProvider(userId).notifier,
-                                  )
-                                  .updateRatio(
-                                    focusedProduct.productName
-                                        .toLowerCase()
-                                        .trimRight(),
-                                    productTarget,
-                                    int.tryParse(numberController.text) ?? 0,
-                                    workingHours,
-                                    allowanceProvided,
-                                  );
-                            },
+                                ref
+                                    .read(
+                                      bonusInfoListProvider.notifier,
+                                    )
+                                    .updateRatio(
+                                      focusedProduct.productName
+                                          .toLowerCase()
+                                          .trimRight(),
+                                      productTarget,
+                                      int.tryParse(numberController.text) ?? 0,
+                                      workingHours,
+                                      allowanceProvided,
+                                    );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -300,7 +314,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               child: Consumer(
                                 builder: (context, watch, child) {
                                   final bonus = ref.watch(
-                                        bonusValueProvider(
+                                        bonusCalculator(
                                           targetRatio,
                                         ),
                                       ) *

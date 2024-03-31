@@ -4,6 +4,7 @@ import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/add_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/delete_item.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/edit_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,8 +25,10 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
     final controller = ref.watch(productNameControllerProvider);
     final filteredProducts = products
         .where(
-          (product) =>
-              product.productName.toLowerCase().trim().contains(controller.toLowerCase()),
+          (product) => product.productName
+              .toLowerCase()
+              .trim()
+              .contains(controller.toLowerCase()),
         )
         .toList();
 
@@ -78,10 +81,13 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           ref.read(focusedProductProvider.notifier).state =
                               product;
 
-                          ref.read(productNameControllerProvider.notifier).controller.text = product.productName;
-                          await ref
+                          ref
+                              .read(productNameControllerProvider.notifier)
+                              .controller
+                              .text = product.productName;
+                          ref
                               .read(targetProvider.notifier)
-                              .updateTarget(productTarget);
+                              .state = productTarget;
 
                           // Save the selected product history
                           await ref
@@ -93,12 +99,53 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                           ref.read(focusNodeProvider).unfocus();
                         },
                         onLongPress: () async {
-                          // Show the DeleteItem dialog
-                          await showDialog<bool>(
+                          // Show the bottom sheet with options
+                          final action = await showModalBottomSheet<String>(
                             context: context,
-                            builder: (context) =>
-                                DeleteItem(productName: product.productName),
+                            builder: (context) => Wrap(
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.delete),
+                                  title: const Text('Delete'),
+                                  onTap: () => Navigator.pop(context, 'delete'),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.edit),
+                                  title: const Text('Edit'),
+                                  onTap: () => Navigator.pop(context, 'edit'),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.cancel),
+                                  title: const Text('Cancel'),
+                                  onTap: () => Navigator.pop(context, 'cancel'),
+                                ),
+                              ],
+                            ),
                           );
+
+                          // Handle the selected action
+                          switch (action) {
+                            case 'delete':
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((timeStamp) async {
+                                await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => DeleteItem(
+                                      productName: product.productName,),
+                                );
+                              });
+
+                            case 'edit':
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((timeStamp) async {
+                                await showEditProductDialog(context, ref,
+                                    product: product,);
+                              });
+                            case 'cancel':
+                            default:
+                              // Do nothing for cancel or undefined actions
+                              break;
+                          }
                         },
                       ),
                     );

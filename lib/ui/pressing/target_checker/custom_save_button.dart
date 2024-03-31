@@ -1,9 +1,11 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
+import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,8 +20,7 @@ class CustomSaveButton extends ConsumerStatefulWidget {
 class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
   @override
   Widget build(BuildContext context) {
-    final userId = ref.watch(authRepositoryProvider).currentUserId;
-    final targetRatio = ref.watch(targetRatioProvider(userId));
+    final targetRatio = ref.watch(bonusInfoListProvider).ratio;
     final productName =
         ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
     final amount = int.tryParse(ref.watch(numberControllerProvider)) ?? 0;
@@ -51,98 +52,56 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                     ? null
                     : () async {
                         final authRepository = ref.read(authRepositoryProvider);
-                        final pressingRepository = ref.read(
+                        ref.read(
                           pressingRepositoryProvider,
                         );
                         final bonusAsyncValue = ref.read(
-                          bonusValueProvider(
+                          bonusCalculator(
                             targetRatio,
                           ),
                         ); // changed watch to read
                         final userId = authRepository.currentUserId;
                         final bonus = bonusAsyncValue *
                             ((workingHours - allowance) / 7.0);
-                        final productRatioProvider = ref.read(
-                          targetRatioProvider(userId).notifier,
+                        final productRatio = ref
+                            .read(
+                              bonusInfoListProvider.notifier,
+                            )
+                            .getProductRatio(
+                              productName.toLowerCase().trim(),
+                            );
+                        final newBonusInfo = BonusInfo(
+                          userId: userId, // Replace with actual user ID
+                          bonus: bonus,
+                          date: DateTime.now(),
+                          workingHours: userState.realWorkingHours!,
+                          isOvertime: false,
+                          produced: [
+                            Produced(
+                              productName: productName,
+                              amount: amount,
+                              ratio: productRatio,
+                            ),
+                          ], // Initialize with empty or collect data as needed
                         );
-                        final productRatio =
-                            productRatioProvider.getProductRatio(
-                          productName.toLowerCase().trim(),
-                        );
-// Retrieve the bonus value
 
-                        try {
-                          await pressingRepository.saveUserBonus(
-                            userId,
-                            productName,
-                            bonus,
-                            amount,
-                            productRatio,
-                            workingHours: (userState.paidBreaks ?? false)
-                                ? (userState.realWorkingHours ?? 0)
-                                : (userState.workingHours ?? 0),
-                          );
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((timeStamp) {
-                            ScaffoldMessenger.of(
-                              buttonContext,
-                            ).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Saved to Wallet successfully!',
-                                ),
-                                backgroundColor: Colors.green,
+                        final message = await ref
+                            .read(bonusInfoListProvider.notifier)
+                            .addBonusInfo(newBonusInfo);
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((timeStamp) {
+                          ScaffoldMessenger.of(
+                            buttonContext,
+                          ).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                message,
                               ),
-                            );
-                          });
-                        } on FormatException catch (e) {
-                          if (e is String) {
-                            await ref
-                                .read(
-                                  targetRatioProvider(
-                                    userId,
-                                  ).notifier,
-                                )
-                                .init();
-// Handle the case where the bonus is already added today
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((timeStamp) {
-                              ScaffoldMessenger.of(
-                                buttonContext,
-                              ).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'This product has been overwritten because it was already added today.',
-                                  ),
-                                  backgroundColor: Colors.orange,
-                                ),
-                              );
-                            });
-
-// Call editUserBonus if saveUserBonus fails
-                            await pressingRepository.editUserBonus(
-                              e.message,
-// Pass the bonusId as the first parameter
-                              productName,
-                              bonus,
-                              amount,
-                            );
-                          } else {
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((timeStamp) {
-                              ScaffoldMessenger.of(
-                                buttonContext,
-                              ).showSnackBar(
-                                SnackBar(
-                                  content: Text(e.toString()),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            });
-                          }
-                        }
-
-// Show a success message or navigate to another screen
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        });
+// Retrieve the bonus value
                       },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +132,7 @@ Future<void> saveToWallet({
 }) async {
   final authRepository = ref.read(authRepositoryProvider);
   final userId = authRepository.currentUserId;
-  final targetRatio = ref.watch(targetRatioProvider(userId));
+  final targetRatio = ref.watch(bonusInfoListProvider).ratio;
   final productName =
       ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
   final amount = amountPressed;
@@ -184,36 +143,33 @@ Future<void> saveToWallet({
   if (productName.isEmpty || amount == 0) {
     return; // Early return if conditions are not met
   }
-
-  final pressingRepository = ref.read(pressingRepositoryProvider);
   final bonusAsyncValue =
-      ref.read(bonusValueProvider(targetRatio)); // changed watch to read
+      ref.read(bonusCalculator(targetRatio)); // changed watch to read
   final bonus = bonusAsyncValue * ((workingHours - allowance) / 7.0);
-  final productRatioProvider = ref.read(targetRatioProvider(userId).notifier);
-  final productRatio =
-      productRatioProvider.getProductRatio(productName.toLowerCase().trim());
+  final productRatio = ref
+      .read(bonusInfoListProvider.notifier)
+      .getProductRatio(productName.toLowerCase().trim());
 
-  try {
-    await pressingRepository.saveUserBonus(
-      userId,
-      productName,
-      bonus,
-      amount,
-      productRatio,
-      workingHours: (userState.paidBreaks ?? false)
-          ? (userState.realWorkingHours ?? 0)
-          : (userState.workingHours ?? 0),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        showToast(context, 'Hurray! More money went to your pocket');
-      }
-    });
-  } on FormatException {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        showToast(context, 'Hurray! More money went to your pocket');
-      }
-    });
-  }
+  final newBonusInfo = BonusInfo(
+    userId: userId, // Replace with actual user ID
+    bonus: bonus,
+    date: DateTime.now(),
+    workingHours: userState.realWorkingHours!,
+    isOvertime: false,
+    produced: [
+      Produced(
+        productName: productName,
+        amount: amount,
+        ratio: productRatio,
+      ),
+    ], // Initialize with empty or collect data as needed
+  );
+
+  final message =
+      await ref.read(bonusInfoListProvider.notifier).addBonusInfo(newBonusInfo);
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) {
+      showToast(context, message, colors: [Colors.greenAccent, Colors.green]);
+    }
+  });
 }

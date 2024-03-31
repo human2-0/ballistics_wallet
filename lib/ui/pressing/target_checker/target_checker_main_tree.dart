@@ -82,10 +82,10 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
             if (_flipController.value >= 0.5) {
               await _flipController.forward();
 
-              await ref.read(targetProvider.notifier).updateTarget(0);
+              ref.read(targetProvider.notifier).state = 0;
               ref.read(textEditingControllerProvider).clear();
             } else {
-              await ref.read(targetProvider.notifier).updateTarget(0);
+              ref.read(targetProvider.notifier).state = 0;
               ref.read(textEditingControllerProvider).clear();
               await _flipController.reverse();
             }
