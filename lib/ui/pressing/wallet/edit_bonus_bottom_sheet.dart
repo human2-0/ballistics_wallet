@@ -1,6 +1,7 @@
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -93,7 +94,9 @@ Future<void> showEditModal(
                                     ),
                                     labelText:
                                         '${editedBonusInfo.produced[index].productName} - amount made',
-                                    labelStyle: const TextStyle(fontSize: 18,),
+                                    labelStyle: const TextStyle(
+                                      fontSize: 18,
+                                    ),
                                   ),
                                   textAlign: TextAlign.center,
                                   keyboardType:
@@ -109,7 +112,8 @@ Future<void> showEditModal(
                                     );
                                     updatedProducedList[index] =
                                         updatedProducedList[index].copyWith(
-                                            amount: newAmount.toInt(),);
+                                      amount: newAmount.toInt(),
+                                    );
                                     editedBonusInfo = editedBonusInfo.copyWith(
                                       produced: updatedProducedList,
                                     );
@@ -119,8 +123,10 @@ Future<void> showEditModal(
                             ),
                             if (editedBonusInfo.produced.length > 1)
                               IconButton(
-                                icon: const Icon(Icons.remove_circle_outline,
-                                    color: Colors.red,),
+                                icon: const Icon(
+                                  Icons.remove_circle_outline,
+                                  color: Colors.red,
+                                ),
                                 onPressed: () => removeProducedItemAt(index),
                               ),
                           ],
@@ -148,7 +154,9 @@ Future<void> showEditModal(
                             alignLabelWithHint: true,
                             prefixIcon: const Icon(Icons.currency_pound),
                             label: const Text('Bonus'),
-                            labelStyle: const TextStyle(fontSize: 18,),
+                            labelStyle: const TextStyle(
+                              fontSize: 18,
+                            ),
                             hintText: 'Bonus',
                             filled: true,
                             fillColor: Colors.green[100],
@@ -159,7 +167,18 @@ Future<void> showEditModal(
                               borderSide: BorderSide.none,
                             ),
                           ),
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                              RegExp('[0-9]+[,.]{0,1}[0-9]*'),
+                            ),
+                            TextInputFormatter.withFunction(
+                              (oldValue, newValue) => newValue.copyWith(
+                                text: newValue.text.replaceAll(',', '.'),
+                              ),
+                            ),
+                          ],
                           onChanged: (value) {
                             final newBonus = double.tryParse(value) ?? 0.0;
                             editedBonusInfo =
@@ -191,7 +210,9 @@ Future<void> showEditModal(
                             ),
                             alignLabelWithHint: true,
                             label: const Text('Working Hours'),
-                            labelStyle: const TextStyle(fontSize: 18,),
+                            labelStyle: const TextStyle(
+                              fontSize: 18,
+                            ),
                             filled: true,
                             fillColor: Colors.purple[100],
                             border: OutlineInputBorder(

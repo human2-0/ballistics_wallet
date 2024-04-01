@@ -1,6 +1,6 @@
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/wallet/add_item_bottom_sheet.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/wallet/edit_item_bottom_sheet.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/add_bonus_bottom_sheet.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/edit_bonus_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

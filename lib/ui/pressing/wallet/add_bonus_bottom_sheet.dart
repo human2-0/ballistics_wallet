@@ -353,7 +353,17 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                       ),
                     ),
                     keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(
+                        RegExp('[0-9]+[,.]{0,1}[0-9]*'),
+                      ),
+                      TextInputFormatter.withFunction(
+                            (oldValue, newValue) => newValue.copyWith(
+                          text: newValue.text.replaceAll(',', '.'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
