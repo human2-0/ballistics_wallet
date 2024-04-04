@@ -59,6 +59,20 @@ class _ToastWidgetState extends State<ToastWidget>
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green[500]!.withOpacity(0.4),
+                offset: const Offset(-10, -10),
+                blurRadius: 10,
+                spreadRadius: -5,
+              ),
+              BoxShadow(
+                color: Colors.green.withOpacity(0.4),
+                offset: const Offset(5, 5),
+                blurRadius: 15,
+                spreadRadius: -5,
+              ),
+            ],
             borderRadius: BorderRadius.circular(25),
             gradient: LinearGradient(
               colors: widget.colors ?? [Colors.black.withOpacity(0.7), Colors.black.withOpacity(0.7)],
@@ -67,7 +81,7 @@ class _ToastWidgetState extends State<ToastWidget>
           child: Center(
             child: Text(
               widget.message,
-              style: const TextStyle(color: Colors.black, fontSize: 16,fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.green[900], fontSize: 16,fontWeight: FontWeight.bold),
             ),
           ),
         ),

@@ -24,7 +24,6 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
   Map<String, int> productTargets = {};
   final bonusController = TextEditingController();
 
-
   late double ratio = 0;
 
   @override
@@ -79,7 +78,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
   }
 
   void updateBonus() {
-    var sumOfRatios = 0.0 ;
+    var sumOfRatios = 0.0;
     for (final controllers in producedControllers) {
       final productName = controllers['productName']!.text;
       final amount = int.tryParse(controllers['amount']!.text) ?? 0;
@@ -90,7 +89,8 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
     }
 
     final bonusValue = ref.read(bonusCalculator(sumOfRatios));
-    bonusController.text = bonusValue.toStringAsFixed(2); // Update bonusController
+    bonusController.text =
+        bonusValue.toStringAsFixed(2); // Update bonusController
   }
 
   @override
@@ -206,7 +206,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                           ),
                           textAlign: TextAlign.center,
                           keyboardType: TextInputType.number,
-                          onChanged: (value){
+                          onChanged: (value) {
                             updateBonus();
                           },
                         ),
@@ -263,7 +263,8 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                               Text('More Products'),
                               Padding(
                                 padding: EdgeInsets.all(
-                                    8,), // Padding around the icon
+                                  8,
+                                ), // Padding around the icon
                                 child: Icon(
                                   Icons.add,
                                   color: Colors.black, // Icon color
@@ -353,13 +354,13 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                       ),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(
                         RegExp('[0-9]+[,.]{0,1}[0-9]*'),
                       ),
                       TextInputFormatter.withFunction(
-                            (oldValue, newValue) => newValue.copyWith(
+                        (oldValue, newValue) => newValue.copyWith(
                           text: newValue.text.replaceAll(',', '.'),
                         ),
                       ),
@@ -409,7 +410,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                     context.pop();
                   });
                 },
-                child: const Text('Add Bonus Info'),
+                child: const Text('Add Bonus'),
               ),
             ],
           ),
@@ -417,5 +418,4 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
       ),
     );
   }
-
 }

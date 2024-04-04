@@ -28,7 +28,7 @@ class ProductInfoRepository {
     return ProductInfo(
       productName: productName,
       target: data['target'] as int,
-      imageName: productName, // Assuming the imageName follows the productName
+      imageName:  productName.split(' ').first, // Assuming the imageName follows the productName
       // Correctly cast and map pressings to Pressing objects
       product: (data['pressings'] as List)
           .map((pressing) => Pressing.fromMap(pressing as Map<String, dynamic>))

@@ -4,6 +4,7 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 // Dialog function
 Future<void> showEditProductDialog(
   BuildContext context,
@@ -11,10 +12,7 @@ Future<void> showEditProductDialog(
   required ProductInfo product,
 }) async {
   // Initialize the TextEditingControllers with the current product info
-  final productNameController =
-      TextEditingController(text: product.productName);
-  final targetController =
-      TextEditingController(text: product.target.toString());
+
 
   // Convert each Pressing into a PressingEntry for editing
   final pressingEntries = product.product.map((pressing) {
@@ -30,12 +28,15 @@ Future<void> showEditProductDialog(
   var selectedRatio = 3.0; // Example initial ratio value
   var ratioTextFieldValue = '3.0'; // To keep the TextField in sync
 
-
   await showDialog<Widget>(
     context: context,
     builder: (context) => Dialog(
       child: StatefulBuilder(
         builder: (context, setState) {
+          final productNameController =
+          TextEditingController(text: product.productName);
+          final targetController =
+          TextEditingController(text: product.target.toString());
           return SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -80,204 +81,210 @@ Future<void> showEditProductDialog(
                     const SizedBox(
                       height: 16,
                     ),
-                  if (pressingEntries.isNotEmpty)DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(8),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.yellow[100]!.withOpacity(0.8),
-                          offset: const Offset(4, -2.5),
+                  if (pressingEntries.isNotEmpty)
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
                         ),
-                      ],
-                    ),
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.yellow[100]!.withOpacity(0.8),
+                            offset: const Offset(4, -2.5),
+                          ),
+                        ],
                       ),
-                      tileColor: Colors.yellow[500]!.withOpacity(0.8),
-                      leading: const Icon(Icons.info_outline_rounded),
-                      title: Text(
-                        'Ratio: ${selectedRatio.toStringAsFixed(1)} parts powder to 1 part citric',
+                      child: ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        tileColor: Colors.yellow[500]!.withOpacity(0.8),
+                        leading: const Icon(Icons.info_outline_rounded),
+                        title: Text(
+                          'Ratio: ${selectedRatio.toStringAsFixed(1)} parts powder to 1 part citric',
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(
                     height: 16,
                   ),
-                  if (pressingEntries.isNotEmpty)Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Slider(
-                        value: selectedRatio,
-                        min: 1,
-                        max: 15,
-                        divisions:
-                            14, // This allows for whole number steps from 1 to 15
-                        label: selectedRatio.toStringAsFixed(1),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRatio = value;
-                            ratioTextFieldValue =
-                                selectedRatio.toStringAsFixed(
-                              1,
-                            ); // Keep the TextField in sync
-                            // Update the citric amounts
-                            for (final entry in pressingEntries) {
-                              final systemGValue = double.tryParse(
-                                    entry.systemGController.text,
-                                  ) ??
-                                  0.0;
-                              entry.systemCitricController.text =
-                                  (systemGValue / selectedRatio)
-                                      .toStringAsFixed(2);
-                            }
-                          });
-                        },
-                      ),
-                      if (pressingEntries.isNotEmpty)Container(
-                        width: MediaQuery.sizeOf(context).width * 0.26,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(33),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.orange.withOpacity(0.5),
-                              offset: const Offset(-2, 2.5),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: TextEditingController(
-                            text: ratioTextFieldValue,
-                          ),
-                          decoration: InputDecoration(
-                            alignLabelWithHint: true,
-                            hintText: 'Ratio',
-                            filled: true,
-                            fillColor: Colors.orange[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(
-                                33,
-                              ),
-                              borderSide: BorderSide.none,
-                            ),
-                            labelText: 'Ratio',
-                            labelStyle: const TextStyle(
-                              fontSize: 18,
-                            ),
-                          ),
-                          textAlign: TextAlign.center,
-                          keyboardType:
-                              const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          onSubmitted: (value) {
-                            final manualInput = double.tryParse(value);
-                            if (manualInput != null &&
-                                manualInput >= 1 &&
-                                manualInput <= 15) {
-                              setState(() {
-                                selectedRatio = manualInput;
-                                ratioTextFieldValue =
-                                    value; // Ensure the TextField is updated
-                                // Update the citric amounts
-                                for (final entry in pressingEntries) {
-                                  final systemGValue = double.tryParse(
-                                        entry.systemGController.text,
-                                      ) ??
-                                      0.0;
-                                  entry.systemCitricController.text =
-                                      (systemGValue / selectedRatio)
-                                          .toStringAsFixed(2);
-                                }
-                              });
-                            }
+                  if (pressingEntries.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Slider(
+                          value: selectedRatio,
+                          min: 1,
+                          max: 15,
+                          divisions:
+                              14, // This allows for whole number steps from 1 to 15
+                          label: selectedRatio.toStringAsFixed(1),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedRatio = value;
+                              ratioTextFieldValue =
+                                  selectedRatio.toStringAsFixed(
+                                1,
+                              ); // Keep the TextField in sync
+                              // Update the citric amounts
+                              for (final entry in pressingEntries) {
+                                final systemGValue = double.tryParse(
+                                      entry.systemGController.text,
+                                    ) ??
+                                    0.0;
+                                entry.systemCitricController.text =
+                                    (systemGValue / selectedRatio)
+                                        .toStringAsFixed(2);
+                              }
+                            });
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                  if (pressingEntries.isNotEmpty)const SizedBox(
-                    height: 16,
-                  ),
-                  if (pressingEntries.isNotEmpty)Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Powder container
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: const SweepGradient(
-                            colors: [
-                              Colors.red,
-                              Colors.orange,
-                              Colors.yellow,
-                              Colors.green,
-                              Colors.blue,
-                              Colors.indigo,
-                              Colors.purple,
-                              Colors.pink,
-                              Colors.red,
+                        if (pressingEntries.isNotEmpty)
+                          Container(
+                            width: MediaQuery.sizeOf(context).width * 0.26,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(33),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.orange.withOpacity(0.5),
+                                  offset: const Offset(-2, 2.5),
+                                ),
+                              ],
+                            ),
+                            child: TextField(
+                              controller: TextEditingController(
+                                text: ratioTextFieldValue,
+                              ),
+                              decoration: InputDecoration(
+                                alignLabelWithHint: true,
+                                hintText: 'Ratio',
+                                filled: true,
+                                fillColor: Colors.orange[100],
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    33,
+                                  ),
+                                  borderSide: BorderSide.none,
+                                ),
+                                labelText: 'Ratio',
+                                labelStyle: const TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              onSubmitted: (value) {
+                                final manualInput = double.tryParse(value);
+                                if (manualInput != null &&
+                                    manualInput >= 1 &&
+                                    manualInput <= 15) {
+                                  setState(() {
+                                    selectedRatio = manualInput;
+                                    ratioTextFieldValue =
+                                        value; // Ensure the TextField is updated
+                                    // Update the citric amounts
+                                    for (final entry in pressingEntries) {
+                                      final systemGValue = double.tryParse(
+                                            entry.systemGController.text,
+                                          ) ??
+                                          0.0;
+                                      entry.systemCitricController.text =
+                                          (systemGValue / selectedRatio)
+                                              .toStringAsFixed(2);
+                                    }
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  if (pressingEntries.isNotEmpty)
+                    const SizedBox(
+                      height: 16,
+                    ),
+                  if (pressingEntries.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Powder container
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const SweepGradient(
+                              colors: [
+                                Colors.red,
+                                Colors.orange,
+                                Colors.yellow,
+                                Colors.green,
+                                Colors.blue,
+                                Colors.indigo,
+                                Colors.purple,
+                                Colors.pink,
+                                Colors.red,
+                              ],
+                            ),
+
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(33),
+                              topLeft: Radius.circular(33),
+                            ),
+                            // Applying a shadow that matches the rainbow theme might be tricky,
+                            // but you can choose a color that stands out or complements it.
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepPurple.withOpacity(
+                                  0.5,
+                                ), // Example shadow color
+                                offset: const Offset(-2, 2.5),
+                                blurRadius:
+                                    8, // You can adjust blurRadius for a more pronounced shadow
+                              ),
                             ],
                           ),
-
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(33),
-                            topLeft: Radius.circular(33),
-                          ),
-                          // Applying a shadow that matches the rainbow theme might be tricky,
-                          // but you can choose a color that stands out or complements it.
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.deepPurple.withOpacity(
-                                  0.5,), // Example shadow color
-                              offset: const Offset(-2, 2.5),
-                              blurRadius:
-                                  8, // You can adjust blurRadius for a more pronounced shadow
+                          width: MediaQuery.of(context).size.width *
+                              0.66 *
+                              (selectedRatio /
+                                  (selectedRatio +
+                                      1)), // Dynamic width based on the ratio
+                          height: 50,
+                          child: const Center(
+                            child: Text(
+                              'Powder',
+                              style: TextStyle(color: Colors.white),
                             ),
-                          ],
-                        ),
-                        width: MediaQuery.of(context).size.width *
-                            0.66 *
-                            (selectedRatio /
-                                (selectedRatio +
-                                    1)), // Dynamic width based on the ratio
-                        height: 50,
-                        child: const Center(
-                          child: Text(
-                            'Powder',
-                            style: TextStyle(color: Colors.white),
                           ),
                         ),
-                      ),
-                      // Citric container
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            bottomRight: Radius.circular(33),
-                            topRight: Radius.circular(33),
+                        // Citric container
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              bottomRight: Radius.circular(33),
+                              topRight: Radius.circular(33),
+                            ),
                           ),
-                        ),
-                        width: MediaQuery.of(context).size.width * 0.66 -
-                            MediaQuery.of(context).size.width *
-                                0.66 *
-                                (selectedRatio /
-                                    (selectedRatio +
-                                        1)), // Fixed width for citric
-                        height: 50,
+                          width: MediaQuery.of(context).size.width * 0.66 -
+                              MediaQuery.of(context).size.width *
+                                  0.66 *
+                                  (selectedRatio /
+                                      (selectedRatio +
+                                          1)), // Fixed width for citric
+                          height: 50,
 
-                        child: const Center(
-                          child: Text(
-                            'Citric',
+                          child: const Center(
+                            child: Text(
+                              'Citric',
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   if (pressingEntries.isNotEmpty)
                     const SizedBox(
                       height: 16,
@@ -291,28 +298,29 @@ Future<void> showEditProductDialog(
                     const SizedBox(
                       height: 16,
                     ),
-                  if (pressingEntries.isNotEmpty)DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(8),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.yellow[100]!.withOpacity(0.8),
-                          offset: const Offset(4, -2.5),
+                  if (pressingEntries.isNotEmpty)
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
                         ),
-                      ],
-                    ),
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.yellow[100]!.withOpacity(0.8),
+                            offset: const Offset(4, -2.5),
+                          ),
+                        ],
                       ),
-                      tileColor: Colors.yellow[500]!.withOpacity(0.8),
-                      leading: const Icon(Icons.info_outline_rounded),
-                      title:
-                          const Text('Add amount in grams per one bath bomb'),
+                      child: ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        tileColor: Colors.yellow[500]!.withOpacity(0.8),
+                        leading: const Icon(Icons.info_outline_rounded),
+                        title:
+                            const Text('Add amount in grams per one bath bomb'),
+                      ),
                     ),
-                  ),
                   const SizedBox(
                     height: 16,
                   ),
@@ -337,15 +345,17 @@ Future<void> showEditProductDialog(
                                     // This example directly updates the controller, but you might need additional logic
                                     // to ensure your model (if you have one) is also updated accordingly
                                     setState(() {
-                                      pressingEntries[index].colorController.text = newValue;
+                                      pressingEntries[index]
+                                          .colorController
+                                          .text = newValue;
                                     });
                                   },
                                 ),
                               ),
                               Expanded(
                                 child: customTextField(
-                                  controller: pressingEntries[index]
-                                      .systemGController,
+                                  controller:
+                                      pressingEntries[index].systemGController,
                                   hintText: 'Powder',
                                   labelText: 'Powder',
                                   onChanged: (newValue) {
@@ -353,10 +363,14 @@ Future<void> showEditProductDialog(
                                     // This example directly updates the controller, but you might need additional logic
                                     // to ensure your model (if you have one) is also updated accordingly
                                     setState(() {
-                                      pressingEntries[index].systemGController.text = newValue;
+                                      pressingEntries[index]
+                                          .systemGController
+                                          .text = newValue;
                                     });
                                   },
-
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true,),
                                 ),
                               ),
                               IconButton(
@@ -418,7 +432,8 @@ Future<void> showEditProductDialog(
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.deepPurple.withOpacity(
-                                      0.5,), // Example shadow color
+                                    0.5,
+                                  ), // Example shadow color
                                   offset: const Offset(-2, 2.5),
                                   blurRadius:
                                       8, // You can adjust blurRadius for a more pronounced shadow
@@ -455,8 +470,11 @@ Future<void> showEditProductDialog(
                           // Convert the pressingEntries back into a list of Pressing objects
                           final updatedPressings = pressingEntries.map((entry) {
                             // This was incorrect, as it was using systemGController.text again instead of calculating the citric amount.
-                            final systemGValue = double.tryParse(entry.systemGController.text) ?? 0.0;
-                            final systemCitricValue = systemGValue / selectedRatio;
+                            final systemGValue =
+                                double.tryParse(entry.systemGController.text) ??
+                                    0.0;
+                            final systemCitricValue =
+                                systemGValue / selectedRatio;
                             return Pressing(
                               entry.colorController.text,
                               systemGValue,
@@ -487,7 +505,6 @@ Future<void> showEditProductDialog(
                               );
                               context.pop();
                               FocusScope.of(context).unfocus();
-
                             } else {
                               ScaffoldMessenger.of(
                                 context,
@@ -501,7 +518,6 @@ Future<void> showEditProductDialog(
                               );
                               context.pop();
                               FocusScope.of(context).unfocus();
-
                             }
                           });
                         },
@@ -525,9 +541,9 @@ class PressingEntry {
     double systemCitric = 0.0,
   })  : colorController = TextEditingController(text: color),
         systemGController =
-        TextEditingController(text: systemG.toStringAsFixed(2)),
+            TextEditingController(text: systemG.toStringAsFixed(2)),
         systemCitricController =
-        TextEditingController(text: systemCitric.toStringAsFixed(2));
+            TextEditingController(text: systemCitric.toStringAsFixed(2));
 
   // Add a factory constructor to create a PressingEntry from a Pressing
   factory PressingEntry.fromPressing(Pressing pressing) {

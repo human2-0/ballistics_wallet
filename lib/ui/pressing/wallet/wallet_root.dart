@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_info_list.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/date_picker.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,10 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
   @override
   Widget build(BuildContext context) {
     ref.watch(bonusInfoListProvider);
+    final userState = ref.watch(userNotifierProvider);
+    final totalBonus = ref.read(bonusInfoListProvider.notifier).getTotalBonus();
+    final totalHours = ref.read(bonusInfoListProvider.notifier).getTotalWorkingHours();
+    final totalSalary = totalBonus + (totalHours * userState.hourlyRate!);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: NotificationListener<ScrollNotification>(
@@ -30,7 +35,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                 Padding(
                   padding: const EdgeInsets.all(5),
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.40,
+                    width: MediaQuery.of(context).size.width * 0.30,
                     height: MediaQuery.of(context).size.height * 0.1,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
@@ -41,10 +46,10 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           end: Alignment.bottomRight,
                           stops: const [0.1, 0.6, 0.8, 0.9],
                           colors: [
-                            Colors.orange[400]!.withOpacity(0.6),
-                            Colors.orange[300]!,
-                            Colors.orange[200]!,
-                            Colors.orange[100]!,
+                            Colors.purple[400]!.withOpacity(0.6),
+                            Colors.purple[300]!,
+                            Colors.purple[200]!,
+                            Colors.purple[100]!,
                           ],
                         ),
                         boxShadow: [
@@ -60,7 +65,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           padding: const EdgeInsets.all(10),
                           child: Center(
                             child: Text(
-                              'Total hours\n ${ref.read(bonusInfoListProvider.notifier).getTotalWorkingHours()}',
+                              'Total hours\n ${totalHours.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -76,18 +81,21 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                 Padding(
                   padding: const EdgeInsets.all(5),
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.4,
+                    width: MediaQuery.of(context).size.width * 0.30,
                     height: MediaQuery.of(context).size.height * 0.1,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(33)),
-                        gradient: const LinearGradient(
+                        const BorderRadius.all(Radius.circular(33)),
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
+                          stops: const [0.1, 0.6, 0.8, 0.9],
                           colors: [
-                            Colors.brown,
-                            Colors.orangeAccent,
+                            Colors.yellowAccent[400]!.withOpacity(0.6),
+                            Colors.yellowAccent[400]!,
+                            Colors.yellowAccent,
+                            Colors.yellowAccent[100]!,
                           ],
                         ),
                         boxShadow: [
@@ -103,7 +111,52 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           padding: const EdgeInsets.all(10),
                           child: Center(
                             child: Text(
-                              'Total bonus\n £${ref.read(bonusInfoListProvider.notifier).getTotalBonus()}',
+                              'Total salary £${totalSalary.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color: Colors.green[700],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.30,
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(33)),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.green[400]!.withOpacity(0.6),
+                            Colors.green[300]!,
+                            Colors.green[200]!,
+                            Colors.green[100]!,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Center(
+                            child: Text(
+                              'Total bonus\n £${totalBonus.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

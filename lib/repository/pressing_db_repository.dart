@@ -1,6 +1,14 @@
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
+
+
+// WARNING, THIS REPOSITORY IS DEPRECIATED AS OF PRODUCT INFO REPOSITORY, IT IS KEPT IN CASE I WOULD LIKE TO MIGRATE BACK TO FIRESTORE DATABASE
+
+
+
+
 class PressingRepository {
   PressingRepository();
   final FirebaseFirestore db = FirebaseFirestore.instance;

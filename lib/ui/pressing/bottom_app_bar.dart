@@ -44,10 +44,12 @@ class _HomeState extends ConsumerState<HomeScreen>
   @override
   void initState() {
     super.initState();
-      if (mounted) {
-        final userId = ref.read(authRepositoryProvider).currentUserId;
-        Future.microtask(() async => ref.read(bonusInfoListProvider.notifier).init());
-        Future.microtask(() async => ref.read(userNotifierProvider.notifier).loadUser(userId) );
+    if (mounted) {
+      final userId = ref.read(authRepositoryProvider).currentUserId;
+      Future.microtask(
+          () async => ref.read(bonusInfoListProvider.notifier).init(),);
+      Future.microtask(
+          () async => ref.read(userNotifierProvider.notifier).loadUser(userId),);
     }
 
     _tabController = TabController(length: 4, vsync: this);
@@ -132,33 +134,34 @@ class _HomeState extends ConsumerState<HomeScreen>
   String getBackgroundImagePath() {
     switch (activeIndex) {
       case 0:
-        return 'assets/login_screen.jpg';
+        return 'assets/login_screen.png';
       case 1:
-        return 'assets/target_screen.jpg';
+        return 'assets/target_screen.png';
       case 2:
-        return 'assets/wallet_screen.jpg';
+        return 'assets/wallet_screen.png';
       case 3:
-        return 'assets/profile_screen.jpg';
-    // Add cases for other indices, with their respective image paths
+        return 'assets/profile_screen.png';
+      // Add cases for other indices, with their respective image paths
       default:
-        return 'assets/login_screen.jpg'; // A default image if no index matches
+        return 'assets/login_screen.png'; // A default image if no index matches
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark, // adjust icon brightness as needed
-    ),);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            Brightness.dark, // adjust icon brightness as needed
+      ),
+    );
 
     return Scaffold(
-        endDrawer: ref.watch(bonusTableSelectorProvider)
-            ? const BonusTableOvertime()
-            : const BonusTable(),
-        resizeToAvoidBottomInset: false,
+      endDrawer: ref.watch(bonusTableSelectorProvider)
+          ? const BonusTableOvertime()
+          : const BonusTable(),
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
@@ -253,85 +256,85 @@ class _HomeState extends ConsumerState<HomeScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(
+                IconButton(
+                  icon: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(
                         Icons.show_chart,
                         size: MediaQuery.of(context).size.aspectRatio * 60,
                         color:
                             (activeIndex == 0) ? Colors.orange : Colors.black54,
                       ),
-                      onPressed: () {
-                        setActiveTab(0);
-                        setState(() {
-                          _tabController.animateTo(0);
-                        });
-                      },
-                    ),
-                    const Text('Target'),
-                  ],
+                      const Text('Target'),
+                    ],
+                  ),
+                  onPressed: () {
+                    setActiveTab(0);
+                    setState(() {
+                      _tabController.animateTo(0);
+                    });
+                  },
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(
+                IconButton(
+                  icon: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(
                         Icons.balance_outlined,
                         size: MediaQuery.of(context).size.aspectRatio * 60,
                         color:
                             (activeIndex == 1) ? Colors.orange : Colors.black54,
                       ),
-                      onPressed: () {
-                        setActiveTab(1);
-                        setState(() {
-                          _tabController.animateTo(1);
-                        });
-                      },
-                    ),
-                    const Text('Split'),
-                  ],
+                      const Text('Split'),
+                    ],
+                  ),
+                  onPressed: () {
+                    setActiveTab(1);
+                    setState(() {
+                      _tabController.animateTo(1);
+                    });
+                  },
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(
+                IconButton(
+                  icon: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(
                         Icons.wallet_outlined,
                         size: MediaQuery.of(context).size.aspectRatio * 60,
                         color:
                             (activeIndex == 2) ? Colors.orange : Colors.black54,
                       ),
-                      onPressed: () {
-                        setActiveTab(2);
-                        setState(() {
-                          _tabController.animateTo(2);
-                        });
-                      },
-                    ),
-                    const Text('Wallet'),
-                  ],
+                      const Text('Wallet'),
+                    ],
+                  ),
+                  onPressed: () {
+                    setActiveTab(2);
+                    setState(() {
+                      _tabController.animateTo(2);
+                    });
+                  },
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(
+                IconButton(
+                  icon: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(
                         Icons.account_circle_outlined,
                         size: MediaQuery.of(context).size.aspectRatio * 60,
                         color:
                             (activeIndex == 3) ? Colors.orange : Colors.black54,
                       ),
-                      onPressed: () {
-                        setActiveTab(3);
-                        setState(() {
-                          _tabController.animateTo(3);
-                        });
-                      },
-                    ),
-                    const Center(child: Text('Profile')),
-                  ],
+                      const Center(child: Text('Profile')),
+                    ],
+                  ),
+                  onPressed: () {
+                    setActiveTab(3);
+                    setState(() {
+                      _tabController.animateTo(3);
+                    });
+                  },
                 ),
               ],
             ),

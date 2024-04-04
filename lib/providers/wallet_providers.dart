@@ -4,18 +4,6 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider
 import 'package:ballistics_wallet_flutter/repository/bonus_info_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
-
-final isOvertimeProvider = StateProvider<bool>((ref) => false);
-
-final bonusInfoListProvider =
-    StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
-  (ref) => BonusInfoNotifier(
-    BonusInfoRepository(),
-    ref.read(authRepositoryProvider).currentUserId,
-  ),
-);
-
 class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   BonusInfoNotifier(this._repository, this.userId)
       : super(BonusInfoAndRatio()) {
@@ -192,3 +180,15 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     return totalBonus;
   }
 }
+
+final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+
+final isOvertimeProvider = StateProvider<bool>((ref) => false);
+
+final bonusInfoListProvider =
+StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
+      (ref) => BonusInfoNotifier(
+    BonusInfoRepository(),
+    ref.read(authRepositoryProvider).currentUserId,
+  ),
+);

@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
@@ -69,8 +70,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.orange[100]!.withOpacity(0.85),
-                Colors.orange[200]!.withOpacity(0.85),
+                Colors.orange[100]!.withOpacity(0.80),
+                Colors.orange[200]!.withOpacity(0.80),
               ],
             ),
             boxShadow: [
@@ -113,84 +114,89 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                   const SphereQuestionMark(), // Assuming SphereQuestionMark is a widget you've defined
               if (!showList)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.43,
-                        child: TextFormField(
-                          focusNode: numberFocusNode,
-                          controller: numberController,
-                          textAlign: TextAlign.center,
-                          // Center the text
-                          decoration: InputDecoration(
-                            alignLabelWithHint: true,
-                            labelText: 'Amount pressed',
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                            ),
-                            fillColor: Colors.yellowAccent[100],
-                            // Add the color of the search bar widget here
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(33),
-                              // Rounded edges
-                              borderSide: BorderSide.none,
-                            ),
-                            prefixIcon: const Icon(Icons.numbers_outlined),
-                            suffixIcon: Visibility(
-                              visible: numberFocusNode.hasFocus,
-                              child: IconButton(
-                                icon: const Icon(Icons.keyboard_hide),
-                                onPressed: numberFocusNode.unfocus,
+                        child: DecoratedBox(
+                          decoration: boxDecoration(),
+                          child: TextFormField(
+                            focusNode: numberFocusNode,
+                            controller: numberController,
+                            textAlign: TextAlign.center,
+                            // Center the text
+                            decoration: InputDecoration(
+                              alignLabelWithHint: true,
+                              labelText: 'Amount pressed',
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                              ),
+                              fillColor: Colors.yellowAccent[100],
+                              // Add the color of the search bar widget here
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(33),
+                                // Rounded edges
+                                borderSide: BorderSide.none,
+                              ),
+                              prefixIcon: const Icon(Icons.numbers_outlined),
+                              suffixIcon: Visibility(
+                                visible: numberFocusNode.hasFocus,
+                                child: IconButton(
+                                  icon: const Icon(Icons.keyboard_hide),
+                                  onPressed: numberFocusNode.unfocus,
+                                ),
                               ),
                             ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a number';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              ref
+                                  .read(
+                                    bonusInfoListProvider.notifier,
+                                  )
+                                  .updateRatio(
+                                    focusedProduct.productName.toLowerCase(),
+                                    productTarget,
+                                    int.tryParse(value) ?? 0,
+                                    workingHours,
+                                    allowance,
+                                  );
+                            },
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a number';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            ref
-                                .read(
-                                  bonusInfoListProvider.notifier,
-                                )
-                                .updateRatio(
-                                  focusedProduct.productName.toLowerCase(),
-                                  productTarget,
-                                  int.tryParse(value) ?? 0,
-                                  workingHours,
-                                  allowance,
-                                );
-                          },
                         ),
                       ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            // Check if the allowance field is disabled
-                            if (targetRatio >= 0) {
-                              // Show a SnackBar or other user feedback mechanism
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Please set the allowance before adding anything to wallet.',),
-                                  duration: Duration(seconds: 3),
+                      GestureDetector(
+                        onTap: () {
+                          // Check if the allowance field is disabled
+                          if (targetRatio >= 0) {
+                            // Show a SnackBar or other user feedback mechanism
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please set the allowance before adding anything to wallet.',
                                 ),
-                              );
-                            }
-                          },
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.40,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        },
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.45,
+                          child: DecoratedBox(
+                            decoration: boxDecoration(),
                             child: TextFormField(
                               enabled: targetRatio <= 0,
                               focusNode: allowanceFocusNode,

@@ -24,8 +24,10 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
 
     final userDataAsyncValue = ref.watch(userDataProvider(uid));
 
-    final workingHoursController = TextEditingController(text: userState.realWorkingHours.toString());
-    final hourlyRateController = TextEditingController(text: userState.hourlyRate.toString());
+    final workingHoursController =
+        TextEditingController(text: userState.realWorkingHours.toString());
+    final hourlyRateController =
+        TextEditingController(text: userState.hourlyRate.toString());
 
     // Use useEffect to load user data when the widget is first created
     useEffect(
@@ -75,235 +77,268 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue[100],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(33),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.orange[200],
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        color: Colors.orange[600],
-                        Icons.flight_takeoff_outlined,
-                      ),
-                      onPressed: authRepo.signOut,
-                    ),
-                  ),
-                  Text('Sign out', style: TextStyle(color: Colors.blue[900])),
-                ],
-              ),
-            ),
-            Center(
-              child: Card(
-                color: Colors.lightBlueAccent[100]!.withOpacity(0.5),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(
-                          userState.avatarUrl ??
-                              'https://media.istockphoto.com/id/1207566766/photo/3d-emoji-with-smiley-face.jpg?s=1024x1024&w=is&k=20&c=Xjh-ij_drKQXCsTleoExXAyq-Leb4wraBt36BwPjuso=',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Card(
+                  color: Colors.lightBlueAccent[100]!.withOpacity(0.5),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: NetworkImage(
+                            userState.avatarUrl ??
+                                'https://media.istockphoto.com/id/1207566766/photo/3d-emoji-with-smiley-face.jpg?s=1024x1024&w=is&k=20&c=Xjh-ij_drKQXCsTleoExXAyq-Leb4wraBt36BwPjuso=',
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[200]!.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(16),
+                        const SizedBox(
+                          height: 4,
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[100],
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Text(
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[200]!.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[100],
+                                          borderRadius:
+                                              BorderRadius.circular(16),
                                         ),
-                                        'Daily hours: ${userState.realWorkingHours}',
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[100],
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Text(
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                        child: Text(
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          'Daily hours: ${userState.realWorkingHours}',
                                         ),
-                                        'Hourly Rate: £${userState.hourlyRate}',
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.edit,
-                                    size: 39,
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[100],
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: Text(
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          'Hourly Rate: £${userState.hourlyRate}',
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  onPressed: () async {
-                                    await showDialog<String>(
-                                      context: context,
-                                      builder: (context) => Dialog(
-                                        child: SingleChildScrollView(
-                                          child: Container(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      size: 39,
+                                    ),
+                                    onPressed: () async {
+                                      await showDialog<String>(
+                                        context: context,
+                                        builder: (context) => Dialog(
+                                          child: SingleChildScrollView(
+                                            child: Container(
+                                              padding: const EdgeInsets.all(16),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  customTextField(controller: workingHoursController, hintText: 'New daily hours', labelText: 'New daily hours'),
-                                                  const SizedBox(height: 16,),
-                                                  customTextField(controller: hourlyRateController, hintText: 'New hourly rate hours', labelText: 'New hourly rate'),
+                                                  customTextField(
+                                                      controller:
+                                                          workingHoursController,
+                                                      hintText:
+                                                          'New daily hours',
+                                                      labelText:
+                                                          'New daily hours',),
+                                                  const SizedBox(
+                                                    height: 16,
+                                                  ),
+                                                  customTextField(
+                                                      controller:
+                                                          hourlyRateController,
+                                                      hintText:
+                                                          'New hourly rate hours',
+                                                      labelText:
+                                                          'New hourly rate',),
                                                   Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
                                                     children: [
                                                       TextButton(
-                                                        child: const Text('Cancel'),
+                                                        child: const Text(
+                                                            'Cancel',),
                                                         onPressed: () {
-                                                          Navigator.of(context).pop();
+                                                          Navigator.of(context)
+                                                              .pop();
                                                         },
                                                       ),
                                                       TextButton(
-                                                        child: const Text('Submit'),
+                                                        child: const Text(
+                                                            'Submit',),
                                                         onPressed: () async {
                                                           final newWorkingHours =
-                                                          double.parse(
-                                                            workingHoursController.text,
+                                                              double.parse(
+                                                            workingHoursController
+                                                                .text,
                                                           );
-                                                          final newHourlyRate = double.parse(
-                                                            hourlyRateController.text,
+                                                          final newHourlyRate =
+                                                              double.parse(
+                                                            hourlyRateController
+                                                                .text,
                                                           );
                                                           await userNotifier
-                                                              .editHourlyRate(newHourlyRate);
-                                                          final result = await userNotifier
-                                                              .editWorkingHours(
+                                                              .editHourlyRate(
+                                                                  newHourlyRate,);
+                                                          final result =
+                                                              await userNotifier
+                                                                  .editWorkingHours(
                                                             newWorkingHours,
                                                           );
                                                           if (result) {
-                                                            await userNotifier.loadUser(uid);
+                                                            await userNotifier
+                                                                .loadUser(uid);
                                                           }
-                                                          WidgetsBinding.instance
+                                                          WidgetsBinding
+                                                              .instance
                                                               .addPostFrameCallback(
                                                                   (timeStamp) {
-                                                                context.pop();
-                                                              });
+                                                            context.pop();
+                                                          });
                                                         },
                                                       ),
                                                     ],
                                                   ),
                                                 ],
                                               ),
+                                            ),
                                           ),
-                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[200]!.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[100],
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Text(
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  'Paid breaks',
+                                ),
+                              ),
+                              IconButton(
+                                icon: CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor:
+                                      (userState.paidBreaks ?? false)
+                                          ? Colors.green
+                                          : Colors.grey,
+                                  child: (userState.paidBreaks ?? false)
+                                      ? const Icon(Icons.check,
+                                          color: Colors.white,)
+                                      : null,
+                                ),
+                                onPressed: () async {
+                                  final success = await ref
+                                      .read(userRepositoryProvider)
+                                      .editPaidBreaks(
+                                        uid,
+                                        !(userState.paidBreaks ?? false),
+                                      );
+                                  if (success) {
+                                    await userNotifier.updateUser(
+                                      UserState(
+                                        paidBreaks:
+                                            !(userState.paidBreaks ?? false),
+                                        avatarUrl: userState.avatarUrl,
+                                        allowance: userState.allowance,
+                                        workingHours: userState.workingHours,
+                                        realWorkingHours:
+                                            userState.realWorkingHours,
                                       ),
                                     );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(33),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      DecoratedBox(
                         decoration: BoxDecoration(
-                          color: Colors.blue[200]!.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(16),
+                          shape: BoxShape.circle,
+                          color: Colors.orange[200],
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[100],
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Text(
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                'Paid breaks',
-                              ),
-                            ),
-                            IconButton(
-                              icon: CircleAvatar(
-                                radius: 20,
-                                backgroundColor: (userState.paidBreaks ?? false)
-                                    ? Colors.green
-                                    : Colors.grey,
-                                child: (userState.paidBreaks ?? false)
-                                    ? const Icon(Icons.check, color: Colors.white)
-                                    : null,
-                              ),
-                              onPressed: () async {
-                                final success = await ref
-                                    .read(userRepositoryProvider)
-                                    .editPaidBreaks(
-                                      uid,
-                                      !(userState.paidBreaks ?? false),
-                                    );
-                                if (success) {
-                                  await userNotifier.updateUser(
-                                    UserState(
-                                      paidBreaks:
-                                          !(userState.paidBreaks ?? false),
-                                      avatarUrl: userState.avatarUrl,
-                                      allowance: userState.allowance,
-                                      workingHours: userState.workingHours,
-                                      realWorkingHours:
-                                          userState.realWorkingHours,
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
+                        child: IconButton(
+                          icon: Icon(
+                            color: Colors.orange[600],
+                            Icons.flight_takeoff_outlined,
+                          ),
+                          onPressed: authRepo.signOut,
                         ),
                       ),
+                      Text('Sign out',
+                          style: TextStyle(color: Colors.blue[900]),),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
             Container(
               padding: const EdgeInsets.all(8),

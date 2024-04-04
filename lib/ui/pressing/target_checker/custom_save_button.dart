@@ -132,17 +132,29 @@ Future<void> saveToWallet({
 }) async {
   final authRepository = ref.read(authRepositoryProvider);
   final userId = authRepository.currentUserId;
-  final targetRatio = ref.watch(bonusInfoListProvider).ratio;
   final productName =
       ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
   final amount = amountPressed;
   final allowance = ref.watch(allowanceProvider);
   final userState = ref.watch(userNotifierProvider);
   final workingHours = userState.workingHours ?? 0.0;
+  final target = ref.watch(targetProvider);
 
   if (productName.isEmpty || amount == 0) {
     return; // Early return if conditions are not met
   }
+  ref
+      .read(
+        bonusInfoListProvider.notifier,
+      )
+      .updateRatio(
+        productName,
+        target,
+        amount,
+        workingHours,
+        allowance,
+      );
+  final targetRatio = ref.read(bonusInfoListProvider).ratio;
   final bonusAsyncValue =
       ref.read(bonusCalculator(targetRatio)); // changed watch to read
   final bonus = bonusAsyncValue * ((workingHours - allowance) / 7.0);
@@ -169,7 +181,7 @@ Future<void> saveToWallet({
       await ref.read(bonusInfoListProvider.notifier).addBonusInfo(newBonusInfo);
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (mounted) {
-      showToast(context, message, colors: [Colors.greenAccent, Colors.green]);
+      showToast(context, message, colors: [Colors.greenAccent, Colors.greenAccent[100]!]);
     }
   });
 }

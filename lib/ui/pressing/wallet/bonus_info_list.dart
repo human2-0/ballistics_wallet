@@ -169,7 +169,7 @@ class _BonusInfoListState extends ConsumerState<BonusInfoList> {
                           baseColor: Colors.green,
                         ),
                       ),
-                      Expanded(
+                      Flexible(
                         flex: 3,
                         child: ListView.builder(
                           shrinkWrap: true,
@@ -178,18 +178,23 @@ class _BonusInfoListState extends ConsumerState<BonusInfoList> {
                           itemBuilder: (context, i) {
                             final item = info.produced[i];
                             return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 SizedBox(
                                   width:
-                                      MediaQuery.of(context).size.width * 0.4,
+                                      MediaQuery.of(context).size.width * 0.38,
                                   child: CustomInfoContainer(
                                     text: item.productName,
                                     baseColor: Colors.amber,
                                   ),
                                 ),
-                                CustomInfoContainer(
-                                  text: '${item.amount}',
-                                  baseColor: Colors.amber,
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.12,
+                                  child: CustomInfoContainer(
+                                    text: '${item.amount}',
+                                    baseColor: Colors.amber,
+                                  ),
                                 ),
                               ],
                             );
