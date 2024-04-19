@@ -2,7 +2,6 @@ import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
-import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
@@ -20,7 +19,6 @@ class CustomSaveButton extends ConsumerStatefulWidget {
 class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
   @override
   Widget build(BuildContext context) {
-    final targetRatio = ref.watch(bonusInfoListProvider).ratio;
     final productName =
         ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
     final amount = int.tryParse(ref.watch(numberControllerProvider)) ?? 0;
@@ -52,9 +50,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                     ? null
                     : () async {
                         final authRepository = ref.read(authRepositoryProvider);
-                        ref.read(
-                          pressingRepositoryProvider,
-                        );
+                        final targetRatio = ref.read(bonusInfoListProvider).ratio;
                         final bonusAsyncValue = ref.read(
                           bonusCalculator(
                             targetRatio,

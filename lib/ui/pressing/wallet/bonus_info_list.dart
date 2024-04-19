@@ -13,11 +13,9 @@ class BonusInfoList extends ConsumerStatefulWidget {
 class _BonusInfoListState extends ConsumerState<BonusInfoList> {
   @override
   Widget build(BuildContext context) {
-    bool isSameDay(DateTime? date1, DateTime? date2) {
-      return date1?.year == date2?.year &&
+    bool isSameDay(DateTime? date1, DateTime? date2) => date1?.year == date2?.year &&
           date1?.month == date2?.month &&
           date1?.day == date2?.day;
-    }
 
     final bonusInfoList = ref.watch(bonusInfoListProvider);
     final selectedDate = ref.watch(selectedDateProvider);
@@ -104,11 +102,21 @@ class _BonusInfoListState extends ConsumerState<BonusInfoList> {
                   builder: (context) => Wrap(
                     children: [
                       ListTile(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(33),  // Rounded top left corner
+                            topRight: Radius.circular(33), // Rounded top right corner
+                          ),
+                        ),
+                        tileColor: Colors.red[100],
+                        iconColor: Colors.red,
                         leading: const Icon(Icons.delete),
                         title: const Text('Delete'),
                         onTap: () => Navigator.pop(context, 'delete'),
                       ),
                       ListTile(
+                        tileColor: Colors.yellow[100],
+                        iconColor: Colors.yellow[700],
                         leading: const Icon(Icons.edit),
                         title: const Text('Edit'),
                         onTap: () => Navigator.pop(context, 'edit'),
@@ -213,8 +221,7 @@ class _BonusInfoListState extends ConsumerState<BonusInfoList> {
   }
 }
 
-BoxDecoration getCustomBoxDecoration(MaterialColor baseColor) {
-  return BoxDecoration(
+BoxDecoration getCustomBoxDecoration(MaterialColor baseColor) => BoxDecoration(
     borderRadius: const BorderRadius.all(
       Radius.circular(33),
     ),
@@ -249,7 +256,6 @@ BoxDecoration getCustomBoxDecoration(MaterialColor baseColor) {
       ),
     ],
   );
-}
 
 class CustomInfoContainer extends StatelessWidget {
   const CustomInfoContainer({
@@ -261,8 +267,7 @@ class CustomInfoContainer extends StatelessWidget {
   final MaterialColor baseColor;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.all(8),
       decoration: getCustomBoxDecoration(baseColor),
       child: Text(
@@ -274,5 +279,4 @@ class CustomInfoContainer extends StatelessWidget {
         ),
       ),
     );
-  }
 }

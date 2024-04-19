@@ -4,9 +4,6 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/slide_to_basicshift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -427,11 +424,9 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                               child: Image.asset(
                                 'assets/images/${focusedProduct.imageName}.png', // Removed the additional quotes around ${focusedProduct.imageName}
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, exception, stackTrace) {
-                                  return Lottie.asset(
+                                errorBuilder: (context, exception, stackTrace) => Lottie.asset(
                                     'assets/lottie/product_image_not_found.json',
-                                  );
-                                },
+                                  ),
                               ),
                             )
                           else if (!showList && focusedProduct.imageName == '')
@@ -541,121 +536,119 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                               ),
                             ),
                           ),
-                        if (!showList)
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 200,
-                                height: 200,
-                                child: Stack(
-                                  children: [
-                                    Center(
-                                      child: Transform.scale(
-                                        scale: 4,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 10,
-                                          // Divide by the scale factor
-                                          backgroundColor:
-                                              Colors.greenAccent.shade100,
-                                          valueColor:
-                                              const AlwaysStoppedAnimation<
-                                                  Color>(
-                                            Colors.transparent,
-                                          ),
-                                          value: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Transform.scale(
-                                        scale: 4,
-                                        child: MinimumCircle(
-                                          percentage: overtimePercents,
-                                        ),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Transform.scale(
-                                        scale: 4,
-                                        child: ClipOval(
-                                          child:
-                                              RainbowCircularProgressIndicator(
-                                            percentage:
-                                                overtimePercents, // Substitute your actual percentage here
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Container(
-                                        width: 105,
-                                        height: 105,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.green.shade50,
-                                        ),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Consumer(
-                                        builder: (context, watch, _) {
-                                          return Text(
-                                            '${overtimePercents.toStringAsFixed(2)}%',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    TargetButton(
-                                      productName: focusedProduct.productName,
-                                      overtimes: true,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 3),
-                                      child: Align(
-                                        child: Consumer(
-                                          builder: (context, watch, child) {
-                                            ref.watch(userNotifierProvider);
-                                            final bonus = ref.watch(
-                                              bonusCalculator(
-                                                overtimePercents / 100,
-                                              ),
-                                            );
-
-                                            return BonusCoin(
-                                              bonus: bonus *
-                                                  (overtimeHours / 7.00),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                        // if (!showList)
+                        //   Row(
+                        //     children: [
+                        //       SizedBox(
+                        //         width: 200,
+                        //         height: 200,
+                        //         child: Stack(
+                        //           children: [
+                        //             Center(
+                        //               child: Transform.scale(
+                        //                 scale: 4,
+                        //                 child: CircularProgressIndicator(
+                        //                   strokeWidth: 10,
+                        //                   // Divide by the scale factor
+                        //                   backgroundColor:
+                        //                       Colors.greenAccent.shade100,
+                        //                   valueColor:
+                        //                       const AlwaysStoppedAnimation<
+                        //                           Color>(
+                        //                     Colors.transparent,
+                        //                   ),
+                        //                   value: 1,
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //             Center(
+                        //               child: Transform.scale(
+                        //                 scale: 4,
+                        //                 child: MinimumCircle(
+                        //                   percentage: overtimePercents,
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //             Center(
+                        //               child: Transform.scale(
+                        //                 scale: 4,
+                        //                 child: ClipOval(
+                        //                   child:
+                        //                       RainbowCircularProgressIndicator(
+                        //                     percentage:
+                        //                         overtimePercents, // Substitute your actual percentage here
+                        //                   ),
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //             Center(
+                        //               child: Container(
+                        //                 width: 105,
+                        //                 height: 105,
+                        //                 decoration: BoxDecoration(
+                        //                   shape: BoxShape.circle,
+                        //                   color: Colors.green.shade50,
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //             Center(
+                        //               child: Consumer(
+                        //                 builder: (context, watch, _) {
+                        //                   return Text(
+                        //                     '${overtimePercents.toStringAsFixed(2)}%',
+                        //                     style: const TextStyle(
+                        //                       color: Colors.black,
+                        //                       fontWeight: FontWeight.bold,
+                        //                     ),
+                        //                   );
+                        //                 },
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //       Expanded(
+                        //         child: Column(
+                        //           children: [
+                        //             TargetButton(
+                        //               productName: focusedProduct.productName,
+                        //               overtimes: true,
+                        //             ),
+                        //             Padding(
+                        //               padding: const EdgeInsets.only(right: 3),
+                        //               child: Align(
+                        //                 child: Consumer(
+                        //                   builder: (context, watch, child) {
+                        //                     ref.watch(userNotifierProvider);
+                        //                     final bonus = ref.watch(
+                        //                       bonusCalculator(
+                        //                         overtimePercents / 100,
+                        //                       ),
+                        //                     );
+                        //
+                        //                     return BonusCoin(
+                        //                       bonus: bonus *
+                        //                           (overtimeHours / 7.00),
+                        //                     );
+                        //                   },
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
                         //add a new widget to the row
                         if (!showList)
                           Builder(
-                            builder: (buttonContext) {
-                              return Padding(
+                            builder: (buttonContext) => Padding(
                                 padding: const EdgeInsets.all(4),
                                 child: LayoutBuilder(
                                   builder: (
                                     context,
                                     constraints,
-                                  ) {
-                                    return SizedBox(
+                                  ) => SizedBox(
                                       // 10
                                       width: constraints.maxWidth *
                                           0.6, // % of the Container height
@@ -814,13 +807,11 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                           ],
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
                                 ),
-                              );
-                            },
+                              ),
                           ),
-                        const SlideToBasicShift(),
+                        // const SlideToBasicShift(),
                       ],
                     ),
                   ),

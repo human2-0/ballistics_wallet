@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 InputDecoration textFieldDecoration(String hintText, String labelText,
-    {double borderRadius = 33.0, MaterialColor fillColor = Colors.orange,}) {
-  return InputDecoration(
+    {double borderRadius = 33.0, MaterialColor fillColor = Colors.orange,}) => InputDecoration(
     alignLabelWithHint: true,
     hintText: hintText,
     filled: true,
@@ -15,14 +14,12 @@ InputDecoration textFieldDecoration(String hintText, String labelText,
     labelStyle: const TextStyle(fontSize: 18),
 
   );
-}
 
 BoxDecoration boxDecoration(
     {Color color = Colors.orange,
       double borderRadius = 33.0,
       double blurRadius = 2.5,
-      Offset offset = const Offset(-2, 2.5),}) {
-  return BoxDecoration(
+      Offset offset = const Offset(-2, 2.5),}) => BoxDecoration(
     borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
     boxShadow: [
       BoxShadow(
@@ -31,7 +28,6 @@ BoxDecoration boxDecoration(
       ),
     ],
   );
-}
 
 Widget customTextField({
   required TextEditingController controller,
@@ -41,8 +37,7 @@ Widget customTextField({
   bool enabled = true,
   void Function(String)? onSubmitted,
   void Function(String)? onChanged,
-}) {
-  return DecoratedBox(
+}) => DecoratedBox(
     decoration: boxDecoration(),
     child: TextField(
       enabled: enabled,
@@ -55,4 +50,3 @@ Widget customTextField({
       onSubmitted: onSubmitted,
     ),
   );
-}

@@ -15,9 +15,7 @@ Future<void> showEditProductDialog(
 
 
   // Convert each Pressing into a PressingEntry for editing
-  final pressingEntries = product.product.map((pressing) {
-    return PressingEntry.fromPressing(pressing);
-  }).toList();
+  final pressingEntries = product.product.map(PressingEntry.fromPressing).toList();
 
   void addPressingEntry(StateSetter setState) {
     setState(() {
@@ -329,8 +327,7 @@ Future<void> showEditProductDialog(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: pressingEntries.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
+                      itemBuilder: (context, index) => Padding(
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
                           child: Row(
                             children: [
@@ -387,8 +384,7 @@ Future<void> showEditProductDialog(
                               ),
                             ],
                           ),
-                        );
-                      },
+                        ),
                     ),
                   ),
                   SizedBox(
@@ -546,13 +542,11 @@ class PressingEntry {
             TextEditingController(text: systemCitric.toStringAsFixed(2));
 
   // Add a factory constructor to create a PressingEntry from a Pressing
-  factory PressingEntry.fromPressing(Pressing pressing) {
-    return PressingEntry(
+  factory PressingEntry.fromPressing(Pressing pressing) => PressingEntry(
       color: pressing.productColor,
       systemG: pressing.systemG,
       systemCitric: pressing.systemCitric,
     );
-  }
 
   final TextEditingController colorController;
   final TextEditingController systemGController;

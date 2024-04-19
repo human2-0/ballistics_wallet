@@ -47,8 +47,7 @@ class _AnimatedTileState extends State<AnimatedTile>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
         await context.push('/split');
       },
@@ -60,8 +59,7 @@ class _AnimatedTileState extends State<AnimatedTile>
       },
       child: AnimatedBuilder(
         animation: _colorAnimation,
-        builder: (context, child) {
-          return Container(
+        builder: (context, child) => Container(
             margin: const EdgeInsets.all(16),
             width: MediaQuery.of(context).size.width * 0.5,
             height: MediaQuery.of(context).size.height * 0.25,
@@ -121,11 +119,9 @@ class _AnimatedTileState extends State<AnimatedTile>
                 ),
               ),
             ),
-          );
-        },
+          ),
       ),
     );
-  }
 }
 
 class BonusAnimatedTile extends StatefulWidget {
@@ -173,8 +169,7 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
         await context.push('/split');
       },
@@ -186,8 +181,7 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
       },
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (_, child) {
-          return Container(
+        builder: (_, child) => Container(
             margin: const EdgeInsets.all(16),
             height: MediaQuery.of(context).size.height * 0.25,
             decoration: BoxDecoration(
@@ -293,9 +287,7 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
                 ],
               ),
             ),
-          );
-        },
+          ),
       ),
     );
-  }
 }

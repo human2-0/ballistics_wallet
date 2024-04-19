@@ -8,6 +8,7 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_root.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -15,16 +16,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({
+class RootBottomBar extends ConsumerStatefulWidget {
+  const RootBottomBar({
     super.key,
   });
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeState();
+  ConsumerState<RootBottomBar> createState() => _RootBottomBarState();
 }
 
-class _HomeState extends ConsumerState<HomeScreen>
+class _RootBottomBarState extends ConsumerState<RootBottomBar>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late ScrollController _scrollController;
@@ -134,13 +135,13 @@ class _HomeState extends ConsumerState<HomeScreen>
   String getBackgroundImagePath() {
     switch (activeIndex) {
       case 0:
-        return 'assets/login_screen.png';
+        return 'assets/login_screen.webp';
       case 1:
-        return 'assets/target_screen.png';
+        return 'assets/target_screen.webp';
       case 2:
-        return 'assets/wallet_screen.png';
+        return 'assets/wallet_screen.webp';
       case 3:
-        return 'assets/profile_screen.png';
+        return 'assets/profile_screen.webp';
       // Add cases for other indices, with their respective image paths
       default:
         return 'assets/login_screen.png'; // A default image if no index matches
@@ -149,6 +150,8 @@ class _HomeState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    Future.microtask(() async => preloadImages(context));
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,

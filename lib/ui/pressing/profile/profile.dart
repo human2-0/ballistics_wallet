@@ -354,6 +354,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ),
             ),
+            IconButton(onPressed: () async => context.push('/rive'), icon: const Icon(Icons.local_airport_sharp)),
           ],
         ),
       ),

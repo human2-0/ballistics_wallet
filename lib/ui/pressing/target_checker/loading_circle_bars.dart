@@ -187,6 +187,7 @@ class _RainbowCirclePainter extends CustomPainter {
         Colors.indigo,
         Colors.purple,
         Colors.pink,
+        Colors.red,
       ],
     );
 

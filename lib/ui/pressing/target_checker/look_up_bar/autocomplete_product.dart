@@ -105,11 +105,21 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                             builder: (context) => Wrap(
                               children: [
                                 ListTile(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(33),  // Rounded top left corner
+                                      topRight: Radius.circular(33), // Rounded top right corner
+                                    ),
+                                  ),
+                                  tileColor: Colors.red[100],
+                                  iconColor: Colors.red,
                                   leading: const Icon(Icons.delete),
                                   title: const Text('Delete'),
                                   onTap: () => Navigator.pop(context, 'delete'),
                                 ),
                                 ListTile(
+                                  tileColor: Colors.yellow[100],
+                                  iconColor: Colors.yellow[700],
                                   leading: const Icon(Icons.edit),
                                   title: const Text('Edit'),
                                   onTap: () => Navigator.pop(context, 'edit'),
@@ -134,6 +144,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                       productName: product.productName,),
                                 );
                               });
+                              break;
 
                             case 'edit':
                               WidgetsBinding.instance
@@ -141,6 +152,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                 await showEditProductDialog(context, ref,
                                     product: product,);
                               });
+                              break;
                             case 'cancel':
                             default:
                               // Do nothing for cancel or undefined actions

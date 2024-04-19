@@ -3,6 +3,7 @@ import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
 
 String formatDouble(double value) => value == value.floor()
@@ -12,11 +13,20 @@ String formatDouble(double value) => value == value.floor()
 String toTitleCase(String text) {
   if (text.isEmpty) return text;
 
-  return text.toLowerCase().split(' ').map((word) {
+  // Convert the string to lower case and split it into words
+  var words = text.toLowerCase().split(' ');
+
+  // Convert each word to title case
+  words = words.map((word) {
+    if (word.isEmpty) return word;  // Check if the word is empty to avoid errors
     final leftText = word.length > 1 ? word.substring(1) : '';
-    return word[0].toUpperCase() + leftText;
-  }).join(' ');
+    return word[0]+ leftText;
+  }).toList();
+
+  // Join words with an underscore if there are multiple words
+  return words.join('_');
 }
+
 
 List<List<dynamic>> csvToList(String data) {
   final eol = data.contains('\r\n') ? '\r\n' : '\n';
@@ -94,6 +104,20 @@ Future<void> initHive() async {
   final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
   if (boxProductInfo.isEmpty) {
     await addDataToProductInfoBox(boxProductInfo);
+  }
+}
+
+Future<void> preloadImages(BuildContext context) async {
+  // Load and cache images early
+  final images = [
+    'assets/login_screen.webp',
+    'assets/target_screen.webp',
+    'assets/wallet_screen.webp',
+    'assets/profile_screen.webp',
+  ];
+
+  for (final imagePath in images) {
+    await precacheImage(AssetImage(imagePath), context);
   }
 }
 

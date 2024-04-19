@@ -8,6 +8,8 @@ import 'package:ballistics_wallet_flutter/repository/auth_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/login_screen.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/bottom_app_bar.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_ellipses.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_target_animation.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +52,7 @@ class RouterNotifier extends ChangeNotifier {
         ),
         GoRoute(
           name: 'home',
-          builder: (context, state) => const HomeScreen(),
+          builder: (context, state) => const RootBottomBar(),
           path: '/',
         ),
         GoRoute(
@@ -73,6 +75,12 @@ class RouterNotifier extends ChangeNotifier {
           builder: (context, state) => const ProtectScreen(),
           path: '/protect',
         ),
+        GoRoute(
+          name: 'rive',
+          builder: (context, state) => const TargetBoard(productName: 'elko'),
+          path: '/rive',
+        ),
+
       ];
 
 

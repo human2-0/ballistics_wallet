@@ -90,12 +90,12 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          stops: const [0.1, 0.6, 0.8, 0.9],
+                          stops: const [0.1, 0.6, 0.8, 1],
                           colors: [
-                            Colors.yellowAccent[400]!.withOpacity(0.6),
-                            Colors.yellowAccent[400]!,
-                            Colors.yellowAccent,
-                            Colors.yellowAccent[100]!,
+                            Colors.yellow[800]!.withOpacity(0.6),
+                            Colors.yellow[700]!,
+                            Colors.yellow[600]!,
+                            Colors.yellow[300]!,
                           ],
                         ),
                         boxShadow: [
@@ -112,8 +112,8 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           child: Center(
                             child: Text(
                               'Total salary £${totalSalary.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                color: Colors.green[700],
+                              style: const TextStyle(
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),

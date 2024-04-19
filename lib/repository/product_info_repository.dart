@@ -24,17 +24,15 @@ class ProductInfoRepository {
 
   // Helper method to convert Firestore data to ProductInfo objects
   ProductInfo _fromMapToProductInfo(
-      String productName, Map<String, dynamic> data,) {
-    return ProductInfo(
+      String productName, Map<String, dynamic> data,) => ProductInfo(
       productName: productName,
       target: data['target'] as int,
-      imageName:  productName.split(' ').first, // Assuming the imageName follows the productName
+      imageName:  toTitleCase(productName), // Assuming the imageName follows the productName
       // Correctly cast and map pressings to Pressing objects
       product: (data['pressings'] as List)
           .map((pressing) => Pressing.fromMap(pressing as Map<String, dynamic>))
           .toList(),
     );
-  }
 
   Future<void> addProduct(String productName, int target, List<Pressing> pressings) async {
     final formattedProductName = toTitleCase(productName);
@@ -65,7 +63,7 @@ class ProductInfoRepository {
       }, SetOptions(merge: true),);
 
       return true; // Update was successful
-    } on FormatException catch (e) {
+    } on FormatException {
       return false; // Update failed
     }
   }

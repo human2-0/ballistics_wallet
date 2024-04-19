@@ -1,8 +1,11 @@
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
 
 Future<void> showEditModal(
@@ -13,6 +16,7 @@ Future<void> showEditModal(
 ) async {
   // Create a mutable copy of bonusInfo for editing
   var editedBonusInfo = bonusInfo.copyWith();
+  final productTargets = <String, int>{};
 
   // Initialize TextEditingControllers with current values
   final workingHoursController =
@@ -24,25 +28,72 @@ Future<void> showEditModal(
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      final localProducedItems = List<Produced>.from(editedBonusInfo.produced);
-      final controllers = localProducedItems
-          .map((e) => TextEditingController(text: e.amount.toString()))
-          .toList();
-
       return StatefulBuilder(
         builder: (context, setState) {
+          final productList = ref.watch(productInfoProvider);
+          void initializeProductTargets() {
+            for (final product in editedBonusInfo.produced) {
+              // Using firstWhereOrNull to safely find the target, with a null check
+              final targetInfo = productList.firstWhere(
+                (p) => p.productName == product.productName,
+                orElse: () => ProductInfo(
+                  productName: '',
+                  imageName: '',
+                  target: 0,
+                  product: [const Pressing('', 0, 0)],
+                ), // Return null if no matching product found
+              );
+
+              // Safely access the target property, defaulting to 0 if targetInfo is null
+              productTargets[product.productName] = targetInfo.target;
+            }
+          }
+
+          final controllers = editedBonusInfo.produced.map((e) {
+            return {
+              'productName': TextEditingController(text: e.productName),
+              'amount': TextEditingController(text: e.amount.toString()),
+            };
+          }).toList();
+
           void removeProducedItemAt(int index) {
             setState(() {
-              localProducedItems.removeAt(index);
-              controllers[index].dispose();
+              controllers[index]['productName']!.dispose();
+              controllers[index]['amount']!.dispose();
               controllers.removeAt(index);
-              final updatedProducedList =
-                  List<Produced>.from(editedBonusInfo.produced)
-                    ..removeAt(index);
-              editedBonusInfo = editedBonusInfo.copyWith(
-                produced: updatedProducedList,
-              );
+              editedBonusInfo.produced.removeAt(index);
             });
+          }
+
+          void addProducedRow() {
+            setState(() {
+              controllers.add({
+                'productName': TextEditingController(),
+                'amount': TextEditingController(),
+              });
+              editedBonusInfo.produced
+                  .add(Produced(productName: '', amount: 0, ratio: 0));
+            });
+          }
+
+          void updateProducedItemRatios() {
+            final updatedProducedList =
+                List<Produced>.from(editedBonusInfo.produced);
+
+            for (var i = 0; i < updatedProducedList.length; i++) {
+              final productName = controllers[i]['productName']!.text;
+              final amount = int.tryParse(controllers[i]['amount']!.text) ?? 0;
+              final target = productTargets[productName] ?? 0;
+              final ratio = (target > 0) ? amount / target : 0;
+
+              updatedProducedList[i] = updatedProducedList[i].copyWith(
+                amount: amount,
+                ratio: ratio.toDouble(),
+              );
+            }
+
+            editedBonusInfo =
+                editedBonusInfo.copyWith(produced: updatedProducedList);
           }
 
           return Padding(
@@ -61,8 +112,9 @@ Future<void> showEditModal(
                     const SizedBox(
                       height: 32,
                     ),
-                    ...List.generate(editedBonusInfo.produced.length, (index) {
-                      return Padding(
+                    ...List.generate(
+                      editedBonusInfo.produced.length,
+                      (index) => Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                         child: Row(
                           children: [
@@ -79,24 +131,94 @@ Future<void> showEditModal(
                                     ),
                                   ],
                                 ),
+                                child: TypeAheadFormField<ProductInfo>(
+                                  textFieldConfiguration:
+                                      TextFieldConfiguration(
+                                    controller: controllers[index]
+                                        ['productName'],
+                                    decoration: InputDecoration(
+                                      alignLabelWithHint: true,
+                                      hintText: 'Product Name',
+                                      labelText: 'Product Name',
+                                      filled: true,
+                                      fillColor: Colors.orange[100],
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(33),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  suggestionsCallback: (pattern) {
+                                    return productList
+                                        .where(
+                                          (product) => product.productName
+                                              .toLowerCase()
+                                              .contains(pattern.toLowerCase()),
+                                        )
+                                        .toList();
+                                  },
+                                  itemBuilder: (context, suggestion) {
+                                    return ListTile(
+                                      title: Text(suggestion.productName),
+                                    );
+                                  },
+                                  onSuggestionSelected: (suggestion) {
+                                    // Update controller
+                                    controllers[index]['productName']!.text =
+                                        suggestion.productName;
+
+                                    // Update the corresponding product item in the editedBonusInfo
+                                    final newProducedList = List<Produced>.from(
+                                      editedBonusInfo.produced,
+                                    );
+                                    newProducedList[index] =
+                                        newProducedList[index].copyWith(
+                                      productName: suggestion.productName,
+                                    );
+
+                                    // Set product target from suggestion
+                                    productTargets[suggestion.productName] =
+                                        suggestion.target;
+
+                                    // Update the state with the new produced list
+                                    setState(() {
+                                      editedBonusInfo = editedBonusInfo
+                                          .copyWith(produced: newProducedList);
+                                    });
+                                  },
+                                  noItemsFoundBuilder: (context) =>
+                                      const Text('No matches found'),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.sizeOf(context).width * 0.28,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(33),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withOpacity(0.5),
+                                      offset: const Offset(-2, 2.5),
+                                    ),
+                                  ],
+                                ),
                                 child: TextField(
-                                  controller: controllers[index],
+                                  controller: controllers[index]['amount'],
                                   decoration: InputDecoration(
                                     alignLabelWithHint: true,
-                                    hintText: 'Product Name',
+                                    hintText: 'Amount Made',
                                     filled: true,
                                     fillColor: Colors.orange[100],
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        33,
-                                      ),
+                                      borderRadius: BorderRadius.circular(33),
                                       borderSide: BorderSide.none,
                                     ),
-                                    labelText:
-                                        '${editedBonusInfo.produced[index].productName} - amount made',
-                                    labelStyle: const TextStyle(
-                                      fontSize: 18,
-                                    ),
+                                    labelText: 'Enter Amount',
+                                    labelStyle: const TextStyle(fontSize: 18),
                                   ),
                                   textAlign: TextAlign.center,
                                   keyboardType:
@@ -131,8 +253,57 @@ Future<void> showEditModal(
                               ),
                           ],
                         ),
-                      );
-                    }),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange[100], // Background color
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(25)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.5),
+                                offset: const Offset(-2, 2.5),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              25,
+                            ), // Matching the outer Container's borderRadius
+                            child: Material(
+                              color: Colors
+                                  .transparent, // Makes InkWell ripple effect visible
+                              child: InkWell(
+                                splashColor: Colors.orange
+                                    .withOpacity(0.5), // Ripple effect color
+                                onTap:
+                                    addProducedRow, // Your function to add a new row
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('More Products'),
+                                    Padding(
+                                      padding: EdgeInsets.all(
+                                        8,
+                                      ), // Padding around the icon
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.black, // Icon color
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DecoratedBox(
@@ -168,7 +339,8 @@ Future<void> showEditModal(
                             ),
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,),
+                            decimal: true,
+                          ),
                           inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.allow(
                               RegExp('[0-9]+[,.]{0,1}[0-9]*'),
@@ -235,6 +407,8 @@ Future<void> showEditModal(
                     ElevatedButton(
                       child: const Text('Save'),
                       onPressed: () async {
+                        initializeProductTargets();
+                        updateProducedItemRatios();
                         await ref
                             .read(bonusInfoListProvider.notifier)
                             .updateBonusInfo(editedBonusInfo);

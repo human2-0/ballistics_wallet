@@ -4,14 +4,14 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/animated_target_button.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/loading_circle_bars.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/autocomplete_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/last_selected_products.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/search_bar.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/not_selected_product_sphere.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_ellipses.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_target_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +35,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final allowanceFocusNode = ref.watch(allowanceFocusNodeProvider);
 
     final productTarget = ref.watch(targetProvider);
-    final percentage = ref.watch(bonusInfoListProvider).ratio * 100;
     final targetRatio = ref.watch(bonusInfoListProvider).ratio;
 
     final userState = ref.watch(userNotifierProvider);
@@ -47,6 +46,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final allowanceController =
         ref.read(allowanceControllerProvider.notifier).controller;
     final focusedProduct = ref.watch(focusedProductProvider);
+    print(focusedProduct.imageName);
 
     return GestureDetector(
       onTap: () {
@@ -65,7 +65,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
           height: MediaQuery.of(context).size.height * 0.83,
           margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
+            borderRadius: BorderRadius.circular(66),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -98,23 +98,22 @@ class BasicShiftCard extends ConsumerState<BasicShift>
               if (!showList)
                 if (focusedProduct.imageName != 'question')
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.66,
-                    height: MediaQuery.of(context).size.width * 0.66,
+                    width: MediaQuery.of(context).size.width * 0.55,
+                    height: MediaQuery.of(context).size.width * 0.55,
                     child: Image.asset(
                       'assets/images/${focusedProduct.imageName}.png',
                       fit: BoxFit.cover,
-                      errorBuilder: (context, exception, stackTrace) {
-                        return Lottie.asset(
-                          'assets/lottie/product_image_not_found.json',
-                        );
-                      },
+                      errorBuilder: (context, exception, stackTrace) =>
+                          Lottie.asset(
+                        'assets/lottie/product_image_not_found.json',
+                      ),
                     ),
                   )
                 else
                   const SphereQuestionMark(), // Assuming SphereQuestionMark is a widget you've defined
               if (!showList)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -255,86 +254,93 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                   ),
                 ),
               if (!showList)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Stack(
                   children: [
-                    SizedBox(
-                      width: MediaQuery.sizeOf(context).width * 0.50,
-                      height: MediaQuery.sizeOf(context).height * 0.20,
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: Transform.scale(
-                              scale: 4,
-                              child: MinimumCircle(
-                                percentage: percentage,
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.45,
+                          height: MediaQuery.of(context).size.height * 0.28,
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                child: Center(
+                                  child: Container(
+                                    width:
+                                        MediaQuery.sizeOf(context).width * 0.25,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.orange[50]!,
+                                          Colors.orange[200]!,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          Center(
-                            child: Transform.scale(
-                              scale: 4.5,
-                              child: RainbowCircularProgressIndicator(
-                                percentage:
-                                    percentage, // Substitute your actual percentage here
+                              Transform.scale(
+                                scale: 1.5,
+                                child: const RiveEllipses(),
                               ),
-                            ),
-                          ),
-                          Center(
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.25,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.orange[50]!,
-                                    Colors.orange[200]!,
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '% ${(targetRatio * 100).toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Divider(
+                                      indent: 40,
+                                      endIndent: 40,
+                                      thickness: 2,
+                                      height: 24,
+                                    ),
+                                    Consumer(
+                                      builder: (context, watch, child) {
+                                        final bonus = ref.watch(
+                                              bonusCalculator(
+                                                targetRatio,
+                                              ),
+                                            ) *
+                                            ((workingHours - allowance) / 7.00);
+                                        return Text(
+                                          '£ ${bonus.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                          Center(
-                            child: Consumer(
-                              builder: (context, watch, _) => Text(
-                                '${(targetRatio * 100).toStringAsFixed(2)}%',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          TargetButton(productName: focusedProduct.productName),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 3),
-                            child: Align(
-                              child: Consumer(
-                                builder: (context, watch, child) {
-                                  final bonus = ref.watch(
-                                        bonusCalculator(
-                                          targetRatio,
-                                        ),
-                                      ) *
-                                      ((workingHours - allowance) / 7.00);
-                                  return BonusCoin(bonus: bonus);
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
+                    Positioned(
+                      top: 54,
+                      left: -64,
+                      child: Transform.scale(
+                        scale: 1.3,
+                        child: TargetBoard(
+                          productName: focusedProduct.productName,
+                        ),
                       ),
                     ),
                   ],
                 ),
+
               //add a new widget to the row
               if (!showList) const CustomSaveButton(),
               const SlideToOvertime(),

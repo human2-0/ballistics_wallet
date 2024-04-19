@@ -30,14 +30,12 @@ class ProductInfo extends HiveObject {
     int? target,
     String? imageName,
     List<Pressing>? product,
-  }) {
-    return ProductInfo(
+  }) => ProductInfo(
       productName: productName ?? this.productName,
       target: target ?? this.target,
       imageName: imageName ?? this.imageName,
       product: product ?? this.product,
     );
-  }
 }
 
 @immutable
@@ -46,14 +44,12 @@ class Pressing {
   const Pressing(this.productColor, this.systemG, this.systemCitric);
 
   // Factory constructor to create a Pressing instance from a map
-  factory Pressing.fromMap(Map<String, dynamic> map) {
-    return Pressing(
+  factory Pressing.fromMap(Map<String, dynamic> map) => Pressing(
       map['color'] as String,
       (map['systemG'] as num).toDouble(), // Ensuring type conversion to double
       (map['systemCitric'] as num)
           .toDouble(), // Ensuring type conversion to double
     );
-  }
 
   @HiveField(1)
   final String productColor;
@@ -68,21 +64,17 @@ class Pressing {
     String? productColor,
     double? systemG,
     double? systemCitric,
-  }) {
-    return Pressing(
+  }) => Pressing(
       productColor ?? this.productColor,
       systemG ?? this.systemG,
       systemCitric ?? this.systemCitric,
     );
-  }
 
-  Map<String, dynamic> toMap() {
-    return {
+  Map<String, dynamic> toMap() => {
       'color': productColor,
       'systemG': systemG,
       'systemCitric': systemCitric,
     };
-  }
 
   @override
   bool operator ==(Object other) {

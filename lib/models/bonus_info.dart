@@ -41,8 +41,7 @@ class BonusInfo {
     double? workingHours,
     bool? isOvertime,
     List<Produced>? produced,
-  }) {
-    return BonusInfo(
+  }) => BonusInfo(
       id: id ?? this.id,
       userId: userId ?? this.userId,
       bonus: bonus ?? this.bonus,
@@ -51,7 +50,6 @@ class BonusInfo {
       isOvertime: isOvertime ?? this.isOvertime,
       produced: produced ?? this.produced,
     );
-  }
 
   @HiveField(0)
   final String id;
@@ -83,25 +81,21 @@ class Produced {
     required this.ratio,
   });
 
-  factory Produced.fromMap(Map<String, dynamic> map) {
-    return Produced(
+  factory Produced.fromMap(Map<String, dynamic> map) => Produced(
       productName: map['productName'] as String,
       amount: map['amount'] as int,
       ratio: (map['ratio'] as num?)?.toDouble() ?? 0.0,
     );
-  }
 
   Produced copyWith({
     String? productName,
     int? amount,
     double? ratio,
-  }) {
-    return Produced(
+  }) => Produced(
       productName: productName ?? this.productName,
       amount: amount ?? this.amount,
       ratio: ratio ?? this.ratio,
     );
-  }
 
   @HiveField(0)
   final String productName;

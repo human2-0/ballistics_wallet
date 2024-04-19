@@ -112,8 +112,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ...List.generate(producedControllers.length, (index) {
-                return Row(
+              ...List.generate(producedControllers.length, (index) => Row(
                   children: [
                     Flexible(
                       child: Padding(
@@ -228,8 +227,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                         },
                       ),
                   ],
-                );
-              }),
+                ),),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                 child: Center(

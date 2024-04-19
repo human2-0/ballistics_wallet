@@ -44,17 +44,14 @@ class _ToastWidgetState extends State<ToastWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
+  Widget build(BuildContext context) => Material(
       color: Colors.transparent,
       child: AnimatedBuilder(
         animation: _opacityAnimation,
-        builder: (context, child) {
-          return Opacity(
+        builder: (context, child) => Opacity(
             opacity: _opacityAnimation.value,
             child: child,
-          );
-        },
+          ),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -87,7 +84,6 @@ class _ToastWidgetState extends State<ToastWidget>
         ),
       ),
     );
-  }
 }
 
 void showToast(BuildContext context, String message, {List<Color>? colors}) {

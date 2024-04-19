@@ -62,21 +62,21 @@ class SlideToBasicShiftState extends State<SlideToBasicShift>
                 ),
               ],
             ),
-            child: Center(
+            child: const Center(
               child: Column(
                 children: [
-                  const Text('Slide to return'),
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
-                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
-                        Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
-                      ],
-                    ),
-                  ),
+                  Text('Slide to return'),
+                  // SlideTransition(
+                  //   position: _slideAnimation,
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //     children: <Widget>[
+                  //       Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
+                  //       Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
+                  //       Icon(Icons.keyboard_arrow_left_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 40),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),

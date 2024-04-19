@@ -94,7 +94,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
       children: [
         Positioned.fill(
           child: Image.asset(
-            'assets/target_screen.jpg',
+            'assets/target_screen.webp',
             fit: BoxFit.cover,
           ),
         ),
@@ -290,7 +290,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.45,
+                          width: MediaQuery.of(context).size.width * 0.40,
                           child: TextField(
                             controller: targetController,
                             focusNode: focusNodeTarget,
@@ -356,7 +356,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                         ),
                         const SizedBox(width: 8,),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.45,
+                          width: MediaQuery.of(context).size.width * 0.50,
                           child: TextField(
                             focusNode: focusNodeAmount,
                             controller: amountPerBatchController,
@@ -372,7 +372,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                               labelStyle: TextStyle(
                                 color: Colors.orange[100],
                                 fontWeight: FontWeight.bold, // Bold text
-                                fontSize: 18, // Slightly bigger font
+                                fontSize: 14, // Slightly bigger font
                               ),
                               hintText: 'Enter amount',
                               hintStyle: TextStyle(

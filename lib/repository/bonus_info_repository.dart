@@ -7,9 +7,7 @@ class BonusInfoRepository {
   final FirebaseFirestore db = FirebaseFirestore.instance;
   final String _boxName = 'bonusInfoBox';
 
-  Future<Box<BonusInfo>> openBox() async {
-    return Hive.openBox<BonusInfo>(_boxName);
-  }
+  Future<Box<BonusInfo>> openBox() async => Hive.openBox<BonusInfo>(_boxName);
 
   Future<String> addBonusInfo(BonusInfo bonusInfo) async {
     final box = await openBox();
@@ -37,7 +35,7 @@ class BonusInfoRepository {
         }
       }
       // Update the existing entry with the modified produced list
-      final updatedBonusInfo = existingBonus.copyWith(produced: updatedProducedList);
+      final updatedBonusInfo = existingBonus.copyWith(bonus: bonusInfo.bonus, produced: updatedProducedList);
       await box.put(existingBonus.id, updatedBonusInfo);
 
       return 'Product updated successfully.';

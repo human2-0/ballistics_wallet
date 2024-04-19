@@ -44,11 +44,21 @@ class LastSelectedProducts extends ConsumerWidget {
                     builder: (context) => Wrap(
                       children: [
                         ListTile(
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(33),  // Rounded top left corner
+                              topRight: Radius.circular(33), // Rounded top right corner
+                            ),
+                          ),
+                          tileColor: Colors.red[100],
+                          iconColor: Colors.red,
                           leading: const Icon(Icons.delete),
                           title: const Text('Delete'),
                           onTap: () => Navigator.pop(context, 'delete'),
                         ),
                         ListTile(
+                          tileColor: Colors.yellow[100],
+                          iconColor: Colors.yellow[700],
                           leading: const Icon(Icons.edit),
                           title: const Text('Edit'),
                           onTap: () => Navigator.pop(context, 'edit'),
@@ -74,6 +84,7 @@ class LastSelectedProducts extends ConsumerWidget {
                           ),
                         );
                       });
+                      break;
 
                     case 'edit':
                       WidgetsBinding.instance
@@ -84,6 +95,7 @@ class LastSelectedProducts extends ConsumerWidget {
                           product: product,
                         );
                       });
+                      break;
                     case 'cancel':
                     default:
                       // Do nothing for cancel or undefined actions

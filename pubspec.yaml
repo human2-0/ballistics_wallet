@@ -19,7 +19,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '^3.2.6'
+  sdk: ">=2.17.0 <4.0.0"
+  flutter: ">=2.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -28,7 +29,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  firebase_core: ^2.0.0
+  firebase_core: ^2.28.0
   flutter:
     sdk: flutter
 
@@ -61,11 +62,17 @@ dependencies:
   calendar_date_picker2: ^0.5.3
   collection: ^1.15.0
   uuid: ^4.3.3
+  mockito: ^5.4.4
+  fake_cloud_firestore: ^2.4.9
+  rive: ^0.13.1
 
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -110,6 +117,7 @@ flutter:
     - assets/images/
     - assets/
     - assets/lottie/
+    - assets/rive/
     - new_targets.csv
     - split_data.csv
     - merged_data_final.csv

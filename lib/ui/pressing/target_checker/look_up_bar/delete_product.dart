@@ -14,8 +14,7 @@ class DeleteItem extends ConsumerStatefulWidget {
 
 class DeleteItemState extends ConsumerState<DeleteItem> {
   @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
+  Widget build(BuildContext context) => AlertDialog(
       content: Text(
         'Would you like to permanently delete the product ${widget.productName} ?',
       ),
@@ -61,5 +60,4 @@ class DeleteItemState extends ConsumerState<DeleteItem> {
         ),
       ],
     );
-  }
 }
