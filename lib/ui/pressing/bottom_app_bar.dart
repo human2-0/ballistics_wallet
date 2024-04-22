@@ -1,6 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
@@ -8,7 +7,6 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_root.dart';
-import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -47,10 +45,13 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
     super.initState();
     if (mounted) {
       final userId = ref.read(authRepositoryProvider).currentUserId;
-      Future.microtask(
-          () async => ref.read(bonusInfoListProvider.notifier).init(),);
-      Future.microtask(
-          () async => ref.read(userNotifierProvider.notifier).loadUser(userId),);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await ref.read(userNotifierProvider.notifier).loadUser(userId);
+        // if (mounted) {
+        //   await preloadImages(context);
+        //
+        // }
+      });
     }
 
     _tabController = TabController(length: 4, vsync: this);
@@ -150,7 +151,6 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   @override
   Widget build(BuildContext context) {
-    Future.microtask(() async => preloadImages(context));
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(

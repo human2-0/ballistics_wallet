@@ -1,8 +1,11 @@
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
 import 'package:ballistics_wallet_flutter/models/ratio_and_bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/bonus_info_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   BonusInfoNotifier(this._repository, this.userId)
@@ -37,6 +40,7 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   ) {
     int productTargetAdjusted;
 
+
     // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
     if (workingHours == 8) {
       productTargetAdjusted =
@@ -44,9 +48,19 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     }
     // If workingHours are less than 8, adjust productTarget only with respect to allowance
     else {
-      productTargetAdjusted =
-          (productTarget * ((workingHours - allowanceProvided) / workingHours))
-              .ceil();
+      if (workingHours <= 0) {
+        // Handle the case where working hours are zero or negative
+        productTargetAdjusted = productTarget;  // You may choose to handle this differently
+      } else {
+        final adjustedHours = workingHours - allowanceProvided;
+        if (adjustedHours <= 0) {
+          // Handle the case where the adjusted hours are zero or negative
+          productTargetAdjusted = productTarget; // Preserving the original target, or set to a default/minimal value
+        } else {
+          // Safe to perform division now
+          productTargetAdjusted = (productTarget * (adjustedHours / workingHours)).ceil();
+        }
+      }
     }
 
     // Handle zero cases
@@ -179,6 +193,41 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
 
     return totalBonus;
   }
+
+  Future<List<MonthlyData>> getHistoricalMonthlyData() async {
+    final historicalData = <MonthlyData>[];
+    final endDate = DateTime.now();
+    var startDate = state.bonusInfo.isNotEmpty
+        ? state.bonusInfo.map((b) => b.date).reduce((a, b) => a.isBefore(b) ? a : b)
+        : DateTime.now().subtract(const Duration(days: 365));
+
+    // This logic ensures you continue until the current month's data is processed fully
+    while (startDate.year < endDate.year || (startDate.year == endDate.year && startDate.month <= endDate.month)) {
+      // Define month range based on the 19th to the 18th span
+      final monthStart = DateTime(startDate.year, startDate.month, 19);
+      final monthEnd = DateTime(startDate.year, startDate.month + 1, 18);
+
+      var monthlyHours = 0.0;
+      var monthlyBonus = 0.0;
+      for (final bonusInfo in state.bonusInfo) {
+        // Check if the date is within the current range, inclusive of both start and end
+        if (bonusInfo.date.isAtLeast(monthStart) && bonusInfo.date.isBefore(monthEnd.add(const Duration(days: 1)))) {
+          monthlyHours += bonusInfo.workingHours;
+          monthlyBonus += bonusInfo.bonus;
+        }
+      }
+
+      // Label the month according to the pay period's ending month
+      final monthLabel = DateFormat('MMMM yyyy').format(monthEnd);
+      historicalData.add(MonthlyData(monthLabel, monthlyHours, monthlyBonus));
+
+      // Increment to the next month start from the 19th
+      startDate = DateTime(startDate.year, startDate.month + 1, 19);
+    }
+
+    return historicalData;
+  }
+
 }
 
 final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
@@ -192,3 +241,10 @@ StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
     ref.read(authRepositoryProvider).currentUserId,
   ),
 );
+
+extension DateTimeExtensions on DateTime {
+  /// Checks if this DateTime is at least (later than or the same as) another DateTime.
+  bool isAtLeast(DateTime other) {
+    return isAfter(other) || isAtSameMomentAs(other);
+  }
+}

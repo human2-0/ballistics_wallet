@@ -77,6 +77,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                               productName: productName,
                               amount: amount,
                               ratio: productRatio,
+                              allowance: allowance,
                             ),
                           ], // Initialize with empty or collect data as needed
                         );

@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -7,6 +8,8 @@ import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 
 final numberFocusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final numberFocusNode = FocusNode();
@@ -56,7 +59,46 @@ final numberProvider = StateProvider<int>((ref) => 0);
 final targetProvider =
     StateProvider<int>((ref) => 0);
 
-final allowanceProvider = StateProvider<double>((ref) => 0.0);
+class AllowanceNotifier extends StateNotifier<double> {
+
+  AllowanceNotifier(this.ref) : super(0) {
+    Future.microtask(_fetchInitialAllowance);
+  }
+  final Ref ref;
+
+  Future<void> _fetchInitialAllowance() async {
+    try {
+      final box = Hive.box<BonusInfo>('bonusInfoBox');
+      final todayString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final bonusInfoToday = box.values.firstWhere(
+            (bonusInfo) => DateFormat('yyyy-MM-dd').format(bonusInfo.date) == todayString,
+        orElse: () => BonusInfo(userId: 'userId', bonus: 0, date: DateTime(1), workingHours: 0, isOvertime: false, produced: [Produced(amount: 0,productName: '',ratio: 0)]),
+      );
+
+      if (bonusInfoToday.produced.isNotEmpty) {
+        final producedToday = bonusInfoToday.produced.firstWhere(
+              (prod) => prod.allowance != null,
+          orElse: () => Produced(productName: '', amount: 0, ratio: 0),
+        );
+        state = producedToday.allowance ?? 0;
+      }
+
+    } on FormatException catch (e) {
+      // Handle errors or log them
+    }
+  }
+
+  void updateAllowance(double newAllowance) {
+    if (newAllowance >= 0) {  // Example validation: allowance should not be negative
+      state = newAllowance;
+    } else {
+    }
+  }
+}
+
+final allowanceProvider = StateNotifierProvider<AllowanceNotifier, double>((ref) {
+  return AllowanceNotifier(ref);
+});
 
 final overtimeRatioProvider = StateProvider<double>((ref) => 0.0);
 final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);

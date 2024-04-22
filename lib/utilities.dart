@@ -18,15 +18,14 @@ String toTitleCase(String text) {
 
   // Convert each word to title case
   words = words.map((word) {
-    if (word.isEmpty) return word;  // Check if the word is empty to avoid errors
+    if (word.isEmpty) return word; // Check if the word is empty to avoid errors
     final leftText = word.length > 1 ? word.substring(1) : '';
-    return word[0]+ leftText;
+    return word[0] + leftText;
   }).toList();
 
   // Join words with an underscore if there are multiple words
   return words.join('_');
 }
-
 
 List<List<dynamic>> csvToList(String data) {
   final eol = data.contains('\r\n') ? '\r\n' : '\n';
@@ -98,13 +97,14 @@ Future<void> initHive() async {
     ..registerAdapter(SelectedProductAdapter())
     ..registerAdapter(ProductInfoAdapter())
     ..registerAdapter(PressingAdapter())
-  ..registerAdapter(BonusInfoAdapter())
-  ..registerAdapter(ProducedAdapter());
+    ..registerAdapter(BonusInfoAdapter())
+    ..registerAdapter(ProducedAdapter());
 
   final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
   if (boxProductInfo.isEmpty) {
     await addDataToProductInfoBox(boxProductInfo);
   }
+  await Hive.openBox<BonusInfo>('bonusInfoBox');
 }
 
 Future<void> preloadImages(BuildContext context) async {
@@ -139,7 +139,6 @@ extension MapExtensions on Map<String, dynamic> {
     }
   }
 }
-
 
 const Map<int, double> bonusPercentageMap = {
   1: 102.00,

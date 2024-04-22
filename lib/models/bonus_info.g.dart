@@ -71,21 +71,23 @@ class ProducedAdapter extends TypeAdapter<Produced> {
     return Produced(
       productName: fields[0] as String,
       amount: fields[1] as int,
-      // Use `as double?` to allow null values, and `?? 0.0` to provide a default value if null
-      ratio: fields[2] as double? ?? 0.0,
+      ratio: fields[2] as double,
+      allowance: fields[3] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Produced obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.productName)
       ..writeByte(1)
       ..write(obj.amount)
       ..writeByte(2)
-      ..write(obj.ratio);
+      ..write(obj.ratio)
+      ..writeByte(3)
+      ..write(obj.allowance);
   }
 
   @override

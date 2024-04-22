@@ -4,6 +4,7 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/slide_to_basicshift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -811,7 +812,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 ),
                               ),
                           ),
-                        // const SlideToBasicShift(),
+                        const SlideToBasicShift(),
                       ],
                     ),
                   ),

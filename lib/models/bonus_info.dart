@@ -75,10 +75,12 @@ class BonusInfo {
 
 @HiveType(typeId: 1)
 class Produced {
+
   Produced({
     required this.productName,
     required this.amount,
     required this.ratio,
+    this.allowance,
   });
 
   factory Produced.fromMap(Map<String, dynamic> map) => Produced(
@@ -105,4 +107,7 @@ class Produced {
 
   @HiveField(2)
   final double ratio;
+
+  @HiveField(3)
+  final double? allowance;
 }

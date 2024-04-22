@@ -8,7 +8,6 @@ import 'package:ballistics_wallet_flutter/repository/auth_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/login_screen.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/bottom_app_bar.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_ellipses.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_target_animation.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';

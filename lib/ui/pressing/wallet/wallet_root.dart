@@ -1,7 +1,9 @@
+import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_info_list.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/date_picker.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,9 +20,54 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
     ref.watch(bonusInfoListProvider);
     final userState = ref.watch(userNotifierProvider);
     final totalBonus = ref.read(bonusInfoListProvider.notifier).getTotalBonus();
-    final totalHours = ref.read(bonusInfoListProvider.notifier).getTotalWorkingHours();
+    final totalHours =
+        ref.read(bonusInfoListProvider.notifier).getTotalWorkingHours();
     final totalSalary = totalBonus + (totalHours * userState.hourlyRate!);
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+            iconSize: 40,
+            icon: const Icon(Icons.history),
+            onPressed: () async => showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return SizedBox(
+                  height: 400,
+                  child: FutureBuilder<List<MonthlyData>>(
+                    future: ref
+                        .read(bonusInfoListProvider.notifier)
+                        .getHistoricalMonthlyData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.hasData) {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            final data = snapshot.data![index];
+                            return ListTile(
+                              title: Text(data.month),
+                              subtitle: Text(
+                                  'Hours: ${data.totalHours}, Bonus: ${data.totalBonus}',),
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                            child: Text('No historical data found'),);
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
       backgroundColor: Colors.transparent,
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
@@ -65,7 +112,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           padding: const EdgeInsets.all(10),
                           child: Center(
                             child: Text(
-                              'Total hours\n ${totalHours.toStringAsFixed(2)}',
+                              'Total hours\n ${formatDouble(totalHours)}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -86,7 +133,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius:
-                        const BorderRadius.all(Radius.circular(33)),
+                            const BorderRadius.all(Radius.circular(33)),
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -111,7 +158,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           padding: const EdgeInsets.all(10),
                           child: Center(
                             child: Text(
-                              'Total salary £${totalSalary.toStringAsFixed(2)}',
+                              'Total salary £${formatDouble(totalSalary)}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -156,7 +203,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                           padding: const EdgeInsets.all(10),
                           child: Center(
                             child: Text(
-                              'Total bonus\n £${totalBonus.toStringAsFixed(2)}',
+                              'Total bonus\n £${formatDouble(totalBonus)}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

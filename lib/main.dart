@@ -29,6 +29,10 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await preloadImages(context);
+    });
+
     return MaterialApp.router(
       title: 'Ballistics Wallet',
       debugShowCheckedModeBanner: false,

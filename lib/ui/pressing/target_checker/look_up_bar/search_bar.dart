@@ -10,12 +10,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SearchProductBar extends ConsumerStatefulWidget {
   const SearchProductBar({
     required this.numberController,
-    required this.focusNode,
     super.key,
   });
 
   final TextEditingController numberController;
-  final FocusNode focusNode;
 
   @override
   SearchProductBarState createState() => SearchProductBarState();
@@ -24,6 +22,7 @@ class SearchProductBar extends ConsumerStatefulWidget {
 class SearchProductBarState extends ConsumerState<SearchProductBar> {
   @override
   Widget build(BuildContext context) {
+    final focusNode = ref.watch(focusNodeProvider);
     final showList = ref.watch(showListProvider);
 
     final controller =
@@ -39,11 +38,11 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
           ),
           duration: const Duration(milliseconds: 400),
           width:
-              ((showList || widget.focusNode.hasFocus || (controller.text != ''))
+              ((showList || focusNode.hasFocus || (controller.text != ''))
                   ? MediaQuery.of(context).size.width * 0.75
                   : MediaQuery.of(context).size.width * 0.12),
           child: TextField(
-            focusNode: widget.focusNode,
+            focusNode: focusNode,
             controller: controller,
             textAlign: TextAlign.center,
             textAlignVertical: TextAlignVertical.center,
@@ -66,11 +65,10 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                         controller.clear();
                         ref.read(showListProvider.notifier).state = false;
                         ref.read(focusNodeProvider).unfocus();
-                        widget.focusNode.unfocus();
+                        focusNode.unfocus();
                         widget.numberController.clear();
 
                         ref.read(targetProvider.notifier).state = 0;
-                        ref.read(allowanceProvider.notifier).state = 0.0;
                         await ref.read(bonusInfoListProvider.notifier).init();
                         ref
                             .read(numberControllerProvider.notifier)

@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +40,6 @@ class DatePickerCalendarState extends ConsumerState {
       _calendarKey = UniqueKey();
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +149,8 @@ class DatePickerCalendarState extends ConsumerState {
                       child: Text(
                         date.day.toString(),
                         style: const TextStyle(
-                          color: Colors.black, // Adjust color based on selection
+                          color:
+                              Colors.black, // Adjust color based on selection
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -157,11 +158,12 @@ class DatePickerCalendarState extends ConsumerState {
                     ),
                     ...dailyBonusInfo.map(
                       (info) => Text(
-                        '£${info.bonus.toStringAsFixed(2)}',
+                        '£${formatDouble(info.bonus)}',
                         style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.green[600],
-                            fontWeight: FontWeight.bold,),
+                          fontSize: 11,
+                          color: Colors.green[600],
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -180,7 +182,8 @@ class DatePickerCalendarState extends ConsumerState {
     );
   }
 
-  bool isSameDay(DateTime? date1, DateTime? date2) => date1?.year == date2?.year &&
-        date1?.month == date2?.month &&
-        date1?.day == date2?.day;
+  bool isSameDay(DateTime? date1, DateTime? date2) =>
+      date1?.year == date2?.year &&
+      date1?.month == date2?.month &&
+      date1?.day == date2?.day;
 }

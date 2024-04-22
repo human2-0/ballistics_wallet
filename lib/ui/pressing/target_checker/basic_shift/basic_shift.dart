@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/custom_widgets/calculator_field.dart';
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -12,8 +13,8 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/not_selected_product_sphere.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_ellipses.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_target_animation.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
@@ -28,13 +29,35 @@ class BasicShift extends ConsumerStatefulWidget {
 class BasicShiftCard extends ConsumerState<BasicShift>
     with TickerProviderStateMixin {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final focusedProduct = ref.watch(focusedProductProvider);
+      final allowance = ref.watch(allowanceProvider);
+      final userState = ref.watch(userNotifierProvider);
+      final workingHours = userState.workingHours ?? 0.0;
+
+      final numberController =
+          ref.watch(numberControllerProvider.notifier).controller;
+      ref
+          .read(
+            bonusInfoListProvider.notifier,
+          )
+          .updateRatio(
+            focusedProduct.productName.toLowerCase().trimRight(),
+            ref.read(targetProvider),
+            int.tryParse(numberController.text) ?? 0,
+            workingHours,
+            allowance,
+          );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final showList = ref.watch(showListProvider);
-    final focusNode = ref.watch(focusNodeProvider);
     final numberFocusNode = ref.watch(numberFocusNodeProvider);
     final allowanceFocusNode = ref.watch(allowanceFocusNodeProvider);
-
-    final productTarget = ref.watch(targetProvider);
     final targetRatio = ref.watch(bonusInfoListProvider).ratio;
 
     final userState = ref.watch(userNotifierProvider);
@@ -42,18 +65,16 @@ class BasicShiftCard extends ConsumerState<BasicShift>
     final workingHours = userState.workingHours ?? 0.0;
 
     final numberController =
-        ref.read(numberControllerProvider.notifier).controller;
-    final allowanceController =
-        ref.read(allowanceControllerProvider.notifier).controller;
+        ref.watch(numberControllerProvider.notifier).controller;
+    final allowanceController = ref.read(allowanceControllerProvider);
     final focusedProduct = ref.watch(focusedProductProvider);
-    print(focusedProduct.imageName);
 
     return GestureDetector(
       onTap: () {
         numberFocusNode.unfocus();
         allowanceFocusNode.unfocus();
         ref.read(showListProvider.notifier).state = false;
-        focusNode.unfocus();
+        ref.read(focusNodeProvider).unfocus();
       },
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
@@ -92,7 +113,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
             children: [
               SearchProductBar(
                 numberController: numberController,
-                focusNode: focusNode,
               ),
               if (showList) _buildProductList(ref),
               if (!showList)
@@ -121,60 +141,68 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                         width: MediaQuery.of(context).size.width * 0.43,
                         child: DecoratedBox(
                           decoration: boxDecoration(),
-                          child: TextFormField(
-                            focusNode: numberFocusNode,
+                          child: CalculatorField(
+                            allowance: allowance,
                             controller: numberController,
-                            textAlign: TextAlign.center,
-                            // Center the text
-                            decoration: InputDecoration(
-                              alignLabelWithHint: true,
-                              labelText: 'Amount pressed',
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 4,
-                              ),
-                              fillColor: Colors.yellowAccent[100],
-                              // Add the color of the search bar widget here
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(33),
-                                // Rounded edges
-                                borderSide: BorderSide.none,
-                              ),
-                              prefixIcon: const Icon(Icons.numbers_outlined),
-                              suffixIcon: Visibility(
-                                visible: numberFocusNode.hasFocus,
-                                child: IconButton(
-                                  icon: const Icon(Icons.keyboard_hide),
-                                  onPressed: numberFocusNode.unfocus,
-                                ),
-                              ),
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a number';
-                              }
-                              return null;
-                            },
-                            onChanged: (value) {
-                              ref
-                                  .read(
-                                    bonusInfoListProvider.notifier,
-                                  )
-                                  .updateRatio(
-                                    focusedProduct.productName.toLowerCase(),
-                                    productTarget,
-                                    int.tryParse(value) ?? 0,
-                                    workingHours,
-                                    allowance,
-                                  );
-                            },
+                            focusNode: numberFocusNode,
+                            focusedProductName: focusedProduct.productName,
+                            ref: ref,
+                            workingHours: workingHours,
                           ),
+                          // child: TextFormField(
+                          //   focusNode: numberFocusNode,
+                          //   controller: numberController,
+                          //   textAlign: TextAlign.center,
+                          //   // Center the text
+                          //   decoration: InputDecoration(
+                          //     alignLabelWithHint: true,
+                          //     labelText: 'Amount pressed',
+                          //     contentPadding: const EdgeInsets.symmetric(
+                          //       vertical: 4,
+                          //     ),
+                          //     fillColor: Colors.yellowAccent[100],
+                          //     // Add the color of the search bar widget here
+                          //     filled: true,
+                          //     border: OutlineInputBorder(
+                          //       borderRadius: BorderRadius.circular(33),
+                          //       // Rounded edges
+                          //       borderSide: BorderSide.none,
+                          //     ),
+                          //     prefixIcon: const Icon(Icons.numbers_outlined),
+                          //     suffixIcon: Visibility(
+                          //       visible: numberFocusNode.hasFocus,
+                          //       child: IconButton(
+                          //         icon: const Icon(Icons.keyboard_hide),
+                          //         onPressed: numberFocusNode.unfocus,
+                          //       ),
+                          //     ),
+                          //   ),
+                          //   keyboardType: const TextInputType.numberWithOptions(
+                          //     decimal: true,
+                          //   ),
+                          //   inputFormatters: [
+                          //     FilteringTextInputFormatter.digitsOnly,
+                          //   ],
+                          //   validator: (value) {
+                          //     if (value == null || value.isEmpty) {
+                          //       return 'Please enter a number';
+                          //     }
+                          //     return null;
+                          //   },
+                          //   onChanged: (value) {
+                          //     ref
+                          //         .read(
+                          //           bonusInfoListProvider.notifier,
+                          //         )
+                          //         .updateRatio(
+                          //           focusedProduct.productName.toLowerCase(),
+                          //           ref.read(targetProvider),
+                          //           int.tryParse(value) ?? 0,
+                          //           workingHours,
+                          //           allowance,
+                          //         );
+                          //   },
+                          // ),
                         ),
                       ),
                       GestureDetector(
@@ -202,7 +230,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               controller: allowanceController,
                               decoration: InputDecoration(
                                 alignLabelWithHint: true,
-                                labelText: 'Allowance',
+                                hintText: 'Allowance',
+                                labelText: (allowance * 60).toInt() == 0
+                                    ? 'Allowance'
+                                    : targetRatio <= 0
+                                        ? 'Allowance'
+                                        : '${(allowance * 60).toInt()}-Allowance ',
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                 ),
@@ -229,8 +262,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                 final parsedValue = int.tryParse(value) ?? 0;
                                 final allowanceProvided =
                                     parsedValue == 0 ? 0.0 : parsedValue / 60;
-                                ref.read(allowanceProvider.notifier).state =
-                                    allowanceProvided;
+                                ref
+                                    .read(allowanceProvider.notifier)
+                                    .updateAllowance(allowanceProvided);
 
                                 ref
                                     .read(
@@ -240,7 +274,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                       focusedProduct.productName
                                           .toLowerCase()
                                           .trimRight(),
-                                      productTarget,
+                                      ref.read(targetProvider),
                                       int.tryParse(numberController.text) ?? 0,
                                       workingHours,
                                       allowanceProvided,
@@ -312,9 +346,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                             ) *
                                             ((workingHours - allowance) / 7.00);
                                         return Text(
-                                          '£ ${bonus.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            color: Colors.black,
+                                          '£ ${formatDouble(bonus)}',
+                                          style: TextStyle(
+                                            color: Colors.green[900],
                                             fontWeight: FontWeight.bold,
                                           ),
                                         );
