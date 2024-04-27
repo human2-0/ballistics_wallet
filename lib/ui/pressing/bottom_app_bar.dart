@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
@@ -24,7 +25,7 @@ class RootBottomBar extends ConsumerStatefulWidget {
 }
 
 class _RootBottomBarState extends ConsumerState<RootBottomBar>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   late ScrollController _scrollController;
   bool _isVisible = true;
@@ -43,14 +44,11 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (mounted) {
       final userId = ref.read(authRepositoryProvider).currentUserId;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await ref.read(userNotifierProvider.notifier).loadUser(userId);
-        // if (mounted) {
-        //   await preloadImages(context);
-        //
-        // }
       });
     }
 
@@ -114,6 +112,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     Future.microtask(Hive.close);
     _tabController.animation!.removeListener(_handleTabAnimation);
     _tabController.dispose();
@@ -150,8 +149,38 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   }
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.paused:
+        // App is in the background
+        _runBackendTasks();
+        break;
+      case AppLifecycleState.resumed:
+        // App is in foreground
+        break;
+      case AppLifecycleState.inactive:
+        // App is in an inactive state
+        break;
+      case AppLifecycleState.detached:
+        // App is still hosted on a flutter engine but is detached from any host views
+        _runBackendTasks();
+        break;
+      case AppLifecycleState.hidden:
+        // TODO: Handle this case.
+        break;
+    }
+  }
 
+  void _runBackendTasks() {
+    // Here you could add your function to call your backend or perform any tasks
+    Future.microtask(
+      () async => ref.read(backupManagerProvider.notifier).backupData(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,

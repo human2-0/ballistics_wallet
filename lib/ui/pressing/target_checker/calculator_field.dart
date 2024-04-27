@@ -71,6 +71,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
                 _buildOperatorButton('-'),
                 _buildOperatorButton('*'),
                 _buildOperatorButton('/'),
+                _buildOperatorButton('='),
               ],
             ),
           ),
@@ -105,7 +106,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
   }
 
   void _evaluateAndTriggerUpdate() {
-    final expression = widget.controller.text;
+    final expression = widget.controller.text.isEmpty ? '0' : widget.controller.text; // Check if the text is empty
     try {
       final exp = Expression.parse(expression);
       const evaluator = ExpressionEvaluator();
@@ -117,6 +118,8 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
     } on FormatException catch (e) {
       // Handle parsing error or simply do nothing to avoid updating the controller with incorrect data
       // Optionally, you might want to handle errors by displaying an error or logging it
+      widget.controller.text = '0'; // Set text to "0" if there's a parsing error
+      _triggerOnChanged('0');
     }
   }
 

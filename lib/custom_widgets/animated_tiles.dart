@@ -2,8 +2,8 @@ import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class AnimatedTile extends StatefulWidget {
-  const AnimatedTile({
+class MinimumAnimatedTile extends StatefulWidget {
+  const MinimumAnimatedTile({
     required this.target,
     required this.onLongPressComplete,
     super.key,
@@ -12,10 +12,10 @@ class AnimatedTile extends StatefulWidget {
   final VoidCallback onLongPressComplete;
 
   @override
-  _AnimatedTileState createState() => _AnimatedTileState();
+  _MinimumAnimatedTileState createState() => _MinimumAnimatedTileState();
 }
 
-class _AnimatedTileState extends State<AnimatedTile>
+class _MinimumAnimatedTileState extends State<MinimumAnimatedTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;

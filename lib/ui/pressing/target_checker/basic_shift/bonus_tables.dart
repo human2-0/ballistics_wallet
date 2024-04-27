@@ -1,4 +1,4 @@
-import 'package:ballistics_wallet_flutter/custom_widgets/animated_tile.dart';
+import 'package:ballistics_wallet_flutter/custom_widgets/animated_tiles.dart';
 import 'package:ballistics_wallet_flutter/providers/pressing_db_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
@@ -40,17 +40,15 @@ class BonusTableState extends ConsumerState {
               final bonuses = snapshot.data!;
               final stableTarget = ref.watch(targetProvider);
               var target = ref.watch(targetProvider) * (1 - targetRatio);
-              if (targetRatio == 0.0) {
-                final allowanceCheck = (workingHours - allowance) / 7;
-                if (allowanceCheck > 0) {
-                  target = (target * allowanceCheck).ceilToDouble();
-                }
+              final allowanceCheck = (workingHours - allowance) / 7;
+              if (allowanceCheck > 0) {
+                target = (target * allowanceCheck).ceilToDouble();
               }
 
               final sortedKeys = bonuses.keys.toList()..sort();
 
               final listItems = <Widget>[];
-              if (targetRatio*100 >= 171.43) {
+              if (targetRatio * 100 >= 171.43) {
                 listItems.add(
                   Container(
                     margin: const EdgeInsets.all(16),
@@ -113,14 +111,17 @@ class BonusTableState extends ConsumerState {
               } else {
                 if (target > 0) {
                   listItems.add(
-                    AnimatedTile(
+                    MinimumAnimatedTile(
                       target: target.ceil(),
                       onLongPressComplete: () {
-                        Future.microtask(() async => saveToWallet(
-                          context: context,
-                          ref: ref,
-                          amountPressed: target.ceil(),
-                          mounted: mounted,),);
+                        Future.microtask(
+                          () async => saveToWallet(
+                            context: context,
+                            ref: ref,
+                            amountPressed: target.ceil(),
+                            mounted: mounted,
+                          ),
+                        );
                       },
                     ),
                   );
@@ -138,10 +139,10 @@ class BonusTableState extends ConsumerState {
                     final allowanceCheck = (workingHours - allowance) / 7;
 
                     final requiredAmount = ((requiredPercentage *
-                        (allowanceCheck > 0
-                            ? (stableTarget * allowanceCheck).ceil()
-                            : stableTarget)) /
-                        100)
+                                (allowanceCheck > 0
+                                    ? (stableTarget * allowanceCheck).ceil()
+                                    : stableTarget)) /
+                            100)
                         .ceil();
 
                     if (requiredAmount > 0) {
@@ -149,11 +150,14 @@ class BonusTableState extends ConsumerState {
                         bonus: bonus,
                         requiredAmount: requiredAmount,
                         onLongPressComplete: () {
-                          Future.microtask(() async => saveToWallet(
-                            context: context,
-                            ref: ref,
-                            amountPressed: requiredAmount,
-                            mounted: mounted,),);
+                          Future.microtask(
+                            () async => saveToWallet(
+                              context: context,
+                              ref: ref,
+                              amountPressed: requiredAmount,
+                              mounted: mounted,
+                            ),
+                          );
                         },
                       );
                     }
@@ -161,7 +165,6 @@ class BonusTableState extends ConsumerState {
                   }).whereType<Widget>(),
                 );
               }
-
 
               return ListWheelScrollView(
                 diameterRatio: 1.5,

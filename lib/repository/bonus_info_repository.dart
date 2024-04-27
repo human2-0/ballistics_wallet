@@ -9,6 +9,17 @@ class BonusInfoRepository {
 
   Future<Box<BonusInfo>> openBox() async => Hive.openBox<BonusInfo>(_boxName);
 
+  Future<void> closeBox() async {
+    final box = await Hive.openBox<BonusInfo>(_boxName);
+    await box.close();
+  }
+
+  // Method to reopen the box to refresh data
+  Future<void> reopenBox() async {
+    await closeBox(); // Ensure the box is closed first
+    await openBox(); // Reopen the box which reloads the data from the file system
+  }
+
   Future<String> addBonusInfo(BonusInfo bonusInfo) async {
     final box = await openBox();
 

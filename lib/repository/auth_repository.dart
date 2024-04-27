@@ -13,6 +13,10 @@ class AuthRepository {
 
   String get currentUserId => _auth.currentUser?.uid ?? '';
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
+    'https://www.googleapis.com/auth/drive.file',
+  ],);
+
   Future<User?> signInWithEmailAndPassword(
       String email, String password,) async {
     try {
@@ -37,7 +41,6 @@ class AuthRepository {
     await _auth.signOut();
   }
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<UserCredential> signInWithGoogle() async {
     try {
@@ -74,6 +77,16 @@ class AuthRepository {
       // Handling other exceptions
       throw AuthException('An unknown error occurred: $e');
     }
+  }
+
+  Future<GoogleSignInAccount?> getCurrentGoogleUser() async {
+    return _googleSignIn.signInSilently();
+  }
+
+  Future<Map<String, String>?> getGoogleAuthHeaders() async {
+    final googleUser = await _googleSignIn.signInSilently();
+    if (googleUser == null) return null;
+    return googleUser.authHeaders;
   }
 }
 

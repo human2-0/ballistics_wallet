@@ -49,7 +49,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
     final message = ref.watch(toastMessageProvider);
     if (message.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showToast(context, message);
+        showToast(context, message, colors: [Colors.greenAccent, Colors.green[100]!]);
         ref
             .read(toastMessageProvider.notifier)
             .state = '';

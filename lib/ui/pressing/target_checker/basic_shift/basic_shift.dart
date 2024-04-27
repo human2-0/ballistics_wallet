@@ -1,4 +1,3 @@
-import 'package:ballistics_wallet_flutter/custom_widgets/calculator_field.dart';
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -6,6 +5,7 @@ import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/calculator_field.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/autocomplete_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/last_selected_products.dart';
@@ -149,60 +149,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                             ref: ref,
                             workingHours: workingHours,
                           ),
-                          // child: TextFormField(
-                          //   focusNode: numberFocusNode,
-                          //   controller: numberController,
-                          //   textAlign: TextAlign.center,
-                          //   // Center the text
-                          //   decoration: InputDecoration(
-                          //     alignLabelWithHint: true,
-                          //     labelText: 'Amount pressed',
-                          //     contentPadding: const EdgeInsets.symmetric(
-                          //       vertical: 4,
-                          //     ),
-                          //     fillColor: Colors.yellowAccent[100],
-                          //     // Add the color of the search bar widget here
-                          //     filled: true,
-                          //     border: OutlineInputBorder(
-                          //       borderRadius: BorderRadius.circular(33),
-                          //       // Rounded edges
-                          //       borderSide: BorderSide.none,
-                          //     ),
-                          //     prefixIcon: const Icon(Icons.numbers_outlined),
-                          //     suffixIcon: Visibility(
-                          //       visible: numberFocusNode.hasFocus,
-                          //       child: IconButton(
-                          //         icon: const Icon(Icons.keyboard_hide),
-                          //         onPressed: numberFocusNode.unfocus,
-                          //       ),
-                          //     ),
-                          //   ),
-                          //   keyboardType: const TextInputType.numberWithOptions(
-                          //     decimal: true,
-                          //   ),
-                          //   inputFormatters: [
-                          //     FilteringTextInputFormatter.digitsOnly,
-                          //   ],
-                          //   validator: (value) {
-                          //     if (value == null || value.isEmpty) {
-                          //       return 'Please enter a number';
-                          //     }
-                          //     return null;
-                          //   },
-                          //   onChanged: (value) {
-                          //     ref
-                          //         .read(
-                          //           bonusInfoListProvider.notifier,
-                          //         )
-                          //         .updateRatio(
-                          //           focusedProduct.productName.toLowerCase(),
-                          //           ref.read(targetProvider),
-                          //           int.tryParse(value) ?? 0,
-                          //           workingHours,
-                          //           allowance,
-                          //         );
-                          //   },
-                          // ),
                         ),
                       ),
                       GestureDetector(
@@ -266,19 +212,19 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                     .read(allowanceProvider.notifier)
                                     .updateAllowance(allowanceProvided);
 
-                                ref
-                                    .read(
-                                      bonusInfoListProvider.notifier,
-                                    )
-                                    .updateRatio(
-                                      focusedProduct.productName
-                                          .toLowerCase()
-                                          .trimRight(),
-                                      ref.read(targetProvider),
-                                      int.tryParse(numberController.text) ?? 0,
-                                      workingHours,
-                                      allowanceProvided,
-                                    );
+                                // ref
+                                //     .read(
+                                //       bonusInfoListProvider.notifier,
+                                //     )
+                                //     .updateRatio(
+                                //       focusedProduct.productName
+                                //           .toLowerCase()
+                                //           .trimRight(),
+                                //       ref.read(targetProvider),
+                                //       int.tryParse(numberController.text) ?? 0,
+                                //       workingHours,
+                                //       allowanceProvided,
+                                //     );
                               },
                             ),
                           ),

@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -82,4 +79,15 @@ class DefaultFirebaseOptions {
     iosClientId: '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
     iosBundleId: 'lush.co.uk.ballisticsWalletFlutter',
   );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCHZEptq_jp8HtLz4c4E-rnbQ6cjLSvQpM',
+    appId: '1:291226983840:web:a5a10ecbd296256c72d8c5',
+    messagingSenderId: '291226983840',
+    projectId: 'boost-ballistics',
+    authDomain: 'boost-ballistics.firebaseapp.com',
+    storageBucket: 'boost-ballistics.appspot.com',
+    measurementId: 'G-3Q5B2M5X9X',
+  );
+
 }

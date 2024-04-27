@@ -89,9 +89,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                             'Target: ${((product.target.toDouble()) * ((workingHours - allowance) / 7.00)).ceil()}',
                           ),
                           onTap: () async {
-                            final productTarget = ((product.target.toDouble()) *
-                                    ((workingHours - allowance) / 7.00))
-                                .ceil();
                             ref.read(focusedProductProvider.notifier).state =
                                 product;
 
@@ -101,7 +98,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                 .text = product.productName;
                             ref
                                 .read(targetProvider.notifier)
-                                .state = productTarget;
+                                .state = product.target;
 
                             // Save the selected product history
                             await ref

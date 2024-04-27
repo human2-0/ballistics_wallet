@@ -149,15 +149,12 @@ class LastSelectedProducts extends ConsumerWidget {
                         ref.read(focusedProductProvider.notifier).state =
                             product;
 
-                        final productTarget = ((product.target.toDouble()) *
-                                ((workingHours - allowance) / 7.00))
-                            .ceil();
                         await ref
                             .read(lastSelectedProductProvider.notifier)
                             .saveSelectedProduct(
                               product,
                             );
-                        ref.read(targetProvider.notifier).state = productTarget;
+                        ref.read(targetProvider.notifier).state = product.target;
                         ref
                             .read(productNameControllerProvider.notifier)
                             .controller

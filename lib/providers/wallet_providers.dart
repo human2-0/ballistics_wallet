@@ -1,4 +1,3 @@
-
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
 import 'package:ballistics_wallet_flutter/models/ratio_and_bonus_info.dart';
@@ -31,6 +30,10 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     state = BonusInfoAndRatio(bonusInfo: state.bonusInfo, ratio: updatedRatio);
   }
 
+  Future<void> refreshHive() async {
+    await _repository.reopenBox();
+  }
+
   void updateRatio(
     String productName,
     int productTarget,
@@ -38,31 +41,18 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     double workingHours,
     double allowanceProvided,
   ) {
-    int productTargetAdjusted;
-
+    var productTargetAdjusted = 0;
 
     // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
-    if (workingHours == 8) {
+    if (workingHours > 0) {
       productTargetAdjusted =
-          (productTarget * ((workingHours - allowanceProvided) / 7.00)).ceil();
-    }
-    // If workingHours are less than 8, adjust productTarget only with respect to allowance
-    else {
-      if (workingHours <= 0) {
-        // Handle the case where working hours are zero or negative
-        productTargetAdjusted = productTarget;  // You may choose to handle this differently
-      } else {
-        final adjustedHours = workingHours - allowanceProvided;
-        if (adjustedHours <= 0) {
-          // Handle the case where the adjusted hours are zero or negative
-          productTargetAdjusted = productTarget; // Preserving the original target, or set to a default/minimal value
-        } else {
-          // Safe to perform division now
-          productTargetAdjusted = (productTarget * (adjustedHours / workingHours)).ceil();
-        }
+          (productTarget * ((workingHours - allowanceProvided) / workingHours))
+              .ceil();
+    } else {
+      if (workingHours == 0) {
+        productTargetAdjusted = productTarget;
       }
     }
-
     // Handle zero cases
     if (userNumber == 0 || productTargetAdjusted == 0) {
       // If this product is already in the map, remove it
@@ -198,11 +188,14 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     final historicalData = <MonthlyData>[];
     final endDate = DateTime.now();
     var startDate = state.bonusInfo.isNotEmpty
-        ? state.bonusInfo.map((b) => b.date).reduce((a, b) => a.isBefore(b) ? a : b)
+        ? state.bonusInfo
+            .map((b) => b.date)
+            .reduce((a, b) => a.isBefore(b) ? a : b)
         : DateTime.now().subtract(const Duration(days: 365));
 
     // This logic ensures you continue until the current month's data is processed fully
-    while (startDate.year < endDate.year || (startDate.year == endDate.year && startDate.month <= endDate.month)) {
+    while (startDate.year < endDate.year ||
+        (startDate.year == endDate.year && startDate.month <= endDate.month)) {
       // Define month range based on the 19th to the 18th span
       final monthStart = DateTime(startDate.year, startDate.month, 19);
       final monthEnd = DateTime(startDate.year, startDate.month + 1, 18);
@@ -211,7 +204,8 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
       var monthlyBonus = 0.0;
       for (final bonusInfo in state.bonusInfo) {
         // Check if the date is within the current range, inclusive of both start and end
-        if (bonusInfo.date.isAtLeast(monthStart) && bonusInfo.date.isBefore(monthEnd.add(const Duration(days: 1)))) {
+        if (bonusInfo.date.isAtLeast(monthStart) &&
+            bonusInfo.date.isBefore(monthEnd.add(const Duration(days: 1)))) {
           monthlyHours += bonusInfo.workingHours;
           monthlyBonus += bonusInfo.bonus;
         }
@@ -227,7 +221,6 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
 
     return historicalData;
   }
-
 }
 
 final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
@@ -235,8 +228,8 @@ final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 final isOvertimeProvider = StateProvider<bool>((ref) => false);
 
 final bonusInfoListProvider =
-StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
-      (ref) => BonusInfoNotifier(
+    StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
+  (ref) => BonusInfoNotifier(
     BonusInfoRepository(),
     ref.read(authRepositoryProvider).currentUserId,
   ),

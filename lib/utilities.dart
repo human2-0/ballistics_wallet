@@ -1,3 +1,5 @@
+
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
@@ -5,6 +7,8 @@ import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 String formatDouble(double value) => value == value.floor()
     ? value.floor().toString()
@@ -93,7 +97,13 @@ Future<void> addDataToProductInfoBox(Box<ProductInfo> boxProductInfo) async {
 Future<void> initHive() async {
   await Hive.initFlutter();
 
-  Hive
+  final docDir = await getApplicationDocumentsDirectory();
+  final path = '${docDir.path}/hive';  // Construct the path with '/hive' directory
+
+  Hive..init(path)
+
+
+
     ..registerAdapter(SelectedProductAdapter())
     ..registerAdapter(ProductInfoAdapter())
     ..registerAdapter(PressingAdapter())

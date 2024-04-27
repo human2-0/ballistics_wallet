@@ -31,10 +31,10 @@
               "client_type": 3
             },
             {
-              "client_id": "291226983840-4ntulnagh0p1qhoumuic16rdhai0anjv.apps.googleusercontent.com",
+              "client_id": "291226983840-0i1jk5sdqgeocp06o8otb39fs1tds4ni.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.administrators.RunnerTests"
+                "bundle_id": "lush.co.uk.ballisticsWallet"
               }
             }
           ]
@@ -75,10 +75,10 @@
               "client_type": 3
             },
             {
-              "client_id": "291226983840-4ntulnagh0p1qhoumuic16rdhai0anjv.apps.googleusercontent.com",
+              "client_id": "291226983840-0i1jk5sdqgeocp06o8otb39fs1tds4ni.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.administrators.RunnerTests"
+                "bundle_id": "lush.co.uk.ballisticsWallet"
               }
             }
           ]

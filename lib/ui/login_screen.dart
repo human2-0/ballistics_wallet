@@ -31,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Stack(
         children: [
           Image.asset(
-            'assets/login_screen.jpg',
+            'assets/login_screen.webp',
             fit: BoxFit.cover,
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
