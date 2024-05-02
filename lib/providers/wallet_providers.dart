@@ -76,14 +76,17 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   Future<void> loadBonusInfos() async {
     final box = await _repository.openBox(); // Ensure this method is accessible
     if (box.isEmpty) {
-      final bonuses = await _repository.fetchUserBonuses(userId);
+      // final bonuses = await _repository.fetchUserBonuses(userId);
       // Flatten the Map<DateTime, List<BonusInfo>> to a single List<BonusInfo>
-      final updatedBonusInfo = bonuses.values.expand((list) => list).toList();
+      // final updatedBonusInfo = bonuses.values.expand((list) => list).toList();
       final ratio = await _repository.getAllRatiosToday();
 
       // Update _productRatios directly with the fetched data
       // This replaces the existing map with the new one, whether it's empty or filled with ratios
       _productRatios = ratio;
+
+      //this is a placeholder for passing right updatedBonusInfo, but bool check already checked that its empty
+      final updatedBonusInfo = box.values.toList();
 
       // Calculate the total ratio based on the updated _productRatios map
       final updatedRatio =

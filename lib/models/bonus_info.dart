@@ -84,20 +84,32 @@ class Produced {
   });
 
   factory Produced.fromMap(Map<String, dynamic> map) => Produced(
-      productName: map['productName'] as String,
-      amount: map['amount'] as int,
-      ratio: (map['ratio'] as num?)?.toDouble() ?? 0.0,
-    );
+    productName: map['productName'] as String,
+    amount: map['amount'] as int,
+    ratio: (map['ratio'] as num?)?.toDouble() ?? 0.0,
+    allowance: (map['allowance'] as num?)?.toDouble(),
+  );
 
   Produced copyWith({
     String? productName,
     int? amount,
     double? ratio,
+    double? allowance,
   }) => Produced(
-      productName: productName ?? this.productName,
-      amount: amount ?? this.amount,
-      ratio: ratio ?? this.ratio,
-    );
+    productName: productName ?? this.productName,
+    amount: amount ?? this.amount,
+    ratio: ratio ?? this.ratio,
+    allowance: allowance ?? this.allowance,
+  );
+
+  Map<String, dynamic> toMap() {
+    return {
+      'productName': productName,
+      'amount': amount,
+      'ratio': ratio,
+      'allowance': allowance, // This will include allowance in the map, even if it is null
+    };
+  }
 
   @HiveField(0)
   final String productName;

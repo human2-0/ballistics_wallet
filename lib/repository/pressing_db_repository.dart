@@ -1,4 +1,3 @@
-import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
@@ -13,12 +12,7 @@ class PressingRepository {
   PressingRepository();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  Future<Map<String, dynamic>> getBonuses() async {
-    final swappedMap =
-        bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
 
-    return swappedMap;
-  }
 
   Future<void> saveUserBonus(
     String userId,

@@ -4,8 +4,8 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_tables_overtimes.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/bonus_tables_v2.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/bonus_table_v2.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/target_checker_main_tree.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_root.dart';
 import 'package:flutter/material.dart';
@@ -191,8 +191,8 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
     return Scaffold(
       endDrawer: ref.watch(bonusTableSelectorProvider)
-          ? const BonusTableOvertime()
-          : const BonusTable(),
+          ? const OvertimeBonusTableV2()
+          : const BonusTableV2(),
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [

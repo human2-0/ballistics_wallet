@@ -315,7 +315,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 onChanged: (value) {
                                   ref
                                       .watch(overtimeWorkingHoursState.notifier)
-                                      .state = int.tryParse(value);
+                                      .state = double.tryParse(value);
                                 },
                                 controller: overtimeWorkingHoursController,
                                 decoration: InputDecoration(

@@ -101,7 +101,7 @@ final allowanceProvider = StateNotifierProvider<AllowanceNotifier, double>((ref)
 });
 
 final overtimeRatioProvider = StateProvider<double>((ref) => 0.0);
-final overtimeWorkingHoursState = StateProvider<int?>((ref) => 0);
+final overtimeWorkingHoursState = StateProvider<double?>((ref) => 0.0);
 
 final productsProvider =
     FutureProvider.autoDispose<List<ProductInfo>>((ref) async {
