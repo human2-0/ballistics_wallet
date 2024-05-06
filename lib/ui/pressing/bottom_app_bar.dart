@@ -1,5 +1,4 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
@@ -146,37 +145,6 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
       default:
         return 'assets/login_screen.png'; // A default image if no index matches
     }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    switch (state) {
-      case AppLifecycleState.paused:
-        // App is in the background
-        _runBackendTasks();
-        break;
-      case AppLifecycleState.resumed:
-        // App is in foreground
-        break;
-      case AppLifecycleState.inactive:
-        // App is in an inactive state
-        break;
-      case AppLifecycleState.detached:
-        // App is still hosted on a flutter engine but is detached from any host views
-        _runBackendTasks();
-        break;
-      case AppLifecycleState.hidden:
-        // TODO: Handle this case.
-        break;
-    }
-  }
-
-  void _runBackendTasks() {
-    // Here you could add your function to call your backend or perform any tasks
-    Future.microtask(
-      () async => ref.read(backupManagerProvider.notifier).backupData(),
-    );
   }
 
   @override

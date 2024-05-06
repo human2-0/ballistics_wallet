@@ -90,7 +90,6 @@ class AllowanceEditingControllerNotifier
   }
 
   void _textChanged() {
-    print('Text has changed to: ${state.text}');
   }
 
   @override

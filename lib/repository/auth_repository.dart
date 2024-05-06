@@ -1,6 +1,9 @@
+import 'package:ballistics_wallet_flutter/models/settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 
 class AuthRepository {
   AuthRepository(this._auth);
@@ -16,6 +19,10 @@ class AuthRepository {
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: [
     'https://www.googleapis.com/auth/drive.file',
   ],);
+
+  Future<Box<UserSettings>> _openBox(){
+    return Hive.openBox<UserSettings>('settings');
+  }
 
   Future<User?> signInWithEmailAndPassword(
       String email, String password,) async {
@@ -67,6 +74,15 @@ class AuthRepository {
           'avatarUrl': userCredential.user!.photoURL,
           // Add more fields as needed
         });
+        final box = await _openBox();
+
+        await box.put(currentUserId,UserSettings(backup: false, askForBackup: false));
+      }
+
+      final box = await _openBox();
+
+      if (box.isEmpty){
+        await box.put(currentUserId,UserSettings(backup: false, askForBackup: false));
       }
 
       return userCredential;

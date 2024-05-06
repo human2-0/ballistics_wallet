@@ -108,6 +108,7 @@ class BackupManager extends StateNotifier<BackupState> {
       final googleUser = await authRepository.getCurrentGoogleUser();
       if (googleUser == null) {
         print('User not signed in');
+        await authRepository.signInWithGoogle();
         return;
       }
       final googleAuth = await googleUser.authentication;
@@ -176,6 +177,7 @@ class BackupManager extends StateNotifier<BackupState> {
       final googleUser = await authRepository.getCurrentGoogleUser();
       if (googleUser == null) {
         print('User not signed in');
+        await authRepository.signInWithGoogle();
         return null;
       }
       final googleAuth = await googleUser.authentication;
@@ -284,7 +286,8 @@ class BackupManager extends StateNotifier<BackupState> {
       print('Backup file not found.');
     }
   }
-  Future<void>  checkActiveState() async {
+
+  Future<void> checkActiveState() async {
     final hasPermission = await Permission.storage.isGranted;
     final googleUser = await authRepository.getCurrentGoogleUser();
     final isActive = hasPermission && googleUser != null;

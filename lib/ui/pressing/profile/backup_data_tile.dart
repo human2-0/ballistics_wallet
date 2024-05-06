@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -85,7 +86,7 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: ref.watch(backupManagerProvider).isActive
+      leading: (ref.watch(backupManagerProvider).isActive && ref.read(userNotifierProvider).backup!)
           ? const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -93,10 +94,14 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
                 Text('in sync'),
               ],
             )
-          : const Icon(Icons.cloud_upload_outlined, color: Colors.blue),
+          : const Padding(
+            padding: EdgeInsets.all(8),
+            child: Icon(Icons.cloud_upload_outlined, color: Colors.blue),
+          ),
       title: const Text('Back up data'),
       onTap: () async {
         final confirm = await _showBackUpConfirmationDialog(context);
+        await ref.read(userNotifierProvider.notifier).doBackUp(true);
         if (!_isLoading && confirm) {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
             await _backupData(context, ref);

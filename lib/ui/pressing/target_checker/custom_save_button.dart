@@ -1,6 +1,7 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
@@ -50,7 +51,8 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                     ? null
                     : () async {
                         final authRepository = ref.read(authRepositoryProvider);
-                        final targetRatio = ref.read(bonusInfoListProvider).ratio;
+                        final targetRatio =
+                            ref.read(bonusInfoListProvider).ratio;
                         final bonusAsyncValue = ref.read(
                           bonusCalculator(
                             targetRatio,
@@ -85,6 +87,85 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                         final message = await ref
                             .read(bonusInfoListProvider.notifier)
                             .addBonusInfo(newBonusInfo);
+                        final backup = ref.read(userNotifierProvider).backup!;
+                        final doNotAskAgain =
+                            ref.watch(userNotifierProvider).askForBackup;
+                        WidgetsBinding.instance
+                            .addPostFrameCallback((timeStamp) async {
+                          if (!backup && !doNotAskAgain!) {
+                            await showDialog<Widget>(
+                              context: context,
+                              builder: (context) {
+                                var localDoNotAskAgain = doNotAskAgain;
+                                return StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return AlertDialog(
+                                      title: const Text('Backup Data'),
+                                      content: SingleChildScrollView(
+                                        child: ListBody(
+                                          children: <Widget>[
+                                            const Text(
+                                              'Hey, would you like to back up your data to never lose it?',
+                                            ),
+                                            Row(
+                                              children: [
+                                                Checkbox(
+                                                  value: localDoNotAskAgain,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      localDoNotAskAgain =
+                                                          value!;
+                                                    });
+                                                    ref
+                                                        .read(
+                                                          userNotifierProvider
+                                                              .notifier,
+                                                        )
+                                                        .dontAskAgain(value!);
+                                                  },
+                                                ),
+                                                const Text(
+                                                  "Don't ask me again",
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('Yes'),
+                                          onPressed: () async {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                            await ref
+                                                .read(
+                                                  backupManagerProvider
+                                                      .notifier,
+                                                )
+                                                .backupData();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text('No'),
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Close the dialog
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          }
+                        });
+                        if (backup) {
+                          await ref
+                              .read(backupManagerProvider.notifier)
+                              .backupData();
+                        }
                         WidgetsBinding.instance
                             .addPostFrameCallback((timeStamp) {
                           ScaffoldMessenger.of(
@@ -176,9 +257,83 @@ Future<void> saveToWallet({
 
   final message =
       await ref.read(bonusInfoListProvider.notifier).addBonusInfo(newBonusInfo);
+  final backup = ref.read(userNotifierProvider).backup!;
+  final doNotAskAgain = ref.watch(userNotifierProvider).askForBackup;
+  WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+    if (!backup && !doNotAskAgain!) {
+      await showDialog<Widget>(
+        context: context,
+        builder: (context) {
+          var localDoNotAskAgain = doNotAskAgain;
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('Backup Data'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      const Text(
+                        'Hey, would you like to back up your data to never lose it?',
+                      ),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: localDoNotAskAgain,
+                            onChanged: (value) {
+                              setState(() {
+                                localDoNotAskAgain = value!;
+                              });
+                              ref
+                                  .read(
+                                    userNotifierProvider.notifier,
+                                  )
+                                  .dontAskAgain(value!);
+                            },
+                          ),
+                          const Text(
+                            "Don't ask me again",
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Yes'),
+                    onPressed: () async {
+                      Navigator.of(context).pop(); // Close the dialog
+                      await ref
+                          .read(
+                            backupManagerProvider.notifier,
+                          )
+                          .backupData();
+                    },
+                  ),
+                  TextButton(
+                    child: const Text('No'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    }
+  });
+  if (backup) {
+    await ref.read(backupManagerProvider.notifier).backupData();
+  }
   WidgetsBinding.instance.addPostFrameCallback((_) {
     if (mounted) {
-      showToast(context, message, colors: [Colors.greenAccent, Colors.greenAccent[100]!]);
+      showToast(
+        context,
+        message,
+        colors: [Colors.greenAccent, Colors.greenAccent[100]!],
+      );
     }
   });
 }

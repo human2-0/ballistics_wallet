@@ -411,7 +411,6 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                         paidBreaks:
                                             !(userState.paidBreaks ?? false),
                                         avatarUrl: userState.avatarUrl,
-                                        allowance: userState.allowance,
                                         workingHours: userState.workingHours,
                                         realWorkingHours:
                                             userState.realWorkingHours,

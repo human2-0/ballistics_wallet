@@ -74,6 +74,7 @@ dependencies:
   permission_handler: ^11.3.1
   oauth2: ^2.0.2
   package_info_plus: ^8.0.0
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -134,6 +135,7 @@ flutter:
     - split_data.csv
     - merged_data_final.csv
     - assets/icon/newicon.png
+    - assets/icon/google_icon.png
 
 
 

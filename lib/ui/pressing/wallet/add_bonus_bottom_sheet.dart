@@ -1,6 +1,7 @@
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
@@ -404,8 +405,10 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                   await ref
                       .read(bonusInfoListProvider.notifier)
                       .addBonusInfo(newBonusInfo);
+                  await ref.read(backupManagerProvider.notifier).backupData();
                   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                     context.pop();
+
                   });
                 },
                 child: const Text('Add Bonus'),

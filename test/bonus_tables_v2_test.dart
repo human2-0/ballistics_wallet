@@ -12,13 +12,14 @@ import 'package:mockito/mockito.dart';
 
 import 'bonus_tables_v2_test.mocks.dart';
 
-BonusInfoAndRatio createDummyBonusInfoAndRatio({double ratio = 0}) {
+BonusInfoAndRatio createDummyBonusInfoAndRatio(
+    {double ratio = 0.0, double allowance = 0.0,}) {
   // Create dummy data for Produced
   final dummyProduced = Produced.fromMap({
     'productName': 'Widget',
     'amount': 100,
     'ratio': ratio, // 10% ratio
-    'allowance': 0,
+    'allowance': allowance,
   });
 
   // Create dummy data for BonusInfo
@@ -34,7 +35,74 @@ BonusInfoAndRatio createDummyBonusInfoAndRatio({double ratio = 0}) {
   // Create dummy data for BonusInfoAndRatio
   return BonusInfoAndRatio(
     bonusInfo: [dummyBonusInfo],
+    ratio: ratio,
   );
+}
+
+void runTestWithoutRatio(double ratio) {
+  group('BonusTableNotifier Tests with ratio $ratio', () {
+    late MockRef ref;
+    late BonusTableNotifier bonusTableNotifier;
+
+    setUp(() {
+      ref = MockRef();
+      bonusTableNotifier = BonusTableNotifier(ref);
+      provideDummy(createDummyBonusInfoAndRatio(ratio: ratio));
+      provideDummy(UserState(workingHours: 7));
+      when(ref.watch(targetProvider)).thenReturn(1000); // Mock a target value
+    });
+
+    test('loadInitialData loads data correctly', () async {
+      await bonusTableNotifier.loadInitialData();
+      // Assertions here will depend on the ratio provide
+      expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 1020);
+    });
+  });
+}
+
+void runTestWithSomeRatio(double ratio) {
+  group('BonusTableNotifier Tests with ratio $ratio', () {
+    late MockRef ref;
+    late BonusTableNotifier bonusTableNotifier;
+
+    setUp(() {
+      ref = MockRef();
+      bonusTableNotifier = BonusTableNotifier(ref);
+      provideDummy(createDummyBonusInfoAndRatio(ratio: ratio));
+      provideDummy(UserState(workingHours: 7));
+      when(ref.watch(targetProvider)).thenReturn(1000); // Mock a target value
+    });
+
+    test('loadInitialData loads data correctly', () async {
+      await bonusTableNotifier.loadInitialData();
+      // Assertions here will depend on the ratio provide
+      expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 520);
+      expect(bonusTableNotifier.state.bonusData!.last.requiredAmount, 1215);
+    });
+  });
+}
+
+void runTestWithoutRatioAndWithAnAllowance(double ratio) {
+  group('BonusTableNotifier Tests with ratio $ratio', () {
+    late MockRef ref;
+    late BonusTableNotifier bonusTableNotifier;
+
+    setUp(() {
+      ref = MockRef();
+      bonusTableNotifier = BonusTableNotifier(ref);
+      provideDummy(createDummyBonusInfoAndRatio(ratio: ratio, allowance: 15));
+      provideDummy(UserState(workingHours: 7));
+      when(ref.watch(targetProvider)).thenReturn(1000); // Mock a target value
+      when(ref.watch(allowanceProvider)).thenReturn(15 / 60);
+    });
+
+    test('loadInitialData loads data correctly', () async {
+      await bonusTableNotifier.loadInitialData();
+      // Assertions here will depend on the ratio provide
+      expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 985);
+      expect(bonusTableNotifier.state.bonusData!.last.requiredAmount, 1655);
+    });
+  });
 }
 
 @GenerateNiceMocks([
@@ -56,13 +124,12 @@ BonusInfoAndRatio createDummyBonusInfoAndRatio({double ratio = 0}) {
 void main() {
   group('BonusTableNotifier Tests', () {
     late MockRef ref;
-    late BonusTableNotifier bonusTableNotifier;
     late MockUserNotifierStateNotifierProvider mockUserNotifierState;
 
-    setUp(() {
+    setUp(() async {
       ref = MockRef();
+
       // Initialize the notifier with the mock
-      bonusTableNotifier = BonusTableNotifier(ref);
       mockUserNotifierState = MockUserNotifierStateNotifierProvider();
 
       provideDummy(createDummyBonusInfoAndRatio());
@@ -77,31 +144,25 @@ void main() {
       when(ref.watch(targetProvider)).thenReturn(1000); // Mock a target value
     });
 
-    test('loadInitialData loads data correctly', () async {
-      // Arrange
-      // Assuming getBonuses() and other methods return expected values correctly mocked
+    // test('loadInitialData loads data correctly', () async {
+    //   // Arrange
+    //   // Assuming getBonuses() and other methods return expected values correctly mocked
+    //
+    //   // Act
+    //   await bonusTableNotifier.loadInitialData();
+    //
+    //   // Assert
+    //   // Check if the state is updated correctly
+    //   expect(bonusTableNotifier.state.isLoading, false);
+    //   expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 1020);
+    //   expect(bonusTableNotifier.state.bonusData!.last.requiredAmount, 1715);
+    //   // Further assertions can be added to check for correct values in the state
+    // });
 
-      // Act
-      await bonusTableNotifier.loadInitialData();
+    runTestWithoutRatio(0);
 
-      // Assert
-      // Check if the state is updated correctly
-      expect(bonusTableNotifier.state.isLoading, false);
-      expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 1020);
-      expect(bonusTableNotifier.state.bonusData!.last.requiredAmount, 1715);
-      // Further assertions can be added to check for correct values in the state
-    });
+    runTestWithSomeRatio(0.5);
 
-    test('loadInitialData with a higher ratio', () async {
-      print(ref.watch(bonusInfoListProvider).ratio);
-
-      // Act
-      await bonusTableNotifier.loadInitialData();
-
-      // Assert
-      expect(bonusTableNotifier.state.isLoading, false);
-      expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 510);
-      // Additional assertions as needed
-    });
+    runTestWithoutRatioAndWithAnAllowance(0);
   });
 }

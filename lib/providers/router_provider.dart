@@ -94,6 +94,10 @@ class RouterNotifier extends ChangeNotifier {
     if (email.isEmpty || !allowedDomains.any((domain) => email.endsWith('@$domain'))) {
       return '/login';
     }
+    final googleUser = await userData.getCurrentGoogleUser();
+    if(googleUser == null){
+      return '/login';
+    }
 
     // If email is valid and not on the home route, redirect to '/'
     return '/';

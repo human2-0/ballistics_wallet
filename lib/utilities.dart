@@ -1,14 +1,12 @@
-
-
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
+import 'package:ballistics_wallet_flutter/models/settings.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
-
 
 String formatDouble(double value) => value == value.floor()
     ? value.floor().toString()
@@ -98,23 +96,25 @@ Future<void> initHive() async {
   await Hive.initFlutter();
 
   final docDir = await getApplicationDocumentsDirectory();
-  final path = '${docDir.path}/hive';  // Construct the path with '/hive' directory
+  final path =
+      '${docDir.path}/hive'; // Construct the path with '/hive' directory
 
-  Hive..init(path)
-
-
-
+  Hive
+    ..init(path)
     ..registerAdapter(SelectedProductAdapter())
     ..registerAdapter(ProductInfoAdapter())
     ..registerAdapter(PressingAdapter())
     ..registerAdapter(BonusInfoAdapter())
-    ..registerAdapter(ProducedAdapter());
+    ..registerAdapter(ProducedAdapter())
+    ..registerAdapter(UserSettingsAdapter());
+
 
   final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
   if (boxProductInfo.isEmpty) {
     await addDataToProductInfoBox(boxProductInfo);
   }
   await Hive.openBox<BonusInfo>('bonusInfoBox');
+  await Hive.openBox<UserSettings>('settings');
 }
 
 Future<void> preloadImages(BuildContext context) async {

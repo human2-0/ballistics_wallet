@@ -1,5 +1,7 @@
+import 'package:ballistics_wallet_flutter/models/settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 
 class UserRepository {
   final _db = FirebaseFirestore.instance;
@@ -57,18 +59,20 @@ class UserState {
     this.userId,
     this.workingHours,
     this.realWorkingHours,
-    this.allowance,
     this.avatarUrl,
     this.paidBreaks,
     this.hourlyRate,
+    this.backup,
+    this.askForBackup,
   });
   final String? userId;
   final double? workingHours; // actual working hours
   final double? realWorkingHours; // effective working hours
-  final double? allowance;
   final String? avatarUrl;
   final bool? paidBreaks;
   final double? hourlyRate;
+  final bool? backup;
+  final bool? askForBackup;
 
   UserState copyWith({
     String? userId,
@@ -78,21 +82,28 @@ class UserState {
     String? avatarUrl,
     bool? paidBreaks,
     double? hourlyRate,
+    bool? backup,
+    bool? askForBackup,
   }) =>
       UserState(
         userId: userId ?? this.userId,
         workingHours: workingHours ?? this.workingHours,
         realWorkingHours: realWorkingHours ?? this.realWorkingHours,
-        allowance: allowance ?? this.allowance,
         avatarUrl: avatarUrl ?? this.avatarUrl,
         paidBreaks: paidBreaks ?? this.paidBreaks,
         hourlyRate: hourlyRate ?? this.hourlyRate,
+        backup: backup ?? this.backup,
+        askForBackup: askForBackup ?? this.askForBackup,
       );
 }
 
 class UserNotifier extends StateNotifier<UserState> {
   UserNotifier(this.userRepository) : super(UserState());
   final UserRepository userRepository;
+
+  Future<Box<UserSettings>> _openBox(){
+    return Hive.openBox<UserSettings>('settings');
+  }
 
   double calculateEffectiveWorkingHours(double workingHours) {
     if (workingHours == 8.0) {
@@ -107,40 +118,63 @@ class UserNotifier extends StateNotifier<UserState> {
     }
   }
 
+  Future<void> dontAskAgain(bool value) async {
+    state = state.copyWith(askForBackup: value);  // Update the state properly
+    await _saveSettings();  // Assume there's a method to save the settings
+  }
+
+  Future<void> doBackUp(bool value) async {
+    state = state.copyWith(backup: value);  // Update the state properly
+    await _saveSettings();  // Assume there's a method to save the settings
+  }
+
+  Future<void> _saveSettings() async {
+    final box = await _openBox();
+    await box.put(state.userId, UserSettings(backup: state.backup!, askForBackup: state.askForBackup!));
+  }
+
+
+
+
   Future<void> loadUser(String userId) async {
     final userData = await userRepository.getUserData(userId);
     if (userData != null) {
       final workingHours = userData['workingHours'] is int
           ? (userData['workingHours'] as int).toDouble()
           : userData['workingHours'] as double?;
-      final contractedWorkingHours = calculateEffectiveWorkingHours(workingHours!);
+      final contractedWorkingHours =
+          calculateEffectiveWorkingHours(workingHours!);
 
       final realWorkingHours = workingHours;
 
-      final allowance = userData['allowance'] is int
-          ? (userData['allowance'] as int).toDouble()
-          : userData['allowance'] as double?;
-
       // Ensure paidBreaks is never null
-      final paidBreaks = bool.tryParse(userData['paidBreaks'].toString()) ?? false;
+      final paidBreaks =
+          bool.tryParse(userData['paidBreaks'].toString()) ?? false;
 
-      final hourlyRate = double.tryParse(userData['hourlyRate'].toString()) ?? 0;
+      final hourlyRate =
+          double.tryParse(userData['hourlyRate'].toString()) ?? 0;
+
+      final box = await _openBox();
+
+      final data = box.get(userId);
 
       state = UserState(
         userId: userId,
         workingHours: contractedWorkingHours,
-        allowance: allowance,
         avatarUrl: userData['avatarUrl'] as String,
         paidBreaks: paidBreaks,
         realWorkingHours: realWorkingHours, // Update with non-null value
         hourlyRate: hourlyRate,
+        backup: data!.backup,
+        askForBackup: data.askForBackup,
       );
     }
   }
 
   Future<bool> editWorkingHours(double newWorkingHours) async {
     if (state.userId == null) return false;
-    final result = await userRepository.editWorkingHours(state.userId!, newWorkingHours);
+    final result =
+        await userRepository.editWorkingHours(state.userId!, newWorkingHours);
     if (result) {
       state = state.copyWith(
         workingHours: newWorkingHours,
@@ -152,7 +186,8 @@ class UserNotifier extends StateNotifier<UserState> {
 
   Future<bool> editHourlyRate(double newHourlyRate) async {
     if (state.userId == null) return false;
-    final result = await userRepository.editHourlyRate(state.userId!, newHourlyRate);
+    final result =
+        await userRepository.editHourlyRate(state.userId!, newHourlyRate);
     if (result) {
       state = state.copyWith(
         hourlyRate: newHourlyRate,
@@ -160,7 +195,6 @@ class UserNotifier extends StateNotifier<UserState> {
     }
     return result;
   }
-
 
   void updateAllowance(double allowanceProvided) {
     state = state.copyWith(
@@ -173,19 +207,18 @@ class UserNotifier extends StateNotifier<UserState> {
       userId: user.userId ?? state.userId,
       workingHours: user.workingHours ?? state.workingHours,
       realWorkingHours: user.realWorkingHours ?? state.realWorkingHours,
-      allowance: user.allowance ?? state.allowance,
       avatarUrl: user.avatarUrl ?? state.avatarUrl,
       paidBreaks: user.paidBreaks ?? state.paidBreaks,
     );
   }
-
 }
 
 final userRepositoryProvider =
     Provider<UserRepository>((ref) => UserRepository());
 
 final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>(
-    (ref) => UserNotifier(ref.watch(userRepositoryProvider)),);
+  (ref) => UserNotifier(ref.watch(userRepositoryProvider)),
+);
 
 final userDataProvider =
     FutureProvider.family<Map<String, dynamic>?, String>((ref, uid) {
