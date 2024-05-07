@@ -1,58 +1,75 @@
 import 'package:ballistics_wallet_flutter/models/settings.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 
 class UserRepository {
-  final _db = FirebaseFirestore.instance;
+  static const String _boxName = 'settings';
 
-  Future<Map<String, dynamic>?> getUserData(String userId) async {
-    final DocumentSnapshot documentSnapshot =
-        await _db.collection('users').doc(userId).get();
+  Future<Box<UserSettings>> _openBox() async {
+    return Hive.openBox<UserSettings>(_boxName);
+  }
 
-    if (documentSnapshot.exists) {
-      return documentSnapshot.data()! as Map<String, dynamic>;
-    } else {
-      return null;
-    }
+  Future<UserSettings?> getUserData(String userId) async {
+    final box = await _openBox();
+    return box.get(userId);
+  }
+
+  Future<void> saveOrUpdateUserData(UserSettings user) async {
+    final box = await _openBox();
+    await box.put(user.userId, user);
   }
 
   Future<bool> editWorkingHours(String userId, double newWorkingHours) async {
-    try {
-      await _db
-          .collection('users')
-          .doc(userId)
-          .update({'workingHours': newWorkingHours});
-      return true;
-    } on FormatException {
-      return false;
-    }
+    final box = await _openBox();
+    final user = box.get(userId);
+    if (user == null) return false;
+
+    final updatedUser = user.copyWith(
+      workingHours: calculateEffectiveWorkingHours(newWorkingHours),
+      realWorkingHours: newWorkingHours,
+    );
+    await box.put(userId, updatedUser);
+    return true;
   }
 
   Future<bool> editPaidBreaks(String userId, bool newPaidBreaks) async {
-    try {
-      await _db
-          .collection('users')
-          .doc(userId)
-          .update({'paidBreaks': newPaidBreaks});
-      return true;
-    } on FormatException {
-      return false;
-    }
+    final box = await _openBox();
+    final user = box.get(userId);
+    if (user == null) return false;
+
+    final updatedUser = user.copyWith(
+      paidBreaks: newPaidBreaks,
+    );
+    await box.put(userId, updatedUser);
+    return true;
   }
 
   Future<bool> editHourlyRate(String userId, double newHourlyRate) async {
-    try {
-      await _db
-          .collection('users')
-          .doc(userId)
-          .update({'hourlyRate': newHourlyRate});
-      return true;
-    } on FormatException {
-      return false;
+    final box = await _openBox();
+    final user = box.get(userId);
+    if (user == null) return false;
+
+    final updatedUser = user.copyWith(
+      hourlyRate: newHourlyRate,
+    );
+    await box.put(userId, updatedUser);
+    return true;
+  }
+
+  double calculateEffectiveWorkingHours(double workingHours) {
+    if (workingHours == 8.0) {
+      return workingHours - 1.0;
+    } else if (workingHours == 4.0) {
+      return workingHours - 0.25;
+    } else if (workingHours == 6.0) {
+      return workingHours - 0.5;
+    } else {
+      return workingHours;
     }
   }
 }
+
+
 
 class UserState {
   UserState({
@@ -66,8 +83,8 @@ class UserState {
     this.askForBackup,
   });
   final String? userId;
-  final double? workingHours; // actual working hours
-  final double? realWorkingHours; // effective working hours
+  final double? workingHours;
+  final double? realWorkingHours;
   final String? avatarUrl;
   final bool? paidBreaks;
   final double? hourlyRate;
@@ -78,7 +95,6 @@ class UserState {
     String? userId,
     double? workingHours,
     double? realWorkingHours,
-    double? allowance,
     String? avatarUrl,
     bool? paidBreaks,
     double? hourlyRate,
@@ -101,106 +117,78 @@ class UserNotifier extends StateNotifier<UserState> {
   UserNotifier(this.userRepository) : super(UserState());
   final UserRepository userRepository;
 
-  Future<Box<UserSettings>> _openBox(){
-    return Hive.openBox<UserSettings>('settings');
-  }
-
   double calculateEffectiveWorkingHours(double workingHours) {
-    if (workingHours == 8.0) {
-      return workingHours - 1.0;
-    } else if (workingHours == 4.0) {
-      return workingHours - 0.25;
-    } else if (workingHours == 6.0) {
-      return workingHours - 0.5;
-    } else {
-      // return the original working hours if it does not match any conditions
-      return workingHours;
-    }
+    return userRepository.calculateEffectiveWorkingHours(workingHours);
   }
 
   Future<void> dontAskAgain(bool value) async {
-    state = state.copyWith(askForBackup: value);  // Update the state properly
-    await _saveSettings();  // Assume there's a method to save the settings
+    state = state.copyWith(askForBackup: value);
+    await _saveSettings();
   }
 
   Future<void> doBackUp(bool value) async {
-    state = state.copyWith(backup: value);  // Update the state properly
-    await _saveSettings();  // Assume there's a method to save the settings
+    state = state.copyWith(backup: value);
+    await _saveSettings();
   }
 
   Future<void> _saveSettings() async {
-    final box = await _openBox();
-    await box.put(state.userId, UserSettings(backup: state.backup!, askForBackup: state.askForBackup!));
+    final settings = UserSettings(
+      userId: state.userId!,
+      workingHours: state.workingHours,
+      realWorkingHours: state.realWorkingHours,
+      avatarUrl: state.avatarUrl,
+      paidBreaks: state.paidBreaks,
+      hourlyRate: state.hourlyRate,
+      backup: state.backup,
+      askForBackup: state.askForBackup,
+    );
+    await userRepository.saveOrUpdateUserData(settings);
   }
-
-
-
 
   Future<void> loadUser(String userId) async {
-    final userData = await userRepository.getUserData(userId);
-    if (userData != null) {
-      final workingHours = userData['workingHours'] is int
-          ? (userData['workingHours'] as int).toDouble()
-          : userData['workingHours'] as double?;
-      final contractedWorkingHours =
-          calculateEffectiveWorkingHours(workingHours!);
-
-      final realWorkingHours = workingHours;
-
-      // Ensure paidBreaks is never null
-      final paidBreaks =
-          bool.tryParse(userData['paidBreaks'].toString()) ?? false;
-
-      final hourlyRate =
-          double.tryParse(userData['hourlyRate'].toString()) ?? 0;
-
-      final box = await _openBox();
-
-      final data = box.get(userId);
-
+    final userSettings = await userRepository.getUserData(userId);
+    if (userSettings != null) {
       state = UserState(
-        userId: userId,
-        workingHours: contractedWorkingHours,
-        avatarUrl: userData['avatarUrl'] as String,
-        paidBreaks: paidBreaks,
-        realWorkingHours: realWorkingHours, // Update with non-null value
-        hourlyRate: hourlyRate,
-        backup: data!.backup,
-        askForBackup: data.askForBackup,
+        userId: userSettings.userId,
+        workingHours: userSettings.workingHours,
+        realWorkingHours: userSettings.realWorkingHours,
+        avatarUrl: userSettings.avatarUrl,
+        paidBreaks: userSettings.paidBreaks,
+        hourlyRate: userSettings.hourlyRate,
+        backup: userSettings.backup,
+        askForBackup: userSettings.askForBackup,
       );
     }
   }
 
-  Future<bool> editWorkingHours(double newWorkingHours) async {
+  Future<bool> updateUserSettings(double newWorkingHours, double newHourlyRate) async {
     if (state.userId == null) return false;
-    final result =
-        await userRepository.editWorkingHours(state.userId!, newWorkingHours);
-    if (result) {
-      state = state.copyWith(
-        workingHours: newWorkingHours,
-        realWorkingHours: calculateEffectiveWorkingHours(newWorkingHours),
-      );
-    }
-    return result;
-  }
 
-  Future<bool> editHourlyRate(double newHourlyRate) async {
-    if (state.userId == null) return false;
-    final result =
-        await userRepository.editHourlyRate(state.userId!, newHourlyRate);
-    if (result) {
+    final updateWorkingHoursResult = await userRepository.editWorkingHours(state.userId!, newWorkingHours);
+    final updateHourlyRateResult = await userRepository.editHourlyRate(state.userId!, newHourlyRate);
+
+    if (updateWorkingHoursResult && updateHourlyRateResult) {
       state = state.copyWith(
+        workingHours: calculateEffectiveWorkingHours(newWorkingHours),
+        realWorkingHours: newWorkingHours,
         hourlyRate: newHourlyRate,
       );
+      await _saveSettings();
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<bool> editPaidBreaks(bool newPaidBreaks) async {
+    if (state.userId == null) return false;
+    final result = await userRepository.editPaidBreaks(state.userId!, newPaidBreaks);
+    if (result) {
+      state = state.copyWith(paidBreaks: newPaidBreaks);
     }
     return result;
   }
 
-  void updateAllowance(double allowanceProvided) {
-    state = state.copyWith(
-      allowance: allowanceProvided,
-    );
-  }
 
   Future<void> updateUser(UserState user) async {
     state = state.copyWith(
@@ -213,15 +201,14 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 }
 
-final userRepositoryProvider =
-    Provider<UserRepository>((ref) => UserRepository());
+final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
 
 final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>(
-  (ref) => UserNotifier(ref.watch(userRepositoryProvider)),
+      (ref) => UserNotifier(ref.watch(userRepositoryProvider)),
 );
 
 final userDataProvider =
-    FutureProvider.family<Map<String, dynamic>?, String>((ref, uid) {
+    FutureProvider.family<UserSettings?, String>((ref, uid) {
   final userRepo = ref.watch(userRepositoryProvider);
   return userRepo.getUserData(uid);
 });

@@ -31,10 +31,11 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
       setState(() {
         _versionNumber = info.version;
       });
-    } on FormatException catch (error) {
+    } on FormatException {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not load version number.')),);
+          const SnackBar(content: Text('Could not load version number.')),
+        );
       });
     }
   }
@@ -209,9 +210,16 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                       CircleAvatar(
                         radius: 50,
                         backgroundImage: NetworkImage(
-                          userState.avatarUrl ??
-                              'https://media.istockphoto.com/id/1207566766/photo/3d-emoji-with-smiley-face.jpg?s=1024x1024&w=is&k=20&c=Xjh-ij_drKQXCsTleoExXAyq-Leb4wraBt36BwPjuso=',
+                          userState.avatarUrl!,
                         ),
+                        onBackgroundImageError: (_, __) {
+                          debugPrint(_.toString());
+                        },
+                        child: userState.avatarUrl == null
+                            ? const Image(
+                                image: AssetImage('assets/default_avatar.webp'),
+                              )
+                            : null,
                       ),
                       const SizedBox(
                         height: 4,
@@ -323,15 +331,10 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                                           hourlyRateController
                                                               .text,
                                                         );
-                                                        await userNotifier
-                                                            .editHourlyRate(
-                                                          newHourlyRate,
-                                                        );
-                                                        final result =
-                                                            await userNotifier
-                                                                .editWorkingHours(
-                                                          newWorkingHours,
-                                                        );
+                                                        final result = await userNotifier.updateUserSettings(newWorkingHours, newHourlyRate);
+                                                        if (result) {
+                                                          await userNotifier.loadUser(uid);
+                                                        }
                                                         if (result) {
                                                           await userNotifier
                                                               .loadUser(uid);

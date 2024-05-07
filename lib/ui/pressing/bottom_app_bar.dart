@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/profile.dart';
@@ -156,6 +157,21 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
             Brightness.dark, // adjust icon brightness as needed
       ),
     );
+
+    final activeIndex = ref.watch(activeIndexTabProvider);
+
+    // After the build phase, listen for changes in activeIndex to update the tab
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (activeIndex == 1) {
+        setActiveTab(1);
+        _tabController.animateTo(activeIndex);
+      }
+
+      // Reset the index to 0 without triggering animation again
+      if (activeIndex != 0) {
+        ref.read(activeIndexTabProvider.notifier).resetIndex();
+      }
+    });
 
     return Scaffold(
       endDrawer: ref.watch(bonusTableSelectorProvider)

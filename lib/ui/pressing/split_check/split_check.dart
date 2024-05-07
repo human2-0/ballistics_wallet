@@ -9,8 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SplitCheck extends ConsumerStatefulWidget {
-  const SplitCheck({super.key, this.requiredAmount = 0});
-  final int requiredAmount;
+  const SplitCheck({super.key});
 
   @override
   SplitCheckState createState() => SplitCheckState();
@@ -23,6 +22,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
   late FocusNode focusNodeAmount;
   late FocusNode focusNodeAutocomplete;
   bool shouldUpdateTargetController = true;
+  bool shouldUpdateAmountPerBatchController = true;
 
   @override
   void initState() {
@@ -30,15 +30,8 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
     focusNodeTarget = FocusNode();
     focusNodeAmount = FocusNode();
     focusNodeAutocomplete = FocusNode();
-    targetController =
-        TextEditingController(text: widget.requiredAmount.toString());
-    final workingHours = ref.read(userNotifierProvider).workingHours ?? 0.0;
-    amountPerBatchController = TextEditingController(
-      text: (widget.requiredAmount > 0
-          ? (widget.requiredAmount / (workingHours == 3.75 ? 6 : 12))
-              .toStringAsFixed(0)
-          : ''),
-    );
+    targetController = TextEditingController();
+    amountPerBatchController = TextEditingController();
 
     focusNodeTarget.addListener(() {});
     focusNodeAmount.addListener(() {});
@@ -61,27 +54,33 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
 
   @override
   Widget build(BuildContext context) {
-    ref
-      ..watch(requiredAmountProvider)
-      ..watch(amountPerBatchProvider);
+    ref.watch(requiredAmountProvider);
 
     final products = ref.watch(productInfoProvider); // Directly use the state
     final productInfo = ref.watch(focusedProductProvider);
     final hasProducts = productInfo.product.isNotEmpty;
 
     final requiredAmount = double.tryParse(targetController.text) ?? 0.0;
-    final amountPerBatch =
-        double.tryParse(amountPerBatchController.text) ?? 0.0;
-    final rounds =
-        amountPerBatch != 0 ? (requiredAmount / amountPerBatch).floor() : 0;
-    final extraBombs =
-        amountPerBatch != 0 ? (requiredAmount % amountPerBatch) : 0;
 
     if (shouldUpdateTargetController &&
         targetController.text != productInfo.target.toString()) {
       targetController.text = productInfo.target.toString();
       shouldUpdateTargetController = false; // Reset the flag after updating
     }
+
+    final amountPerBatchValue = ref.watch(amountPerBatchProvider);
+    if (shouldUpdateAmountPerBatchController &&
+        amountPerBatchController.text != amountPerBatchValue.toString()) {
+      amountPerBatchController.text = amountPerBatchValue.toString();
+      shouldUpdateAmountPerBatchController = false;
+    }
+
+    final amountPerBatch =
+        double.tryParse(amountPerBatchController.text) ?? 0.0;
+    final rounds =
+        amountPerBatch != 0 ? (requiredAmount / amountPerBatch).floor() : 0;
+    final extraBombs =
+        amountPerBatch != 0 ? (requiredAmount % amountPerBatch) : 0;
 
     final productNameController =
         ref.watch(productNameControllerProvider.notifier).controller;
@@ -143,12 +142,16 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                               ),
                               IconButton(
                                 style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.orangeAccent[100]!,),),
-                                icon: Icon(Icons.clear,
-                                    size: 30, color: Colors.deepOrange[800],),
+                                  backgroundColor:
+                                      MaterialStateColor.resolveWith(
+                                    (states) => Colors.orangeAccent[100]!,
+                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.clear,
+                                  size: 30,
+                                  color: Colors.deepOrange[800],
+                                ),
                                 onPressed: () {
                                   // Logic to clear the focused product
                                   ref
@@ -183,9 +186,8 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           final productTarget = ((selection.target.toDouble()) *
                                   ((workingHours - allowance) / 7.00))
                               .ceil();
-                          ref
-                              .read(targetProvider.notifier)
-                              .state = productTarget;
+                          ref.read(targetProvider.notifier).state =
+                              productTarget;
                           productNameController.text = selection.productName;
                           ref.read(focusedProductProvider.notifier).state =
                               selection;
@@ -268,8 +270,9 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                   icon: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                        color: Colors.orangeAccent[100],
-                                        shape: BoxShape.circle,),
+                                      color: Colors.orangeAccent[100],
+                                      shape: BoxShape.circle,
+                                    ),
                                     child: Icon(
                                       size: 30,
                                       Icons.keyboard_hide,
@@ -312,23 +315,24 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                               ),
                               hintText: 'Add target',
                               hintStyle: TextStyle(
-                                color: Colors.orangeAccent[100]!.withOpacity(0.5),
+                                color:
+                                    Colors.orangeAccent[100]!.withOpacity(0.5),
                                 fontWeight: FontWeight.bold, // Bold text
                                 fontSize: 20, // Slightly bigger font
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
-                                  color:
-                                  Colors.orangeAccent[100]!.withOpacity(0.7),
+                                  color: Colors.orangeAccent[100]!
+                                      .withOpacity(0.7),
                                   width: 4, // Bolder border
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
                                 borderSide: BorderSide(
-                                  color:
-                                  Colors.orangeAccent[100]!.withOpacity(0.5),
+                                  color: Colors.orangeAccent[100]!
+                                      .withOpacity(0.5),
                                   width: 4, // Bolder border
                                 ),
                               ),
@@ -354,7 +358,9 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8,),
+                        const SizedBox(
+                          width: 8,
+                        ),
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.50,
                           child: TextField(

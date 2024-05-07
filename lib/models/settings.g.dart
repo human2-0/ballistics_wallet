@@ -17,18 +17,36 @@ class UserSettingsAdapter extends TypeAdapter<UserSettings> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserSettings(
-      backup: fields[0] as bool,
-      askForBackup: fields[1] as bool,
+      userId: fields[0] as String,
+      workingHours: fields[1] as double?,
+      realWorkingHours: fields[2] as double?,
+      avatarUrl: fields[3] as String?,
+      paidBreaks: fields[4] as bool?,
+      hourlyRate: fields[5] as double?,
+      backup: fields[6] as bool?,
+      askForBackup: fields[7] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserSettings obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(8)
       ..writeByte(0)
-      ..write(obj.backup)
+      ..write(obj.userId)
       ..writeByte(1)
+      ..write(obj.workingHours)
+      ..writeByte(2)
+      ..write(obj.realWorkingHours)
+      ..writeByte(3)
+      ..write(obj.avatarUrl)
+      ..writeByte(4)
+      ..write(obj.paidBreaks)
+      ..writeByte(5)
+      ..write(obj.hourlyRate)
+      ..writeByte(6)
+      ..write(obj.backup)
+      ..writeByte(7)
       ..write(obj.askForBackup);
   }
 

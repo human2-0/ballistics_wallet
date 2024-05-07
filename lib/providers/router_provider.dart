@@ -57,9 +57,7 @@ class RouterNotifier extends ChangeNotifier {
         GoRoute(
           name: 'split',
           builder: (context, state) {
-            final requiredAmount = state.queryParameters['requiredAmount'];
-            return SplitCheck(
-              requiredAmount: requiredAmount == null ? 0 : int.parse(requiredAmount),
+            return const SplitCheck(
             );
           },
           path: '/split',

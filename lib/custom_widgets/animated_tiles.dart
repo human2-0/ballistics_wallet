@@ -1,8 +1,11 @@
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
+import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class MinimumAnimatedTile extends StatefulWidget {
+class MinimumAnimatedTile extends ConsumerStatefulWidget {
   const MinimumAnimatedTile({
     required this.target,
     required this.onLongPressComplete,
@@ -15,7 +18,7 @@ class MinimumAnimatedTile extends StatefulWidget {
   _MinimumAnimatedTileState createState() => _MinimumAnimatedTileState();
 }
 
-class _MinimumAnimatedTileState extends State<MinimumAnimatedTile>
+class _MinimumAnimatedTileState extends ConsumerState<MinimumAnimatedTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
@@ -49,7 +52,9 @@ class _MinimumAnimatedTileState extends State<MinimumAnimatedTile>
   @override
   Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
-        await context.push('/split');
+        ref.read(amountPerBatchProvider.notifier).state = widget.target;
+        ref.read(activeIndexTabProvider.notifier).setIndex(1);
+        context.pop();
       },
       onLongPress: () {
         _controller.forward();
@@ -124,7 +129,7 @@ class _MinimumAnimatedTileState extends State<MinimumAnimatedTile>
     );
 }
 
-class BonusAnimatedTile extends StatefulWidget {
+class BonusAnimatedTile extends ConsumerStatefulWidget {
   const BonusAnimatedTile({
     required this.bonus,
     required this.requiredAmount,
@@ -139,7 +144,7 @@ class BonusAnimatedTile extends StatefulWidget {
   _BonusAnimatedTileState createState() => _BonusAnimatedTileState();
 }
 
-class _BonusAnimatedTileState extends State<BonusAnimatedTile>
+class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
@@ -171,7 +176,10 @@ class _BonusAnimatedTileState extends State<BonusAnimatedTile>
   @override
   Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
-        await context.push('/split');
+        // await context.push('/split');
+        ref.read(amountPerBatchProvider.notifier).state = widget.requiredAmount;
+        ref.read(activeIndexTabProvider.notifier).setIndex(1);
+        context.pop();
       },
       onLongPress: () {
         _controller.forward();

@@ -83,10 +83,64 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
     ).then((value) => value ?? false);
   }
 
+  Future<bool> _stopBackingUpData(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Stop back up'),
+          content: const Text(
+            'Would you like to stop backing up your data to the Google Drive?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context)
+                  .pop(false), // This will close the dialog and return false
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(true); // This will close the dialog and return true
+              },
+              child: const Text('Proceed'),
+            ),
+          ],
+        );
+      },
+    ).then((value) => value ?? false);
+  }
+
+  Future<void> _handleTap(BuildContext context, WidgetRef ref) async {
+    final userData = ref.watch(userNotifierProvider);
+
+    if (!userData.backup!) {
+      final confirm = await _showBackUpConfirmationDialog(context);
+      if (!_isLoading && confirm) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+          await _backupData(context, ref);
+          await ref.read(userNotifierProvider.notifier).doBackUp(true);
+          await ref.read(backupManagerProvider.notifier).checkActiveState();
+        });
+      }
+    }
+
+    if (userData.backup!) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        final stop = await _stopBackingUpData(context);
+        if (stop) {
+          await ref.read(userNotifierProvider.notifier).doBackUp(false);
+          await ref.read(backupManagerProvider.notifier).checkActiveState();
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: (ref.watch(backupManagerProvider).isActive && ref.read(userNotifierProvider).backup!)
+      leading: (ref.watch(backupManagerProvider).isActive &&
+              ref.watch(userNotifierProvider).backup!)
           ? const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -95,22 +149,12 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
               ],
             )
           : const Padding(
-            padding: EdgeInsets.all(8),
-            child: Icon(Icons.cloud_upload_outlined, color: Colors.blue),
-          ),
+              padding: EdgeInsets.all(8),
+              child: Icon(Icons.cloud_upload_outlined, color: Colors.blue),
+            ),
       title: const Text('Back up data'),
-      onTap: () async {
-        final confirm = await _showBackUpConfirmationDialog(context);
-        await ref.read(userNotifierProvider.notifier).doBackUp(true);
-        if (!_isLoading && confirm) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-            await _backupData(context, ref);
-            // After backup, you might want to check the active state again
-            await ref.read(backupManagerProvider.notifier).checkActiveState();
-          });
-        }
-      },
       trailing: _isLoading ? const CircularProgressIndicator() : null,
+      onTap: () async => _handleTap(context, ref),
     );
   }
 }

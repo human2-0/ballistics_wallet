@@ -27,7 +27,8 @@ class LastSelectedProducts extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            const Text('Last selected products'),
+            const SizedBox(height: 8),
+            const Text('Last selected products',style: TextStyle(),),
             const Divider(),
             Expanded(
               child: ListView.builder(
