@@ -1,8 +1,9 @@
-import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/backup_data_tile.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/edit_user_settings.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/restore_data_tile.dart';
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -50,10 +51,10 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
 
     final userDataAsyncValue = ref.watch(userDataProvider(uid));
 
-    final workingHoursController =
-        TextEditingController(text: userState.realWorkingHours.toString());
-    final hourlyRateController =
-        TextEditingController(text: userState.hourlyRate.toString());
+    // final workingHoursController =
+    //     TextEditingController(text: userState.realWorkingHours.toString());
+    // final hourlyRateController =
+    //     TextEditingController(text: userState.hourlyRate.toString());
 
     // Use useEffect to load user data when the widget is first created
     useEffect(
@@ -143,13 +144,15 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               child: Text('Help Center'),
             ),
-            const ListTile(
-              title: Text('Report a bug'),
-              leading: Icon(Icons.bug_report_outlined),
+            ListTile(
+              title: const Text('Report a bug'),
+              leading: const Icon(Icons.bug_report_outlined),
+              onTap: () async => context.push('/reportbug'),
             ),
-            const ListTile(
-              title: Text('Ask for a feature'),
-              leading: Icon(Icons.question_answer_outlined),
+            ListTile(
+              title: const Text('Ask for a feature'),
+              leading: const Icon(Icons.question_answer_outlined),
+              onTap: () async => context.push('/askforfeature'),
             ),
             const Divider(),
             const Padding(
@@ -161,17 +164,20 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               child: Text('About'),
             ),
-            const ListTile(
-              title: Text('Privacy Policy'),
-              leading: Icon(Icons.privacy_tip_outlined),
+            ListTile(
+              title: const Text('Privacy Policy'),
+              leading: const Icon(Icons.privacy_tip_outlined),
+              onTap: () async => context.push('/privacy'),
             ),
-            const ListTile(
-              title: Text('Terms of Use'),
-              leading: Icon(Icons.newspaper),
+            ListTile(
+              title: const Text('Terms of Use'),
+              leading: const Icon(Icons.newspaper),
+              onTap: () async => context.push('/termsofuse'),
             ),
-            const ListTile(
-              title: Text('Licenses'),
-              leading: Icon(Icons.school_outlined),
+            ListTile(
+              title: const Text('Licenses'),
+              leading: const Icon(Icons.school_outlined),
+              onTap: () async => context.push('/license'),
             ),
             const Divider(),
             ListTile(
@@ -210,7 +216,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                       CircleAvatar(
                         radius: 50,
                         backgroundImage: NetworkImage(
-                          userState.avatarUrl!,
+                          userState.avatarUrl ?? 'http://non-existing.com',
                         ),
                         onBackgroundImageError: (_, __) {
                           debugPrint(_.toString());
@@ -250,7 +256,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
-                                        'Daily hours: ${userState.realWorkingHours}',
+                                        'Daily Schedule: ${formatWorkingHours(userState.realWorkingHours!)}',
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -275,83 +281,20 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                     size: 39,
                                   ),
                                   onPressed: () async {
-                                    await showDialog<String>(
+                                    final hourlyRateController = TextEditingController(text: userState.hourlyRate.toString());
+                                    await showDialog<void>(
                                       context: context,
-                                      builder: (context) => Dialog(
-                                        child: SingleChildScrollView(
-                                          child: Container(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                customTextField(
-                                                  controller:
-                                                      workingHoursController,
-                                                  hintText: 'New daily hours',
-                                                  labelText: 'New daily hours',
-                                                ),
-                                                const SizedBox(
-                                                  height: 16,
-                                                ),
-                                                customTextField(
-                                                  controller:
-                                                      hourlyRateController,
-                                                  hintText:
-                                                      'New hourly rate hours',
-                                                  labelText: 'New hourly rate',
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  children: [
-                                                    TextButton(
-                                                      child: const Text(
-                                                        'Cancel',
-                                                      ),
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                    ),
-                                                    TextButton(
-                                                      child: const Text(
-                                                        'Submit',
-                                                      ),
-                                                      onPressed: () async {
-                                                        final newWorkingHours =
-                                                            double.parse(
-                                                          workingHoursController
-                                                              .text,
-                                                        );
-                                                        final newHourlyRate =
-                                                            double.parse(
-                                                          hourlyRateController
-                                                              .text,
-                                                        );
-                                                        final result = await userNotifier.updateUserSettings(newWorkingHours, newHourlyRate);
-                                                        if (result) {
-                                                          await userNotifier.loadUser(uid);
-                                                        }
-                                                        if (result) {
-                                                          await userNotifier
-                                                              .loadUser(uid);
-                                                        }
-                                                        WidgetsBinding.instance
-                                                            .addPostFrameCallback(
-                                                                (timeStamp) {
-                                                          context.pop();
-                                                        });
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                      builder: (context) => EditWorkingHoursDialog(
+                                        hourlyRateController: hourlyRateController,
+                                        onSubmit: (newWorkingHours, newHourlyRate) async {
+                                          final result = await userNotifier.updateUserSettings(
+                                            newWorkingHours,
+                                            newHourlyRate,
+                                          );
+                                          if (result) {
+                                            await userNotifier.loadUser(uid);
+                                          }
+                                        },
                                       ),
                                     );
                                   },

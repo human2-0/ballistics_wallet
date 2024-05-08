@@ -289,6 +289,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.3"
+  dart_pubspec_licenses:
+    dependency: transitive
+    description:
+      name: dart_pubspec_licenses
+      sha256: a488baa010044452b208bc35c6dd62ac072a1ea918f796e4381d5aa1b21cfa41
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   dart_style:
     dependency: transitive
     description:
@@ -427,6 +435,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_email_sender:
+    dependency: "direct main"
+    description:
+      name: flutter_email_sender
+      sha256: fb515d4e073d238d0daf1d765e5318487b6396d46b96e0ae9745dbc9a133f97a
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.3"
   flutter_hooks:
     dependency: "direct main"
     description:
@@ -499,6 +515,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  flutter_oss_licenses:
+    dependency: "direct main"
+    description:
+      name: flutter_oss_licenses
+      sha256: "1219e0e03faac80e68a554b79447d4936c79081d698abca912cc123fb77094aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   flutter_riverpod:
     dependency: "direct main"
     description:

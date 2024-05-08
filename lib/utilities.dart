@@ -150,6 +150,18 @@ extension MapExtensions on Map<String, dynamic> {
   }
 }
 
+String formatWorkingHours(double hours) {
+  final wholeHours = hours.truncate(); // Get whole hours
+  final minutes = ((hours - wholeHours) * 60).round(); // Convert decimal to minutes
+
+  if (minutes == 0) {
+    return '$wholeHours hours';
+  } else {
+    return '$wholeHours hours & $minutes minutes';
+  }
+}
+
+
 const Map<int, double> bonusPercentageMap = {
   1: 102.00,
   2: 104.10,

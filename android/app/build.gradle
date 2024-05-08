@@ -1,5 +1,6 @@
 plugins {
     id "com.android.application"
+
     // START: FlutterFire Configuration
     id 'com.google.gms.google-services'
     // END: FlutterFire Configuration
@@ -69,11 +70,11 @@ flutter {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation platform('com.google.firebase:firebase-bom:32.0.0'
-    )
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
     implementation 'com.google.firebase:firebase-firestore-ktx'
-
 }
+
 

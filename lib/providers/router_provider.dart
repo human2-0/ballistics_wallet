@@ -7,8 +7,11 @@ import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_
 import 'package:ballistics_wallet_flutter/repository/auth_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/login_screen.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/bottom_app_bar.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/ask_for_feature.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/licenses.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/privacy.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/profile/terms_of_use.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_target_animation.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -73,10 +76,32 @@ class RouterNotifier extends ChangeNotifier {
           path: '/protect',
         ),
         GoRoute(
-          name: 'rive',
-          builder: (context, state) => const TargetBoard(productName: 'elko'),
-          path: '/rive',
+          name: 'privacy',
+          builder: (context, state) => const BallisticsPocketPrivacyPolicy(),
+          path: '/privacy',
         ),
+        GoRoute(
+          name: 'termsofuse',
+          builder: (context, state) => const BallisticsPocketTermsOfUse(),
+          path: '/termsofuse',
+        ),
+        GoRoute(
+          name: 'license',
+          builder: (context, state) => const LicenseScreen(),
+          path: '/license',
+        ),
+        GoRoute(
+          name: 'askforfeature',
+          builder: (context, state) => const  SendFeatureEmailScreen(),
+          path: '/askforfeature',
+        ),
+        GoRoute(
+          name: 'reportbug',
+          builder: (context, state) => const  SendFeatureEmailScreen(),
+          path: '/reportbug',
+        ),
+
+
 
       ];
 
