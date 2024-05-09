@@ -484,7 +484,14 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                           if (colorString.contains('-')) {
                             return colorString.split('-').last.trim();
                           } else {
-                            return colorString.split(' ').last.trim();
+                            return colorString.split(' ').first.trim();
+                          }
+                        }
+                        String extractColorNameForUser(String colorString) {
+                          if (colorString.contains('-')) {
+                            return colorString.split('-').last.trim();
+                          } else {
+                            return colorString;
                           }
                         }
 
@@ -519,7 +526,7 @@ class SplitCheckState extends ConsumerState<SplitCheck> {
                                         MediaQuery.sizeOf(context).width * 0.25,
                                     child: Center(
                                       child: Text(
-                                        extractColorName(
+                                        extractColorNameForUser(
                                           product.product[index].productColor,
                                         ),
                                         style: const TextStyle(fontSize: 20),

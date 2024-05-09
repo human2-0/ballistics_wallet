@@ -105,7 +105,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                         child: ListBody(
                                           children: <Widget>[
                                             const Text(
-                                              'Hey, would you like to back up your data to never lose it?',
+                                                'Hey, would you like to start to back up your data? ',
                                             ),
                                             Row(
                                               children: [
@@ -273,7 +273,7 @@ Future<void> saveToWallet({
                   child: ListBody(
                     children: <Widget>[
                       const Text(
-                        'Hey, would you like to back up your data to never lose it?',
+                        'Hey, would you like to start to back up your data? ',
                       ),
                       Row(
                         children: [

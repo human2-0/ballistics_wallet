@@ -71,7 +71,6 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
                 _buildOperatorButton('-'),
                 _buildOperatorButton('*'),
                 _buildOperatorButton('/'),
-                _buildOperatorButton('='),
               ],
             ),
           ),
@@ -79,17 +78,19 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
       ),
     );
   }
-
   Widget _buildOperatorButton(String operator) {
     return IconButton(
       icon: Container(
-          padding:
-              const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(33), color: Colors.white,),
-          child: Text(operator,
-              style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),),
+        padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(33),
+          color: Colors.white,
+        ),
+        child: Text(
+          operator,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      ),
       onPressed: () => _appendText(operator),
     );
   }
@@ -109,7 +110,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
     final expression = widget.controller.text.isEmpty ? '0' : widget.controller.text; // Check if the text is empty
     try {
       final exp = Expression.parse(expression);
-      const evaluator = ExpressionEvaluator();
+      const evaluator = CustomExpressionEvaluator();
       final result = evaluator.eval(exp, {});
       widget.controller.text = result.toString();
 
@@ -122,6 +123,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
       _triggerOnChanged('0');
     }
   }
+
 
   void _triggerOnChanged(String value) {
     // Call the updateRatio with the newly evaluated result
@@ -167,8 +169,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
       ),
       keyboardType: TextInputType.number, // Custom input type
       inputFormatters: [
-        FilteringTextInputFormatter.allow(
-            RegExp(r'[0-9+\-*/.]'),), // Allow digits and operators
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-*/%.]')), // Allow digits and operators
       ],
       onFieldSubmitted: (value) {
         _evaluateAndTriggerUpdate();
@@ -183,5 +184,39 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
     }
     widget.focusNode.removeListener(_handleFocusChange);
     super.dispose();
+  }
+}
+
+
+class CustomExpressionEvaluator extends ExpressionEvaluator {
+  const CustomExpressionEvaluator();
+
+  @override
+  dynamic eval(Expression expression, Map<String, dynamic> context) {
+    if (expression is BinaryExpression) {
+      final left = eval(expression.left, context);
+      final right = eval(expression.right, context);
+
+      switch (expression.operator) {
+        case '/':
+          if (left is num && right is num) {
+            // Use integer division operator to always round down
+            return left ~/ right;
+          } else {
+            throw const FormatException('Operands must be numbers for division operation');
+          }
+        case '%':
+          if (left is num && right is num) {
+            // Ensure integer division for modulo
+            return (left % right).toInt();
+          } else {
+            throw const FormatException('Operands must be numbers for modulo operation');
+          }
+        default:
+          break;
+      }
+    }
+
+    return super.eval(expression, context);
   }
 }

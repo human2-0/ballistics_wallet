@@ -15,7 +15,7 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
   @override
   void initState() {
     super.initState();
-    if (ref.read(userNotifierProvider).backup == null){
+    if (ref.read(userNotifierProvider).backup == null) {
       Future.microtask(() async => ref.read(authRepositoryProvider).signOut());
     }
     Future.microtask(
@@ -30,19 +30,16 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
       _isLoading = true;
     });
     try {
-      final hasPermission =
-          await ref.read(backupManagerProvider.notifier).requestPermissions();
-      if (hasPermission) {
-        await ref.read(backupManagerProvider.notifier).backupData();
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Successfully uploaded data.'),
-              duration: Duration(seconds: 5),
-            ),
-          );
-        });
-      }
+      await ref.read(userNotifierProvider.notifier).doBackUp(true);
+      await ref.read(backupManagerProvider.notifier).backupData();
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Successfully uploaded data.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      });
     } on FormatException catch (e) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         ScaffoldMessenger.of(context).showSnackBar(
