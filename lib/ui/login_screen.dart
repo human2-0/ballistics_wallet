@@ -1,7 +1,7 @@
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_controller.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
+import 'package:ballistics_wallet_flutter/providers/rive_file_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rive/rive.dart' as rive; // Import the Rive package
 
@@ -27,9 +27,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _loadRiveFile() async {
-    final data = await rootBundle.load(riveFileName);
-    final file = rive.RiveFile.import(data);
-    final artboard = file.artboardByName('login')!;
+    final riveFile = await ref.read(riveFileProvider);
+    final artboard = riveFile.artboardByName('login')!;
     final controller = rive.StateMachineController.fromArtboard(artboard, 'Login State')!;
 
     artboard.addController(controller);

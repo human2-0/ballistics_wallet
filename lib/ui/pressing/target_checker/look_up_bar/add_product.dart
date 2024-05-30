@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
+import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -35,8 +36,10 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
   void populateCitricController() {
     for (final entry in pressingEntries) {
       if (!custom) {
-        final systemGValue = double.tryParse(entry.systemGController.text) ?? 0.0;
-        entry.systemCitricController.text = (systemGValue / selectedRatio).toStringAsFixed(2);
+        final systemGValue =
+            double.tryParse(entry.systemGController.text) ?? 0.0;
+        entry.systemCitricController.text =
+            (systemGValue / selectedRatio).toStringAsFixed(2);
       }
     }
   }
@@ -96,7 +99,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: SingleChildScrollView(
-                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.min,
@@ -106,13 +110,13 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                         style: TextStyle(fontSize: 18),
                                       ),
                                       const SizedBox(height: 16),
-                                      customTextField(
+                                      CustomTextField(
                                         controller: productNameController,
                                         hintText: 'Product Name',
                                         labelText: 'Product Name',
                                       ),
                                       const SizedBox(height: 16),
-                                      customTextField(
+                                      CustomTextField(
                                         controller: targetController,
                                         hintText: 'Target',
                                         labelText: 'Target',
@@ -130,7 +134,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                       if (pressingEntries.isNotEmpty)
                                         DecoratedBox(
                                           decoration: BoxDecoration(
-                                            borderRadius: const BorderRadius.all(
+                                            borderRadius:
+                                                const BorderRadius.all(
                                               Radius.circular(8),
                                             ),
                                             boxShadow: [
@@ -210,12 +215,14 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   BoxShadow(
                                                     color: Colors.orange
                                                         .withOpacity(0.5),
-                                                    offset: const Offset(-2, 2.5),
+                                                    offset:
+                                                        const Offset(-2, 2.5),
                                                   ),
                                                 ],
                                               ),
                                               child: TextField(
-                                                controller: TextEditingController(
+                                                controller:
+                                                    TextEditingController(
                                                   text: ratioTextFieldValue,
                                                 ),
                                                 decoration: InputDecoration(
@@ -236,8 +243,9 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   ),
                                                 ),
                                                 textAlign: TextAlign.center,
-                                                keyboardType: const TextInputType
-                                                    .numberWithOptions(
+                                                keyboardType:
+                                                    const TextInputType
+                                                        .numberWithOptions(
                                                   decimal: true,
                                                 ),
                                                 onSubmitted: (value) {
@@ -247,8 +255,10 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                       manualInput >= 1 &&
                                                       manualInput <= 15) {
                                                     setState(() {
-                                                      selectedRatio = manualInput;
-                                                      ratioTextFieldValue = value;
+                                                      selectedRatio =
+                                                          manualInput;
+                                                      ratioTextFieldValue =
+                                                          value;
                                                       for (final entry
                                                           in pressingEntries) {
                                                         final systemGValue =
@@ -296,7 +306,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                 ),
                                                 borderRadius:
                                                     const BorderRadius.only(
-                                                  bottomLeft: Radius.circular(33),
+                                                  bottomLeft:
+                                                      Radius.circular(33),
                                                   topLeft: Radius.circular(
                                                     33,
                                                   ),
@@ -305,7 +316,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   BoxShadow(
                                                     color: Colors.deepPurple
                                                         .withOpacity(0.5),
-                                                    offset: const Offset(-2, 2.5),
+                                                    offset:
+                                                        const Offset(-2, 2.5),
                                                     blurRadius: 8,
                                                   ),
                                                 ],
@@ -364,7 +376,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                       if (pressingEntries.isNotEmpty)
                                         DecoratedBox(
                                           decoration: BoxDecoration(
-                                            borderRadius: const BorderRadius.all(
+                                            borderRadius:
+                                                const BorderRadius.all(
                                               Radius.circular(8),
                                             ),
                                             boxShadow: [
@@ -393,7 +406,8 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                       const SizedBox(height: 16),
                                       Flexible(
                                         child: ListView.builder(
-                                          physics: const NeverScrollableScrollPhysics(),
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
                                           shrinkWrap: true,
                                           itemCount: pressingEntries.length,
                                           itemBuilder: (context, index) =>
@@ -407,7 +421,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                             child: Row(
                                               children: [
                                                 Expanded(
-                                                  child: customTextField(
+                                                  child: CustomTextField(
                                                     controller:
                                                         pressingEntries[index]
                                                             .colorController,
@@ -418,7 +432,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   ),
                                                 ),
                                                 Expanded(
-                                                  child: customTextField(
+                                                  child: CustomTextField(
                                                     controller:
                                                         pressingEntries[index]
                                                             .systemGController,
@@ -431,21 +445,21 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                     ),
                                                   ),
                                                 ),
-                                                if(custom)
-                                                Expanded(
-                                                  child: customTextField(
-                                                    controller:
-                                                    pressingEntries[index]
-                                                        .systemCitricController,
-                                                    hintText: 'Citric',
-                                                    labelText: 'Citric',
-                                                    keyboardType:
-                                                    const TextInputType
-                                                        .numberWithOptions(
-                                                      decimal: true,
+                                                if (custom)
+                                                  Expanded(
+                                                    child: CustomTextField(
+                                                      controller: pressingEntries[
+                                                              index]
+                                                          .systemCitricController,
+                                                      hintText: 'Citric',
+                                                      labelText: 'Citric',
+                                                      keyboardType:
+                                                          const TextInputType
+                                                              .numberWithOptions(
+                                                        decimal: true,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
                                                 IconButton(
                                                   icon: const Icon(
                                                     Icons.remove_circle_outline,
@@ -464,26 +478,28 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                         ),
                                       ),
                                       if (pressingEntries.isNotEmpty)
-                                      Row(
-                                        children: [
-                                          const Text('Custom Citric Amount?'),
-                                          Checkbox(
-                                            value: custom, onChanged: (value){
-                                           setState((){
-                                             populateCitricController();
-                                             custom = value!;
-
-                                           });
-                                          },),
-                                        ],
-                                      ),
+                                        Row(
+                                          children: [
+                                            const Text('Custom Citric Amount?'),
+                                            Checkbox(
+                                              value: custom,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  populateCitricController();
+                                                  custom = value!;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       SizedBox(
-                                        width: MediaQuery.sizeOf(context).width *
-                                            0.33,
+                                        width:
+                                            MediaQuery.sizeOf(context).width *
+                                                0.33,
                                         child: IconButton(
                                           style: ButtonStyle(
                                             backgroundColor:
-                                                MaterialStateColor.resolveWith(
+                                                WidgetStateColor.resolveWith(
                                               (states) => Colors.greenAccent
                                                   .withOpacity(0.8),
                                             ),
@@ -553,26 +569,35 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                             child: const Text('Save'),
                                             onPressed: () async {
                                               final productName =
-                                              productNameController.text
-                                                  .trim();
+                                                  productNameController.text
+                                                      .trim();
                                               final targetString =
-                                              targetController.text.trim();
+                                                  targetController.text.trim();
                                               if (productName.isEmpty ||
                                                   targetString.isEmpty) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      'Product name and target are required.',
-                                                    ),
-                                                    backgroundColor: Colors.red,
-                                                  ),
+                                                showToast(
+                                                  context,
+                                                  'Product name and target are required.',
+                                                  textColor: Colors.red[800],
+                                                  backgroundShadow: Colors.red,
+                                                  colors: [
+                                                    Colors.red[50]!,
+                                                    Colors.red[100]!,
+                                                  ],
                                                 );
                                                 return;
                                               }
 
                                               final target =
-                                              int.tryParse(targetString);
+                                                  int.tryParse(targetString);
+                                              showToast(
+                                                context,
+                                                'Product name and target are required.',
+                                                colors: [
+                                                  Colors.orange,
+                                                  Colors.red,
+                                                ],
+                                              );
                                               if (target == null) {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -586,48 +611,63 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                 return;
                                               }
 
-                                              final pressings = pressingEntries
-                                                  .map((entry) {
+                                              final pressings =
+                                                  pressingEntries.map((entry) {
                                                 final powderAmount =
-                                                double.tryParse(
-                                                  entry.systemGController.text,
-                                                ) ?? 0;
-                                                final citricAmount = double
-                                                    .tryParse(entry
-                                                    .systemCitricController
-                                                    .text,) ?? 0;
+                                                    double.tryParse(
+                                                          entry
+                                                              .systemGController
+                                                              .text,
+                                                        ) ??
+                                                        0;
+                                                final citricAmount =
+                                                    double.tryParse(
+                                                          entry
+                                                              .systemCitricController
+                                                              .text,
+                                                        ) ??
+                                                        0;
 
                                                 return Pressing(
-                                                  '$productName - ${entry.colorController.text}',
+                                                  entry.colorController.text,
                                                   powderAmount,
                                                   custom
                                                       ? citricAmount
                                                       : powderAmount /
-                                                      selectedRatio,
+                                                          selectedRatio,
                                                 );
                                               }).toList();
 
                                               try {
                                                 await ref
                                                     .read(
-                                                  productInfoProvider
-                                                      .notifier,
-                                                )
+                                                      productInfoProvider
+                                                          .notifier,
+                                                    )
                                                     .addProductInfo(
-                                                  productName,
-                                                  target,
-                                                  pressings,
-                                                );
+                                                      productName,
+                                                      target,
+                                                      pressings,
+                                                    );
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback(
-                                                      (timeStamp) {
+                                                  (timeStamp) {
                                                     Navigator.of(context).pop();
                                                   },
                                                 );
                                               } on FormatException catch (e) {
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback(
-                                                      (timeStamp) {
+                                                  (timeStamp) {
+                                                    showToast(
+                                                      context,
+                                                      e.message,
+                                                      colors: [
+                                                        Colors.orange,
+                                                        Colors.red,
+                                                      ],
+                                                    );
+
                                                     ScaffoldMessenger.of(
                                                       context,
                                                     ).showSnackBar(
@@ -635,9 +675,11 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                         content: Text(
                                                           'Error: ${e.message}',
                                                         ),
-                                                        behavior: SnackBarBehavior
-                                                            .floating,
-                                                        duration: const Duration(
+                                                        behavior:
+                                                            SnackBarBehavior
+                                                                .floating,
+                                                        duration:
+                                                            const Duration(
                                                           seconds: 3,
                                                         ),
                                                       ),

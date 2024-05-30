@@ -256,7 +256,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
-                                        'Daily Schedule: ${formatWorkingHours(userState.realWorkingHours!)}',
+                                        'Daily Schedule: ${formatWorkingHours(userState.realWorkingHours ?? 0.0)}',
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -270,7 +270,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
-                                        'Hourly Rate: £${userState.hourlyRate}',
+                                        'Hourly Rate: £${userState.hourlyRate?? 0}',
                                       ),
                                     ),
                                   ],
@@ -281,7 +281,10 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                     size: 39,
                                   ),
                                   onPressed: () async {
-                                    final hourlyRateController = TextEditingController(text: userState.hourlyRate.toString());
+                                    final hourlyRateController = TextEditingController(
+                                      text: userState.hourlyRate?.toString() ?? '0',
+                                    );
+
                                     await showDialog<void>(
                                       context: context,
                                       builder: (context) => EditWorkingHoursDialog(

@@ -173,7 +173,13 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
       }
     });
 
+    // if (ref.read(userNotifierProvider).realWorkingHours == 0)
+    //   {
+    //     ref.read(activeIndexTabProvider.notifier).setIndex(3);
+    //   }
+
     return Scaffold(
+      endDrawerEnableOpenDragGesture: false,
       endDrawer: ref.watch(bonusTableSelectorProvider)
           ? const OvertimeBonusTableV2()
           : const BonusTableV2(),

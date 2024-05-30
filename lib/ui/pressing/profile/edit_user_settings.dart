@@ -44,7 +44,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: customTextField(
+                    child: CustomTextField(
                       controller: _hoursController,
                       hintText: 'Hours',
                       labelText: 'Hours',
@@ -53,7 +53,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: customTextField(
+                    child: CustomTextField(
                       controller: _minutesController,
                       hintText: 'Minutes',
                       labelText: 'Minutes',
@@ -63,7 +63,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
                 ],
               ),
               const SizedBox(height: 16),
-              customTextField(
+              CustomTextField(
                 controller: widget.hourlyRateController,
                 hintText: 'New hourly rate',
                 labelText: 'New hourly rate',

@@ -1,5 +1,5 @@
+import 'package:ballistics_wallet_flutter/providers/rive_file_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rive/rive.dart';
 
@@ -24,9 +24,8 @@ class _RiveEllipsesState extends ConsumerState<TargetBoard> {
   }
 
   Future<void> _loadRiveFile() async {
-    final data = await rootBundle.load(riveFileName);
-    final file = RiveFile.import(data);
-    final artboard = file.artboardByName('target')!;
+    final riveFile = await ref.read(riveFileProvider);
+    final artboard = riveFile.artboardByName('target')!;
     final controller = StateMachineController.fromArtboard(
       artboard,
       'Target Check',

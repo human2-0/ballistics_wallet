@@ -1,7 +1,9 @@
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:ballistics_wallet_flutter/models/settings.dart';
+import 'package:ballistics_wallet_flutter/models/settings_version.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart';
@@ -106,16 +108,50 @@ Future<void> initHive() async {
     ..registerAdapter(PressingAdapter())
     ..registerAdapter(BonusInfoAdapter())
     ..registerAdapter(ProducedAdapter())
-    ..registerAdapter(UserSettingsAdapter());
-
+    ..registerAdapter(UserSettingsAdapter())
+  ..registerAdapter(SettingsVersionAdapter());
 
   final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
   if (boxProductInfo.isEmpty) {
     await addDataToProductInfoBox(boxProductInfo);
   }
   await Hive.openBox<BonusInfo>('bonusInfoBox');
-  await Hive.openBox<UserSettings>('settings');
+  await openSettingsBox('settings');
 }
+
+
+
+Future<void> migrateSettingsBoxIfNeeded(String versionBoxName) async {
+  await Hive.openBox<SettingsVersion>(versionBoxName);
+  final versionBox = await Hive.openBox<SettingsVersion>(versionBoxName);
+  final storedVersion = versionBox.get(0);
+  const currentSettingsVersion = 2;
+
+  if (storedVersion == null || storedVersion.version < currentSettingsVersion) {
+    // Delete the existing settings box due to version mismatch
+    await Hive.deleteBoxFromDisk('settings');
+    // Update the stored version
+    await versionBox.put(0, SettingsVersion(version: currentSettingsVersion));
+  }
+
+  await versionBox.close(); // Close the version box after use
+}
+
+Future<Box<UserSettings>> openSettingsBox(String settingsBoxName) async {
+  await migrateSettingsBoxIfNeeded('versionBox');
+
+  Box<UserSettings> box;
+  try {
+    box = await Hive.openBox<UserSettings>(settingsBoxName);
+  } on FormatException catch (e) {
+    // Fallback: Delete the box and create a new one
+    await Hive.deleteBoxFromDisk(settingsBoxName);
+    box = await Hive.openBox<UserSettings>(settingsBoxName);
+  }
+
+  return box;
+}
+
 
 Future<void> preloadImages(BuildContext context) async {
   // Load and cache images early
@@ -152,7 +188,8 @@ extension MapExtensions on Map<String, dynamic> {
 
 String formatWorkingHours(double hours) {
   final wholeHours = hours.truncate(); // Get whole hours
-  final minutes = ((hours - wholeHours) * 60).round(); // Convert decimal to minutes
+  final minutes =
+      ((hours - wholeHours) * 60).round(); // Convert decimal to minutes
 
   if (minutes == 0) {
     return '$wholeHours hours';
@@ -160,7 +197,6 @@ String formatWorkingHours(double hours) {
     return '$wholeHours hours & $minutes minutes';
   }
 }
-
 
 const Map<int, double> bonusPercentageMap = {
   1: 102.00,

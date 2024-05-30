@@ -5,14 +5,22 @@ part 'product_info.g.dart'; // Hive generates this part file
 
 @HiveType(typeId: 3) // Specify a unique typeId for ProductInfo
 class ProductInfo extends HiveObject {
-  // Ensure Product model is a Hive object
-
+  // Constructor for ProductInfo
   ProductInfo({
     required this.productName,
     required this.target,
     required this.imageName,
     required this.product,
   });
+
+  // Empty constructor for creating an instance with default values
+  factory ProductInfo.empty() => ProductInfo(
+    productName: '',
+    target: 0,
+    imageName: '',
+    product: [],
+  );
+
   @HiveField(0)
   final String productName;
 
@@ -25,17 +33,18 @@ class ProductInfo extends HiveObject {
   @HiveField(3)
   final List<Pressing> product;
 
+  // Method to create a copy of ProductInfo with different fields
   ProductInfo copyWith({
     String? productName,
     int? target,
     String? imageName,
     List<Pressing>? product,
   }) => ProductInfo(
-      productName: productName ?? this.productName,
-      target: target ?? this.target,
-      imageName: imageName ?? this.imageName,
-      product: product ?? this.product,
-    );
+    productName: productName ?? this.productName,
+    target: target ?? this.target,
+    imageName: imageName ?? this.imageName,
+    product: product ?? this.product,
+  );
 }
 
 @immutable
@@ -43,13 +52,11 @@ class ProductInfo extends HiveObject {
 class Pressing {
   const Pressing(this.productColor, this.systemG, this.systemCitric);
 
-  // Factory constructor to create a Pressing instance from a map
   factory Pressing.fromMap(Map<String, dynamic> map) => Pressing(
-      map['color'] as String,
-      (map['systemG'] as num).toDouble(), // Ensuring type conversion to double
-      (map['systemCitric'] as num)
-          .toDouble(), // Ensuring type conversion to double
-    );
+    map['color'] as String,
+    (map['systemG'] as num).toDouble(),
+    (map['systemCitric'] as num).toDouble(),
+  );
 
   @HiveField(1)
   final String productColor;
@@ -65,16 +72,16 @@ class Pressing {
     double? systemG,
     double? systemCitric,
   }) => Pressing(
-      productColor ?? this.productColor,
-      systemG ?? this.systemG,
-      systemCitric ?? this.systemCitric,
-    );
+    productColor ?? this.productColor,
+    systemG ?? this.systemG,
+    systemCitric ?? this.systemCitric,
+  );
 
   Map<String, dynamic> toMap() => {
-      'color': productColor,
-      'systemG': systemG,
-      'systemCitric': systemCitric,
-    };
+    'color': productColor,
+    'systemG': systemG,
+    'systemCitric': systemCitric,
+  };
 
   @override
   bool operator ==(Object other) {

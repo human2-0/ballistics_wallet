@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.6.4+1
+version: 1.7.0+1
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -36,12 +36,10 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
   go_router: ^7.0.1
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.0.1
   flutter_riverpod: ^2.0.0
-  riverpod_annotation: ^2.1.1
   hooks_riverpod: ^2.3.6
   equatable: ^2.0.5
   google_sign_in: ^6.0.2
@@ -49,8 +47,6 @@ dependencies:
   flutter_typeahead: ^4.3.1
   intl: ^0.17.0
   lottie: ^1.2.1
-  google_fonts: ^5.1.0
-  animated_text_kit: ^4.2.2
   vector_math: ^2.1.4
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -69,14 +65,13 @@ dependencies:
   googleapis_auth: ^1.6.0
   googleapis: ^13.1.0
   path: ^1.9.0
-  flutter_dotenv: ^5.1.0
   url_launcher: ^6.2.6
   permission_handler: ^11.3.1
-  oauth2: ^2.0.2
   package_info_plus: ^8.0.0
-  font_awesome_flutter: ^10.7.0
   flutter_oss_licenses: ^3.0.2
   flutter_email_sender: ^6.0.3
+  icons_launcher: ^2.1.7
+  dependency_validator: ^3.2.3
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -93,31 +88,12 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
   riverpod_generator: ^2.2.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
-
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icon/icon.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
-  web:
-    generate: true
-    image_path: "path/to/image.png"
-    background_color: "#hexcode"
-    theme_color: "#hexcode"
-  windows:
-    generate: true
-    image_path: "path/to/image.png"
-    icon_size: 48 # min:48, max:256, default: 48
-  macos:
-    generate: true
-    image_path: "path/to/image.png"
 
 flutter:
 

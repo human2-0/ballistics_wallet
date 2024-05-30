@@ -29,24 +29,78 @@ BoxDecoration boxDecoration(
     ],
   );
 
-Widget customTextField({
-  required TextEditingController controller,
-  required String hintText,
-  required String labelText,
-  TextInputType keyboardType = TextInputType.text,
-  bool enabled = true,
-  void Function(String)? onSubmitted,
-  void Function(String)? onChanged,
-}) => DecoratedBox(
-    decoration: boxDecoration(),
-    child: TextField(
-      enabled: enabled,
-      controller: controller,
-      decoration: textFieldDecoration(hintText, labelText),
-      keyboardType: keyboardType,
-      textAlign: TextAlign.center,
-      onChanged: onChanged,
+class CustomTextField extends StatefulWidget {
 
-      onSubmitted: onSubmitted,
-    ),
-  );
+  const CustomTextField({
+    required this.controller, required this.hintText, required this.labelText, super.key,
+    this.keyboardType = TextInputType.text,
+    this.enabled = true,
+    this.onSubmitted,
+    this.onChanged,
+    this.showClearIcon = false,
+    this.focusNode,
+  });
+  final TextEditingController controller;
+  final String hintText;
+  final String labelText;
+  final TextInputType keyboardType;
+  final bool enabled;
+  final void Function(String)? onSubmitted;
+  final void Function(String)? onChanged;
+  final bool showClearIcon;
+  final FocusNode? focusNode;
+
+  @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller;
+    // Add listener to rebuild when text changes for the clear icon visibility
+    _controller.addListener(_updateClearIconVisibility);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_updateClearIconVisibility);
+    super.dispose();
+  }
+
+  void _updateClearIconVisibility() {
+    setState(() {
+      // This will trigger a rebuild when the text changes, updating the visibility of the clear icon
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: boxDecoration(),
+      child: TextField(
+        focusNode: widget.focusNode,
+        enabled: widget.enabled,
+        controller: _controller,
+        decoration: textFieldDecoration(widget.hintText, widget.labelText).copyWith(
+          suffixIcon: widget.showClearIcon && _controller.text.isNotEmpty
+              ? IconButton(
+            icon: Icon(Icons.clear, color: Colors.grey[600]), // Style the icon as needed
+            onPressed: () {
+              _controller.clear();
+              widget.onChanged?.call(''); // Trigger the onChanged callback with an empty string
+            },
+          )
+              : null,
+        ),
+        keyboardType: widget.keyboardType,
+        textAlign: TextAlign.center,
+        onChanged: widget.onChanged,
+        onSubmitted: widget.onSubmitted,
+      ),
+    );
+  }
+}

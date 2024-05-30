@@ -91,8 +91,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.orange[100]!.withOpacity(0.80),
-                Colors.orange[200]!.withOpacity(0.80),
+                Colors.orange[50]!,
+                Colors.orange[100]!,
               ],
             ),
             boxShadow: [
@@ -275,13 +275,14 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                       style: const TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 18,
                                       ),
                                     ),
                                     const Divider(
-                                      indent: 40,
-                                      endIndent: 40,
+                                      indent: 35,
+                                      endIndent: 35,
                                       thickness: 2,
-                                      height: 24,
+                                      height: 20,
                                     ),
                                     Consumer(
                                       builder: (context, watch, child) {
@@ -296,6 +297,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                           style: TextStyle(
                                             color: Colors.green[900],
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 20,
                                           ),
                                         );
                                       },

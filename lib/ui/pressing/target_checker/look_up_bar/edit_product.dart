@@ -12,10 +12,11 @@ Future<void> showEditProductDialog(
   required ProductInfo product,
 }) async {
   // Initialize the TextEditingControllers with the current product info
-
+  var custom = false;
 
   // Convert each Pressing into a PressingEntry for editing
-  final pressingEntries = product.product.map(PressingEntry.fromPressing).toList();
+  final pressingEntries =
+      product.product.map(PressingEntry.fromPressing).toList();
 
   void addPressingEntry(StateSetter setState) {
     setState(() {
@@ -32,9 +33,9 @@ Future<void> showEditProductDialog(
       child: StatefulBuilder(
         builder: (context, setState) {
           final productNameController =
-          TextEditingController(text: product.productName);
+              TextEditingController(text: product.productName);
           final targetController =
-          TextEditingController(text: product.target.toString());
+              TextEditingController(text: product.target.toString());
           return SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -51,7 +52,7 @@ Future<void> showEditProductDialog(
                   const SizedBox(
                     height: 16,
                   ),
-                  customTextField(
+                  CustomTextField(
                     controller: productNameController,
                     hintText: 'Product Name',
                     labelText: 'Product Name',
@@ -60,7 +61,7 @@ Future<void> showEditProductDialog(
                   const SizedBox(
                     height: 16,
                   ),
-                  customTextField(
+                  CustomTextField(
                     controller: targetController,
                     hintText: 'Target',
                     labelText: 'Target',
@@ -328,70 +329,106 @@ Future<void> showEditProductDialog(
                       shrinkWrap: true,
                       itemCount: pressingEntries.length,
                       itemBuilder: (context, index) => Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: customTextField(
-                                  controller:
-                                      pressingEntries[index].colorController,
-                                  hintText: 'Color $index',
-                                  labelText: 'Color $index',
-                                  onChanged: (newValue) {
-                                    // Assuming you have a way to update the corresponding PressingEntry object
-                                    // This example directly updates the controller, but you might need additional logic
-                                    // to ensure your model (if you have one) is also updated accordingly
-                                    setState(() {
-                                      pressingEntries[index]
-                                          .colorController
-                                          .text = newValue;
-                                    });
-                                  },
-                                ),
-                              ),
-                              Expanded(
-                                child: customTextField(
-                                  controller:
-                                      pressingEntries[index].systemGController,
-                                  hintText: 'Powder',
-                                  labelText: 'Powder',
-                                  onChanged: (newValue) {
-                                    // Assuming you have a way to update the corresponding PressingEntry object
-                                    // This example directly updates the controller, but you might need additional logic
-                                    // to ensure your model (if you have one) is also updated accordingly
-                                    setState(() {
-                                      pressingEntries[index]
-                                          .systemGController
-                                          .text = newValue;
-                                    });
-                                  },
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true,),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.remove_circle_outline,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () {
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                controller:
+                                    pressingEntries[index].colorController,
+                                hintText: 'Color $index',
+                                labelText: 'Color $index',
+                                onChanged: (newValue) {
+                                  // Assuming you have a way to update the corresponding PressingEntry object
+                                  // This example directly updates the controller, but you might need additional logic
+                                  // to ensure your model (if you have one) is also updated accordingly
                                   setState(() {
-                                    // Remove the pressingEntry at this index
-                                    pressingEntries.removeAt(index);
+                                    pressingEntries[index]
+                                        .colorController
+                                        .text = newValue;
                                   });
                                 },
                               ),
-                            ],
-                          ),
+                            ),
+                            Expanded(
+                              child: CustomTextField(
+                                controller:
+                                    pressingEntries[index].systemGController,
+                                hintText: 'Powder',
+                                labelText: 'Powder',
+                                onChanged: (newValue) {
+                                  // Assuming you have a way to update the corresponding PressingEntry object
+                                  // This example directly updates the controller, but you might need additional logic
+                                  // to ensure your model (if you have one) is also updated accordingly
+                                  setState(() {
+                                    pressingEntries[index]
+                                        .systemGController
+                                        .text = newValue;
+                                  });
+                                },
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
+                            ),
+                            if (custom)
+                              Expanded(
+                                  child: CustomTextField(
+                                      controller: pressingEntries[index]
+                                          .systemCitricController,
+                                      hintText: 'Citric',
+                                      labelText: 'Citric',
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                              decimal: true,),),),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.remove_circle_outline,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  // Remove the pressingEntry at this index
+                                  pressingEntries.removeAt(index);
+                                });
+                              },
+                            ),
+                          ],
                         ),
+                      ),
                     ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Custom Citric Amount?'),
+                      Checkbox(
+                        value: custom,
+                        onChanged: (value) {
+                          setState(() {
+                            custom = value ?? false;
+                            if (custom) {
+                              for (final entry in pressingEntries) {
+                                final systemGValue = double.tryParse(
+                                      entry.systemGController.text,
+                                    ) ??
+                                    0.0;
+                                entry.systemCitricController.text =
+                                    (systemGValue / selectedRatio)
+                                        .toStringAsFixed(2);
+                              }
+                            }
+                          });
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width * 0.33,
                     child: IconButton(
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateColor.resolveWith(
+                        backgroundColor: WidgetStateColor.resolveWith(
                           (states) => Colors.greenAccent.withOpacity(
                             0.8,
                           ),
@@ -460,21 +497,25 @@ Future<void> showEditProductDialog(
                         child: const Text('Save'),
                         onPressed: () async {
                           // Parse the target from its text field
+                          // Parse the target from its text field
                           final updatedTarget =
-                              int.parse(targetController.text);
+                          int.parse(targetController.text);
 
                           // Convert the pressingEntries back into a list of Pressing objects
                           final updatedPressings = pressingEntries.map((entry) {
-                            // This was incorrect, as it was using systemGController.text again instead of calculating the citric amount.
                             final systemGValue =
                                 double.tryParse(entry.systemGController.text) ??
                                     0.0;
-                            final systemCitricValue =
-                                systemGValue / selectedRatio;
+                            final systemCitricValue = custom
+                                ? double.tryParse(
+                              entry.systemCitricController.text,
+                            ) ??
+                                0.0
+                                : systemGValue / selectedRatio;
                             return Pressing(
                               entry.colorController.text,
                               systemGValue,
-                              systemCitricValue, // Correctly calculated based on the selectedRatio
+                              systemCitricValue,
                             );
                           }).toList();
 
@@ -543,10 +584,10 @@ class PressingEntry {
 
   // Add a factory constructor to create a PressingEntry from a Pressing
   factory PressingEntry.fromPressing(Pressing pressing) => PressingEntry(
-      color: pressing.productColor,
-      systemG: pressing.systemG,
-      systemCitric: pressing.systemCitric,
-    );
+        color: pressing.productColor,
+        systemG: pressing.systemG,
+        systemCitric: pressing.systemCitric,
+      );
 
   final TextEditingController colorController;
   final TextEditingController systemGController;

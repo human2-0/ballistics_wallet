@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:ballistics_wallet_flutter/firebase_options.dart';
+import 'package:ballistics_wallet_flutter/providers/rive_file_provider.dart';
 // Package imports
 import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
@@ -60,6 +61,7 @@ class MyApp extends ConsumerWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
         await preloadImages(context);
+        await ref.read(riveFileProvider);
     });
 
     return MaterialApp.router(

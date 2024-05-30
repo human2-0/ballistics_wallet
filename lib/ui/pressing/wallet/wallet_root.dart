@@ -22,7 +22,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
     final totalBonus = ref.read(bonusInfoListProvider.notifier).getTotalBonus();
     final totalHours =
         ref.read(bonusInfoListProvider.notifier).getTotalWorkingHours();
-    final totalSalary = totalBonus + (totalHours * userState.hourlyRate!);
+    final totalSalary = totalBonus + (totalHours * (userState.hourlyRate ?? 0) );
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,

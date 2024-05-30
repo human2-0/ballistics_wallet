@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
-
 class ToastWidget extends StatefulWidget {
-  const ToastWidget({required this.message, this.colors, super.key});
+  const ToastWidget(
+      {required this.message,
+      this.colors,
+      this.backgroundShadow,
+      this.textColor,
+      super.key,});
   final String message;
   final List<Color>? colors;
+  final Color? backgroundShadow;
+  final Color? textColor;
 
   @override
   _ToastWidgetState createState() => _ToastWidgetState();
@@ -45,48 +51,58 @@ class _ToastWidgetState extends State<ToastWidget>
 
   @override
   Widget build(BuildContext context) => Material(
-      color: Colors.transparent,
-      child: AnimatedBuilder(
-        animation: _opacityAnimation,
-        builder: (context, child) => Opacity(
+        color: Colors.transparent,
+        child: AnimatedBuilder(
+          animation: _opacityAnimation,
+          builder: (context, child) => Opacity(
             opacity: _opacityAnimation.value,
             child: child,
           ),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.green[500]!.withOpacity(0.4),
-                offset: const Offset(-10, -10),
-                blurRadius: 10,
-                spreadRadius: -5,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: widget.backgroundShadow?.withOpacity(0.4) ??
+                      Colors.green[500]!.withOpacity(0.4),
+                  offset: const Offset(-10, -10),
+                  blurRadius: 10,
+                  spreadRadius: -5,
+                ),
+                BoxShadow(
+                  color: widget.backgroundShadow?.withOpacity(0.4) ??
+                      Colors.green.withOpacity(0.4),
+                  offset: const Offset(5, 5),
+                  blurRadius: 15,
+                  spreadRadius: -5,
+                ),
+              ],
+              borderRadius: BorderRadius.circular(25),
+              gradient: LinearGradient(
+                colors: widget.colors ??
+                    [
+                      Colors.black.withOpacity(0.7),
+                      Colors.black.withOpacity(0.7),
+                    ],
               ),
-              BoxShadow(
-                color: Colors.green.withOpacity(0.4),
-                offset: const Offset(5, 5),
-                blurRadius: 15,
-                spreadRadius: -5,
-              ),
-            ],
-            borderRadius: BorderRadius.circular(25),
-            gradient: LinearGradient(
-              colors: widget.colors ?? [Colors.black.withOpacity(0.7), Colors.black.withOpacity(0.7)],
             ),
-          ),
-          child: Center(
-            child: Text(
-              widget.message,
-              style: TextStyle(color: Colors.green[900], fontSize: 16,fontWeight: FontWeight.bold),
+            child: Center(
+              child: Text(
+                widget.message,
+                style: TextStyle(
+                    color: widget.textColor ?? Colors.green[900],
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,),
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 }
 
-void showToast(BuildContext context, String message, {List<Color>? colors}) {
+void showToast(BuildContext context, String message,
+    {List<Color>? colors, Color? textColor, Color? backgroundShadow,}) {
   final overlay = Overlay.of(context);
 
   final screenWidth = MediaQuery.of(context).size.width;
@@ -104,6 +120,8 @@ void showToast(BuildContext context, String message, {List<Color>? colors}) {
       child: ToastWidget(
         message: message,
         colors: colors,
+        backgroundShadow: backgroundShadow,
+        textColor: textColor,
       ),
     ),
   );

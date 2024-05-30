@@ -177,6 +177,7 @@ class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
   Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
         // await context.push('/split');
+        ref.read(requiredAmountProvider.notifier).state = widget.requiredAmount;
         ref.read(amountPerBatchProvider.notifier).state = widget.requiredAmount;
         ref.read(activeIndexTabProvider.notifier).setIndex(1);
         context.pop();

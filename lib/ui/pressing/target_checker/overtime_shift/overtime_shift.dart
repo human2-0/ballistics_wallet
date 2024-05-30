@@ -657,10 +657,10 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                       child: ElevatedButton(
                                         style: ButtonStyle(
                                           backgroundColor:
-                                              MaterialStateProperty.all(
+                                              WidgetStateProperty.all(
                                             Colors.yellowAccent[100],
                                           ),
-                                          shape: MaterialStateProperty.all<
+                                          shape: WidgetStateProperty.all<
                                               RoundedRectangleBorder>(
                                             RoundedRectangleBorder(
                                               borderRadius:
