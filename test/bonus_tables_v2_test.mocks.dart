@@ -3,25 +3,24 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i10;
+import 'dart:async' as _i9;
 
-import 'package:ballistics_wallet_flutter/models/bonus_info.dart' as _i11;
+import 'package:ballistics_wallet_flutter/models/bonus_info.dart' as _i10;
 import 'package:ballistics_wallet_flutter/models/ratio_and_bonus_info.dart'
-    as _i6;
-import 'package:ballistics_wallet_flutter/models/settings.dart' as _i12;
+    as _i5;
+import 'package:ballistics_wallet_flutter/models/settings.dart' as _i11;
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart'
-    as _i13;
+    as _i12;
 import 'package:ballistics_wallet_flutter/repository/bonus_info_repository.dart'
-    as _i9;
+    as _i8;
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart'
-    as _i7;
-import 'package:cloud_firestore/cloud_firestore.dart' as _i3;
-import 'package:flutter_riverpod/flutter_riverpod.dart' as _i14;
-import 'package:hive/hive.dart' as _i4;
+    as _i6;
+import 'package:flutter_riverpod/flutter_riverpod.dart' as _i13;
+import 'package:hive/hive.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:mockito/src/dummies.dart' as _i7;
 import 'package:riverpod/src/internals.dart' as _i2;
-import 'package:state_notifier/state_notifier.dart' as _i5;
+import 'package:state_notifier/state_notifier.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -47,9 +46,19 @@ class _FakeProviderContainer_0 extends _i1.SmartFake
         );
 }
 
-class _FakeProviderSubscription_1<State1> extends _i1.SmartFake
+class _FakeKeepAliveLink_1 extends _i1.SmartFake implements _i2.KeepAliveLink {
+  _FakeKeepAliveLink_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeProviderSubscription_2<State1> extends _i1.SmartFake
     implements _i2.ProviderSubscription<State1> {
-  _FakeProviderSubscription_1(
+  _FakeProviderSubscription_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -58,18 +67,7 @@ class _FakeProviderSubscription_1<State1> extends _i1.SmartFake
         );
 }
 
-class _FakeFirebaseFirestore_2 extends _i1.SmartFake
-    implements _i3.FirebaseFirestore {
-  _FakeFirebaseFirestore_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeBox_3<E> extends _i1.SmartFake implements _i4.Box<E> {
+class _FakeBox_3<E> extends _i1.SmartFake implements _i3.Box<E> {
   _FakeBox_3(
     Object parent,
     Invocation parentInvocation,
@@ -91,7 +89,7 @@ class _FakeAlwaysAliveRefreshable_4<T> extends _i1.SmartFake
 }
 
 class _FakeStateNotifierProviderElement_5<
-        NotifierT extends _i5.StateNotifier<T>, T> extends _i1.SmartFake
+        NotifierT extends _i4.StateNotifier<T>, T> extends _i1.SmartFake
     implements _i2.StateNotifierProviderElement<NotifierT, T> {
   _FakeStateNotifierProviderElement_5(
     Object parent,
@@ -113,7 +111,7 @@ class _FakeOverride_6 extends _i1.SmartFake implements _i2.Override {
 }
 
 class _FakeBonusInfoAndRatio_7 extends _i1.SmartFake
-    implements _i6.BonusInfoAndRatio {
+    implements _i5.BonusInfoAndRatio {
   _FakeBonusInfoAndRatio_7(
     Object parent,
     Invocation parentInvocation,
@@ -134,7 +132,7 @@ class _FakeAlwaysAliveProviderListenable_8<State> extends _i1.SmartFake
         );
 }
 
-class _FakeUserState_9 extends _i1.SmartFake implements _i7.UserState {
+class _FakeUserState_9 extends _i1.SmartFake implements _i6.UserState {
   _FakeUserState_9(
     Object parent,
     Invocation parentInvocation,
@@ -179,14 +177,14 @@ class MockRef<State extends Object?> extends _i1.Mock
           #refresh,
           [provider],
         ),
-        returnValue: _i8.dummyValue<T>(
+        returnValue: _i7.dummyValue<T>(
           this,
           Invocation.method(
             #refresh,
             [provider],
           ),
         ),
-        returnValueForMissingStub: _i8.dummyValue<T>(
+        returnValueForMissingStub: _i7.dummyValue<T>(
           this,
           Invocation.method(
             #refresh,
@@ -293,14 +291,14 @@ class MockRef<State extends Object?> extends _i1.Mock
           #read,
           [provider],
         ),
-        returnValue: _i8.dummyValue<T>(
+        returnValue: _i7.dummyValue<T>(
           this,
           Invocation.method(
             #read,
             [provider],
           ),
         ),
-        returnValueForMissingStub: _i8.dummyValue<T>(
+        returnValueForMissingStub: _i7.dummyValue<T>(
           this,
           Invocation.method(
             #read,
@@ -320,20 +318,19 @@ class MockRef<State extends Object?> extends _i1.Mock
       ) as bool);
 
   @override
-  T watch<T>(_i2.AlwaysAliveProviderListenable<T>? provider) =>
-      (super.noSuchMethod(
+  T watch<T>(_i2.ProviderListenable<T>? provider) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [provider],
         ),
-        returnValue: _i8.dummyValue<T>(
+        returnValue: _i7.dummyValue<T>(
           this,
           Invocation.method(
             #watch,
             [provider],
           ),
         ),
-        returnValueForMissingStub: _i8.dummyValue<T>(
+        returnValueForMissingStub: _i7.dummyValue<T>(
           this,
           Invocation.method(
             #watch,
@@ -343,8 +340,30 @@ class MockRef<State extends Object?> extends _i1.Mock
       ) as T);
 
   @override
+  _i2.KeepAliveLink keepAlive() => (super.noSuchMethod(
+        Invocation.method(
+          #keepAlive,
+          [],
+        ),
+        returnValue: _FakeKeepAliveLink_1(
+          this,
+          Invocation.method(
+            #keepAlive,
+            [],
+          ),
+        ),
+        returnValueForMissingStub: _FakeKeepAliveLink_1(
+          this,
+          Invocation.method(
+            #keepAlive,
+            [],
+          ),
+        ),
+      ) as _i2.KeepAliveLink);
+
+  @override
   _i2.ProviderSubscription<T> listen<T>(
-    _i2.AlwaysAliveProviderListenable<T>? provider,
+    _i2.ProviderListenable<T>? provider,
     void Function(
       T?,
       T,
@@ -367,7 +386,7 @@ class MockRef<State extends Object?> extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<T>(
+        returnValue: _FakeProviderSubscription_2<T>(
           this,
           Invocation.method(
             #listen,
@@ -381,7 +400,7 @@ class MockRef<State extends Object?> extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeProviderSubscription_1<T>(
+        returnValueForMissingStub: _FakeProviderSubscription_2<T>(
           this,
           Invocation.method(
             #listen,
@@ -402,72 +421,59 @@ class MockRef<State extends Object?> extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBonusInfoRepository extends _i1.Mock
-    implements _i9.BonusInfoRepository {
+    implements _i8.BonusInfoRepository {
   @override
-  _i3.FirebaseFirestore get db => (super.noSuchMethod(
-        Invocation.getter(#db),
-        returnValue: _FakeFirebaseFirestore_2(
-          this,
-          Invocation.getter(#db),
-        ),
-        returnValueForMissingStub: _FakeFirebaseFirestore_2(
-          this,
-          Invocation.getter(#db),
-        ),
-      ) as _i3.FirebaseFirestore);
-
-  @override
-  _i10.Future<_i4.Box<_i11.BonusInfo>> openBox() => (super.noSuchMethod(
+  _i9.Future<_i3.Box<_i10.BonusInfo>> openBox() => (super.noSuchMethod(
         Invocation.method(
           #openBox,
           [],
         ),
-        returnValue: _i10.Future<_i4.Box<_i11.BonusInfo>>.value(
-            _FakeBox_3<_i11.BonusInfo>(
+        returnValue: _i9.Future<_i3.Box<_i10.BonusInfo>>.value(
+            _FakeBox_3<_i10.BonusInfo>(
           this,
           Invocation.method(
             #openBox,
             [],
           ),
         )),
-        returnValueForMissingStub: _i10.Future<_i4.Box<_i11.BonusInfo>>.value(
-            _FakeBox_3<_i11.BonusInfo>(
+        returnValueForMissingStub: _i9.Future<_i3.Box<_i10.BonusInfo>>.value(
+            _FakeBox_3<_i10.BonusInfo>(
           this,
           Invocation.method(
             #openBox,
             [],
           ),
         )),
-      ) as _i10.Future<_i4.Box<_i11.BonusInfo>>);
+      ) as _i9.Future<_i3.Box<_i10.BonusInfo>>);
 
   @override
-  _i10.Future<void> closeBox() => (super.noSuchMethod(
+  _i9.Future<void> closeBox() => (super.noSuchMethod(
         Invocation.method(
           #closeBox,
           [],
         ),
-        returnValue: _i10.Future<void>.value(),
-        returnValueForMissingStub: _i10.Future<void>.value(),
-      ) as _i10.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i10.Future<void> reopenBox() => (super.noSuchMethod(
+  _i9.Future<void> reopenBox() => (super.noSuchMethod(
         Invocation.method(
           #reopenBox,
           [],
         ),
-        returnValue: _i10.Future<void>.value(),
-        returnValueForMissingStub: _i10.Future<void>.value(),
-      ) as _i10.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i10.Future<String> addBonusInfo(_i11.BonusInfo? bonusInfo) =>
+  _i9.Future<String> addBonusInfo(_i10.BonusInfo? bonusInfo) =>
       (super.noSuchMethod(
         Invocation.method(
           #addBonusInfo,
           [bonusInfo],
         ),
-        returnValue: _i10.Future<String>.value(_i8.dummyValue<String>(
+        returnValue: _i9.Future<String>.value(_i7.dummyValue<String>(
           this,
           Invocation.method(
             #addBonusInfo,
@@ -475,89 +481,72 @@ class MockBonusInfoRepository extends _i1.Mock
           ),
         )),
         returnValueForMissingStub:
-            _i10.Future<String>.value(_i8.dummyValue<String>(
+            _i9.Future<String>.value(_i7.dummyValue<String>(
           this,
           Invocation.method(
             #addBonusInfo,
             [bonusInfo],
           ),
         )),
-      ) as _i10.Future<String>);
+      ) as _i9.Future<String>);
 
   @override
-  _i10.Future<List<_i11.BonusInfo>> getAllBonusInfos() => (super.noSuchMethod(
+  _i9.Future<List<_i10.BonusInfo>> getAllBonusInfos() => (super.noSuchMethod(
         Invocation.method(
           #getAllBonusInfos,
           [],
         ),
-        returnValue:
-            _i10.Future<List<_i11.BonusInfo>>.value(<_i11.BonusInfo>[]),
+        returnValue: _i9.Future<List<_i10.BonusInfo>>.value(<_i10.BonusInfo>[]),
         returnValueForMissingStub:
-            _i10.Future<List<_i11.BonusInfo>>.value(<_i11.BonusInfo>[]),
-      ) as _i10.Future<List<_i11.BonusInfo>>);
+            _i9.Future<List<_i10.BonusInfo>>.value(<_i10.BonusInfo>[]),
+      ) as _i9.Future<List<_i10.BonusInfo>>);
 
   @override
-  _i10.Future<void> updateBonusInfo(_i11.BonusInfo? bonusInfo) =>
+  _i9.Future<void> updateBonusInfo(_i10.BonusInfo? bonusInfo) =>
       (super.noSuchMethod(
         Invocation.method(
           #updateBonusInfo,
           [bonusInfo],
         ),
-        returnValue: _i10.Future<void>.value(),
-        returnValueForMissingStub: _i10.Future<void>.value(),
-      ) as _i10.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i10.Future<void> deleteBonusInfo(_i11.BonusInfo? info) =>
-      (super.noSuchMethod(
+  _i9.Future<void> deleteBonusInfo(_i10.BonusInfo? info) => (super.noSuchMethod(
         Invocation.method(
           #deleteBonusInfo,
           [info],
         ),
-        returnValue: _i10.Future<void>.value(),
-        returnValueForMissingStub: _i10.Future<void>.value(),
-      ) as _i10.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i10.Future<Map<String, double>> getAllRatiosToday() => (super.noSuchMethod(
+  _i9.Future<Map<String, double>> getAllRatiosToday() => (super.noSuchMethod(
         Invocation.method(
           #getAllRatiosToday,
           [],
         ),
-        returnValue: _i10.Future<Map<String, double>>.value(<String, double>{}),
+        returnValue: _i9.Future<Map<String, double>>.value(<String, double>{}),
         returnValueForMissingStub:
-            _i10.Future<Map<String, double>>.value(<String, double>{}),
-      ) as _i10.Future<Map<String, double>>);
-
-  @override
-  _i10.Future<Map<String, List<_i11.BonusInfo>>> fetchUserBonuses(
-          String? userId) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #fetchUserBonuses,
-          [userId],
-        ),
-        returnValue: _i10.Future<Map<String, List<_i11.BonusInfo>>>.value(
-            <String, List<_i11.BonusInfo>>{}),
-        returnValueForMissingStub:
-            _i10.Future<Map<String, List<_i11.BonusInfo>>>.value(
-                <String, List<_i11.BonusInfo>>{}),
-      ) as _i10.Future<Map<String, List<_i11.BonusInfo>>>);
+            _i9.Future<Map<String, double>>.value(<String, double>{}),
+      ) as _i9.Future<Map<String, double>>);
 }
 
 /// A class which mocks [BonusInfoAndRatio].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBonusInfoAndRatio extends _i1.Mock implements _i6.BonusInfoAndRatio {
+class MockBonusInfoAndRatio extends _i1.Mock implements _i5.BonusInfoAndRatio {
   @override
-  List<_i11.BonusInfo> get bonusInfo => (super.noSuchMethod(
+  List<_i10.BonusInfo> get bonusInfo => (super.noSuchMethod(
         Invocation.getter(#bonusInfo),
-        returnValue: <_i11.BonusInfo>[],
-        returnValueForMissingStub: <_i11.BonusInfo>[],
-      ) as List<_i11.BonusInfo>);
+        returnValue: <_i10.BonusInfo>[],
+        returnValueForMissingStub: <_i10.BonusInfo>[],
+      ) as List<_i10.BonusInfo>);
 
   @override
-  set bonusInfo(List<_i11.BonusInfo>? _bonusInfo) => super.noSuchMethod(
+  set bonusInfo(List<_i10.BonusInfo>? _bonusInfo) => super.noSuchMethod(
         Invocation.setter(
           #bonusInfo,
           _bonusInfo,
@@ -585,31 +574,31 @@ class MockBonusInfoAndRatio extends _i1.Mock implements _i6.BonusInfoAndRatio {
 /// A class which mocks [UserRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUserRepository extends _i1.Mock implements _i7.UserRepository {
+class MockUserRepository extends _i1.Mock implements _i6.UserRepository {
   @override
-  _i10.Future<_i12.UserSettings?> getUserData(String? userId) =>
+  _i9.Future<_i11.UserSettings?> getUserData(String? userId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getUserData,
           [userId],
         ),
-        returnValue: _i10.Future<_i12.UserSettings?>.value(),
-        returnValueForMissingStub: _i10.Future<_i12.UserSettings?>.value(),
-      ) as _i10.Future<_i12.UserSettings?>);
+        returnValue: _i9.Future<_i11.UserSettings?>.value(),
+        returnValueForMissingStub: _i9.Future<_i11.UserSettings?>.value(),
+      ) as _i9.Future<_i11.UserSettings?>);
 
   @override
-  _i10.Future<void> saveOrUpdateUserData(_i12.UserSettings? user) =>
+  _i9.Future<void> saveOrUpdateUserData(_i11.UserSettings? user) =>
       (super.noSuchMethod(
         Invocation.method(
           #saveOrUpdateUserData,
           [user],
         ),
-        returnValue: _i10.Future<void>.value(),
-        returnValueForMissingStub: _i10.Future<void>.value(),
-      ) as _i10.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i10.Future<bool> editWorkingHours(
+  _i9.Future<bool> editWorkingHours(
     String? userId,
     double? newWorkingHours,
   ) =>
@@ -621,12 +610,12 @@ class MockUserRepository extends _i1.Mock implements _i7.UserRepository {
             newWorkingHours,
           ],
         ),
-        returnValue: _i10.Future<bool>.value(false),
-        returnValueForMissingStub: _i10.Future<bool>.value(false),
-      ) as _i10.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+        returnValueForMissingStub: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i10.Future<bool> editPaidBreaks(
+  _i9.Future<bool> editPaidBreaks(
     String? userId,
     bool? newPaidBreaks,
   ) =>
@@ -638,12 +627,12 @@ class MockUserRepository extends _i1.Mock implements _i7.UserRepository {
             newPaidBreaks,
           ],
         ),
-        returnValue: _i10.Future<bool>.value(false),
-        returnValueForMissingStub: _i10.Future<bool>.value(false),
-      ) as _i10.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+        returnValueForMissingStub: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i10.Future<bool> editHourlyRate(
+  _i9.Future<bool> editHourlyRate(
     String? userId,
     double? newHourlyRate,
   ) =>
@@ -655,9 +644,9 @@ class MockUserRepository extends _i1.Mock implements _i7.UserRepository {
             newHourlyRate,
           ],
         ),
-        returnValue: _i10.Future<bool>.value(false),
-        returnValueForMissingStub: _i10.Future<bool>.value(false),
-      ) as _i10.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+        returnValueForMissingStub: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
   double calculateEffectiveWorkingHours(double? workingHours) =>
@@ -677,32 +666,32 @@ class MockUserRepository extends _i1.Mock implements _i7.UserRepository {
 class MockBonusInfoStateNotifierProvider extends _i1.Mock
     implements
         _i2
-        .StateNotifierProvider<_i13.BonusInfoNotifier, _i6.BonusInfoAndRatio> {
+        .StateNotifierProvider<_i12.BonusInfoNotifier, _i5.BonusInfoAndRatio> {
   @override
-  _i2.AlwaysAliveRefreshable<_i13.BonusInfoNotifier> get notifier =>
+  _i2.AlwaysAliveRefreshable<_i12.BonusInfoNotifier> get notifier =>
       (super.noSuchMethod(
         Invocation.getter(#notifier),
-        returnValue: _FakeAlwaysAliveRefreshable_4<_i13.BonusInfoNotifier>(
+        returnValue: _FakeAlwaysAliveRefreshable_4<_i12.BonusInfoNotifier>(
           this,
           Invocation.getter(#notifier),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.BonusInfoNotifier>(
+            _FakeAlwaysAliveRefreshable_4<_i12.BonusInfoNotifier>(
           this,
           Invocation.getter(#notifier),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.BonusInfoNotifier>);
+      ) as _i2.AlwaysAliveRefreshable<_i12.BonusInfoNotifier>);
 
   @override
   _i2.StateNotifierProviderElement<
-          _i13.BonusInfoNotifier, _i6.BonusInfoAndRatio>
+          _i12.BonusInfoNotifier, _i5.BonusInfoAndRatio>
       createElement() => (super.noSuchMethod(
             Invocation.method(
               #createElement,
               [],
             ),
             returnValue: _FakeStateNotifierProviderElement_5<
-                _i13.BonusInfoNotifier, _i6.BonusInfoAndRatio>(
+                _i12.BonusInfoNotifier, _i5.BonusInfoAndRatio>(
               this,
               Invocation.method(
                 #createElement,
@@ -710,22 +699,22 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
               ),
             ),
             returnValueForMissingStub: _FakeStateNotifierProviderElement_5<
-                _i13.BonusInfoNotifier, _i6.BonusInfoAndRatio>(
+                _i12.BonusInfoNotifier, _i5.BonusInfoAndRatio>(
               this,
               Invocation.method(
                 #createElement,
                 [],
               ),
             ),
-          ) as _i2.StateNotifierProviderElement<_i13.BonusInfoNotifier,
-              _i6.BonusInfoAndRatio>);
+          ) as _i2.StateNotifierProviderElement<_i12.BonusInfoNotifier,
+              _i5.BonusInfoAndRatio>);
 
   @override
   _i2.Override overrideWith(
           _i2.Create<
-                  _i13.BonusInfoNotifier,
-                  _i2.StateNotifierProviderRef<_i13.BonusInfoNotifier,
-                      _i6.BonusInfoAndRatio>>?
+                  _i12.BonusInfoNotifier,
+                  _i2.StateNotifierProviderRef<_i12.BonusInfoNotifier,
+                      _i5.BonusInfoAndRatio>>?
               create) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -749,11 +738,11 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
       ) as _i2.Override);
 
   @override
-  _i2.ProviderSubscription<_i6.BonusInfoAndRatio> addListener(
+  _i2.ProviderSubscription<_i5.BonusInfoAndRatio> addListener(
     _i2.Node? node,
     void Function(
-      _i6.BonusInfoAndRatio?,
-      _i6.BonusInfoAndRatio,
+      _i5.BonusInfoAndRatio?,
+      _i5.BonusInfoAndRatio,
     )? listener, {
     required void Function(
       Object,
@@ -775,7 +764,7 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<_i6.BonusInfoAndRatio>(
+        returnValue: _FakeProviderSubscription_2<_i5.BonusInfoAndRatio>(
           this,
           Invocation.method(
             #addListener,
@@ -791,7 +780,7 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
           ),
         ),
         returnValueForMissingStub:
-            _FakeProviderSubscription_1<_i6.BonusInfoAndRatio>(
+            _FakeProviderSubscription_2<_i5.BonusInfoAndRatio>(
           this,
           Invocation.method(
             #addListener,
@@ -806,10 +795,10 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
             },
           ),
         ),
-      ) as _i2.ProviderSubscription<_i6.BonusInfoAndRatio>);
+      ) as _i2.ProviderSubscription<_i5.BonusInfoAndRatio>);
 
   @override
-  _i6.BonusInfoAndRatio read(_i2.Node? node) => (super.noSuchMethod(
+  _i5.BonusInfoAndRatio read(_i2.Node? node) => (super.noSuchMethod(
         Invocation.method(
           #read,
           [node],
@@ -828,11 +817,11 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
             [node],
           ),
         ),
-      ) as _i6.BonusInfoAndRatio);
+      ) as _i5.BonusInfoAndRatio);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(_i6.BonusInfoAndRatio)? selector) =>
+          Selected Function(_i5.BonusInfoAndRatio)? selector) =>
       (super.noSuchMethod(
         Invocation.method(
           #select,
@@ -860,31 +849,31 @@ class MockBonusInfoStateNotifierProvider extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUserNotifierStateNotifierProvider extends _i1.Mock
-    implements _i2.StateNotifierProvider<_i7.UserNotifier, _i7.UserState> {
+    implements _i2.StateNotifierProvider<_i6.UserNotifier, _i6.UserState> {
   @override
-  _i2.AlwaysAliveRefreshable<_i7.UserNotifier> get notifier =>
+  _i2.AlwaysAliveRefreshable<_i6.UserNotifier> get notifier =>
       (super.noSuchMethod(
         Invocation.getter(#notifier),
-        returnValue: _FakeAlwaysAliveRefreshable_4<_i7.UserNotifier>(
+        returnValue: _FakeAlwaysAliveRefreshable_4<_i6.UserNotifier>(
           this,
           Invocation.getter(#notifier),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i7.UserNotifier>(
+            _FakeAlwaysAliveRefreshable_4<_i6.UserNotifier>(
           this,
           Invocation.getter(#notifier),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i7.UserNotifier>);
+      ) as _i2.AlwaysAliveRefreshable<_i6.UserNotifier>);
 
   @override
-  _i2.StateNotifierProviderElement<_i7.UserNotifier, _i7.UserState>
+  _i2.StateNotifierProviderElement<_i6.UserNotifier, _i6.UserState>
       createElement() => (super.noSuchMethod(
             Invocation.method(
               #createElement,
               [],
             ),
-            returnValue: _FakeStateNotifierProviderElement_5<_i7.UserNotifier,
-                _i7.UserState>(
+            returnValue: _FakeStateNotifierProviderElement_5<_i6.UserNotifier,
+                _i6.UserState>(
               this,
               Invocation.method(
                 #createElement,
@@ -892,7 +881,7 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
               ),
             ),
             returnValueForMissingStub: _FakeStateNotifierProviderElement_5<
-                _i7.UserNotifier, _i7.UserState>(
+                _i6.UserNotifier, _i6.UserState>(
               this,
               Invocation.method(
                 #createElement,
@@ -900,14 +889,14 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
               ),
             ),
           ) as _i2
-              .StateNotifierProviderElement<_i7.UserNotifier, _i7.UserState>);
+              .StateNotifierProviderElement<_i6.UserNotifier, _i6.UserState>);
 
   @override
   _i2.Override overrideWith(
           _i2.Create<
-                  _i7.UserNotifier,
+                  _i6.UserNotifier,
                   _i2
-                  .StateNotifierProviderRef<_i7.UserNotifier, _i7.UserState>>?
+                  .StateNotifierProviderRef<_i6.UserNotifier, _i6.UserState>>?
               create) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -931,11 +920,11 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
       ) as _i2.Override);
 
   @override
-  _i2.ProviderSubscription<_i7.UserState> addListener(
+  _i2.ProviderSubscription<_i6.UserState> addListener(
     _i2.Node? node,
     void Function(
-      _i7.UserState?,
-      _i7.UserState,
+      _i6.UserState?,
+      _i6.UserState,
     )? listener, {
     required void Function(
       Object,
@@ -957,7 +946,7 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<_i7.UserState>(
+        returnValue: _FakeProviderSubscription_2<_i6.UserState>(
           this,
           Invocation.method(
             #addListener,
@@ -972,7 +961,7 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeProviderSubscription_1<_i7.UserState>(
+        returnValueForMissingStub: _FakeProviderSubscription_2<_i6.UserState>(
           this,
           Invocation.method(
             #addListener,
@@ -987,10 +976,10 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
             },
           ),
         ),
-      ) as _i2.ProviderSubscription<_i7.UserState>);
+      ) as _i2.ProviderSubscription<_i6.UserState>);
 
   @override
-  _i7.UserState read(_i2.Node? node) => (super.noSuchMethod(
+  _i6.UserState read(_i2.Node? node) => (super.noSuchMethod(
         Invocation.method(
           #read,
           [node],
@@ -1009,11 +998,11 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
             [node],
           ),
         ),
-      ) as _i7.UserState);
+      ) as _i6.UserState);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(_i7.UserState)? selector) =>
+          Selected Function(_i6.UserState)? selector) =>
       (super.noSuchMethod(
         Invocation.method(
           #select,
@@ -1043,36 +1032,36 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
 class MockOvertimeRatioProvider extends _i1.Mock
     implements _i2.StateProvider<double> {
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double>> get notifier =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get notifier =>
       (super.noSuchMethod(
         Invocation.getter(#notifier),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#notifier),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#notifier),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double>> get state =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get state =>
       (super.noSuchMethod(
         Invocation.getter(#state),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#state),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#state),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
   _i2.StateProviderElement<double> createElement() => (super.noSuchMethod(
@@ -1147,7 +1136,7 @@ class MockOvertimeRatioProvider extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<double>(
+        returnValue: _FakeProviderSubscription_2<double>(
           this,
           Invocation.method(
             #addListener,
@@ -1162,7 +1151,7 @@ class MockOvertimeRatioProvider extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeProviderSubscription_1<double>(
+        returnValueForMissingStub: _FakeProviderSubscription_2<double>(
           this,
           Invocation.method(
             #addListener,
@@ -1221,36 +1210,36 @@ class MockOvertimeRatioProvider extends _i1.Mock
 class MockOvertimeWorkingHoursState extends _i1.Mock
     implements _i2.StateProvider<double?> {
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double?>> get notifier =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double?>> get notifier =>
       (super.noSuchMethod(
         Invocation.getter(#notifier),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double?>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
           this,
           Invocation.getter(#notifier),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double?>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
           this,
           Invocation.getter(#notifier),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double?>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double?>>);
 
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double?>> get state =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double?>> get state =>
       (super.noSuchMethod(
         Invocation.getter(#state),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double?>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
           this,
           Invocation.getter(#state),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double?>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
           this,
           Invocation.getter(#state),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double?>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double?>>);
 
   @override
   _i2.StateProviderElement<double?> createElement() => (super.noSuchMethod(
@@ -1325,7 +1314,7 @@ class MockOvertimeWorkingHoursState extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<double?>(
+        returnValue: _FakeProviderSubscription_2<double?>(
           this,
           Invocation.method(
             #addListener,
@@ -1340,7 +1329,7 @@ class MockOvertimeWorkingHoursState extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeProviderSubscription_1<double?>(
+        returnValueForMissingStub: _FakeProviderSubscription_2<double?>(
           this,
           Invocation.method(
             #addListener,
@@ -1398,36 +1387,36 @@ class MockOvertimeWorkingHoursState extends _i1.Mock
 class MockAllowanceProvider extends _i1.Mock
     implements _i2.StateProvider<double> {
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double>> get notifier =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get notifier =>
       (super.noSuchMethod(
         Invocation.getter(#notifier),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#notifier),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#notifier),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double>> get state =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get state =>
       (super.noSuchMethod(
         Invocation.getter(#state),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#state),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#state),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
   _i2.StateProviderElement<double> createElement() => (super.noSuchMethod(
@@ -1502,7 +1491,7 @@ class MockAllowanceProvider extends _i1.Mock
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<double>(
+        returnValue: _FakeProviderSubscription_2<double>(
           this,
           Invocation.method(
             #addListener,
@@ -1517,7 +1506,7 @@ class MockAllowanceProvider extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeProviderSubscription_1<double>(
+        returnValueForMissingStub: _FakeProviderSubscription_2<double>(
           this,
           Invocation.method(
             #addListener,
@@ -1575,36 +1564,36 @@ class MockAllowanceProvider extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockTargetProvider extends _i1.Mock implements _i2.StateProvider<double> {
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double>> get notifier =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get notifier =>
       (super.noSuchMethod(
         Invocation.getter(#notifier),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#notifier),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#notifier),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
-  _i2.AlwaysAliveRefreshable<_i14.StateController<double>> get state =>
+  _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get state =>
       (super.noSuchMethod(
         Invocation.getter(#state),
         returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#state),
         ),
         returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i14.StateController<double>>(
+            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
           this,
           Invocation.getter(#state),
         ),
-      ) as _i2.AlwaysAliveRefreshable<_i14.StateController<double>>);
+      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
   _i2.StateProviderElement<double> createElement() => (super.noSuchMethod(
@@ -1679,7 +1668,7 @@ class MockTargetProvider extends _i1.Mock implements _i2.StateProvider<double> {
             #fireImmediately: fireImmediately,
           },
         ),
-        returnValue: _FakeProviderSubscription_1<double>(
+        returnValue: _FakeProviderSubscription_2<double>(
           this,
           Invocation.method(
             #addListener,
@@ -1694,7 +1683,7 @@ class MockTargetProvider extends _i1.Mock implements _i2.StateProvider<double> {
             },
           ),
         ),
-        returnValueForMissingStub: _FakeProviderSubscription_1<double>(
+        returnValueForMissingStub: _FakeProviderSubscription_2<double>(
           this,
           Invocation.method(
             #addListener,
