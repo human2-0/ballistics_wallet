@@ -22,13 +22,14 @@ class ProductInfoAdapter extends TypeAdapter<ProductInfo> {
       imageName: fields[2] as String,
       product: (fields[3] as List).cast<Pressing>(),
       ayr: fields[4] as bool?,
+      description: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductInfo obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.productName)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class ProductInfoAdapter extends TypeAdapter<ProductInfo> {
       ..writeByte(3)
       ..write(obj.product)
       ..writeByte(4)
-      ..write(obj.ayr);
+      ..write(obj.ayr)
+      ..writeByte(5)
+      ..write(obj.description);
   }
 
   @override

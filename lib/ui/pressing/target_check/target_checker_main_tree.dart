@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/basic_shift.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/overtime_shift/overtime_shift.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/basic_shift.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/overtime_shift/overtime_shift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

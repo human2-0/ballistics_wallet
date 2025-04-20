@@ -2,10 +2,11 @@ import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/delete_product.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/edit_product.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/delete_product.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/edit_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 
 class LastSelectedProducts extends ConsumerWidget {
   const LastSelectedProducts({super.key});

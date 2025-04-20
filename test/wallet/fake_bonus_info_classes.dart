@@ -34,8 +34,6 @@ class FakeProductInfoRepository implements ProductInfoRepository {
 
   @override
   Future<List<ProductInfo>> fetchProductInfo() async {
-    // Optionally simulate a network or processing delay.
-    await Future.delayed(const Duration(milliseconds: 50));
     return _products;
   }
 
@@ -74,7 +72,7 @@ class FakeProductInfoRepository implements ProductInfoRepository {
 
   @override
   Future<void> addProduct(
-      String productName, int target, List<Pressing> pressings, bool ayr,) {
+      String productName, int target, List<Pressing> pressings,{bool ayr = true, String? description,}) {
     // TODO: implement addProduct
     throw UnimplementedError();
   }

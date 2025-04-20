@@ -566,9 +566,10 @@ class MockProductInfoRepository extends _i1.Mock
   _i10.Future<void> addProduct(
     String? productName,
     int? target,
-    List<_i14.Pressing>? pressings,
-    bool? ayr,
-  ) =>
+    List<_i14.Pressing>? pressings, {
+    bool? ayr = true,
+    String? description,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #addProduct,
@@ -576,8 +577,11 @@ class MockProductInfoRepository extends _i1.Mock
             productName,
             target,
             pressings,
-            ayr,
           ],
+          {
+            #ayr: ayr,
+            #description: description,
+          },
         ),
         returnValue: _i10.Future<void>.value(),
         returnValueForMissingStub: _i10.Future<void>.value(),

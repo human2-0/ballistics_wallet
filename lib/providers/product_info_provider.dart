@@ -25,7 +25,7 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
     List<Pressing> pressings,
     bool ayr,
   ) async {
-    await _repository.addProduct(productName, target, pressings, ayr);
+    await _repository.addProduct(productName, target, pressings,ayr: ayr);
     // Reload the product info to update the state
     await loadProductInfo();
   }

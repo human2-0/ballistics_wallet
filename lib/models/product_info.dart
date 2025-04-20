@@ -12,6 +12,7 @@ class ProductInfo extends HiveObject {
     required this.imageName,
     required this.product,
     this.ayr,
+    this.description,
   });
 
   // Empty constructor for creating an instance with default values
@@ -19,7 +20,8 @@ class ProductInfo extends HiveObject {
     productName: '',
     target: 0,
     imageName: '',
-    product: [],
+    product: const [],
+    description: '',
   );
 
   @HiveField(0)
@@ -37,6 +39,9 @@ class ProductInfo extends HiveObject {
   @HiveField(4)
   final bool? ayr;
 
+  @HiveField(5)
+  final String? description;
+
   // Method to create a copy of ProductInfo with different fields
   ProductInfo copyWith({
     String? productName,
@@ -44,12 +49,14 @@ class ProductInfo extends HiveObject {
     String? imageName,
     List<Pressing>? product,
     bool? ayr,
+    String? description,
   }) => ProductInfo(
     productName: productName ?? this.productName,
     target: target ?? this.target,
     imageName: imageName ?? this.imageName,
     product: product ?? this.product,
     ayr: ayr ?? this.ayr,
+    description: description ?? this.description,
   );
 }
 

@@ -4,15 +4,16 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/amount_calculator_field.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/basic_shift/slide_to_overtimes.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/custom_save_button.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/autocomplete_product.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/last_selected_products.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/look_up_bar/search_bar.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/not_selected_product_sphere.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_ellipses.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_checker/rive_target_animation.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/amount_calculator_field.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/slide_to_overtimes.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/custom_save_button.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/autocomplete_product.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/last_selected_products.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/search_bar.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/not_selected_product_sphere.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/product_description.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/rive_ellipses.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/rive_target_animation.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,22 +116,40 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                 numberController: numberController,
               ),
               if (showList) _buildProductList(ref),
-              if (!showList)
-                if (focusedProduct.imageName != 'question')
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.55,
-                    height: MediaQuery.of(context).size.width * 0.55,
-                    child: Image.asset(
-                      'assets/images/${focusedProduct.imageName}.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, exception, stackTrace) =>
-                          Lottie.asset(
-                        'assets/lottie/product_image_not_found.json',
-                      ),
-                    ),
-                  )
-                else
-                  const SphereQuestionMark(), // Assuming SphereQuestionMark is a widget you've defined
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!showList)
+                    if (focusedProduct.imageName != 'question')
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.55,
+                            height: MediaQuery.of(context).size.width * 0.55,
+                            child: Image.asset(
+                              'assets/images/${focusedProduct.imageName}.png',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, exception, stackTrace) =>
+                                  Lottie.asset(
+                                'assets/lottie/product_image_not_found.json',
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: IconButton(iconSize: 32,
+                              icon: const Icon(Icons.info_outline),
+                              onPressed: () async => showProductNoteDialog(context, ref),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      const SphereQuestionMark(),
+                ],
+              ),
               if (!showList)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
