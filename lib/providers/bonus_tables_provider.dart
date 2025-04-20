@@ -82,7 +82,7 @@ class BonusTableNotifier extends StateNotifier<BonusTableState> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
+                color: Colors.grey.withValues(alpha: 0.5),
                 spreadRadius: 5,
                 blurRadius: 7,
                 offset: const Offset(0, 3),
@@ -94,13 +94,13 @@ class BonusTableNotifier extends StateNotifier<BonusTableState> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.orange.withOpacity(0.5),
+                color: Colors.orange.withValues(alpha: 0.5),
                 gradient: LinearGradient(
                   colors: [Colors.orange[200]!, Colors.white],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
+                    color: Colors.grey.withValues(alpha: 0.5),
                     spreadRadius: 2,
                     blurRadius: 3,
                     offset: const Offset(2, 2),

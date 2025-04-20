@@ -167,7 +167,7 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                               borderRadius: BorderRadius.circular(33),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.orange.withOpacity(0.5),
+                                  color: Colors.orange.withValues(alpha: 0.4),
                                   offset: const Offset(-2, 2.5),
                                 ),
                               ],
@@ -185,7 +185,7 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.orange.withOpacity(0.5),
+                                        color: Colors.orange.withValues(alpha: 0.4),
                                         offset: const Offset(-2, 2.5),
                                       ),
                                     ],
@@ -263,7 +263,7 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                             borderRadius: BorderRadius.circular(33),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.orange.withOpacity(0.5),
+                                color: Colors.orange.withValues(alpha: 0.4),
                                 offset: const Offset(-2, 2.5),
                               ),
                             ],

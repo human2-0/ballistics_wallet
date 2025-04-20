@@ -97,12 +97,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 offset: const Offset(3, 6),
                 blurRadius: 10,
               ),
               BoxShadow(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.5),
                 offset: const Offset(-3, -6),
                 blurRadius: 10,
               ),

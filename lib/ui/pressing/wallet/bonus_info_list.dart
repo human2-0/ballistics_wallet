@@ -75,7 +75,7 @@ class _BonusInfoListState extends ConsumerState<BonusInfoList> {
                   end: Alignment.topLeft,
                   stops: const [0.1, 0.3, 0.7, 0.9],
                   colors: [
-                    Colors.red[50]!.withOpacity(0.3),
+                    Colors.red[50]!.withValues(alpha: 0.3),
                     Colors.red[100]!,
                     Colors.red,
                     Colors.red[600]!,
@@ -233,7 +233,7 @@ BoxDecoration getCustomBoxDecoration(MaterialColor baseColor) => BoxDecoration(
         end: Alignment.bottomRight,
         stops: const [0.1, 0.5, 0.7, 0.9],
         colors: [
-          baseColor[300]!.withOpacity(0.4),
+          baseColor[300]!.withValues(alpha: 0.4),
           baseColor[200]!,
           baseColor[100]!,
           baseColor[100]!,
@@ -241,19 +241,19 @@ BoxDecoration getCustomBoxDecoration(MaterialColor baseColor) => BoxDecoration(
       ),
       boxShadow: [
         BoxShadow(
-          color: baseColor[500]!.withOpacity(0.4),
+          color: baseColor[500]!.withValues(alpha: 0.4),
           offset: const Offset(-10, -10),
           blurRadius: 10,
           spreadRadius: -5,
         ),
         BoxShadow(
-          color: baseColor.withOpacity(0.4),
+          color: baseColor.withValues(alpha: 0.4),
           offset: const Offset(5, 5),
           blurRadius: 15,
           spreadRadius: -5,
         ),
         BoxShadow(
-          color: Colors.white.withOpacity(0.6),
+          color: Colors.white.withValues(alpha: 0.6),
           offset: const Offset(15, 0),
           blurRadius: 10,
         ),

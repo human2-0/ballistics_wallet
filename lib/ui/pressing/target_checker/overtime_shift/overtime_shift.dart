@@ -104,12 +104,12 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           offset: const Offset(0, 4),
                           blurRadius: 10,
                         ),
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           offset: const Offset(0, -4),
                           blurRadius: 10,
                         ),
@@ -138,12 +138,12 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           offset: const Offset(0, 4),
                           blurRadius: 10,
                         ),
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           offset: const Offset(0, -4),
                           blurRadius: 10,
                         ),
@@ -466,7 +466,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withValues(alpha: 0.2),
                                     spreadRadius: 5,
                                     blurRadius: 12,
                                     offset: const Offset(

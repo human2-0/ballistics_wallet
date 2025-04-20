@@ -89,7 +89,7 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                         end: Alignment.bottomRight,
                         stops: const [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          selectedPrimaryColor[50]!.withOpacity(0.5),
+                          selectedPrimaryColor[50]!.withValues(alpha: 0.4),
                           selectedPrimaryColor[100]!,
                           selectedPrimaryColor[200]!,
                           selectedPrimaryColor[300]!,
@@ -97,13 +97,13 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: selectedPrimaryColor[500]!.withOpacity(0.6),
+                          color: selectedPrimaryColor[500]!.withValues(alpha: 0.6),
                           offset: const Offset(5, 5),
                           blurRadius: 5,
                           spreadRadius: -5,
                         ),
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           offset: const Offset(-5, -5),
                           blurRadius: 5,
                           spreadRadius: -2,
@@ -117,7 +117,7 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                         end: Alignment.bottomRight,
                         stops: const [0.1, 0.5, 0.7, 0.9],
                         colors: [
-                          primaryColor[50]!.withOpacity(0.5),
+                          primaryColor[50]!.withValues(alpha: 0.5),
                           primaryColor[100]!,
                           primaryColor[200]!,
                           primaryColor[300]!,
@@ -125,13 +125,13 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor[500]!.withOpacity(0.6),
+                          color: primaryColor[500]!.withValues(alpha: 0.6),
                           offset: const Offset(5, 5),
                           blurRadius: 5,
                           spreadRadius: -5,
                         ),
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           offset: const Offset(-5, -5),
                           blurRadius: 5,
                           spreadRadius: -2,

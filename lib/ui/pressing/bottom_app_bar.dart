@@ -229,7 +229,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   Widget buildBottomNavigationBar(BuildContext context) => Container(
         height: MediaQuery.of(context).size.height * 0.10,
         decoration: BoxDecoration(
-          color: Colors.brown[50]?.withOpacity(0.7),
+          color: Colors.brown[50],
           borderRadius: BorderRadius.circular(33),
           boxShadow: const [
             BoxShadow(
@@ -265,7 +265,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(33),
-                    color: Colors.yellow.withOpacity(0.5),
+                    color: Colors.yellow.withValues(alpha: 0.5),
                   ),
                 ),
               ),

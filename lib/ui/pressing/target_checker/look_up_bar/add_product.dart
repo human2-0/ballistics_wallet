@@ -65,7 +65,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       spreadRadius: 2,
                       blurRadius: 16,
                       offset: const Offset(4, 4), // changes position of shadow
@@ -158,7 +158,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                             boxShadow: [
                                               BoxShadow(
                                                 color: Colors.yellow[100]!
-                                                    .withOpacity(0.8),
+                                                    .withValues(alpha: 0.8),
                                                 offset: const Offset(4, -2.5),
                                               ),
                                             ],
@@ -169,7 +169,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   BorderRadius.circular(8),
                                             ),
                                             tileColor: Colors.yellow[500]!
-                                                .withOpacity(0.8),
+                                                .withValues(alpha: 0.8),
                                             leading: const Icon(
                                               Icons.info_outline_rounded,
                                             ),
@@ -231,7 +231,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.orange
-                                                        .withOpacity(0.5),
+                                                        .withValues(alpha: 0.5),
                                                     offset:
                                                         const Offset(-2, 2.5),
                                                   ),
@@ -332,7 +332,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.deepPurple
-                                                        .withOpacity(0.5),
+                                                        .withValues(alpha: 0.5),
                                                     offset:
                                                         const Offset(-2, 2.5),
                                                     blurRadius: 8,
@@ -400,7 +400,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                             boxShadow: [
                                               BoxShadow(
                                                 color: Colors.yellow[100]!
-                                                    .withOpacity(0.8),
+                                                    .withValues(alpha: 0.8),
                                                 offset: const Offset(4, -2.5),
                                               ),
                                             ],
@@ -411,7 +411,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   BorderRadius.circular(8),
                                             ),
                                             tileColor: Colors.yellow[500]!
-                                                .withOpacity(0.8),
+                                                .withValues(alpha: 0.8),
                                             leading: const Icon(
                                               Icons.info_outline_rounded,
                                             ),
@@ -518,7 +518,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                             backgroundColor:
                                                 WidgetStateColor.resolveWith(
                                               (states) => Colors.greenAccent
-                                                  .withOpacity(0.8),
+                                                  .withValues(alpha: 0.8),
                                             ),
                                           ),
                                           icon: Row(
@@ -549,9 +549,7 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.deepPurple
-                                                          .withOpacity(
-                                                        0.5,
-                                                      ),
+                                                          .withValues(alpha: 0.8),
                                                       offset: const Offset(
                                                         -2,
                                                         2.5,

@@ -110,7 +110,7 @@ Future<void> showEditProductDialog(
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.yellow[100]!.withOpacity(0.8),
+                            color: Colors.yellow[100]!.withValues(alpha: 0.8),
                             offset: const Offset(4, -2.5),
                           ),
                         ],
@@ -119,7 +119,7 @@ Future<void> showEditProductDialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        tileColor: Colors.yellow[500]!.withOpacity(0.8),
+                        tileColor: Colors.yellow[500]!.withValues(alpha: 0.8),
                         leading: const Icon(Icons.info_outline_rounded),
                         title: Text(
                           'Ratio: ${selectedRatio.toStringAsFixed(1)} parts powder to 1 part citric',
@@ -170,7 +170,7 @@ Future<void> showEditProductDialog(
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.orange.withOpacity(0.5),
+                                  color: Colors.orange.withValues(alpha: 0.5),
                                   offset: const Offset(-2, 2.5),
                                 ),
                               ],
@@ -259,9 +259,7 @@ Future<void> showEditProductDialog(
                             // but you can choose a color that stands out or complements it.
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.deepPurple.withOpacity(
-                                  0.5,
-                                ), // Example shadow color
+                                color: Colors.deepPurple.withValues(alpha: 0.5),
                                 offset: const Offset(-2, 2.5),
                                 blurRadius:
                                     8, // You can adjust blurRadius for a more pronounced shadow
@@ -327,7 +325,7 @@ Future<void> showEditProductDialog(
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.yellow[100]!.withOpacity(0.8),
+                            color: Colors.yellow[100]!.withValues(alpha: 0.8),
                             offset: const Offset(4, -2.5),
                           ),
                         ],
@@ -336,7 +334,7 @@ Future<void> showEditProductDialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        tileColor: Colors.yellow[500]!.withOpacity(0.8),
+                        tileColor: Colors.yellow[500]!.withValues(alpha: 0.8),
                         leading: const Icon(Icons.info_outline_rounded),
                         title:
                             const Text('Add amount in grams per one bath bomb'),
@@ -451,9 +449,7 @@ Future<void> showEditProductDialog(
                     child: IconButton(
                       style: ButtonStyle(
                         backgroundColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.greenAccent.withOpacity(
-                            0.8,
-                          ),
+                          (states) => Colors.greenAccent.withValues(alpha: 0.8),
                         ),
                       ),
                       icon: Row(
@@ -486,9 +482,7 @@ Future<void> showEditProductDialog(
                               // but you can choose a color that stands out or complements it.
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.deepPurple.withOpacity(
-                                    0.5,
-                                  ), // Example shadow color
+                                  color: Colors.deepPurple.withValues(alpha: 0.5),
                                   offset: const Offset(-2, 2.5),
                                   blurRadius:
                                       8, // You can adjust blurRadius for a more pronounced shadow

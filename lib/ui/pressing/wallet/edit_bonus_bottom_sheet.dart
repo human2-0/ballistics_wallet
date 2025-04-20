@@ -126,7 +126,7 @@ Future<void> showEditModal(
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.orange.withOpacity(0.5),
+                                    color: Colors.orange.withValues(alpha: 0.4),
                                     offset: const Offset(-2, 2.5),
                                   ),
                                 ],
@@ -214,7 +214,7 @@ Future<void> showEditModal(
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.orange.withOpacity(0.5),
+                                    color: Colors.orange.withValues(alpha: 0.4),
                                     offset: const Offset(-2, 2.5),
                                   ),
                                 ],
@@ -280,7 +280,7 @@ Future<void> showEditModal(
                               const BorderRadius.all(Radius.circular(25)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange.withOpacity(0.5),
+                              color: Colors.orange.withValues(alpha: 0.4),
                               offset: const Offset(-2, 2.5),
                             ),
                           ],
@@ -294,7 +294,7 @@ Future<void> showEditModal(
                                 .transparent, // Makes InkWell ripple effect visible
                             child: InkWell(
                               splashColor: Colors.orange
-                                  .withOpacity(0.5), // Ripple effect color
+                                  .withValues(alpha: 0.4), // Ripple effect color
                               onTap:
                                   addProducedRow, // Your function to add a new row
                               child: const Row(
@@ -327,7 +327,7 @@ Future<void> showEditModal(
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.green.withOpacity(0.5),
+                            color: Colors.green.withValues(alpha: 0.4),
                             offset: const Offset(-2, 2.5),
                           ),
                         ],
@@ -383,7 +383,7 @@ Future<void> showEditModal(
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.purple.withOpacity(0.5),
+                            color: Colors.purple.withValues(alpha: 0.4),
                             offset: const Offset(-2, 2.5),
                           ),
                         ],

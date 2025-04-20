@@ -55,7 +55,7 @@ void main() {
   });
 
   test('loginWithGoogle failure', () async {
-    when(mockAuthRepository.signInWithGoogle()).thenThrow(Exception('Test Exception')); // Correct: Use thenThrow for failure
+    when(mockAuthRepository.signInWithGoogle()).thenThrow(FormatException('Test Exception')); // Correct: Use thenThrow for failure
 
     final loginController = container.read(loginControllerProvider.notifier);
 
@@ -64,7 +64,7 @@ void main() {
 
     final loginState = container.read(loginControllerProvider);
     expect(loginState, isA<LoginStateError>());
-    expect((loginState as LoginStateError).error, 'Exception: Test Exception'); // Check error message
+    expect((loginState as LoginStateError).error, 'FormatException: Test Exception'); // Check error message
 
     verify(mockAuthRepository.signInWithGoogle()).called(1);
   });

@@ -103,7 +103,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.3),
+        backgroundColor: Colors.white.withValues(alpha: 0.3),
       ),
       drawer: Drawer(
         backgroundColor: Colors.orange[50],
@@ -208,7 +208,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Card(
-                color: Colors.lightBlueAccent[100]!.withOpacity(0.5),
+                color: Colors.lightBlueAccent[100]!.withValues(alpha: 0.5),
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: Column(
@@ -233,7 +233,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.blue[200]!.withOpacity(0.5),
+                          color: Colors.blue[200]!.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -313,7 +313,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.blue[200]!.withOpacity(0.5),
+                            color: Colors.blue[200]!.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(

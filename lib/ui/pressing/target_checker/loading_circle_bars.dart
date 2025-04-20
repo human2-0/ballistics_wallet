@@ -45,8 +45,8 @@ class BonusCoin extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.7),
-            nextColor.withOpacity(0.7),
+            color.withValues(alpha: 0.7),
+            nextColor.withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -54,22 +54,22 @@ class BonusCoin extends StatelessWidget {
         borderRadius: BorderRadius.circular(40),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.4),
+            color: color.withValues(alpha: 0.4),
             offset: const Offset(-4, -4),
             blurRadius: 6,
           ),
           BoxShadow(
-            color: nextColor.withOpacity(0.4),
+            color: nextColor.withValues(alpha: 0.4),
             offset: const Offset(4, 4),
             blurRadius: 6,
           ),
           BoxShadow(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             offset: const Offset(4, -4),
             blurRadius: 6,
           ),
           BoxShadow(
-            color: nextColor.withOpacity(0.2),
+            color: nextColor.withValues(alpha: 0.2),
             offset: const Offset(-4, 4),
             blurRadius: 6,
           ),
@@ -268,7 +268,7 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
           painter: _MinimumCirclePainter(
             progress: _progressAnimation.value,
             color: Colors.green,
-            backgroundColor: Colors.pink[50]!.withOpacity(0.3),
+            backgroundColor: Colors.pink[50]!.withValues(alpha: 0.3),
           ),
           size: const Size(46, 46),
         ),

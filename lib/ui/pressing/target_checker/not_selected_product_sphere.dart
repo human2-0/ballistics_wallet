@@ -31,7 +31,7 @@ class SphereQuestionMark extends StatelessWidget{
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             spreadRadius: 5,
             blurRadius: 12,
             offset: const Offset(

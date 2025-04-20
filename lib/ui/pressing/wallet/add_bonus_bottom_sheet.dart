@@ -113,7 +113,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.orange.withOpacity(0.5),
+                                      color: Colors.orange.withValues(alpha: 0.5),
                                       offset: const Offset(-2, 2.5),
                                     ),
                                   ],
@@ -175,7 +175,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.orange.withOpacity(0.5),
+                                          color: Colors.orange.withValues(alpha: 0.5),
                                           offset: const Offset(-2, 2.5),
                                         ),
                                       ],
@@ -219,7 +219,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.orange.withOpacity(0.5),
+                                    color: Colors.orange.withValues(alpha: 0.5),
                                     offset: const Offset(-2, 2.5),
                                   ),
                                 ],
@@ -301,7 +301,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.orange.withOpacity(0.5),
+                                color: Colors.orange.withValues(alpha: 0.5),
                                 offset: const Offset(-2, 2.5),
                               ),
                             ],
@@ -311,7 +311,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                splashColor: Colors.orange.withOpacity(0.5),
+                                splashColor: Colors.orange.withValues(alpha: 0.5),
                                 onTap: () {
                                   setState(() {
                                     productNameControllers
@@ -351,7 +351,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.green.withOpacity(0.5),
+                              color: Colors.green.withValues(alpha: 0.5),
                               offset: const Offset(-2, 2.5),
                             ),
                           ],
@@ -389,7 +389,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.purple.withOpacity(0.5),
+                              color: Colors.purple.withValues(alpha: 0.5),
                               offset: const Offset(-2, 2.5),
                             ),
                           ],

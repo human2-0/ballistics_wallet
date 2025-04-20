@@ -64,15 +64,15 @@ class _ToastWidgetState extends State<ToastWidget>
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: widget.backgroundShadow?.withOpacity(0.4) ??
-                      Colors.green[500]!.withOpacity(0.4),
+                  color: widget.backgroundShadow?.withValues(alpha: 0.4) ??
+                      Colors.green[500]!.withValues(alpha: 0.4),
                   offset: const Offset(-10, -10),
                   blurRadius: 10,
                   spreadRadius: -5,
                 ),
                 BoxShadow(
-                  color: widget.backgroundShadow?.withOpacity(0.4) ??
-                      Colors.green.withOpacity(0.4),
+                  color: widget.backgroundShadow?.withValues(alpha: 0.4) ??
+                      Colors.green.withValues(alpha: 0.4),
                   offset: const Offset(5, 5),
                   blurRadius: 15,
                   spreadRadius: -5,
@@ -82,8 +82,8 @@ class _ToastWidgetState extends State<ToastWidget>
               gradient: LinearGradient(
                 colors: widget.colors ??
                     [
-                      Colors.black.withOpacity(0.7),
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
               ),
             ),

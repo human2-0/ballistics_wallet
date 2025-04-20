@@ -32,7 +32,7 @@ class LoginController extends StateNotifier<LoginState> {
       await ref.read(authRepositoryProvider).signInWithGoogle();
       state = const LoginStateSuccess();
       ref.read(toastMessageProvider.notifier).state = "Welcome on board, Lush's Warrior!";
-    } catch (e, st) {
+    } on FormatException catch (e, st) {
       state = LoginStateError(e.toString());                    // NEW
       debugPrintStack(label: e.toString(), stackTrace: st);     // optional
     }

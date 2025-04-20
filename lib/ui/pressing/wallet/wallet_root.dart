@@ -90,7 +90,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                   title: 'Hours',
                   value: formatDouble(totalHours),
                   colors: [
-                    Colors.purple[400]!.withOpacity(0.6),
+                    Colors.purple[400]!.withValues(alpha: 0.4),
                     Colors.purple[300]!,
                     Colors.purple[200]!,
                     Colors.purple[100]!,
@@ -101,7 +101,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                   title: 'Salary £${formatDouble(totalSalary)}',
                   value: '',
                   colors: [
-                    Colors.yellow[800]!.withOpacity(0.6),
+                    Colors.yellow[800]!.withValues(alpha: 0.4),
                     Colors.yellow[700]!,
                     Colors.yellow[600]!,
                     Colors.yellow[300]!,
@@ -112,7 +112,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
                   title: 'Bonus',
                   value: '£${formatDouble(totalBonus)}',
                   colors: [
-                    Colors.green[400]!.withOpacity(0.6),
+                    Colors.green[400]!.withValues(alpha: 0.4),
                     Colors.green[300]!,
                     Colors.green[200]!,
                     Colors.green[100]!,
@@ -161,7 +161,7 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.4),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
