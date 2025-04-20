@@ -98,8 +98,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                               builder: (context) {
                                 var localDoNotAskAgain = doNotAskAgain;
                                 return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return AlertDialog(
+                                  builder: (context, setState) => AlertDialog(
                                       title: const Text('Backup Data'),
                                       content: SingleChildScrollView(
                                         child: ListBody(
@@ -154,8 +153,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                           },
                                         ),
                                       ],
-                                    );
-                                  },
+                                    ),
                                 );
                               },
                             );
@@ -266,8 +264,7 @@ Future<void> saveToWallet({
         builder: (context) {
           var localDoNotAskAgain = doNotAskAgain;
           return StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
+            builder: (context, setState) => AlertDialog(
                 title: const Text('Backup Data'),
                 content: SingleChildScrollView(
                   child: ListBody(
@@ -317,8 +314,7 @@ Future<void> saveToWallet({
                     },
                   ),
                 ],
-              );
-            },
+              ),
           );
         },
       );

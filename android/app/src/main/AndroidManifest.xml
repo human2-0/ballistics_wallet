@@ -4,8 +4,7 @@
     <application
         android:label="Ballistics"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-		android:roundIcon="@mipmap/ic_launcher_rounded"
+        android:icon="@mipmap/launcher_icon"
         android:requestLegacyExternalStorage="true">  <!-- This should be within the application tag -->
 
         <activity

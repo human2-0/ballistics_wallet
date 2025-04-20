@@ -53,7 +53,7 @@ class _MinimumAnimatedTileState extends ConsumerState<MinimumAnimatedTile>
   Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
         ref.read(amountPerBatchProvider.notifier).state = widget.target;
-        ref.read(activeIndexTabProvider.notifier).setIndex(1);
+        ref.read(activeIndexTabProvider.notifier).updateIndex(1);
         context.pop();
       },
       onLongPress: () {
@@ -179,7 +179,7 @@ class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
         // await context.push('/split');
         ref.read(requiredAmountProvider.notifier).state = widget.requiredAmount;
         ref.read(amountPerBatchProvider.notifier).state = widget.requiredAmount;
-        ref.read(activeIndexTabProvider.notifier).setIndex(1);
+        ref.read(activeIndexTabProvider.notifier).updateIndex(1);
         context.pop();
       },
       onLongPress: () {

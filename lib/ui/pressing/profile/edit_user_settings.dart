@@ -1,15 +1,16 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 
 class EditWorkingHoursDialog extends StatefulWidget {
 
   const EditWorkingHoursDialog({
     required this.onSubmit,
-    required this.hourlyRateController,
+    required this.userState,
     super.key,
   });
   final void Function(double, double) onSubmit;
-  final TextEditingController hourlyRateController;
+  final UserState userState;
 
   @override
   _EditWorkingHoursDialogState createState() => _EditWorkingHoursDialogState();
@@ -18,12 +19,22 @@ class EditWorkingHoursDialog extends StatefulWidget {
 class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
   final TextEditingController _hoursController = TextEditingController();
   final TextEditingController _minutesController = TextEditingController();
+  final TextEditingController _hourlyRateController = TextEditingController();
+
 
   @override
   void dispose() {
     _hoursController.dispose();
     _minutesController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState(){
+    _hoursController.text = widget.userState.realWorkingHours.toString().split('.').first;
+    _minutesController.text = '0';
+    _hourlyRateController.text = widget.userState.hourlyRate.toString();
+    super.initState();
   }
 
   @override
@@ -64,7 +75,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
               ),
               const SizedBox(height: 16),
               CustomTextField(
-                controller: widget.hourlyRateController,
+                controller: _hourlyRateController,
                 hintText: 'New hourly rate',
                 labelText: 'New hourly rate',
                 keyboardType: TextInputType.number,
@@ -85,7 +96,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
                       final hours = int.tryParse(_hoursController.text) ?? 0;
                       final minutes = int.tryParse(_minutesController.text) ?? 0;
                       final hourlyRate = double.tryParse(
-                        widget.hourlyRateController.text,
+                        _hourlyRateController.text,
                       ) ?? 0;
 
                       // Convert hours and minutes to a double representing the total hours

@@ -1,6 +1,7 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ Future<void> showEditProductDialog(
 }) async {
   // Initialize the TextEditingControllers with the current product info
   var custom = false;
+  var ayr = product.ayr ?? false;
 
   // Convert each Pressing into a PressingEntry for editing
   final pressingEntries =
@@ -27,16 +29,19 @@ Future<void> showEditProductDialog(
   var selectedRatio = 3.0; // Example initial ratio value
   var ratioTextFieldValue = '3.0'; // To keep the TextField in sync
 
+
+  final productNameController =
+  TextEditingController(text: product.productName);
+  final targetController =
+  TextEditingController(text: product.target.toString());
+
+
+
   await showDialog<Widget>(
     context: context,
     builder: (context) => Dialog(
       child: StatefulBuilder(
-        builder: (context, setState) {
-          final productNameController =
-              TextEditingController(text: product.productName);
-          final targetController =
-              TextEditingController(text: product.target.toString());
-          return SingleChildScrollView(
+        builder: (context, setState) => SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -66,6 +71,23 @@ Future<void> showEditProductDialog(
                     hintText: 'Target',
                     labelText: 'Target',
                     keyboardType: TextInputType.number,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('All year round'),
+                      Checkbox(
+                        value: ayr,
+                        onChanged: (value) {
+                          setState(() {
+                            ayr = value ?? false;
+                            if (ayr) {
+                             product.copyWith(ayr: ayr);
+                              }
+                          });
+                        },
+                      ),
+                    ],
                   ),
                   if (pressingEntries.isNotEmpty)
                     const SizedBox(
@@ -141,7 +163,7 @@ Future<void> showEditProductDialog(
                         ),
                         if (pressingEntries.isNotEmpty)
                           Container(
-                            width: MediaQuery.sizeOf(context).width * 0.26,
+                            width: MediaQuery.sizeOf(context).width * 0.22,
                             decoration: BoxDecoration(
                               borderRadius: const BorderRadius.all(
                                 Radius.circular(33),
@@ -523,10 +545,16 @@ Future<void> showEditProductDialog(
                           final updatedProduct = product.copyWith(
                             target: updatedTarget,
                             product: updatedPressings,
+                            ayr: ayr,
                           );
                           final result = await ref
                               .read(productInfoProvider.notifier)
                               .editProductInfo(updatedProduct);
+                          await ref
+                              .read(lastSelectedProductProvider.notifier)
+                              .deleteSelectedProductByName(
+                            product.productName,);
+                          await ref.read(lastSelectedProductProvider.notifier).saveSelectedProduct(updatedProduct);
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             if (result) {
                               // Ensure the context is still valid before using it
@@ -564,8 +592,7 @@ Future<void> showEditProductDialog(
                 ],
               ),
             ),
-          );
-        },
+          ),
       ),
     ),
   );

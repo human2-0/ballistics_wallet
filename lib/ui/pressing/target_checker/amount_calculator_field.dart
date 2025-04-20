@@ -51,8 +51,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
     }
   }
 
-  OverlayEntry _createOverlayEntry() {
-    return OverlayEntry(
+  OverlayEntry _createOverlayEntry() => OverlayEntry(
       builder: (context) => Positioned(
         bottom: MediaQuery.of(context)
             .viewInsets
@@ -77,9 +76,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
         ),
       ),
     );
-  }
-  Widget _buildOperatorButton(String operator) {
-    return IconButton(
+  Widget _buildOperatorButton(String operator) => IconButton(
       icon: Container(
         padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
         decoration: BoxDecoration(
@@ -93,7 +90,6 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
       ),
       onPressed: () => _appendText(operator),
     );
-  }
 
   void _appendText(String text) {
     final currentText = widget.controller.text;
@@ -137,8 +133,7 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return TextFormField(
+  Widget build(BuildContext context) => TextFormField(
       focusNode: widget.focusNode,
       controller: widget.controller,
       textAlign: TextAlign.center,
@@ -175,7 +170,6 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
         _evaluateAndTriggerUpdate();
       },
     );
-  }
 
   @override
   void dispose() {

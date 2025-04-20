@@ -211,20 +211,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                 ref
                                     .read(allowanceProvider.notifier)
                                     .updateAllowance(allowanceProvided);
-
-                                // ref
-                                //     .read(
-                                //       bonusInfoListProvider.notifier,
-                                //     )
-                                //     .updateRatio(
-                                //       focusedProduct.productName
-                                //           .toLowerCase()
-                                //           .trimRight(),
-                                //       ref.read(targetProvider),
-                                //       int.tryParse(numberController.text) ?? 0,
-                                //       workingHours,
-                                //       allowanceProvided,
-                                //     );
                               },
                             ),
                           ),

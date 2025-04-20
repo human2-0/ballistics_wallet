@@ -17,25 +17,18 @@ class BackupManager extends StateNotifier<BackupState> {
   final httpClient = http.Client();
 
   Future<bool> requestPermissions() async {
-    print('Requesting storage permissions...');
     final status = await Permission.storage.status;
 
     if (status.isGranted) {
-      print('Storage permission already granted.');
       return true;
     }
 
     if (status.isPermanentlyDenied) {
-      print(
-        'Storage permission is permanently denied. Opening app settings...',
-      );
       await openAppSettings();
       return false;
     }
 
-    print('Storage permission not granted, requesting...');
     final result = await Permission.storage.request();
-    print('Permission request result: $result');
 
     if (result.isGranted) {
       return true;
@@ -52,7 +45,6 @@ class BackupManager extends StateNotifier<BackupState> {
       status: BackupStatus.processing,
       message: 'Processing Hive data...',
     );
-    print('Starting Hive data backup process...');
 
     try {
       await requestPermissions();
@@ -62,34 +54,28 @@ class BackupManager extends StateNotifier<BackupState> {
           '${docDir.path}/hive'; // Update this path if your Hive data is elsewhere
 
       final zipFilePath = '${docDir.path}/BallisticsWalletBackup.zip';
-      print('Zipping Hive files at path: $hiveDataPath');
       await zipHiveFiles(hiveDataPath, zipFilePath); // Zip the Hive files
 
-      print('Uploading Hive backup to Google Drive...');
       await uploadFileToDrive(File(zipFilePath)); // Upload the ZIP file
 
       state = BackupState(
         status: BackupStatus.success,
         message: 'Hive data backup successful!',
       );
-      print('Hive data backup successful!');
     } on Exception catch (e) {
       state = BackupState(status: BackupStatus.error, message: 'Error: $e');
-      print('Error during Hive data backup process: $e');
     }
   }
 
   Future<void> zipHiveFiles(String sourceDirPath, String zipFilePath) async {
     final sourceDir = Directory(sourceDirPath);
     if (!sourceDir.existsSync()) {
-      print('Hive directory does not exist: $sourceDirPath');
       return;
     }
     final files = sourceDir.listSync().whereType<File>().toList();
 
     final archive = Archive();
     for (final file in files) {
-      print('Adding file to archive: ${file.path}');
       final archiveFile = ArchiveFile(
         p.basename(file.path),
         file.lengthSync(),
@@ -98,16 +84,14 @@ class BackupManager extends StateNotifier<BackupState> {
       archive.addFile(archiveFile);
     }
 
-    final zipFile = File(zipFilePath);
-    print('Writing zip file to disk: $zipFilePath');
-    zipFile.writeAsBytesSync(ZipEncoder().encode(archive)!, flush: true);
+    File(zipFilePath)
+        .writeAsBytesSync(ZipEncoder().encode(archive)!, flush: true);
   }
 
   Future<void> uploadFileToDrive(File file) async {
     try {
       final googleUser = await authRepository.getCurrentGoogleUser();
       if (googleUser == null) {
-        print('User not signed in');
         await authRepository.signInWithGoogle();
         return;
       }
@@ -142,33 +126,23 @@ class BackupManager extends StateNotifier<BackupState> {
         final existingFileId = fileList.files!.first.id!;
         await driveApi.files
             .update(fileToUpload, existingFileId, uploadMedia: media);
-        print('Updated existing file with ID: $existingFileId');
       } else {
         // File does not exist, create it
-        final response =
-            await driveApi.files.create(fileToUpload, uploadMedia: media);
-        print('Uploaded new file with ID: ${response.id}');
       }
 
       authClient.close();
     } on FormatException catch (e) {
-      print('Failed to upload file: $e');
       if (e is drive.DetailedApiRequestError) {
         // Handle specific Drive API errors here
-        print('Drive API Error: ${e.message}');
       }
     }
   }
 
   Future<void> prompt(String url) async {
     final uri = Uri.parse(url);
-    print('Prompting user to authenticate: $url');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
-      print('URL successfully launched: $url');
-    } else {
-      print('Could not launch URL: $url');
-    }
+    } else {}
   }
 
   Future<File?> downloadBackupFile() async {
@@ -176,7 +150,6 @@ class BackupManager extends StateNotifier<BackupState> {
       await requestPermissions();
       final googleUser = await authRepository.getCurrentGoogleUser();
       if (googleUser == null) {
-        print('User not signed in');
         await authRepository.signInWithGoogle();
         return null;
       }
@@ -204,7 +177,6 @@ class BackupManager extends StateNotifier<BackupState> {
       );
 
       if (fileList.files == null || fileList.files!.isEmpty) {
-        print('No backup file found on Google Drive');
         return null;
       }
 
@@ -220,14 +192,10 @@ class BackupManager extends StateNotifier<BackupState> {
       final docDir = await getApplicationDocumentsDirectory();
       final localFile = File('${docDir.path}/BallisticsWalletBackup.zip');
       final dataStore = <int>[];
-      await for (final data in media.stream) {
-        dataStore.addAll(data);
-      }
+      await media.stream.forEach(dataStore.addAll);
       await localFile.writeAsBytes(dataStore);
-      print('Backup file downloaded: ${localFile.path}');
       return localFile;
     } on FormatException catch (e) {
-      print('Failed to download file: $e');
       return null;
     }
   }
@@ -252,7 +220,6 @@ class BackupManager extends StateNotifier<BackupState> {
             fileData,
             flush: true,
           ); // Overwrite any existing file
-        print('Extracted and overwritten file: $filename');
       } else {
         if (!Directory(filePath).existsSync()) {
           Directory(filePath).createSync(recursive: true);
@@ -266,24 +233,20 @@ class BackupManager extends StateNotifier<BackupState> {
       status: BackupStatus.processing,
       message: 'Restoring backup...',
     );
-    print('Starting backup restoration process...');
 
     final backupFile = await downloadBackupFile();
     if (backupFile != null) {
-      print('Backup file downloaded, starting extraction...');
       await extractAndOverwriteHiveData(backupFile);
 
       state = BackupState(
         status: BackupStatus.success,
         message: 'Backup restored successfully!',
       );
-      print('Backup restored successfully!');
     } else {
       state = BackupState(
         status: BackupStatus.error,
         message: 'Backup file not found.',
       );
-      print('Backup file not found.');
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/custom_widgets/animated_tiles.dart';
+import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BonusTableNotifier extends StateNotifier<BonusTableState> {
-
   BonusTableNotifier(this.ref) : super(BonusTableState()) {
     Future.microtask(() async => loadInitialData());
   }
@@ -29,28 +29,36 @@ class BonusTableNotifier extends StateNotifier<BonusTableState> {
         target = (target * allowanceCheck).ceilToDouble();
       }
 
-      final listItems = calculateBonusItems(bonuses, targetRatio, overtimeRatio, overtimeHours, workingHours, allowance, stableTarget.toDouble());
-      state = state.copyWith(isLoading: false, bonuses: bonuses, listItems: listItems);
+      final listItems = calculateBonusItems(bonuses, targetRatio, overtimeRatio,
+          overtimeHours, workingHours, allowance, stableTarget.toDouble(),);
+      state = state.copyWith(
+          isLoading: false, bonuses: bonuses, listItems: listItems,);
     } on FormatException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
   Map<String, dynamic> getBonuses() {
-    final swappedMap =
-    bonusPercentageMap.map((key, value) => MapEntry(value.toString(), key));
-
-    return swappedMap;
+    final product = ref.read(focusedProductProvider);
+    final check = product.ayr ?? false;
+    if (check) {
+      return ayrBonusPercentageMap
+          .map((key, value) => MapEntry(value.toString(), key));
+    } else {
+      return seasonalBonusPercentageMap
+          .map((key, value) => MapEntry(value.toString(), key));
+    }
   }
 
   List<Widget> calculateBonusItems(
-      Map<String, dynamic> bonuses,
-      double targetRatio,
-      double overtimeRatio,
-      double? overtimeHours,
-      double workingHours,
-      double allowance,
-      double stableTarget,) {
+    Map<String, dynamic> bonuses,
+    double targetRatio,
+    double overtimeRatio,
+    double? overtimeHours,
+    double workingHours,
+    double allowance,
+    double stableTarget,
+  ) {
     final items = <Widget>[];
     final bonusData = <BonusItem>[];
 
@@ -61,7 +69,7 @@ class BonusTableNotifier extends StateNotifier<BonusTableState> {
       target = (target * allowanceCheck).ceilToDouble();
     }
 
-    if (targetRatio * 100 >= 171.43) {
+    if (targetRatio * 100 >= 212.5) {
       items.add(
         Container(
           margin: const EdgeInsets.all(16),
@@ -115,24 +123,41 @@ class BonusTableNotifier extends StateNotifier<BonusTableState> {
       );
     } else {
       if (target > 0) {
-        items.add(MinimumAnimatedTile(
-          target: target.ceil(),
-          onLongPressComplete: () {}, // Callback needs context and ref, handle outside
-        ),);
+        items.add(
+          MinimumAnimatedTile(
+            target: target.ceil(),
+            onLongPressComplete:
+                () {}, // Callback needs context and ref, handle outside
+          ),
+        );
       }
 
       for (final key in sortedKeys) {
-        final bonus = (bonuses[key] as num).toDouble() * (overtimeHours != null && overtimeHours > 0 ? overtimeHours / 7 : allowanceCheck);
-        final requiredPercentage = double.parse(key) - (overtimeRatio > 0.0 ? overtimeRatio : targetRatio) * 100;
-        final requiredAmount = ((requiredPercentage * (allowanceCheck > 0 ? (stableTarget * allowanceCheck).ceil() : stableTarget)) / 100).ceil();
+        final bonus = (bonuses[key] as num).toDouble() *
+            (overtimeHours != null && overtimeHours > 0
+                ? overtimeHours / 7
+                : allowanceCheck);
+        final requiredPercentage = double.parse(key) -
+            (overtimeRatio > 0.0 ? overtimeRatio : targetRatio) * 100;
+        final requiredAmount = ((requiredPercentage *
+                    (allowanceCheck > 0
+                        ? (stableTarget * allowanceCheck).ceil()
+                        : stableTarget)) /
+                100)
+            .ceil();
 
         if (requiredAmount > 0) {
-          items.add(BonusAnimatedTile(
-            bonus: bonus,
-            requiredAmount: requiredAmount,
-            onLongPressComplete: () {}, // Callback needs context and ref, handle outside
-          ),);
-          bonusData.add(BonusItem(bonus: bonus, requiredAmount: requiredAmount));  // Collect each item
+          items.add(
+            BonusAnimatedTile(
+              bonus: bonus,
+              requiredAmount: requiredAmount,
+              onLongPressComplete:
+                  () {}, // Callback needs context and ref, handle outside
+            ),
+          );
+          bonusData.add(BonusItem(
+              bonus: bonus,
+              requiredAmount: requiredAmount,),); // Collect each item
         }
       }
     }
@@ -140,12 +165,9 @@ class BonusTableNotifier extends StateNotifier<BonusTableState> {
 
     return items;
   }
-
 }
 
 class BonusTableState {
-
-
   BonusTableState({
     this.bonuses,
     this.isLoading = true,
@@ -159,31 +181,28 @@ class BonusTableState {
   final String? errorMessage;
   final List<BonusItem>? bonusData;
 
-
   BonusTableState copyWith({
     Map<String, dynamic>? bonuses,
     List<Widget>? listItems,
     bool? isLoading,
     String? errorMessage,
     List<BonusItem>? bonusData,
-  }) {
-    return BonusTableState(
-      bonuses: bonuses ?? this.bonuses,
-      listItems: listItems ?? this.listItems,
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
-      bonusData: bonusData ?? this.bonusData,
-    );
-  }
+  }) =>
+      BonusTableState(
+        bonuses: bonuses ?? this.bonuses,
+        listItems: listItems ?? this.listItems,
+        isLoading: isLoading ?? this.isLoading,
+        errorMessage: errorMessage ?? this.errorMessage,
+        bonusData: bonusData ?? this.bonusData,
+      );
 }
 
 class BonusItem {
-
   BonusItem({required this.bonus, required this.requiredAmount});
   final double bonus;
   final int requiredAmount;
 }
 
-final bonusTableProvider = StateNotifierProvider<BonusTableNotifier, BonusTableState>((ref) {
-  return BonusTableNotifier(ref);
-});
+final bonusTableProvider =
+    StateNotifierProvider<BonusTableNotifier, BonusTableState>(
+        BonusTableNotifier.new,);

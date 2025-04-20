@@ -106,6 +106,7 @@ class LastSelectedProducts extends ConsumerWidget {
                                 ref,
                                 product: product,
                               );
+
                             });
                             break;
                           case 'cancel':

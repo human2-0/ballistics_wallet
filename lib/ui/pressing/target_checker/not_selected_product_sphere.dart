@@ -6,8 +6,8 @@ class SphereQuestionMark extends StatelessWidget{
   @override
   Widget build(BuildContext context)
   => Container(
-      width: 256,
-      height: 256,
+      width: MediaQuery.sizeOf(context).width * 0.45,
+      height: MediaQuery.sizeOf(context).height * 0.25,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(

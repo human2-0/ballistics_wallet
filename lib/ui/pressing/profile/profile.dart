@@ -270,7 +270,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
-                                        'Hourly Rate: £${userState.hourlyRate?? 0}',
+                                        'Hourly Rate: £${userState.hourlyRate ?? 0}',
                                       ),
                                     ),
                                   ],
@@ -281,16 +281,14 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                     size: 39,
                                   ),
                                   onPressed: () async {
-                                    final hourlyRateController = TextEditingController(
-                                      text: userState.hourlyRate?.toString() ?? '0',
-                                    );
-
                                     await showDialog<void>(
                                       context: context,
-                                      builder: (context) => EditWorkingHoursDialog(
-                                        hourlyRateController: hourlyRateController,
-                                        onSubmit: (newWorkingHours, newHourlyRate) async {
-                                          final result = await userNotifier.updateUserSettings(
+                                      builder: (context) =>
+                                          EditWorkingHoursDialog(
+                                        onSubmit: (newWorkingHours,
+                                            newHourlyRate,) async {
+                                          final result = await userNotifier
+                                              .updateUserSettings(
                                             newWorkingHours,
                                             newHourlyRate,
                                           );
@@ -298,6 +296,7 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                             await userNotifier.loadUser(uid);
                                           }
                                         },
+                                        userState: userState,
                                       ),
                                     );
                                   },

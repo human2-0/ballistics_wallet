@@ -69,8 +69,6 @@ class UserRepository {
   }
 }
 
-
-
 class UserState {
   UserState({
     this.userId,
@@ -161,11 +159,14 @@ class UserNotifier extends StateNotifier<UserState> {
     }
   }
 
-  Future<bool> updateUserSettings(double newWorkingHours, double newHourlyRate) async {
+  Future<bool> updateUserSettings(
+      double newWorkingHours, double newHourlyRate,) async {
     if (state.userId == null) return false;
 
-    final updateWorkingHoursResult = await userRepository.editWorkingHours(state.userId!, newWorkingHours);
-    final updateHourlyRateResult = await userRepository.editHourlyRate(state.userId!, newHourlyRate);
+    final updateWorkingHoursResult =
+        await userRepository.editWorkingHours(state.userId!, newWorkingHours);
+    final updateHourlyRateResult =
+        await userRepository.editHourlyRate(state.userId!, newHourlyRate);
 
     if (updateWorkingHoursResult && updateHourlyRateResult) {
       state = state.copyWith(
@@ -182,13 +183,13 @@ class UserNotifier extends StateNotifier<UserState> {
 
   Future<bool> editPaidBreaks(bool newPaidBreaks) async {
     if (state.userId == null) return false;
-    final result = await userRepository.editPaidBreaks(state.userId!, newPaidBreaks);
+    final result =
+        await userRepository.editPaidBreaks(state.userId!, newPaidBreaks);
     if (result) {
       state = state.copyWith(paidBreaks: newPaidBreaks);
     }
     return result;
   }
-
 
   Future<void> updateUser(UserState user) async {
     state = state.copyWith(
@@ -201,10 +202,11 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 }
 
-final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
+final userRepositoryProvider =
+    Provider<UserRepository>((ref) => UserRepository());
 
 final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>(
-      (ref) => UserNotifier(ref.watch(userRepositoryProvider)),
+  (ref) => UserNotifier(ref.watch(userRepositoryProvider)),
 );
 
 final userDataProvider =

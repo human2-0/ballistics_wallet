@@ -15,10 +15,10 @@ class FocusNotifier extends StateNotifier<bool> {
 
 class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   LastSelectedProductNotifier() : super([]) {
-    Future.microtask(_initBoxes);
+    Future.microtask(_initBox);
   }
 
-  Future<void> _initBoxes() async {
+  Future<void> _initBox() async {
     // Assuming Hive is initialized and SelectedProduct adapter is registered elsewhere
     await Hive.openBox<SelectedProduct>('selected_products');
     await _fetchInitialData();
@@ -59,7 +59,7 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   }
 
   Future<void> deleteSelectedProductByName(String productName) async {
-    final box = Hive.box<SelectedProduct>('selected_products');
+    final box = await Hive.openBox<SelectedProduct>('selected_products');
     // Find and delete the product by name
     final productKey = box.values
         .firstWhere(

@@ -1,154 +1,218 @@
-import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+// add_bonus_info_modal.dart
+
+import 'package:ballistics_wallet_flutter/models/bonus_info_state.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
-import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
+import 'package:ballistics_wallet_flutter/providers/add_bonus_info_notifier_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
-import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
-import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:go_router/go_router.dart';
+
 
 class AddBonusInfoModal extends ConsumerStatefulWidget {
-  const AddBonusInfoModal({required this.context, super.key});
-  final BuildContext context;
+  const AddBonusInfoModal({super.key});
 
   @override
   _AddBonusInfoModalState createState() => _AddBonusInfoModalState();
 }
 
 class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
-  List<Map<String, TextEditingController>> producedControllers = [];
-  Map<String, int> productTargets = {};
-  final bonusController = TextEditingController();
-  final workingHoursController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  late double ratio = 0;
+  // Local controllers for the form fields
+  List<TextEditingController> productNameControllers = [];
+  List<TextEditingController> amountControllers = [];
+  TextEditingController bonusController = TextEditingController();
+  TextEditingController workingHoursController = TextEditingController();
+
+  // List of FocusNodes for product name fields
+  List<FocusNode> productNameFocusNodes = [];
 
   @override
   void initState() {
     super.initState();
-    // Initialize with one set of controllers
-    producedControllers.add({
-      'productName': TextEditingController(),
-      'amount': TextEditingController(),
-    });
+    // Initialize controllers based on the notifier's initial state
+    final initialProduced = ref.read(addBonusInfoProvider).producedData;
+    productNameControllers = List.generate(
+      initialProduced.length,
+      (index) =>
+          TextEditingController(text: initialProduced[index]['productName']),
+    );
+    amountControllers = List.generate(
+      initialProduced.length,
+      (index) => TextEditingController(text: initialProduced[index]['amount']),
+    );
+    productNameFocusNodes = List.generate(
+      initialProduced.length,
+      (index) => FocusNode(),
+    );
+    bonusController.text =
+        ref.read(addBonusInfoProvider).bonus.toStringAsFixed(2);
+    workingHoursController.text =
+        ref.read(addBonusInfoProvider).workingHours.toString();
   }
 
   @override
   void dispose() {
-    // Dispose controllers to avoid memory leaks
-    for (final controllers in producedControllers) {
-      controllers['productName']!.dispose();
-      controllers['amount']!.dispose();
+    for (final controller in productNameControllers) {
+      controller.dispose();
+    }
+    for (final controller in amountControllers) {
+      controller.dispose();
+    }
+    for (final focusNode in productNameFocusNodes) {
+      focusNode.dispose();
     }
     bonusController.dispose();
     workingHoursController.dispose();
     super.dispose();
   }
 
-  void addProducedRow() {
-    setState(() {
-      producedControllers.add({
-        'productName': TextEditingController(),
-        'amount': TextEditingController(),
-      });
-    });
-  }
-
-  List<Produced> handleSubmit() {
-    final producedItems = producedControllers.map((controllers) {
-      final productName = controllers['productName']!.text;
-      final amount = int.tryParse(controllers['amount']!.text) ?? 0;
-      final target = productTargets[productName] ?? 0;
-      final ratio = amount != 0 && target != 0 ? amount / target : 0;
-
-      return Produced(
-        productName: productName,
-        amount: amount,
-        ratio: ratio.toDouble(),
-      );
-    }).toList();
-
-    productTargets.clear();
-
-    return producedItems;
-  }
-
-  void updateBonus() {
-    var sumOfRatios = 0.0;
-    for (final controllers in producedControllers) {
-      final productName = controllers['productName']!.text;
-      final amount = int.tryParse(controllers['amount']!.text) ?? 0;
-      final target = productTargets[productName] ?? 0;
-      final ratio = amount != 0 && target != 0 ? amount / target : 0;
-
-      sumOfRatios += ratio;
-    }
-
-    final bonusValue = ref.read(bonusCalculator(sumOfRatios));
-    bonusController.text = bonusValue.toStringAsFixed(2);
-  }
-
-  Future<void> saveBonusInfoAndBackup() async {
-    final producedItems = handleSubmit();
-    final userState = ref.read(userNotifierProvider);
-    final authRepository = ref.read(authRepositoryProvider);
-    final userId = authRepository.currentUserId;
-    final selectedDate = ref.read(selectedDateProvider);
-
-    final newBonusInfo = BonusInfo(
-      userId: userId,
-      bonus: double.tryParse(bonusController.text) ?? 0,
-      date: selectedDate,
-      workingHours: double.tryParse(workingHoursController.text) ?? 0,
-      isOvertime: ref.read(isOvertimeProvider),
-      produced: producedItems,
-    );
-
-    await ref.read(bonusInfoListProvider.notifier).addBonusInfo(newBonusInfo);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.context.pop();
-    });
-
-    // Backup data asynchronously in the background
-    if (userState.backup!) {
-      Future.delayed(Duration.zero, () async {
-        await ref.read(backupManagerProvider.notifier).backupData();
-        // Optionally show a snackbar or notification to indicate backup completion
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(addBonusInfoProvider);
+    final notifier = ref.read(addBonusInfoProvider.notifier);
     final productList = ref.watch(productInfoProvider);
-    final userState = ref.watch(userNotifierProvider);
 
-    workingHoursController.text = userState.realWorkingHours!.toString();
+    // Listen to state changes to update controllers accordingly
+    ref.listen<AddBonusInfoState>(addBonusInfoProvider, (previous, next) {
+      if (previous?.bonus != next.bonus) {
+        bonusController.text = next.bonus.toStringAsFixed(2);
+      }
+      if (previous?.workingHours != next.workingHours) {
+        workingHoursController.text = next.workingHours.toString();
+      }
+    });
 
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Column(
-                children: [
-                  ...List.generate(
-                    producedControllers.length,
-                    (index) => Row(
-                      children: [
-                        Flexible(
-                          child: Padding(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Build all product rows
+                Column(
+                  children: [
+                    ...List.generate(
+                      state.producedData.length,
+                      (index) => Row(
+                        children: [
+                          // Product Name (TypeAhead)
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(33),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withOpacity(0.5),
+                                      offset: const Offset(-2, 2.5),
+                                    ),
+                                  ],
+                                ),
+                                child: TypeAheadField<ProductInfo>(
+                                  key: index == 0
+                                      ? const Key('productNameField')
+                                      : null,
+
+                                  // Provide your own controller and focusNode if desired:
+                                  controller: productNameControllers[index],
+                                  focusNode: productNameFocusNodes[index],
+
+                                  // How to fetch suggestions:
+                                  suggestionsCallback: (pattern) {
+                                    final query = pattern.trim().toLowerCase();
+                                    return productList
+                                        .where(
+                                          (p) => p.productName
+                                              .toLowerCase()
+                                              .contains(query),
+                                        )
+                                        .toList();
+                                  },
+
+                                  // How to build each suggestion in the dropdown:
+                                  itemBuilder: (context, suggestion) =>
+                                      ListTile(
+                                    title: Text(suggestion.productName),
+                                  ),
+
+                                  // What to do when a user taps a suggestion:
+                                  onSelected: (suggestion) {
+                                    productNameControllers[index].text =
+                                        suggestion.productName;
+                                    notifier.updateProducedData(
+                                      index,
+                                      'productName',
+                                      suggestion.productName,
+                                    );
+                                    // Move focus or do anything else here:
+                                    FocusScope.of(context)
+                                        .requestFocus(FocusNode());
+                                  },
+
+                                  // (Optional) what to show if no items are found
+                                  emptyBuilder: (context) => const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Text('No matches found'),
+                                  ),
+
+                                  // Build the actual TextField here:
+                                  builder:
+                                      (context, textController, focusNode) =>
+                                          DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(33),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.orange.withOpacity(0.5),
+                                          offset: const Offset(-2, 2.5),
+                                        ),
+                                      ],
+                                    ),
+                                    child: TextField(
+                                      controller:
+                                          textController, // Use the provided controller
+                                      focusNode:
+                                          focusNode, // Use the provided focus node
+                                      decoration: InputDecoration(
+                                        alignLabelWithHint: true,
+                                        hintText: 'Product Name',
+                                        label: const Center(
+                                          child: Text('Product Name'),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.orange[100],
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(33),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // Amount TextField
+                          Padding(
                             padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                            child: DecoratedBox(
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.21,
                               decoration: BoxDecoration(
                                 borderRadius: const BorderRadius.all(
                                   Radius.circular(33),
@@ -160,254 +224,266 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                   ),
                                 ],
                               ),
-                              child: TypeAheadFormField<ProductInfo>(
-                                textFieldConfiguration: TextFieldConfiguration(
-                                  controller: producedControllers[index]
-                                      ['productName'],
-                                  decoration: InputDecoration(
-                                    alignLabelWithHint: true,
-                                    hintText: 'Product Name',
-                                    filled: true,
-                                    fillColor: Colors.orange[100],
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(33),
-                                      borderSide: BorderSide.none,
+                              child: TextFormField(
+                                key: const Key('amountField'),
+                                controller: amountControllers[index],
+                                decoration: InputDecoration(
+                                  alignLabelWithHint: true,
+                                  hintText: 'Amount',
+                                  label: const Center(child: Text('Amount')),
+                                  filled: true,
+                                  fillColor: Colors.orange[100],
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(33),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9]+[,.]{0,1}[0-9]*'),
+                                  ),
+                                  TextInputFormatter.withFunction(
+                                    (oldValue, newValue) => newValue.copyWith(
+                                      text: newValue.text.replaceAll(',', '.'),
                                     ),
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                suggestionsCallback: (pattern) {
-                                  return productList.where(
-                                    (product) => product.productName
-                                        .toLowerCase()
-                                        .contains(pattern.toLowerCase()),
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Enter amount';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Enter a valid number';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+                                  notifier.updateProducedData(
+                                    index,
+                                    'amount',
+                                    value,
                                   );
                                 },
-                                itemBuilder: (context, suggestion) {
-                                  return ListTile(
-                                    title: Text(suggestion.productName),
-                                  );
-                                },
-                                onSuggestionSelected: (suggestion) {
-                                  producedControllers[index]['productName']!
-                                      .text = suggestion.productName;
-                                  productTargets[suggestion.productName] =
-                                      suggestion.target;
-                                },
-                                noItemsFoundBuilder: (context) =>
-                                    const Text('No matches found'),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.21,
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(33),
+
+                          // Remove button (for additional rows)
+                          if (index > 0)
+                            IconButton(
+                              icon: const Icon(
+                                Icons.remove_circle_outline,
+                                color: Colors.red,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(0.5),
-                                  offset: const Offset(-2, 2.5),
-                                ),
-                              ],
-                            ),
-                            child: TextField(
-                              controller: producedControllers[index]['amount'],
-                              decoration: InputDecoration(
-                                alignLabelWithHint: true,
-                                hintText: 'Amount',
-                                label: const Center(child: Text('Amount')),
-                                filled: true,
-                                fillColor: Colors.orange[100],
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(33),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                updateBonus();
+                              onPressed: () {
+                                setState(() {
+                                  productNameControllers.removeAt(index);
+                                  amountControllers.removeAt(index);
+                                });
+                                notifier.removeProducedRow(index);
                               },
                             ),
+                        ],
+                      ),
+                    ),
+                    // Add more products button
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange[100],
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(25),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.5),
+                                offset: const Offset(-2, 2.5),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                splashColor: Colors.orange.withOpacity(0.5),
+                                onTap: () {
+                                  setState(() {
+                                    productNameControllers
+                                        .add(TextEditingController());
+                                    amountControllers
+                                        .add(TextEditingController());
+                                  });
+                                  notifier.addProducedRow();
+                                },
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('More Products'),
+                                    Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        if (index > 0)
-                          IconButton(
-                            icon: const Icon(
-                              Icons.remove_circle_outline,
-                              color: Colors.red,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (producedControllers.length > 1) {
-                                  producedControllers.removeAt(index);
-                                }
-                              });
-                            },
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
+
+                    // Bonus TextField (Read-Only)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: Colors.orange[100],
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(25)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(33),
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange.withOpacity(0.5),
+                              color: Colors.green.withOpacity(0.5),
                               offset: const Offset(-2, 2.5),
                             ),
                           ],
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(25),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              splashColor: Colors.orange.withOpacity(0.5),
-                              onTap: addProducedRow,
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('More Products'),
-                                  Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
+                        child: TextFormField(
+                          key: const Key('bonusField'),
+                          controller: bonusController,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            prefix: const Text('£'),
+                            alignLabelWithHint: true,
+                            label: const Center(child: Text('Bonus')),
+                            hintText: 'Bonus',
+                            filled: true,
+                            fillColor: Colors.green[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(33),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Working Hours TextField
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(33),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.purple.withOpacity(0.5),
+                              offset: const Offset(-2, 2.5),
+                            ),
+                          ],
+                        ),
+                        child: TextFormField(
+                          key: const Key('workingHoursField'),
+                          controller: workingHoursController,
+                          decoration: InputDecoration(
+                            alignLabelWithHint: true,
+                            label: const Text('Working Hours'),
+                            filled: true,
+                            fillColor: Colors.purple[100],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(33),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                              RegExp('[0-9]+[,.]{0,1}[0-9]*'),
+                            ),
+                            TextInputFormatter.withFunction(
+                              (oldValue, newValue) => newValue.copyWith(
+                                text: newValue.text.replaceAll(',', '.'),
                               ),
                             ),
-                          ),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter working hours';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Enter a valid number';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            final workingHours = double.tryParse(value) ?? 0.0;
+                            notifier.updateWorkingHours(workingHours);
+                          },
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(33),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.green.withOpacity(0.5),
-                            offset: const Offset(-2, 2.5),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: bonusController,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          prefix: const Text('£'),
-                          alignLabelWithHint: true,
-                          label: const Center(child: Text('Bonus')),
-                          hintText: 'Bonus',
-                          filled: true,
-                          fillColor: Colors.green[100],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(33),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,),
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                            RegExp('[0-9]+[,.]{0,1}[0-9]*'),
-                          ),
-                          TextInputFormatter.withFunction(
-                            (oldValue, newValue) => newValue.copyWith(
-                              text: newValue.text.replaceAll(',', '.'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(33),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.purple.withOpacity(0.5),
-                            offset: const Offset(-2, 2.5),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: workingHoursController,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          alignLabelWithHint: true,
-                          label: const Text('Working Hours'),
-                          filled: true,
-                          fillColor: Colors.purple[100],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(33),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,),
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(
-                            RegExp('[0-9]+[,.]{0,1}[0-9]*'),
-                          ),
-                          TextInputFormatter.withFunction(
-                            (oldValue, newValue) => newValue.copyWith(
-                              text: newValue.text.replaceAll(',', '.'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final isOvertime = ref.watch(isOvertimeProvider);
 
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Is Overtime'),
-                          Switch(
-                            value: isOvertime,
-                            onChanged: (value) {
-                              ref.read(isOvertimeProvider.notifier).state =
-                                  value;
+                    // Overtime Switch
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final isOvertime =
+                            ref.watch(addBonusInfoProvider).isOvertime;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Is Overtime'),
+                            Switch(
+                              value: isOvertime,
+                              onChanged: notifier.toggleOvertime,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+
+                    // Submit Button
+                    ElevatedButton(
+                      key: const Key('addBonusButton'),
+                      onPressed: state.isLoading
+                          ? null
+                          : () async {
+                              if (_formKey.currentState!.validate()) {
+                                await notifier.saveBonusInfoAndBackup(context);
+                              }
                             },
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  ElevatedButton(
-                    onPressed: saveBonusInfoAndBackup,
-                    child: const Text('Add Bonus'),
-                  ),
-                ],
-              ),
-            ],
+                      child: state.isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text('Add Bonus'),
+                    ),
+
+                    // Display error if any
+                    if (state.error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          state.error!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

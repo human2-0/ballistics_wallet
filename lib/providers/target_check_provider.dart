@@ -96,9 +96,7 @@ class AllowanceNotifier extends StateNotifier<double> {
   }
 }
 
-final allowanceProvider = StateNotifierProvider<AllowanceNotifier, double>((ref) {
-  return AllowanceNotifier(ref);
-});
+final allowanceProvider = StateNotifierProvider<AllowanceNotifier, double>(AllowanceNotifier.new);
 
 final overtimeRatioProvider = StateProvider<double>((ref) => 0.0);
 final overtimeWorkingHoursState = StateProvider<double?>((ref) => 0.0);
@@ -113,23 +111,39 @@ final bonusCalculator = Provider.family<double, double>((ref, targetRatio) {
   targetRatio *= 100; // Convert targetRatio to percentage
   final workingHours = ref.read(userNotifierProvider).workingHours ?? 0;
   final allowance = ref.read(userNotifierProvider).workingHours ?? 0;
+  final product = ref.read(focusedProductProvider).ayr ?? true;
+
 
   // Sort the keys in ascending order
-  final sortedKeys = bonusPercentageMap.keys.toList()
-    ..sort((a, b) => b.compareTo(a)); // We sort in descending order
+  if (product) {
+    final sortedKeys = ayrBonusPercentageMap.keys.toList()
+      ..sort((a, b) => b.compareTo(a)); // We sort in descending order
+    var bonus = 0.0;
+    for (final key in sortedKeys) {
+      // Check the logic
 
-  var bonus = 0.0;
-  for (final key in sortedKeys) {
-    // Check the logic
-
-    if (targetRatio >= (bonusPercentageMap[key] ?? 0)) {
-      bonus = key * (workingHours - allowance / 7);
-      bonus = key.toDouble();
-      break;
+      if (targetRatio >= (ayrBonusPercentageMap[key] ?? 0)) {
+        bonus = key * (workingHours - allowance / 7);
+        bonus = key.toDouble();
+        break;
+      }
     }
-  }
-  return bonus;
-});
+    return bonus;
+  } else {
+    final sortedKeys = seasonalBonusPercentageMap.keys.toList()
+      ..sort((a, b) => b.compareTo(a)); // We sort in descending order
+    var bonus = 0.0;
+    for (final key in sortedKeys) {
+      // Check the logic
+
+      if (targetRatio >= (seasonalBonusPercentageMap[key] ?? 0)) {
+        bonus = key * (workingHours - allowance / 7);
+        bonus = key.toDouble();
+        break;
+      }
+    }
+    return bonus;
+  }});
 
 final lastSelectedProductProvider =
     StateNotifierProvider<LastSelectedProductNotifier, List<SelectedProduct>>(

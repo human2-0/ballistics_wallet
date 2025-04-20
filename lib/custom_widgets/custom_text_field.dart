@@ -30,9 +30,11 @@ BoxDecoration boxDecoration(
   );
 
 class CustomTextField extends StatefulWidget {
-
   const CustomTextField({
-    required this.controller, required this.hintText, required this.labelText, super.key,
+    required this.controller,
+    required this.hintText,
+    required this.labelText,
+    super.key,
     this.keyboardType = TextInputType.text,
     this.enabled = true,
     this.onSubmitted,
@@ -40,6 +42,7 @@ class CustomTextField extends StatefulWidget {
     this.showClearIcon = false,
     this.focusNode,
   });
+
   final TextEditingController controller;
   final String hintText;
   final String labelText;
@@ -55,19 +58,16 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  late TextEditingController _controller;
-
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller;
     // Add listener to rebuild when text changes for the clear icon visibility
-    _controller.addListener(_updateClearIconVisibility);
+    widget.controller.addListener(_updateClearIconVisibility);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_updateClearIconVisibility);
+    widget.controller.removeListener(_updateClearIconVisibility);
     super.dispose();
   }
 
@@ -84,13 +84,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
       child: TextField(
         focusNode: widget.focusNode,
         enabled: widget.enabled,
-        controller: _controller,
+        controller: widget.controller,
         decoration: textFieldDecoration(widget.hintText, widget.labelText).copyWith(
-          suffixIcon: widget.showClearIcon && _controller.text.isNotEmpty
+          suffixIcon: widget.showClearIcon && widget.controller.text.isNotEmpty
               ? IconButton(
             icon: Icon(Icons.clear, color: Colors.grey[600]), // Style the icon as needed
             onPressed: () {
-              _controller.clear();
+              widget.controller.clear();
               widget.onChanged?.call(''); // Trigger the onChanged callback with an empty string
             },
           )
@@ -98,7 +98,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         keyboardType: widget.keyboardType,
         textAlign: TextAlign.center,
-        onChanged: widget.onChanged,
+        onChanged: (value) {
+          // Pass change upstream if caller supplied a handler
+          widget.onChanged?.call(value);
+        },
         onSubmitted: widget.onSubmitted,
       ),
     );

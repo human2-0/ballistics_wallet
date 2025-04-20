@@ -84,13 +84,11 @@ final allowanceEditingControllerNotifierProvider = StateNotifierProvider<
 
 class AllowanceEditingControllerNotifier
     extends StateNotifier<TextEditingController> {
-  AllowanceEditingControllerNotifier(TextEditingController controller)
-      : super(controller) {
+  AllowanceEditingControllerNotifier(super._state) {
     state.addListener(_textChanged);
   }
 
-  void _textChanged() {
-  }
+  void _textChanged() {}
 
   @override
   void dispose() {
@@ -115,15 +113,11 @@ class AllowanceEditingControllerNotifier
 class ActiveIndexNotifier extends StateNotifier<int> {
   ActiveIndexNotifier() : super(0);
 
-  void setIndex(int index) {
-    state = index;
-  }
-
-  void resetIndex() {
-    state = 0;
+  void updateIndex(int? index) {
+    state = index ?? 0;
   }
 }
 
 final activeIndexTabProvider = StateNotifierProvider<ActiveIndexNotifier, int>(
-      (ref) => ActiveIndexNotifier(),
+  (ref) => ActiveIndexNotifier(),
 );

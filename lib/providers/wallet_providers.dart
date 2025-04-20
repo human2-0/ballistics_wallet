@@ -1,15 +1,22 @@
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+import 'package:ballistics_wallet_flutter/models/custom_date_range.dart';
 import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
 import 'package:ballistics_wallet_flutter/models/ratio_and_bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/bonus_info_repository.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/wallet/date_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
 class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   BonusInfoNotifier(this._repository, this.userId)
       : super(BonusInfoAndRatio()) {
-    Future.microtask(() async => init());
+    Future.microtask(() async {
+      await init();
+      await loadBonusInfos(); // Add this line
+    });
   }
   final BonusInfoRepository _repository;
   final String userId;
@@ -128,42 +135,44 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     await loadBonusInfos(); // Reload the list after deleting
   }
 
-  double getTotalWorkingHours() {
-    final now = DateTime.now();
-    DateTime startDate;
-    DateTime endDate;
-    var totalWorkingHours = 0.0;
-
-    // Check the current date to set the date range
-    if (now.day >= 20) {
-      startDate = DateTime(now.year, now.month, 19);
-      endDate = DateTime(now.year, now.month + 1, 18);
-    } else {
-      startDate = DateTime(now.year, now.month - 1, 19);
-      endDate = DateTime(now.year, now.month, 18);
-    }
-
-    // Iterate over all bonuses in the current state
-    for (final bonusInfo in state.bonusInfo) {
-      final date =
-          bonusInfo.date; // Assuming `date` is the DateTime field in BonusInfo
-      // Check if the date of the bonus is within the range
-      if (date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0) {
-        totalWorkingHours += bonusInfo
-            .workingHours; // Assuming `workingHours` is a field in BonusInfo
+  Future<double> getTotalWorkingHours() async {
+    // Try to read a persisted custom range from Hive
+    final customRangeBox = await Hive.openBox<CustomDateRange>(
+      'customDateRangeBox',
+    ); // Await here!
+    final customDateRange = customRangeBox.get('myCustomDateRange');
+    if (customDateRange != null) {
+      // If user has previously chosen a custom date range,
+      // we prioritize that range for counting working hours
+      final hoursStart = customDateRange.hoursStart;
+      final hoursEnd = customDateRange.hoursEnd;
+      if (hoursStart == null || hoursEnd == null) {
+        // If either is null, fall back on default logic
+        return _calculateDefaultHours();
+      } else {
+        return _calculateHoursInRange(hoursStart, hoursEnd);
       }
+    } else {
+      // No custom range found -> do your default 19th–18th logic
+      return _calculateDefaultHours();
     }
-
-    return totalWorkingHours;
   }
 
-  double getTotalBonus() {
-    final now = DateTime.now();
-    DateTime startDate;
-    DateTime endDate;
-    var totalBonus = 0.0;
+  double _calculateHoursInRange(DateTime start, DateTime end) {
+    var total = 0.0;
+    for (final bonusInfo in state.bonusInfo) {
+      final date = bonusInfo.date;
+      if (date.isAfterOrSame(start) && date.isBeforeOrSame(end)) {
+        total += bonusInfo.workingHours;
+      }
+    }
+    return total;
+  }
 
-    // Set the date range based on the current date
+  double _calculateDefaultHours() {
+    final now = DateTime.now();
+    late DateTime startDate;
+    late DateTime endDate;
     if (now.day >= 20) {
       startDate = DateTime(now.year, now.month, 19);
       endDate = DateTime(now.year, now.month + 1, 18);
@@ -172,19 +181,68 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
       endDate = DateTime(now.year, now.month, 18);
     }
 
-    // Iterate over all BonusInfo objects in the current state
+    var total = 0.0;
     for (final bonusInfo in state.bonusInfo) {
-      final date = bonusInfo.date; // Assuming BonusInfo has a 'date' attribute
-
-      // Check if the date of the bonusInfo is within the range
-      if ((date.compareTo(startDate) >= 0) && (date.compareTo(endDate) <= 0)) {
-        // If the date is within range, sum up the bonus amounts
-        totalBonus += bonusInfo
-            .bonus; // Replace 'bonusAmount' with the actual property name
+      final date = bonusInfo.date;
+      if (date.isAfterOrSame(startDate) && date.isBeforeOrSame(endDate)) {
+        total += bonusInfo.workingHours;
       }
     }
+    return total;
+  }
 
-    return totalBonus;
+  Future<double> getTotalBonus() async {
+    // Check if a custom bonus range is present
+    final customRangeBox = await Hive.openBox<CustomDateRange>(
+      'customDateRangeBox',
+    ); // Await here!
+    final customDateRange = customRangeBox.get('myCustomDateRange');
+
+    if (customDateRange != null) {
+      final bonusStart = customDateRange.bonusStart;
+      final bonusEnd = customDateRange.bonusEnd;
+      if (bonusStart == null || bonusEnd == null) {
+        return _calculateDefaultBonus();
+      } else {
+        return _calculateBonusInRange(bonusStart, bonusEnd);
+      }
+    } else {
+      // fallback if none set
+      return _calculateDefaultBonus();
+    }
+  }
+
+  double _calculateBonusInRange(DateTime start, DateTime end) {
+    var total = 0.0;
+    for (final bonusInfo in state.bonusInfo) {
+      final date = bonusInfo.date;
+      if (date.isAfterOrSame(start) && date.isBeforeOrSame(end)) {
+        total += bonusInfo.bonus;
+      }
+    }
+    return total;
+  }
+
+  double _calculateDefaultBonus() {
+    final now = DateTime.now();
+    late DateTime startDate;
+    late DateTime endDate;
+    if (now.day >= 20) {
+      startDate = DateTime(now.year, now.month, 19);
+      endDate = DateTime(now.year, now.month + 1, 18);
+    } else {
+      startDate = DateTime(now.year, now.month - 1, 19);
+      endDate = DateTime(now.year, now.month, 18);
+    }
+
+    var total = 0.0;
+    for (final bonusInfo in state.bonusInfo) {
+      final date = bonusInfo.date;
+      if (date.isAfterOrSame(startDate) && date.isBeforeOrSame(endDate)) {
+        total += bonusInfo.bonus;
+      }
+    }
+    return total;
   }
 
   Future<List<MonthlyData>> getHistoricalMonthlyData() async {
@@ -232,11 +290,48 @@ final isOvertimeProvider = StateProvider<bool>((ref) => false);
 
 final bonusInfoListProvider =
     StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
-  (ref) => BonusInfoNotifier(
-    BonusInfoRepository(),
-    ref.read(authRepositoryProvider).currentUserId,
-  ),
+  (ref) {
+    final authRepo = ref.read(authRepositoryProvider);
+    final userId = authRepo.currentUserId;
+    final bonusInfoRepo = ref.read(bonusInfoRepositoryProvider);
+
+    return BonusInfoNotifier(
+      bonusInfoRepo,
+      userId,
+    );
+  },
 );
+
+final bonusInfoRepositoryProvider = Provider<BonusInfoRepository>((ref) {
+  return BonusInfoRepository();
+
+});
+
+final walletSummaryProvider = Provider<WalletSummary>((ref) {
+  // 1. Watch the entire bonus info state so changes trigger rebuilds.
+  final bonusState = ref.watch(bonusInfoListProvider);
+  // 2. Watch userState for an updated hourlyRate
+  final userState = ref.watch(userNotifierProvider);
+
+  // If you have logic in the BonusInfoNotifier that filters by date range,
+  // you can just do:
+  final totalBonus =
+      bonusState.bonusInfo.fold<double>(0, (sum, b) => sum + b.bonus);
+  final totalHours =
+      bonusState.bonusInfo.fold<double>(0, (sum, b) => sum + b.workingHours);
+
+  final totalSalary = totalBonus + (totalHours * (userState.hourlyRate ?? 0));
+
+  return WalletSummary(totalBonus, totalHours, totalSalary);
+});
+
+/// Simple model to hold summary data
+class WalletSummary {
+  const WalletSummary(this.totalBonus, this.totalHours, this.totalSalary);
+  final double totalBonus;
+  final double totalHours;
+  final double totalSalary;
+}
 
 extension DateTimeExtensions on DateTime {
   /// Checks if this DateTime is at least (later than or the same as) another DateTime.

@@ -63,7 +63,6 @@ class _RiveEllipsesState extends ConsumerState<TargetBoard> {
               Rive(
                 useArtboardSize: true,
                 artboard: _artboard!,
-                fit: BoxFit.contain,
               ),
               Positioned(
                 right: 0,

@@ -1,5 +1,5 @@
-
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+import 'package:ballistics_wallet_flutter/models/custom_date_range.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
 import 'package:ballistics_wallet_flutter/models/settings.dart';
@@ -10,9 +10,8 @@ import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
-String formatDouble(double value) => value == value.floor()
-    ? value.floor().toString()
-    : value.toStringAsFixed(2);
+String formatDouble(double value, {int fractionDigits = 2}) =>
+    value.toStringAsFixed(fractionDigits);
 
 String toTitleCase(String text) {
   if (text.isEmpty) return text;
@@ -109,17 +108,17 @@ Future<void> initHive() async {
     ..registerAdapter(BonusInfoAdapter())
     ..registerAdapter(ProducedAdapter())
     ..registerAdapter(UserSettingsAdapter())
-  ..registerAdapter(SettingsVersionAdapter());
+    ..registerAdapter(CustomDateRangeAdapter())
+    ..registerAdapter(SettingsVersionAdapter());
 
   final boxProductInfo = await Hive.openBox<ProductInfo>('ProductInfo');
   if (boxProductInfo.isEmpty) {
     await addDataToProductInfoBox(boxProductInfo);
   }
   await Hive.openBox<BonusInfo>('bonusInfoBox');
+  await Hive.openBox<CustomDateRange>('customDateRangeBox');
   await openSettingsBox('settings');
 }
-
-
 
 Future<void> migrateSettingsBoxIfNeeded(String versionBoxName) async {
   await Hive.openBox<SettingsVersion>(versionBoxName);
@@ -151,7 +150,6 @@ Future<Box<UserSettings>> openSettingsBox(String settingsBoxName) async {
 
   return box;
 }
-
 
 Future<void> preloadImages(BuildContext context) async {
   // Load and cache images early
@@ -198,7 +196,7 @@ String formatWorkingHours(double hours) {
   }
 }
 
-const Map<int, double> bonusPercentageMap = {
+const Map<int, double> seasonalBonusPercentageMap = {
   1: 102.00,
   2: 104.10,
   3: 106.10,
@@ -220,4 +218,52 @@ const Map<int, double> bonusPercentageMap = {
   19: 163.27,
   20: 167.35,
   21: 171.43, //Add more values as per your requirements
+};
+
+const Map<int, double> ayrBonusPercentageMap = {
+  1: 102.5,
+  2: 105.0,
+  3: 107.5,
+  4: 110.0,
+  5: 112.5,
+  6: 115.0,
+  7: 117.5,
+  8: 120.0,
+  9: 122.5,
+  10: 125.0,
+  11: 127.5,
+  12: 130.0,
+  13: 132.5,
+  14: 135.0,
+  15: 137.5,
+  16: 140.0,
+  17: 142.5,
+  18: 145.0,
+  19: 147.5,
+  20: 150.0,
+  21: 152.5,
+  22: 155.0,
+  23: 157.5,
+  24: 160.0,
+  25: 162.5,
+  26: 165.0,
+  27: 167.5,
+  28: 170.0,
+  29: 172.5,
+  30: 175.0,
+  31: 177.5,
+  32: 180.0,
+  33: 182.5,
+  34: 185.0,
+  35: 187.5,
+  36: 190.0,
+  37: 192.5,
+  38: 195.0,
+  39: 197.5,
+  40: 200.0,
+  41: 202.5,
+  42: 205.0,
+  43: 207.5,
+  44: 210.0,
+  45: 212.5,
 };

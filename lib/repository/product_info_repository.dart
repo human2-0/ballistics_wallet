@@ -3,8 +3,10 @@ import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductInfoRepository {
-  ProductInfoRepository();
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+  ProductInfoRepository({FirebaseFirestore? firestore})
+      : db = firestore ?? FirebaseFirestore.instance;
+  final FirebaseFirestore db;
+
 
   Future<List<ProductInfo>> fetchProductInfo() async {
     // Fetch data directly from Firestore
@@ -32,21 +34,23 @@ class ProductInfoRepository {
       product: (data['pressings'] as List)
           .map((pressing) => Pressing.fromMap(pressing as Map<String, dynamic>))
           .toList(),
+    ayr: data['ayr'] as bool?,
     );
 
-  Future<void> addProduct(String productName, int target, List<Pressing> pressings) async {
+  Future<void> addProduct(String productName, int target, List<Pressing> pressings,bool ayr) async {
     final formattedProductName = toTitleCase(productName);
 
     final productData = {
       'target': target,
       'imageName': formattedProductName, // Assuming imageName follows productName
       'pressings': pressings.map((pressing) => pressing.toMap()).toList(),
+      'ayr': ayr,
     };
 
     // Check if product already exists (optional based on your Firestore structure)
     // Then add/update product in Firestore
     await db.collection('targets').doc('pressing').set({
-      formattedProductName: productData,
+      productName: productData,
     }, SetOptions(merge: true),); // Merge true to avoid overwriting entire document
   }
 
@@ -55,12 +59,15 @@ class ProductInfoRepository {
       final updatedProductData = {
         'target': updatedProduct.target,
         'imageName': updatedProduct.imageName,
+        'ayr': updatedProduct.ayr,
         'pressings': updatedProduct.product.map((pressing) => pressing.toMap()).toList(),
       };
 
       await db.collection('targets').doc('pressing').set({
         updatedProduct.productName: updatedProductData,
       }, SetOptions(merge: true),);
+
+      await fetchProductInfo();
 
       return true; // Update was successful
     } on FormatException {

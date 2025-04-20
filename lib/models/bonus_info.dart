@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,6 +29,19 @@ class BonusInfo {
               ?.map((e) => Produced.fromMap(e as Map<String, dynamic>))
               .toList() ??
           [],
+    );
+  }
+
+  factory BonusInfo.fromFirestore(Map<String, dynamic> firestoreData) {
+    return BonusInfo(
+      userId: firestoreData['userId'] as String? ?? '', // Provide default if null
+      bonus: (firestoreData['bonus'] as num?)?.toDouble() ?? 0.0, // Handle num? and null
+      date: (firestoreData['date'] as Timestamp?)?.toDate() ?? DateTime.now(), // Handle Timestamp? and null, default to now
+      workingHours: (firestoreData['workingHours'] as num?)?.toDouble() ?? 0.0,
+      isOvertime: firestoreData['isOvertime'] as bool? ?? false,
+      produced: (firestoreData['produced'] as List<dynamic>? ?? []) // Handle null list
+          .map((item) => Produced.fromFirestore(item as Map<String, dynamic>)) // Assuming Produced has fromFirestore too
+          .toList(),
     );
   }
 
@@ -89,6 +103,13 @@ class Produced {
     ratio: (map['ratio'] as num?)?.toDouble() ?? 0.0,
     allowance: (map['allowance'] as num?)?.toDouble(),
   );
+  factory Produced.fromFirestore(Map<String, dynamic> firestoreData) {
+    return Produced(
+      productName: firestoreData['productName'] as String? ?? '',
+      amount: firestoreData['amount'] as int? ?? 0,
+      ratio: (firestoreData['ratio'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
 
   Produced copyWith({
     String? productName,

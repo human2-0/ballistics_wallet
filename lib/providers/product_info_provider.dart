@@ -2,7 +2,6 @@ import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/repository/product_info_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
   ProductInfoNotifier(this._repository) : super([]) {
     _loadProductInfoOnInit();
@@ -20,8 +19,13 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
     state = await _repository.fetchProductInfo();
   }
 
-  Future<void> addProductInfo(String productName, int target, List<Pressing> pressings) async {
-    await _repository.addProduct(productName,target,pressings);
+  Future<void> addProductInfo(
+    String productName,
+    int target,
+    List<Pressing> pressings,
+    bool ayr,
+  ) async {
+    await _repository.addProduct(productName, target, pressings, ayr);
     // Reload the product info to update the state
     await loadProductInfo();
   }
@@ -36,27 +40,29 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
     }
   }
 
-
   Future<void> deleteProduct(String productName) async {
     await _repository.deleteProduct(productName);
     // Reload the product info to update the state
     await loadProductInfo();
   }
-
-
 }
 
 final productInfoProvider =
     StateNotifierProvider<ProductInfoNotifier, List<ProductInfo>>((ref) {
-  final repository = ProductInfoRepository();
+  final repository = ref.read(productInfoRepo);
   return ProductInfoNotifier(repository);
 });
 
-final focusedProductProvider = StateProvider<ProductInfo>((ref) => ProductInfo(
+final productInfoRepo =
+    Provider<ProductInfoRepository>((ref) => ProductInfoRepository());
+
+final focusedProductProvider = StateProvider<ProductInfo>(
+  (ref) => ProductInfo(
     productName: '',
     product: [const Pressing('', 0, 0)],
     imageName: 'question',
-    target: 0,),);
+    target: 0,
+  ),
+);
 
-final bonusTableSelectorProvider =
-StateProvider<bool>((ref) => false);
+final bonusTableSelectorProvider = StateProvider<bool>((ref) => false);

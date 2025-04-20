@@ -19,18 +19,22 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
   String ratioTextFieldValue = '3.0';
   final TextEditingController targetController = TextEditingController();
   bool custom = false;
+  bool ayr = false;
+  late final TextEditingController productNameController;
+
+  @override
+  void initState() {
+    productNameController = TextEditingController(
+      text: ref.read(productNameControllerProvider.notifier).controller.text,
+    );
+    super.initState();
+  }
 
   // Method to add a new pressing entry
   void addPressingEntry(StateSetter setState) {
     setState(() {
       pressingEntries.add(PressingEntry());
     });
-  }
-
-  @override
-  void dispose() {
-    targetController.dispose();
-    super.dispose();
   }
 
   void populateCitricController() {
@@ -121,6 +125,19 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                         hintText: 'Target',
                                         labelText: 'Target',
                                         keyboardType: TextInputType.number,
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Text('All year round'),
+                                          Checkbox(
+                                            value: ayr,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                ayr = value!;
+                                              });
+                                            },
+                                          ),
+                                        ],
                                       ),
                                       if (pressingEntries.isNotEmpty)
                                         const SizedBox(height: 16),
@@ -573,11 +590,10 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                       .trim();
                                               final targetString =
                                                   targetController.text.trim();
-                                              if (productName.isEmpty ||
-                                                  targetString.isEmpty) {
+                                              if (targetString.isEmpty) {
                                                 showToast(
                                                   context,
-                                                  'Product name and target are required.',
+                                                  'Target is required.',
                                                   textColor: Colors.red[800],
                                                   backgroundShadow: Colors.red,
                                                   colors: [
@@ -590,14 +606,6 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
 
                                               final target =
                                                   int.tryParse(targetString);
-                                              showToast(
-                                                context,
-                                                'Product name and target are required.',
-                                                colors: [
-                                                  Colors.orange,
-                                                  Colors.red,
-                                                ],
-                                              );
                                               if (target == null) {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -648,13 +656,26 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                       productName,
                                                       target,
                                                       pressings,
+                                                      ayr,
                                                     );
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback(
-                                                  (timeStamp) {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                );
+                                                        (timeStamp) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Success! Product has been added.',
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      duration: Duration(
+                                                        seconds: 3,
+                                                      ),
+                                                    ),
+                                                  );
+                                                });
                                               } on FormatException catch (e) {
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback(
@@ -684,6 +705,14 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                         ),
                                                       ),
                                                     );
+                                                  },
+                                                );
+                                              }
+                                              if (mounted) {
+                                                WidgetsBinding.instance
+                                                    .addPostFrameCallback(
+                                                  (timeStamp) {
+                                                    Navigator.of(context).pop();
                                                   },
                                                 );
                                               }

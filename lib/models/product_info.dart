@@ -11,6 +11,7 @@ class ProductInfo extends HiveObject {
     required this.target,
     required this.imageName,
     required this.product,
+    this.ayr,
   });
 
   // Empty constructor for creating an instance with default values
@@ -33,17 +34,22 @@ class ProductInfo extends HiveObject {
   @HiveField(3)
   final List<Pressing> product;
 
+  @HiveField(4)
+  final bool? ayr;
+
   // Method to create a copy of ProductInfo with different fields
   ProductInfo copyWith({
     String? productName,
     int? target,
     String? imageName,
     List<Pressing>? product,
+    bool? ayr,
   }) => ProductInfo(
     productName: productName ?? this.productName,
     target: target ?? this.target,
     imageName: imageName ?? this.imageName,
     product: product ?? this.product,
+    ayr: ayr ?? this.ayr,
   );
 }
 
@@ -66,6 +72,7 @@ class Pressing {
 
   @HiveField(3)
   final double systemCitric;
+
 
   Pressing copyWith({
     String? productColor,
@@ -90,6 +97,7 @@ class Pressing {
         other.productColor == productColor &&
         other.systemG == systemG &&
         other.systemCitric == systemCitric;
+
   }
 
   @override

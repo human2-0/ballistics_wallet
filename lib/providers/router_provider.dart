@@ -12,6 +12,7 @@ import 'package:ballistics_wallet_flutter/ui/pressing/profile/licenses.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/privacy.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/terms_of_use.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/split_check/split_check_view.dart';
 import 'package:ballistics_wallet_flutter/ui/protect_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

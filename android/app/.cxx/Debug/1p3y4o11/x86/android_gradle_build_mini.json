@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/mat-dwor/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/mat-dwor/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/mat-dwor/Documents/ballistics_wallet/android/app/.cxx/Debug/1p3y4o11/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/mat-dwor/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/mat-dwor/Documents/ballistics_wallet/android/app/.cxx/Debug/1p3y4o11/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

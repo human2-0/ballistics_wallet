@@ -54,7 +54,6 @@ class _RiveEllipsesState extends ConsumerState<RiveEllipses> {
     return _artboard != null
         ? Rive(
       artboard: _artboard!,
-      fit: BoxFit.contain,
     )
         : Container();
   }
