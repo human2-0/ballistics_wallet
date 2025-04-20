@@ -35,7 +35,7 @@ class FakeProductInfoRepository implements ProductInfoRepository {
   @override
   Future<List<ProductInfo>> fetchProductInfo() async {
     // Optionally simulate a network or processing delay.
-    // await Future.delayed(const Duration(milliseconds: 50));
+    await Future.delayed(const Duration(milliseconds: 50));
     return _products;
   }
 

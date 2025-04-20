@@ -1,4 +1,5 @@
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/ratio_and_bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/bonus_tables_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
@@ -37,6 +38,17 @@ BonusInfoAndRatio createDummyBonusInfoAndRatio(
     bonusInfo: [dummyBonusInfo],
     ratio: ratio,
   );
+}
+
+/// Registers fallback values that Mockito cannot create automatically.
+void registerMockitoFallbackValues() {
+  // Minimal dummy instance – change the constructor if your real one differs.
+  provideDummy(ProductInfo(
+    productName: '',
+    target: 0,
+    imageName: '',
+    product: [],
+  ),);
 }
 
 void runTestWithoutRatio(double ratio) {
@@ -122,6 +134,8 @@ void runTestWithoutRatioAndWithAnAllowance(double ratio) {
   MockSpec<StateProvider<double>>(as: #MockTargetProvider),
 ])
 void main() {
+  registerMockitoFallbackValues();
+
   group('BonusTableNotifier Tests', () {
     late MockRef ref;
     late MockUserNotifierStateNotifierProvider mockUserNotifierState;
@@ -143,21 +157,6 @@ void main() {
 
       when(ref.watch(targetProvider)).thenReturn(1000); // Mock a target value
     });
-
-    // test('loadInitialData loads data correctly', () async {
-    //   // Arrange
-    //   // Assuming getBonuses() and other methods return expected values correctly mocked
-    //
-    //   // Act
-    //   await bonusTableNotifier.loadInitialData();
-    //
-    //   // Assert
-    //   // Check if the state is updated correctly
-    //   expect(bonusTableNotifier.state.isLoading, false);
-    //   expect(bonusTableNotifier.state.bonusData!.first.requiredAmount, 1020);
-    //   expect(bonusTableNotifier.state.bonusData!.last.requiredAmount, 1715);
-    //   // Further assertions can be added to check for correct values in the state
-    // });
 
     runTestWithoutRatio(0);
 
