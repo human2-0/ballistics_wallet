@@ -157,6 +157,16 @@ class FakeBonusInfoNotifier extends BonusInfoNotifier {
   }
 
   @override
+  Future<double> getTotalWorkingHours() async {
+    return _bonusList.fold<double>(0, (sum, b) => sum + b.workingHours);
+  }
+
+  @override
+  Future<double> getTotalBonus() async {
+    return _bonusList.fold<double>(0, (sum, b) => sum + b.bonus);
+  }
+
+  @override
   void updateRatio(
     String productName,
     int productTarget,
