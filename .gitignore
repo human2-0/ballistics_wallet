@@ -55,5 +55,7 @@ app.*.map.json
 # Exclude the entire ios folder
 ios/
 
+android/
+
 # Note: Excluding the ios/ folder means all its contents, including build artifacts,
 # source code, configurations, and any other files within that directory will not be tracked by Git.
