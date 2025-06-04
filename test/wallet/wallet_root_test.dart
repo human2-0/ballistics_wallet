@@ -1,4 +1,3 @@
-// test/wallet_root_test.dart
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -29,12 +28,15 @@ void main() {
           bonusInfoListProvider.overrideWith((_) => fakeBonusNotifier),
           userNotifierProvider.overrideWith((_) => fakeUserNotifier),
         ],
-        child: MaterialApp(
-          home: WalletRoot(onNotification: (_) {}),
+        child: const MaterialApp(
+          home: WalletRoot(),
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    // First frame builds the widget; second lets the FutureBuilder complete.
+    await tester.pump(); // frame 1: build
+    await tester.pump(); // frame 2: Future completes
+    await tester.pump(); // frame 3: widget with data
   }
 
   setUp(() {
@@ -80,7 +82,9 @@ void main() {
 
     // Because addBonusInfo is async, wrap in runAsync.
     await tester.runAsync(() => fakeBonusNotifier.addBonusInfo(sample));
-    await tester.pumpAndSettle();
+    await tester.pump(); // frame 1: build
+    await tester.pump(); // frame 2: Future completes
+    await tester.pump(); // frame 3: widget with data
 
     // 3️⃣  Totals should now be: hours 8, bonus £150, salary £(150+8*100)=£950
     expect(find.text('Hours\n8.00'), findsOneWidget);
@@ -120,7 +124,9 @@ void main() {
         await fakeBonusNotifier.addBonusInfo(b);
       }
     });
-    await tester.pumpAndSettle();
+    await tester.pump(); // frame 1: build
+    await tester.pump(); // frame 2: Future completes
+    await tester.pump(); // frame 3: widget with data
 
     // Currently: hourlyRate = 100  -> salary  (200 + 12*100) = 1400
     expect(find.text('Salary £1400.00'), findsOneWidget);
@@ -128,7 +134,9 @@ void main() {
     // Now drop hourlyRate to 10 and watch the UI change.
     fakeUserNotifier.state =
         fakeUserNotifier.state.copyWith(hourlyRate: 10);
-    await tester.pumpAndSettle();
+    await tester.pump(); // frame 1: build
+    await tester.pump(); // frame 2: Future completes
+    await tester.pump(); // frame 3: widget with data
 
     // New salary should be 200 + 12*10 = 320
     expect(find.text('Salary £320.00'), findsOneWidget);

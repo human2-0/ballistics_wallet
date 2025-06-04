@@ -15,49 +15,53 @@ class SplitCheck extends ConsumerWidget {
   @override
   Widget build(BuildContext ctx, WidgetRef ref) {
     final calc = ref.watch(splitCalculatorProvider);
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.orange[100],
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
+    return GestureDetector(
+      onTap: () => FocusScope.of(ctx).unfocus(), // dismisses keyboard on tap
+      behavior: HitTestBehavior.opaque, // ensures even empty space registers tap
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.orange[100],
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Colors.orange[50],
-                      borderRadius: const BorderRadius.all(Radius.circular(33)),
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
                     ),
-                    child: const Column(
-                      children: [
-                        ProductPicker(), // handles Autocomplete<ProductInfo>
-                        SizedBox(height: 16),
-                        // const TargetPicker(), // handles Autocomplete<BonusItem>
-                        // const SizedBox(height: 16),
-                        AmountInput(), // NEW – manual “amount per batch” field
-                        SizedBox(height: 16),
-                        AmountSlider(), // slider + text input
-                        SizedBox(height: 16),
-                      ],
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: const BorderRadius.all(Radius.circular(33)),
+                      ),
+                      child: const Column(
+                        children: [
+                          ProductPicker(), // handles Autocomplete<ProductInfo>
+                          SizedBox(height: 16),
+                          // const TargetPicker(), // handles Autocomplete<BonusItem>
+                          // const SizedBox(height: 16),
+                          AmountInput(), // NEW – manual “amount per batch” field
+                          SizedBox(height: 16),
+                          AmountSlider(), // slider + text input
+                          SizedBox(height: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            ResultsList(calc.perBatch),
-          ],
+              const SizedBox(height: 24),
+              ResultsList(calc.perBatch),
+            ],
+          ),
         ),
       ),
     );

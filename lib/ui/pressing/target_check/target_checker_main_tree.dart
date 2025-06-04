@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TargetChecker extends ConsumerStatefulWidget {
-  const TargetChecker({required this.onNotification, super.key});
-  final void Function(ScrollNotification) onNotification;
+  const TargetChecker({ super.key});
+
 
   @override
   TargetCheckerCard createState() => TargetCheckerCard();
@@ -103,8 +103,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                   alignment: Alignment.topCenter,
                   index: (_flipController.value < 0.5) ? 0 : 1,
                   children: [
-                    BasicShift(
-                      onNotification: widget.onNotification,
+                    const BasicShift(
                     ), // FrontFlipCard
                     Transform(
                       alignment: Alignment.center,

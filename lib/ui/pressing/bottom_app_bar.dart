@@ -9,10 +9,8 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_check/overtime_shif
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/target_checker_main_tree.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_root.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class RootBottomBar extends ConsumerStatefulWidget {
@@ -25,13 +23,8 @@ class RootBottomBar extends ConsumerStatefulWidget {
 }
 
 class _RootBottomBarState extends ConsumerState<RootBottomBar>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin {
   late TabController _tabController;
-  late ScrollController _scrollController;
-  bool _isVisible = true;
-
-  late AnimationController _animationController;
-  late Animation<Offset> _offsetAnimation;
 
   int activeIndex = 0;
 
@@ -44,7 +37,13 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            Brightness.dark, // adjust icon brightness as needed
+      ),
+    );
     if (mounted) {
       final userId = ref.read(authRepositoryProvider).currentUserId;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -54,55 +53,9 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
     _tabController = TabController(length: 4, vsync: this);
     _tabController.animation!.addListener(_handleTabAnimation);
-
-    _scrollController = ScrollController();
-
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          setState(() {
-            _isVisible = false;
-          });
-        }
-        if (status == AnimationStatus.dismissed) {
-          setState(() {
-            _isVisible = true;
-          });
-        }
-      });
-
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, 1),
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.reverse) {
-        if (_isVisible) {
-          _animationController.forward();
-        }
-      } else {
-        if (_scrollController.position.userScrollDirection ==
-            ScrollDirection.forward) {
-          if (!_isVisible) {
-            _animationController.reverse();
-          }
-        }
-      }
-    });
   }
 
   void _handleTabAnimation() {
-    // Use round() to convert the animation value to the nearest integer.
-    // This gives the index of the tab we're swiping towards.
     final newIndex = _tabController.animation!.value.round();
 
     if (newIndex != activeIndex) {
@@ -112,24 +65,21 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    Future.microtask(Hive.close);
-    _tabController.animation!.removeListener(_handleTabAnimation);
     _tabController.dispose();
-    _scrollController.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
-  bool handleScroll(ScrollNotification notification) {
-    if (notification is UserScrollNotification) {
-      if (notification.direction == ScrollDirection.reverse) {
-        _animationController.forward();
-      } else if (notification.direction == ScrollDirection.forward) {
-        _animationController.reverse();
-      }
+  @override
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    for (final path in [
+      'assets/login_screen.webp',
+      'assets/target_screen.webp',
+      'assets/wallet_screen.webp',
+      'assets/profile_screen.webp',
+    ]) {
+      await precacheImage(AssetImage(path), context);
     }
-    return false;
   }
 
   String getBackgroundImagePath() {
@@ -142,7 +92,6 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
         return 'assets/wallet_screen.webp';
       case 3:
         return 'assets/profile_screen.webp';
-      // Add cases for other indices, with their respective image paths
       default:
         return 'assets/login_screen.png'; // A default image if no index matches
     }
@@ -150,24 +99,14 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            Brightness.dark, // adjust icon brightness as needed
-      ),
-    );
-
     final activeIndex = ref.watch(activeIndexTabProvider);
 
-    // After the build phase, listen for changes in activeIndex to update the tab
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (activeIndex == 1) {
         setActiveTab(1);
         _tabController.animateTo(activeIndex);
       }
 
-      // Reset the index to 0 without triggering animation again
       if (activeIndex != 0) {
         ref.read(activeIndexTabProvider.notifier).updateIndex(null);
       }
@@ -187,39 +126,25 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
               fit: BoxFit.cover,
             ),
           ),
-          NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              handleScroll(notification);
-              return true;
-            },
-            child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) => TabBarView(
-                  controller: _tabController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: <Widget>[
-                    TargetChecker(
-                      onNotification: handleScroll,
-                    ),
-                    const SplitCheck(),
-                    WalletRoot(
-                      onNotification: handleScroll,
-                    ),
-                    const ProfilePage(),
-                  ],
-                ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) => TabBarView(
+                controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: const <Widget>[
+                  TargetChecker(),
+                  SplitCheck(),
+                  WalletRoot(),
+                  ProfilePage(),
+                ],
               ),
             ),
           ),
-          // Always show the bottom navigation bar
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: SlideTransition(
-              position: _offsetAnimation,
-              child: buildBottomNavigationBar(context),
-            ),
+            child: buildBottomNavigationBar(context),
           ),
         ],
       ),
@@ -227,10 +152,10 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   }
 
   Widget buildBottomNavigationBar(BuildContext context) => Container(
-        height: MediaQuery.of(context).size.height * 0.10,
+        height: MediaQuery.of(context).size.height * 0.08,
         decoration: BoxDecoration(
           color: Colors.brown[50],
-          borderRadius: BorderRadius.circular(33),
+          borderRadius: BorderRadius.circular(66),
           boxShadow: const [
             BoxShadow(
               color: Color(0x80D7BEB1),
@@ -243,11 +168,9 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
         child: Stack(
           children: [
             AnimatedContainer(
-              height:
-                  MediaQuery.of(context).size.height * 0.10, // specify a height
-              width:
-                  MediaQuery.of(context).size.width * 0.80, // specify a width
-              duration: const Duration(milliseconds: 200),
+              height: MediaQuery.of(context).size.height * 0.10,
+              width: MediaQuery.of(context).size.width * 0.80,
+              duration: const Duration(milliseconds: 150),
               curve: Curves.easeOut,
               alignment: Alignment(
                 activeIndex == 0
@@ -259,7 +182,6 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
                             : 1.0,
                 0,
               ),
-
               child: FractionallySizedBox(
                 widthFactor: 1 / 4,
                 child: Container(

@@ -304,23 +304,20 @@ final bonusInfoListProvider =
 
 final bonusInfoRepositoryProvider = Provider<BonusInfoRepository>((ref) {
   return BonusInfoRepository();
-
 });
 
-final walletSummaryProvider = Provider<WalletSummary>((ref) {
-  // 1. Watch the entire bonus info state so changes trigger rebuilds.
-  final bonusState = ref.watch(bonusInfoListProvider);
-  // 2. Watch userState for an updated hourlyRate
+final walletSummaryProvider = FutureProvider<WalletSummary>((ref) async {
+  final bonusNotifier = ref.read(bonusInfoListProvider.notifier);
   final userState = ref.watch(userNotifierProvider);
 
-  // If you have logic in the BonusInfoNotifier that filters by date range,
-  // you can just do:
-  final totalBonus =
-      bonusState.bonusInfo.fold<double>(0, (sum, b) => sum + b.bonus);
-  final totalHours =
-      bonusState.bonusInfo.fold<double>(0, (sum, b) => sum + b.workingHours);
-
-  final totalSalary = totalBonus + (totalHours * (userState.hourlyRate ?? 0));
+  // 3️⃣  Do the maths *inside* the selected range.
+  final results = await Future.wait([
+    bonusNotifier.getTotalBonus(),
+    bonusNotifier.getTotalWorkingHours(),
+  ]);
+  final totalBonus = results[0];
+  final totalHours = results[1];
+  final totalSalary = totalBonus + totalHours * (userState.hourlyRate ?? 0);
 
   return WalletSummary(totalBonus, totalHours, totalSalary);
 });

@@ -1,5 +1,6 @@
 import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_info_list.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/date_picker.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
@@ -7,8 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WalletRoot extends ConsumerStatefulWidget {
-  const WalletRoot({required this.onNotification, super.key});
-  final void Function(ScrollNotification) onNotification;
+  const WalletRoot({super.key});
 
   @override
   ConsumerState<WalletRoot> createState() => _WalletRootState();
@@ -17,14 +17,8 @@ class WalletRoot extends ConsumerStatefulWidget {
 class _WalletRootState extends ConsumerState<WalletRoot> {
   @override
   Widget build(BuildContext context) {
-    // 1) This is now a plain Provider<WalletSummary>, not AsyncValue
-    final walletSummary = ref.watch(walletSummaryProvider);
-
-    // 2) Extract the computed totals
-    final totalBonus = walletSummary.totalBonus;
-    final totalHours = walletSummary.totalHours;
-    final totalSalary = walletSummary.totalSalary;
-
+    // We’ll build the outer Scaffold immediately; only the row with the
+    // numbers needs to wait for an async calculation.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -33,7 +27,6 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
             iconSize: 40,
             icon: const Icon(Icons.history),
             onPressed: () async {
-              // Show historical data in a bottom sheet
               await showModalBottomSheet<Widget>(
                 context: context,
                 builder: (context) => SizedBox(
@@ -74,72 +67,106 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
         ],
       ),
       backgroundColor: Colors.transparent,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          widget.onNotification(notification);
-          return true;
-        },
-        child: Column(
-          children: [
-            // Row with total hours, total salary, total bonus
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildGradientBox(
-                  context: context,
-                  title: 'Hours',
-                  value: formatDouble(totalHours),
-                  colors: [
-                    Colors.purple[400]!.withValues(alpha: 0.4),
-                    Colors.purple[300]!,
-                    Colors.purple[200]!,
-                    Colors.purple[100]!,
-                  ],
-                ),
-                _buildGradientBox(
-                  context: context,
-                  title: 'Salary £${formatDouble(totalSalary)}',
-                  value: '',
-                  colors: [
-                    Colors.yellow[800]!.withValues(alpha: 0.4),
-                    Colors.yellow[700]!,
-                    Colors.yellow[600]!,
-                    Colors.yellow[300]!,
-                  ],
-                ),
-                _buildGradientBox(
-                  context: context,
-                  title: 'Bonus',
-                  value: '£${formatDouble(totalBonus)}',
-                  colors: [
-                    Colors.green[400]!.withValues(alpha: 0.4),
-                    Colors.green[300]!,
-                    Colors.green[200]!,
-                    Colors.green[100]!,
-                  ],
-                ),
-              ],
-            ),
-            Padding(
+      body: Column(
+        children: [
+          // ---------- TOTALS ROW (async) ----------------------------------
+          Consumer(
+            builder: (context, ref, _) {
+              // Re‑run this Future only when the *bonus list* changes.
+              final _ = ref.watch(
+                bonusInfoListProvider.select((s) => s.bonusInfo),
+              );
+              // We also need the hourly rate when it changes.
+              final hourlyRate = ref.watch(
+                userNotifierProvider.select((s) => s.hourlyRate),
+              );
+
+              final bonusNotifier = ref.read(bonusInfoListProvider.notifier);
+
+              return FutureBuilder<List<double>>(
+                // ignore: discarded_futures
+                future: Future.wait<double>([
+                  // ignore: discarded_futures
+                  bonusNotifier.getTotalBonus(),
+                  // ignore: discarded_futures
+                  bonusNotifier.getTotalWorkingHours(),
+                ]),
+                builder: (context, snap) {
+                  if (!snap.hasData) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  final totalBonus = snap.data![0];
+                  final totalHours = snap.data![1];
+                  final totalSalary =
+                      totalBonus + totalHours * (hourlyRate ?? 0);
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildGradientBox(
+                        context: context,
+                        title: 'Hours',
+                        value: formatDouble(totalHours),
+                        colors: [
+                          Colors.purple[400]!.withValues(alpha: 0.4),
+                          Colors.purple[300]!,
+                          Colors.purple[200]!,
+                          Colors.purple[100]!,
+                        ],
+                      ),
+                      _buildGradientBox(
+                        context: context,
+                        title: 'Salary £${formatDouble(totalSalary)}',
+                        value: '',
+                        colors: [
+                          Colors.yellow[800]!.withValues(alpha: 0.4),
+                          Colors.yellow[700]!,
+                          Colors.yellow[600]!,
+                          Colors.yellow[300]!,
+                        ],
+                      ),
+                      _buildGradientBox(
+                        context: context,
+                        title: 'Bonus',
+                        value: '£${formatDouble(totalBonus)}',
+                        colors: [
+                          Colors.green[400]!.withValues(alpha: 0.4),
+                          Colors.green[300]!,
+                          Colors.green[200]!,
+                          Colors.green[100]!,
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          // ---------------------------------------------------------------
+          Padding(
+            padding: const EdgeInsets.all(4),
+            child: Container(
               padding: const EdgeInsets.all(4),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.white70,
-                  borderRadius: BorderRadius.all(Radius.circular(33)),
-                ),
-                child: const DatePickerCalendar(),
+              decoration: const BoxDecoration(
+                color: Colors.white70,
+                borderRadius: BorderRadius.all(Radius.circular(33)),
               ),
+              child: const DatePickerCalendar(),
             ),
-            const Expanded(child: BonusInfoList()),
-          ],
-        ),
+          ),
+          const Expanded(child: BonusInfoList()),
+        ],
       ),
       endDrawer: Container(),
     );
   }
 
-  /// Helper method to reduce duplication of gradient boxes in the row
+  // -------------------------------------------------------------------------
+  // Helper
   Widget _buildGradientBox({
     required BuildContext context,
     required String title,
