@@ -15,7 +15,7 @@ class FocusNotifier extends StateNotifier<bool> {
 
 class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   LastSelectedProductNotifier() : super([]) {
-    Future.microtask(_initBox);
+    scheduleMicrotask(_initBox);
   }
 
   Future<void> _initBox() async {

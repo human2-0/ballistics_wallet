@@ -126,19 +126,6 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                         labelText: 'Target',
                                         keyboardType: TextInputType.number,
                                       ),
-                                      Row(
-                                        children: [
-                                          const Text('All year round'),
-                                          Checkbox(
-                                            value: ayr,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                ayr = value!;
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
                                       if (pressingEntries.isNotEmpty)
                                         const SizedBox(height: 16),
                                       if (pressingEntries.isNotEmpty)
@@ -654,7 +641,6 @@ class AddProductDialogState extends ConsumerState<AddProductDialog> {
                                                       productName,
                                                       target,
                                                       pressings,
-                                                      ayr,
                                                     );
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback(

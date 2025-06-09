@@ -10,12 +10,6 @@ import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 
-extension ColorAlphaExtension on Color {
-  /// Mimics the API used throughout the project where [alpha] is expected
-  /// to be a value between 0.0 and 1.0. Internally this simply forwards to
-  /// [withOpacity].
-  Color withValues({required double alpha}) => withOpacity(alpha);
-}
 
 String formatDouble(double value, {int fractionDigits = 2}) =>
     value.toStringAsFixed(fractionDigits);

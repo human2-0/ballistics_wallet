@@ -1,19 +1,15 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/repository/product_info_repository_hive.dart';
 
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';class ProductInfoNotifierHive extends StateNotifier<List<ProductInfo>> {
   ProductInfoNotifierHive(this._repository) : super([]) {
-    _loadProductInfoOnInit();
+    scheduleMicrotask(loadProductInfo);
   }
 
   final ProductInfoRepositoryHive _repository;
-
-  void _loadProductInfoOnInit() {
-    Future(() async {
-      await loadProductInfo();
-    });
-  }
 
   Future<void> loadProductInfo() async {
     state = await _repository.fetchProductInfo();

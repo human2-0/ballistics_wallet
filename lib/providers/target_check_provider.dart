@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/selected_product.dart';
@@ -30,13 +32,13 @@ final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final focusNotifier = ref.read(focusNotifierProvider.notifier);
 
   focusNode.addListener(() {
-    focusNotifier.setFocus(focusNode.hasFocus);
+    scheduleMicrotask(() => focusNotifier.setFocus(focusNode.hasFocus));
   });
 
   ref.onDispose(() {
     focusNode
       ..removeListener(() {
-        focusNotifier.setFocus(focusNode.hasFocus);
+        scheduleMicrotask(() =>focusNotifier.setFocus(focusNode.hasFocus));
       })
       ..dispose();
   });
@@ -62,7 +64,7 @@ final targetProvider =
 class AllowanceNotifier extends StateNotifier<double> {
 
   AllowanceNotifier(this.ref) : super(0) {
-    Future.microtask(_fetchInitialAllowance);
+    scheduleMicrotask(() => _fetchInitialAllowance);
   }
   final Ref ref;
 

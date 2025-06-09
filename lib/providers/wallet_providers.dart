@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/custom_date_range.dart';
 import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
@@ -13,7 +15,7 @@ import 'package:intl/intl.dart';
 class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   BonusInfoNotifier(this._repository, this.userId)
       : super(BonusInfoAndRatio()) {
-    Future.microtask(() async {
+    scheduleMicrotask(() async {
       await init();
       await loadBonusInfos(); // Add this line
     });
@@ -79,6 +81,14 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
 
   double getProductRatio(String productName) =>
       _productRatios[productName] ?? 0;
+
+  /// Returns all bonus entries for a given product, including date and amount.
+  List<BonusInfo> getProductHistory(String productName) {
+    return state.bonusInfo
+        .where(
+            (entry) => entry.produced.any((p) => p.productName == productName),)
+        .toList();
+  }
 
   Future<void> loadBonusInfos() async {
     final box = await _repository.openBox(); // Ensure this method is accessible

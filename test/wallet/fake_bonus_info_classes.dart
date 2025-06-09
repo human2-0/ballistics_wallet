@@ -72,7 +72,12 @@ class FakeProductInfoRepository implements ProductInfoRepository {
 
   @override
   Future<void> addProduct(
-      String productName, int target, List<Pressing> pressings,{bool ayr = true, String? description,}) {
+    String productName,
+    int target,
+    List<Pressing> pressings, {
+    bool ayr = true,
+    String? description,
+  }) {
     // TODO: implement addProduct
     throw UnimplementedError();
   }

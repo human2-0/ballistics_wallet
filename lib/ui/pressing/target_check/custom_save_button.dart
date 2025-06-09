@@ -110,12 +110,12 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                               children: [
                                                 Checkbox(
                                                   value: localDoNotAskAgain,
-                                                  onChanged: (value) {
+                                                  onChanged: (value) async {
                                                     setState(() {
                                                       localDoNotAskAgain =
                                                           value!;
                                                     });
-                                                    ref
+                                                    await ref
                                                         .read(
                                                           userNotifierProvider
                                                               .notifier,
@@ -276,11 +276,11 @@ Future<void> saveToWallet({
                         children: [
                           Checkbox(
                             value: localDoNotAskAgain,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               setState(() {
                                 localDoNotAskAgain = value!;
                               });
-                              ref
+                              await ref
                                   .read(
                                     userNotifierProvider.notifier,
                                   )

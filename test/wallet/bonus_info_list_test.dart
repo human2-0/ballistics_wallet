@@ -382,8 +382,8 @@ void main() {
             body: Builder(
               builder: (context) => ElevatedButton(
                 key: const Key('openEditModalButton'),
-                onPressed: () {
-                  showModalBottomSheet<Widget>(
+                onPressed: () async {
+                  await showModalBottomSheet<Widget>(
                     context: context,
                     isScrollControlled: true,
                     builder: (_) => EditBonusInfoModal(

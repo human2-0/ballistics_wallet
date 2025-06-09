@@ -1217,7 +1217,6 @@ class MockProductInfoNotifier extends _i1.Mock
     String? productName,
     int? target,
     List<_i14.Pressing>? pressings,
-    bool? ayr,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1226,7 +1225,6 @@ class MockProductInfoNotifier extends _i1.Mock
             productName,
             target,
             pressings,
-            ayr,
           ],
         ),
         returnValue: _i10.Future<void>.value(),

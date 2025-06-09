@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/custom_widgets/animated_tiles.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
@@ -9,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BonusTableNotifier extends StateNotifier<BonusTableState> {
   BonusTableNotifier(this.ref) : super(BonusTableState()) {
-    Future.microtask(() async => loadInitialData());
+   scheduleMicrotask(() async => loadInitialData());
   }
   final Ref ref;
 

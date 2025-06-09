@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/repository/product_info_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +12,7 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
 
   void _loadProductInfoOnInit() {
     // Immediately executed async function to load product info on init
-    Future(() async {
-      await loadProductInfo();
-    });
+    scheduleMicrotask(() async => loadProductInfo());
   }
 
   Future<void> loadProductInfo() async {
@@ -23,9 +23,8 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
     String productName,
     int target,
     List<Pressing> pressings,
-    bool ayr,
   ) async {
-    await _repository.addProduct(productName, target, pressings,ayr: ayr);
+    await _repository.addProduct(productName, target, pressings);
     // Reload the product info to update the state
     await loadProductInfo();
   }

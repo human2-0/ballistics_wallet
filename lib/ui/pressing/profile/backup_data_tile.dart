@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -16,9 +18,9 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
   void initState() {
     super.initState();
     if (ref.read(userNotifierProvider).backup == null) {
-      Future.microtask(() async => ref.read(authRepositoryProvider).signOut());
+      scheduleMicrotask(() async => ref.read(authRepositoryProvider).signOut());
     }
-    Future.microtask(
+    scheduleMicrotask(
       () async => ref.read(backupManagerProvider.notifier).checkActiveState(),
     );
   }

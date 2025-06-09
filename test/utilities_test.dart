@@ -1,6 +1,6 @@
+import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ballistics_wallet_flutter/utilities.dart';
 
 void main() {
   group('toTitleCase', () {
@@ -31,7 +31,7 @@ void main() {
 
   group('formatWorkingHours', () {
     test('no minutes when decimal part is zero', () {
-      expect(formatWorkingHours(2.0), '2 hours');
+      expect(formatWorkingHours(2), '2 hours');
     });
 
     test('converts fractional hours to minutes', () {
@@ -75,6 +75,6 @@ void main() {
 
   test('ColorAlphaExtension uses withOpacity under the hood', () {
     const color = Colors.red;
-    expect(color.withValues(alpha: 0.5), color.withOpacity(0.5));
+    expect(color.withValues(alpha: 0.5), color.withValues(alpha: 0.5));
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/backup_data_tile.dart';
@@ -20,11 +22,6 @@ class ProfilePage extends StatefulHookConsumerWidget {
 class ProfilePageState extends ConsumerState<ProfilePage> {
   String _versionNumber = '';
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async => _getVersionNumber());
-  }
 
   Future<void> _getVersionNumber() async {
     try {
@@ -51,19 +48,13 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
 
     final userDataAsyncValue = ref.watch(userDataProvider(uid));
 
-    // final workingHoursController =
-    //     TextEditingController(text: userState.realWorkingHours.toString());
-    // final hourlyRateController =
-    //     TextEditingController(text: userState.hourlyRate.toString());
 
     // Use useEffect to load user data when the widget is first created
-    useEffect(
-      () {
-        Future.microtask(() async => userNotifier.loadUser(uid));
-        return null;
-      },
-      [],
-    );
+    useEffect(() {
+      scheduleMicrotask(()=>userNotifier.loadUser(uid));
+      scheduleMicrotask(_getVersionNumber);
+      return null;
+    }, [uid],);
 
     // Show loading spinner if user data is not yet loaded
     if (userDataAsyncValue is AsyncLoading) {
@@ -285,8 +276,10 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                                       context: context,
                                       builder: (context) =>
                                           EditWorkingHoursDialog(
-                                        onSubmit: (newWorkingHours,
-                                            newHourlyRate,) async {
+                                        onSubmit: (
+                                          newWorkingHours,
+                                          newHourlyRate,
+                                        ) async {
                                           final result = await userNotifier
                                               .updateUserSettings(
                                             newWorkingHours,
