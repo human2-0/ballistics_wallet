@@ -1429,6 +1429,17 @@ class MockBonusInfoNotifier extends _i1.Mock implements _i20.BonusInfoNotifier {
       ) as double);
 
   @override
+  List<_i11.BonusInfo> getProductHistory(String? productName) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getProductHistory,
+          [productName],
+        ),
+        returnValue: <_i11.BonusInfo>[],
+        returnValueForMissingStub: <_i11.BonusInfo>[],
+      ) as List<_i11.BonusInfo>);
+
+  @override
   _i10.Future<void> loadBonusInfos() => (super.noSuchMethod(
         Invocation.method(
           #loadBonusInfos,

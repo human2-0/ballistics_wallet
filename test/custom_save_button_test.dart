@@ -5,13 +5,33 @@ import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
+import 'package:ballistics_wallet_flutter/repository/auth_repository.dart';
+import 'package:ballistics_wallet_flutter/repository/back_up_repository.dart';
+import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/custom_save_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'wallet/fake_bonus_info_classes.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'auth_repository_test.mocks.dart';
 import 'wallet/bonus_info_list_test.mocks.dart';
+import 'wallet/fake_bonus_info_classes.dart';
+
+
+/// Fake notifiers used to satisfy provider overrides in tests.
+class FakeNumberEditingControllerNotifier extends NumberEditingControllerNotifier {
+  FakeNumberEditingControllerNotifier();
+
+  // Always provide the fixed test value “5”.
+}
+
+class FakeAllowanceNotifier extends AllowanceNotifier {
+  FakeAllowanceNotifier(super.ref);
+
+  // Always provide the fixed test value `0.0`.
+}
+
 
 @GenerateNiceMocks([
   MockSpec<AuthRepository>(),
@@ -42,9 +62,9 @@ void main() {
           product: const [],
         ),
       ),
-      numberControllerProvider.overrideWithProvider(StateProvider((ref) => '5')),
+      numberControllerProvider.overrideWith((ref) => FakeNumberEditingControllerNotifier()),
       targetProvider.overrideWith((ref) => 100),
-      allowanceProvider.overrideWithProvider(StateProvider((ref) => 0.0)),
+      allowanceProvider.overrideWith(FakeAllowanceNotifier.new),
       bonusCalculator.overrideWithProvider(
         Provider.family<double, double>((ref, ratio) => 1.0).call,
       ),
@@ -93,9 +113,9 @@ void main() {
           product: const [],
         ),
       ),
-      numberControllerProvider.overrideWithProvider(StateProvider((ref) => '5')),
+      numberControllerProvider.overrideWith((ref) => FakeNumberEditingControllerNotifier()),
       targetProvider.overrideWith((ref) => 100),
-      allowanceProvider.overrideWithProvider(StateProvider((ref) => 0.0)),
+      allowanceProvider.overrideWith(FakeAllowanceNotifier.new),
       bonusCalculator.overrideWithProvider(
         Provider.family<double, double>((ref, ratio) => 1.0).call,
       ),

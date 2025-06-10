@@ -10,9 +10,9 @@ void main() {
 
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp();
-    Hive.init(tempDir.path);
-    Hive.registerAdapter(BonusInfoAdapter());
-    Hive.registerAdapter(ProducedAdapter());
+    Hive..init(tempDir.path)
+    ..registerAdapter(BonusInfoAdapter())
+    ..registerAdapter(ProducedAdapter());
   });
 
   tearDown(() async {
@@ -23,7 +23,7 @@ void main() {
   test('addBonusInfo updates existing entry for same day', () async {
     final repo = BonusInfoRepository();
     final box = await repo.openBox();
-    final date = DateTime(2024, 1, 1);
+    final date = DateTime(2024);
 
     final existing = BonusInfo(
       userId: 'user1',
@@ -46,7 +46,7 @@ void main() {
 
     final message = await repo.addBonusInfo(updated);
 
-    final result = box.get(existing.id) as BonusInfo?;
+    final result = box.get(existing.id);
     expect(message, 'Product updated successfully.');
     expect(result?.produced.first.amount, 20);
   });
