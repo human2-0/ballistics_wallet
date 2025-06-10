@@ -101,16 +101,21 @@ class _ToastWidgetState extends State<ToastWidget>
       );
 }
 
-void showToast(BuildContext context, String message,
-    {List<Color>? colors, Color? textColor, Color? backgroundShadow,}) {
+void showToast(
+    BuildContext context,
+    String message, {
+      List<Color>? colors,
+      Color? textColor,
+      Color? backgroundShadow,
+    }) {
   final overlay = Overlay.of(context);
 
-  final screenWidth = MediaQuery.of(context).size.width;
+  final screenWidth  = MediaQuery.of(context).size.width;
   final screenHeight = MediaQuery.of(context).size.height;
 
   const toastWidth = 350.0;
   final left = (screenWidth - toastWidth) / 2;
-  final top = screenHeight / 6;
+  final top  = screenHeight / 6;
 
   final overlayEntry = OverlayEntry(
     builder: (context) => Positioned(
@@ -118,15 +123,23 @@ void showToast(BuildContext context, String message,
       left: left,
       width: toastWidth,
       child: ToastWidget(
-        message: message,
-        colors: colors,
+        message:          message,
+        colors:           colors,
         backgroundShadow: backgroundShadow,
-        textColor: textColor,
+        textColor:        textColor,
       ),
     ),
   );
 
+  // ───────────────────────────────────────────────────────────────────────
+  // Insert the toast and schedule its removal when the fade-out finishes.
+  // ───────────────────────────────────────────────────────────────────────
   overlay.insert(overlayEntry);
+
+  // 3 s visible  + 0.5 s fade-out  ==  3.5 s total
+  Future<void>.delayed(const Duration(milliseconds: 3500), () {
+    if (overlayEntry.mounted) overlayEntry.remove();
+  });
 }
 
 extension AnimationControllerExtension on AnimationController {

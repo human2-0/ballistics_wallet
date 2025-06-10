@@ -6,7 +6,6 @@ import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/amount_calculator_field.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/product_description.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/slide_to_overtimes.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/custom_save_button.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/autocomplete_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/last_selected_products.dart';
@@ -325,7 +324,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
 
             //add a new widget to the row
             if (!showList) const CustomSaveButton(),
-            const SlideToOvertime(),
+            const SizedBox(height: 16,),
+            // const SlideToOvertime(),
           ],
         ),
       ),

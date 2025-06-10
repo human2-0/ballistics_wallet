@@ -68,28 +68,28 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
             focusNode.unfocus();
             ref.read(showListProvider.notifier).state = false;
           },
-          onHorizontalDragStart: (details) {
-            _startPosition = details.globalPosition.dx;
-          },
-          onHorizontalDragUpdate: (details) {
-            setState(() {
-              final dx = details.globalPosition.dx - _startPosition;
-              _flipController.value += dx / containerWidth;
-              _startPosition = details.globalPosition.dx;
-            });
-          },
-          onHorizontalDragEnd: (details) async {
-            if (_flipController.value >= 0.5) {
-              await _flipController.forward();
-
-              ref.read(targetProvider.notifier).state = 0;
-              ref.read(textEditingControllerProvider).clear();
-            } else {
-              ref.read(targetProvider.notifier).state = 0;
-              ref.read(textEditingControllerProvider).clear();
-              await _flipController.reverse();
-            }
-          },
+          // onHorizontalDragStart: (details) {
+          //   _startPosition = details.globalPosition.dx;
+          // },
+          // onHorizontalDragUpdate: (details) {
+          //   setState(() {
+          //     final dx = details.globalPosition.dx - _startPosition;
+          //     _flipController.value += dx / containerWidth;
+          //     _startPosition = details.globalPosition.dx;
+          //   });
+          // },
+          // onHorizontalDragEnd: (details) async {
+          //   if (_flipController.value >= 0.5) {
+          //     await _flipController.forward();
+          //
+          //     ref.read(targetProvider.notifier).state = 0;
+          //     ref.read(textEditingControllerProvider).clear();
+          //   } else {
+          //     ref.read(targetProvider.notifier).state = 0;
+          //     ref.read(textEditingControllerProvider).clear();
+          //     await _flipController.reverse();
+          //   }
+          // },
           child: AnimatedBuilder(
             animation: _flipAnimation,
             builder: (context, child) => Transform(
@@ -105,11 +105,11 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                   children: [
                     const BasicShift(
                     ), // FrontFlipCard
-                    Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()..rotateY(pi),
-                      child: const OvertimeShift(),
-                    ),
+                    // Transform(
+                    //   alignment: Alignment.center,
+                    //   transform: Matrix4.identity()..rotateY(pi),
+                    //   child: const OvertimeShift(),
+                    // ),
                     // BackFlipCard
                   ],
                 ),

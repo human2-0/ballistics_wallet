@@ -1,4 +1,6 @@
-import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
+import 'dart:async';
+
+import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
@@ -18,14 +20,18 @@ class CustomSaveButton extends ConsumerStatefulWidget {
 }
 
 class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
+  String? _successMessage;
+  // Shows a spinner while the save request is in‑flight
+  bool _isSaving = false;
+
   @override
   Widget build(BuildContext context) {
     final productName =
         ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
     final amount = int.tryParse(ref.watch(numberControllerProvider)) ?? 0;
-    final allowance = ref.watch(allowanceProvider);
-    final userState = ref.watch(userNotifierProvider);
-    final workingHours = userState.workingHours ?? 0.0;
+    // final allowance = ref.watch(allowanceProvider);
+    // final userState = ref.watch(userNotifierProvider);
+    // final workingHours = userState.workingHours ?? 0.0;
     return Builder(
       builder: (buttonContext) => LayoutBuilder(
         builder: (
@@ -34,162 +40,71 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
         ) =>
             Column(
           children: [
-            SizedBox(
-              width: constraints.maxWidth * 0.60,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(
-                    Colors.yellowAccent[100],
+            DecoratedBox(
+              decoration: _successMessage != null
+                  ? boxDecoration(color: Colors.green)
+                  : boxDecoration(),
+              child: SizedBox(
+                width: constraints.maxWidth * 0.60,
+                child: Material(
+                  color: _successMessage != null
+                      ? Colors.green
+                      : (productName.isEmpty || amount == 0 || _isSaving)
+                          ? Colors.yellow.shade200
+                          : Colors.yellow.shade300,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: (productName.isEmpty || amount == 0 || _isSaving)
+                        ? null
+                        : () async {
+                            setState(() => _isSaving = true);
+                            final message = await saveToWallet(
+                              context: buttonContext,
+                              ref: ref,
+                              amountPressed: amount,
+                              mounted: mounted,
+                            );
+                            if (!mounted) return;
+                            setState(() {
+                              _isSaving = false;
+                              _successMessage = message;
+                            });
+                            Timer(const Duration(seconds: 2), () {
+                              if (mounted) setState(() => _successMessage = null);
+                            });
+                          },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: _isSaving
+                          ? const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : (_successMessage != null
+                              ? Text(
+                                  _successMessage!,
+                                  style: const TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                )
+                              : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.wallet, color: Colors.black),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Save to Wallet',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ],
+                                )),
                     ),
                   ),
-                ),
-                onPressed: (productName.isEmpty || amount == 0)
-                    ? null
-                    : () async {
-                        final authRepository = ref.read(authRepositoryProvider);
-                        final targetRatio =
-                            ref.read(bonusInfoListProvider).ratio;
-                        final bonusAsyncValue = ref.read(
-                          bonusCalculator(
-                            targetRatio,
-                          ),
-                        ); // changed watch to read
-                        final userId = authRepository.currentUserId;
-                        final bonus = bonusAsyncValue *
-                            ((workingHours - allowance) / 7.0);
-                        final productRatio = ref
-                            .read(
-                              bonusInfoListProvider.notifier,
-                            )
-                            .getProductRatio(
-                              productName.toLowerCase().trim(),
-                            );
-                        final newBonusInfo = BonusInfo(
-                          userId: userId, // Replace with actual user ID
-                          bonus: bonus,
-                          date: DateTime.now(),
-                          workingHours: userState.realWorkingHours!,
-                          isOvertime: false,
-                          produced: [
-                            Produced(
-                              productName: productName,
-                              amount: amount,
-                              ratio: productRatio,
-                              allowance: allowance,
-                            ),
-                          ], // Initialize with empty or collect data as needed
-                        );
-
-                        final message = await ref
-                            .read(bonusInfoListProvider.notifier)
-                            .addBonusInfo(newBonusInfo);
-                        final backup = ref.read(userNotifierProvider).backup!;
-                        final doNotAskAgain =
-                            ref.watch(userNotifierProvider).askForBackup;
-                        WidgetsBinding.instance
-                            .addPostFrameCallback((timeStamp) async {
-                          if (!backup && !doNotAskAgain!) {
-                            await showDialog<Widget>(
-                              context: context,
-                              builder: (context) {
-                                var localDoNotAskAgain = doNotAskAgain;
-                                return StatefulBuilder(
-                                  builder: (context, setState) => AlertDialog(
-                                      title: const Text('Backup Data'),
-                                      content: SingleChildScrollView(
-                                        child: ListBody(
-                                          children: <Widget>[
-                                            const Text(
-                                                'Hey, would you like to start to back up your data? ',
-                                            ),
-                                            Row(
-                                              children: [
-                                                Checkbox(
-                                                  value: localDoNotAskAgain,
-                                                  onChanged: (value) async {
-                                                    setState(() {
-                                                      localDoNotAskAgain =
-                                                          value!;
-                                                    });
-                                                    await ref
-                                                        .read(
-                                                          userNotifierProvider
-                                                              .notifier,
-                                                        )
-                                                        .dontAskAgain(value!);
-                                                  },
-                                                ),
-                                                const Text(
-                                                  "Don't ask me again",
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text('Yes'),
-                                          onPressed: () async {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                            await ref
-                                                .read(
-                                                  backupManagerProvider
-                                                      .notifier,
-                                                )
-                                                .backupData();
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text('No'),
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Close the dialog
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                );
-                              },
-                            );
-                          }
-                        });
-                        if (backup) {
-                          await ref
-                              .read(backupManagerProvider.notifier)
-                              .backupData();
-                        }
-                        WidgetsBinding.instance
-                            .addPostFrameCallback((timeStamp) {
-                          ScaffoldMessenger.of(
-                            buttonContext,
-                          ).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                message,
-                              ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        });
-// Retrieve the bonus value
-                      },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-// Center the content horizontally
-                  children: [
-                    Icon(Icons.wallet),
-                    SizedBox(width: 8),
-
-// Add your desired icon
-// Add some space between the icon and the text
-                    Text('Save to Wallet'),
-                  ],
                 ),
               ),
             ),
@@ -200,7 +115,7 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
   }
 }
 
-Future<void> saveToWallet({
+Future<String> saveToWallet({
   required BuildContext context,
   required WidgetRef ref,
   required int amountPressed,
@@ -217,7 +132,7 @@ Future<void> saveToWallet({
   final target = ref.watch(targetProvider);
 
   if (productName.isEmpty || amount == 0) {
-    return; // Early return if conditions are not met
+    return ''; // Early return if conditions are not met
   }
   ref
       .read(
@@ -323,13 +238,5 @@ Future<void> saveToWallet({
   if (backup) {
     await ref.read(backupManagerProvider.notifier).backupData();
   }
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (mounted) {
-      showToast(
-        context,
-        message,
-        colors: [Colors.greenAccent, Colors.greenAccent[100]!],
-      );
-    }
-  });
+  return message;
 }
