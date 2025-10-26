@@ -395,9 +395,18 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
   }
 }
 
+DateTime _dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
+
 extension DateCompare on DateTime {
-  bool isAfterOrSame(DateTime other) =>
-      isAfter(other) || isAtSameMomentAs(other);
-  bool isBeforeOrSame(DateTime other) =>
-      isBefore(other) || isAtSameMomentAs(other);
+  bool isAfterOrSame(DateTime other) {
+    final current = _dateOnly(this);
+    final target = _dateOnly(other);
+    return current.isAfter(target) || current.isAtSameMomentAs(target);
+  }
+
+  bool isBeforeOrSame(DateTime other) {
+    final current = _dateOnly(this);
+    final target = _dateOnly(other);
+    return current.isBefore(target) || current.isAtSameMomentAs(target);
+  }
 }
