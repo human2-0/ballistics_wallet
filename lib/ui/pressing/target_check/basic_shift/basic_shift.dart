@@ -324,7 +324,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
 
             //add a new widget to the row
             if (!showList) const CustomSaveButton(),
-            const SizedBox(height: 16,),
+            const SizedBox(height: 8,),
             // const SlideToOvertime(),
           ],
         ),

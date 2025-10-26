@@ -4,7 +4,6 @@ import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
 import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/basic_shift.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_check/overtime_shift/overtime_shift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,7 +20,6 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   final allowanceController = TextEditingController();
   late AnimationController _flipController;
   late Animation<double> _flipAnimation;
-  double _startPosition = 0;
 
   @override
   void initState() {
@@ -58,10 +56,6 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWideScreen = constraints.maxWidth > 500;
-        final containerWidth = isWideScreen
-            ? MediaQuery.of(context).size.width * 0.40
-            : MediaQuery.of(context).size.width * 0.85;
 
         return GestureDetector(
           onTap: () {
@@ -102,8 +96,8 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
                 child: IndexedStack(
                   alignment: Alignment.topCenter,
                   index: (_flipController.value < 0.5) ? 0 : 1,
-                  children: [
-                    const BasicShift(
+                  children: const [
+                    BasicShift(
                     ), // FrontFlipCard
                     // Transform(
                     //   alignment: Alignment.center,
