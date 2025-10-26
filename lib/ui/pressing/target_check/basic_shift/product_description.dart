@@ -58,7 +58,7 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
   final product = ref.read(focusedProductProvider);
   final originalDescription = product.description ?? '';
   final controller = TextEditingController(text: originalDescription);
-  final history = ref
+  final historyFuture = ref
       .read(bonusInfoListProvider.notifier)
       .getProductHistory(product.productName);
 
@@ -192,9 +192,19 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                                         DateFormat.yMMMd().format(entry.date)),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: Text(
+                                      '£ ${entry.bonus.toStringAsFixed(0)}'),
+                                  subtitle: Text(
+                                      DateFormat.yMMMd().format(entry.date)),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
