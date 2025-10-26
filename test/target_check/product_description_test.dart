@@ -36,24 +36,20 @@ void main() {
       ],
     );
 
-    final history = [
-      MapEntry(entryA, entryA.produced.first),
-      MapEntry(entryB, entryB.produced.first),
-      MapEntry(entryC, entryC.produced.first),
-    ];
+    final history = [entryA, entryB, entryC];
 
     test('sorts by latest date first', () {
       final sorted = sortHistoryEntries(history, HistoryFilter.latest);
 
-      expect(sorted.first.key, entryC);
-      expect(sorted.last.key, entryB);
+      expect(sorted.first, entryC);
+      expect(sorted.last, entryB);
     });
 
     test('sorts by oldest date first', () {
       final sorted = sortHistoryEntries(history, HistoryFilter.oldest);
 
-      expect(sorted.first.key, entryB);
-      expect(sorted.last.key, entryC);
+      expect(sorted.first, entryB);
+      expect(sorted.last, entryC);
     });
 
     test('sorts by highest bonus with date tie-breaker', () {
@@ -61,17 +57,12 @@ void main() {
         bonus: entryC.bonus,
         date: entryC.date.subtract(const Duration(days: 1)),
       );
-      final sorted = sortHistoryEntries(
-        [
-          ...history,
-          MapEntry(extra, extra.produced.first),
-        ],
-        HistoryFilter.highestBonus,
-      );
+      final sorted =
+          sortHistoryEntries([...history, extra], HistoryFilter.highestBonus);
 
-      expect(sorted.first.key, entryC);
-      expect(sorted[1].key, extra);
-      expect(sorted[2].key, entryB);
+      expect(sorted.first, entryC);
+      expect(sorted[1], extra);
+      expect(sorted[2], entryB);
     });
   });
 }

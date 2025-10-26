@@ -49,6 +49,12 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
+    await _googleSignIn.signOut();
+    try {
+      await _googleSignIn.disconnect();
+    } catch (_) {
+      // ignore disconnect errors and proceed with Firebase sign-out
+    }
     await _auth.signOut();
   }
 

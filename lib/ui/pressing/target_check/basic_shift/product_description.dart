@@ -22,17 +22,13 @@ extension HistoryFilterLabel on HistoryFilter {
   }
 }
 
-List<MapEntry<BonusInfo, Produced>> sortHistoryEntries(
-  List<MapEntry<BonusInfo, Produced>> history,
+List<BonusInfo> sortHistoryEntries(
+  List<BonusInfo> history,
   HistoryFilter filter,
 ) {
   final sorted = [...history];
-  int compareByDate(MapEntry<BonusInfo, Produced> a,
-          MapEntry<BonusInfo, Produced> b) =>
-      a.key.date.compareTo(b.key.date);
-  int compareByBonus(MapEntry<BonusInfo, Produced> a,
-          MapEntry<BonusInfo, Produced> b) =>
-      a.key.bonus.compareTo(b.key.bonus);
+  int compareByDate(BonusInfo a, BonusInfo b) => a.date.compareTo(b.date);
+  int compareByBonus(BonusInfo a, BonusInfo b) => a.bonus.compareTo(b.bonus);
 
   switch (filter) {
     case HistoryFilter.latest:
@@ -78,6 +74,7 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
       var selectedFilter = HistoryFilter.latest;
       return StatefulBuilder(
         builder: (context, setState) {
+          final sortedHistory = sortHistoryEntries(history, selectedFilter);
           return Padding(
             padding: EdgeInsets.only(
               left: 24,
@@ -159,57 +156,41 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                   const SizedBox(height: 8),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.3,
-                    child: FutureBuilder<List<MapEntry<BonusInfo, Produced>>>(
-                      future: historyFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child: Text('Unable to load history.'),
-                          );
-                        }
-
-                        final historyEntries = snapshot.data ??
-                            <MapEntry<BonusInfo, Produced>>[];
-                        if (historyEntries.isEmpty) {
-                          return const Center(
-                            child: Text('No history available.'),
-                          );
-                        }
-
-                        final sortedHistory =
-                            sortHistoryEntries(historyEntries, selectedFilter);
-                        return ListView.builder(
-                          itemCount: sortedHistory.length,
-                          itemBuilder: (context, index) {
-                            final entry = sortedHistory[index].key;
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4),
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black
-                                          .withValues(alpha: 0.1),
-                                      offset: const Offset(4, 4),
-                                      blurRadius: 6,
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.white
-                                          .withValues(alpha: 0.7),
-                                      offset: const Offset(-4, -4),
-                                      blurRadius: 6,
-                                    ),
-                                  ],
+                    child: history.isEmpty
+                        ? const Center(child: Text('No history available.'))
+                        : ListView.builder(
+                            itemCount: sortedHistory.length,
+                            itemBuilder: (context, index) {
+                              final entry = sortedHistory[index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
+                                        offset: const Offset(4, 4),
+                                        blurRadius: 6,
+                                      ),
+                                      BoxShadow(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.7),
+                                        offset: const Offset(-4, -4),
+                                        blurRadius: 6,
+                                      ),
+                                    ],
+                                  ),
+                                  child: ListTile(
+                                    dense: true,
+                                    title: Text(
+                                        '£ ${entry.bonus.toStringAsFixed(0)}'),
+                                    subtitle: Text(
+                                        DateFormat.yMMMd().format(entry.date)),
+                                  ),
                                 ),
                                 child: ListTile(
                                   dense: true,
