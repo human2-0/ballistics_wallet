@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart'
     show lastSelectedProductProvider;
@@ -6,11 +7,62 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+enum HistoryFilter { latest, oldest, highestBonus }
+
+extension HistoryFilterLabel on HistoryFilter {
+  String get label {
+    switch (this) {
+      case HistoryFilter.latest:
+        return 'Latest';
+      case HistoryFilter.oldest:
+        return 'Oldest';
+      case HistoryFilter.highestBonus:
+        return 'Highest bonus';
+    }
+  }
+}
+
+List<MapEntry<BonusInfo, Produced>> sortHistoryEntries(
+  List<MapEntry<BonusInfo, Produced>> history,
+  HistoryFilter filter,
+) {
+  final sorted = [...history];
+  int compareByDate(MapEntry<BonusInfo, Produced> a,
+          MapEntry<BonusInfo, Produced> b) =>
+      a.key.date.compareTo(b.key.date);
+  int compareByBonus(MapEntry<BonusInfo, Produced> a,
+          MapEntry<BonusInfo, Produced> b) =>
+      a.key.bonus.compareTo(b.key.bonus);
+
+  switch (filter) {
+    case HistoryFilter.latest:
+      sorted.sort((a, b) {
+        final comparison = compareByDate(b, a);
+        return comparison == 0 ? compareByBonus(b, a) : comparison;
+      });
+      break;
+    case HistoryFilter.oldest:
+      sorted.sort((a, b) {
+        final comparison = compareByDate(a, b);
+        return comparison == 0 ? compareByBonus(b, a) : comparison;
+      });
+      break;
+    case HistoryFilter.highestBonus:
+      sorted.sort((a, b) {
+        final comparison = compareByBonus(b, a);
+        return comparison == 0 ? compareByDate(b, a) : comparison;
+      });
+      break;
+  }
+
+  return sorted;
+}
+
 Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
   final product = ref.read(focusedProductProvider);
   final originalDescription = product.description ?? '';
   final controller = TextEditingController(text: originalDescription);
-  final history = ref
+  final historyFuture = ref
       .read(bonusInfoListProvider.notifier)
       .getProductHistory(product.productName);
 
@@ -23,8 +75,10 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
     builder: (ctx) {
       // local state for “edit / view” mode
       var isEditing = originalDescription.isEmpty;
+      var selectedFilter = HistoryFilter.latest;
       return StatefulBuilder(
-        builder: (context, setState) => Padding(
+        builder: (context, setState) {
+          return Padding(
             padding: EdgeInsets.only(
               left: 24,
               right: 24,
@@ -75,46 +129,101 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'History',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      const Text(
+                        'History',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      DropdownButton<HistoryFilter>(
+                        value: selectedFilter,
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() {
+                            selectedFilter = value;
+                          });
+                        },
+                        underline: const SizedBox.shrink(),
+                        items: HistoryFilter.values
+                            .map(
+                              (filter) => DropdownMenuItem<HistoryFilter>(
+                                value: filter,
+                                child: Text(filter.label),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 8),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.3,
-                    child: history.isEmpty
-                        ? const Center(child: Text('No history available.'))
-                        : ListView.builder(
-                            itemCount: history.length,
-                            itemBuilder: (context, index) {
-                              final entry = history[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).cardColor,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        offset: const Offset(4, 4),
-                                        blurRadius: 6,
-                                      ),
-                                      BoxShadow(
-                                        color: Colors.white.withValues(alpha:0.7),
-                                        offset: const Offset(-4, -4),
-                                        blurRadius: 6,
-                                      ),
-                                    ],
-                                  ),
-                                  child: ListTile(
-                                    dense: true,
-                                    title: Text('£ ${entry.bonus.toStringAsFixed(0)}'),
-                                    subtitle: Text(DateFormat.yMMMd().format(entry.date)),
-                                  ),
+                    child: FutureBuilder<List<MapEntry<BonusInfo, Produced>>>(
+                      future: historyFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text('Unable to load history.'),
+                          );
+                        }
+
+                        final historyEntries = snapshot.data ??
+                            <MapEntry<BonusInfo, Produced>>[];
+                        if (historyEntries.isEmpty) {
+                          return const Center(
+                            child: Text('No history available.'),
+                          );
+                        }
+
+                        final sortedHistory =
+                            sortHistoryEntries(historyEntries, selectedFilter);
+                        return ListView.builder(
+                          itemCount: sortedHistory.length,
+                          itemBuilder: (context, index) {
+                            final entry = sortedHistory[index].key;
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black
+                                          .withValues(alpha: 0.1),
+                                      offset: const Offset(4, 4),
+                                      blurRadius: 6,
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.white
+                                          .withValues(alpha: 0.7),
+                                      offset: const Offset(-4, -4),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: Text(
+                                      '£ ${entry.bonus.toStringAsFixed(0)}'),
+                                  subtitle: Text(
+                                      DateFormat.yMMMd().format(entry.date)),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -124,8 +233,10 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                         OutlinedButton(
                           onPressed: () => setState(() => isEditing = true),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Theme.of(context).primaryColor),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            side: BorderSide(
+                                color: Theme.of(context).primaryColor),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
                           child: const Text('Edit'),
                         ),
@@ -137,7 +248,8 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
                           child: const Text('Cancel'),
                         ),
@@ -146,22 +258,30 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                           onPressed: () => Navigator.pop(ctx),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: Colors.grey.shade600),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
                           child: const Text('Close'),
                         ),
                       if (isEditing)
                         ElevatedButton(
                           onPressed: () async {
-                            final updated = product.copyWith(description: controller.text);
-                            await ref.read(productInfoProvider.notifier).editProductInfo(updated);
-                            await ref.read(lastSelectedProductProvider.notifier).saveSelectedProduct(updated);
-                            ref.read(focusedProductProvider.notifier).state = updated;
+                            final updated =
+                                product.copyWith(description: controller.text);
+                            await ref
+                                .read(productInfoProvider.notifier)
+                                .editProductInfo(updated);
+                            await ref
+                                .read(lastSelectedProductProvider.notifier)
+                                .saveSelectedProduct(updated);
+                            ref.read(focusedProductProvider.notifier).state =
+                                updated;
                             if (ctx.mounted) Navigator.pop(ctx);
                           },
                           style: ElevatedButton.styleFrom(
                             elevation: 4,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
                           child: const Text('Save'),
                         ),
@@ -170,7 +290,8 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                 ],
               ),
             ),
-          ),
+          );
+        },
       );
     },
   );

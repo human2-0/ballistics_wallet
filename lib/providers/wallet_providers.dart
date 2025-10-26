@@ -82,12 +82,20 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   double getProductRatio(String productName) =>
       _productRatios[productName] ?? 0;
 
-  /// Returns all bonus entries for a given product, including date and amount.
-  List<BonusInfo> getProductHistory(String productName) {
-    return state.bonusInfo
-        .where(
-            (entry) => entry.produced.any((p) => p.productName == productName),)
-        .toList();
+  /// Returns all bonus entries for a given product, including the produced
+  /// record that matched the filter.
+  Future<List<MapEntry<BonusInfo, Produced>>> getProductHistory(
+      String productName) async {
+    final matches = <MapEntry<BonusInfo, Produced>>[];
+    for (final entry in state.bonusInfo) {
+      for (final produced in entry.produced) {
+        if (produced.productName == productName) {
+          matches.add(MapEntry(entry, produced));
+        }
+      }
+    }
+
+    return matches;
   }
 
   Future<void> loadBonusInfos() async {
