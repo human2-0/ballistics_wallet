@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
     authDomain: 'boost-ballistics.firebaseapp.com',
-    storageBucket: 'boost-ballistics.appspot.com',
+    storageBucket: 'boost-ballistics.firebasestorage.app',
     measurementId: 'G-R1GHM6LN43',
   );
 
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:291226983840:android:f4faf9410dda26d772d8c5',
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
-    storageBucket: 'boost-ballistics.appspot.com',
+    storageBucket: 'boost-ballistics.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:291226983840:ios:d86440c222d0293872d8c5',
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
-    storageBucket: 'boost-ballistics.appspot.com',
+    storageBucket: 'boost-ballistics.firebasestorage.app',
     androidClientId: '291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com',
     iosClientId: '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
     iosBundleId: 'lush.co.uk.ballisticsWalletFlutter',
@@ -74,7 +74,7 @@ class DefaultFirebaseOptions {
     appId: '1:291226983840:ios:d86440c222d0293872d8c5',
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
-    storageBucket: 'boost-ballistics.appspot.com',
+    storageBucket: 'boost-ballistics.firebasestorage.app',
     androidClientId: '291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com',
     iosClientId: '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
     iosBundleId: 'lush.co.uk.ballisticsWalletFlutter',
@@ -86,7 +86,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
     authDomain: 'boost-ballistics.firebaseapp.com',
-    storageBucket: 'boost-ballistics.appspot.com',
+    storageBucket: 'boost-ballistics.firebasestorage.app',
     measurementId: 'G-3Q5B2M5X9X',
   );
 

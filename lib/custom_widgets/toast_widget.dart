@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class ToastWidget extends StatefulWidget {
@@ -18,6 +20,7 @@ class ToastWidget extends StatefulWidget {
 
 class _ToastWidgetState extends State<ToastWidget>
     with SingleTickerProviderStateMixin {
+  Timer? _hideTimer;
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
 
@@ -30,21 +33,22 @@ class _ToastWidgetState extends State<ToastWidget>
     );
     _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
 
-    _controller.forward();
-
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (mounted && !_controller.isDisposed) {
-        await _reverseAnimation();
-      }
+    // Start the fade-in on the first frame to avoid setState during build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(_controller.forward());
     });
-  }
 
-  Future<void> _reverseAnimation() async {
-    await _controller.reverse();
+    // Schedule the fade-out using a cancellable timer (no async gap issues).
+    _hideTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      unawaited(_controller.reverse());
+    });
   }
 
   @override
   void dispose() {
+    _hideTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -140,8 +144,4 @@ void showToast(
   Future<void>.delayed(const Duration(milliseconds: 3500), () {
     if (overlayEntry.mounted) overlayEntry.remove();
   });
-}
-
-extension AnimationControllerExtension on AnimationController {
-  bool get isDisposed => status == AnimationStatus.dismissed;
 }

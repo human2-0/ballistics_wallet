@@ -17,12 +17,9 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
   @override
   void initState() {
     super.initState();
-    if (ref.read(userNotifierProvider).backup == null) {
-      scheduleMicrotask(() async => ref.read(authRepositoryProvider).signOut());
-    }
-    scheduleMicrotask(
-      () async => ref.read(backupManagerProvider.notifier).checkActiveState(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(backupManagerProvider.notifier).checkActiveState();
+    });
   }
 
   bool _isLoading = false;
@@ -31,27 +28,47 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
     setState(() {
       _isLoading = true;
     });
-    try {
-      await ref.read(userNotifierProvider.notifier).doBackUp(true);
-      await ref.read(backupManagerProvider.notifier).backupData();
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+    var retried = false;
+
+    Future<void> showSnack(String text) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Successfully uploaded data.'),
-            duration: Duration(seconds: 5),
-          ),
+          SnackBar(content: Text(text), duration: const Duration(seconds: 5)),
         );
       });
-    } on FormatException catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to back up data: $e'),
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      });
-    } finally {
+    }
+
+    while (true) {
+      try {
+        await ref.read(backupManagerProvider.notifier).backupData();
+        await ref.read(userNotifierProvider.notifier).doBackUp(true);
+        await showSnack('Successfully uploaded data.');
+        break;
+      } on FormatException catch (e) {
+        final msg = e.toString().toLowerCase(); // normalize for matching
+        // Decoupled handling: repository throws domain errors; detect by code in message
+        if (!retried && msg.contains('notsignedin')) {
+          retried = true;
+          await ref.read(authRepositoryProvider).signInWithGoogle(); // interactive on tap
+          continue; // retry once
+        }
+        if (!retried && msg.contains('missingdrivescope')) {
+          retried = true;
+          // Request Drive scope on explicit user action
+          await ref.read(authRepositoryProvider).ensureDriveFileScope();
+          continue; // retry once
+        }
+        await showSnack('Failed to back up data: $e');
+        break;
+      } finally {
+        // Refresh the silent UI state regardless of outcome
+        await ref.read(backupManagerProvider.notifier).checkActiveState();
+      }
+    }
+
+    if (mounted) {
       setState(() {
         _isLoading = false;
       });
@@ -122,7 +139,6 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
       if (!_isLoading && confirm) {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
           await _backupData(context, ref);
-          await ref.read(userNotifierProvider.notifier).doBackUp(true);
           await ref.read(backupManagerProvider.notifier).checkActiveState();
         });
       }
@@ -141,9 +157,10 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
 
   @override
   Widget build(BuildContext context) {
+    final isActive = ref.watch(backupManagerProvider).isActive;
+    final isBackupOn = ref.watch(userNotifierProvider).backup ?? false;
     return ListTile(
-      leading: (ref.watch(backupManagerProvider).isActive &&
-              ref.watch(userNotifierProvider).backup!)
+      leading: (isActive && isBackupOn)
           ? const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

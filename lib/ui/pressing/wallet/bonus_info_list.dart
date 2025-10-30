@@ -142,16 +142,16 @@ class _BonusInfoListState extends ConsumerState<BonusInfoList> {
                       .deleteBonusInfo(info);
                   return true;
                 case 'edit':
-                  // Implement edit logic here, showing another modal to edit the item
-                  await showModalBottomSheet<Widget>(
+                  // Ensure the context is still mounted before showing a sheet.
+                  if (!context.mounted) return false;
+                  await showModalBottomSheet<void>(
                     context: context,
                     isScrollControlled: true,
-                    builder: (_) => EditBonusInfoModal(
+                    builder: (sheetContext) => EditBonusInfoModal(
                       bonusInfo: info,
                       index: index,
                     ),
                   );
-
                   return false;
                 case 'cancel':
                 default:

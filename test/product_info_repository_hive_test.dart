@@ -29,7 +29,7 @@ void main() {
   });
 
   test('addProduct stores product and fetchProductInfo retrieves it', () async {
-    final pressing = Pressing('Red', 1.0, 2.0);
+    const pressing = Pressing('Red', 1, 2);
     final product = ProductInfo(
       productName: 'Widget',
       target: 100,
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('editProductInfo updates an existing product', () async {
-    final pressing = Pressing('Blue', 2.0, 3.0);
+    const pressing = Pressing('Blue', 2, 3);
     final product = ProductInfo(
       productName: 'Gadget',
       target: 50,
@@ -62,7 +62,7 @@ void main() {
   });
 
   test('deleteProduct removes product from box', () async {
-    final pressing = Pressing('Green', 3.0, 4.0);
+    const pressing = Pressing('Green', 3, 4);
     final product = ProductInfo(
       productName: 'Thing',
       target: 20,

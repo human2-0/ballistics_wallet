@@ -36,7 +36,7 @@ void main() {
     final user = UserSettings(userId: 'user2');
     await repo.saveOrUpdateUserData(user);
 
-    final success = await repo.editWorkingHours('user2', 8.0);
+    final success = await repo.editWorkingHours('user2', 8);
     final updated = await repo.getUserData('user2');
     expect(success, true);
     expect(updated?.workingHours, 7.0);
@@ -48,7 +48,7 @@ void main() {
     await repo.saveOrUpdateUserData(user);
 
     await repo.editPaidBreaks('user3', true);
-    await repo.editHourlyRate('user3', 20.0);
+    await repo.editHourlyRate('user3', 20);
 
     final updated = await repo.getUserData('user3');
     expect(updated?.paidBreaks, true);
@@ -56,9 +56,9 @@ void main() {
   });
 
   test('calculateEffectiveWorkingHours returns expected values', () {
-    expect(repo.calculateEffectiveWorkingHours(8.0), 7.0);
-    expect(repo.calculateEffectiveWorkingHours(6.0), 5.5);
-    expect(repo.calculateEffectiveWorkingHours(4.0), 3.75);
-    expect(repo.calculateEffectiveWorkingHours(5.0), 5.0);
+    expect(repo.calculateEffectiveWorkingHours(8), 7.0);
+    expect(repo.calculateEffectiveWorkingHours(6), 5.5);
+    expect(repo.calculateEffectiveWorkingHours(4), 3.75);
+    expect(repo.calculateEffectiveWorkingHours(5), 5.0);
   });
 }

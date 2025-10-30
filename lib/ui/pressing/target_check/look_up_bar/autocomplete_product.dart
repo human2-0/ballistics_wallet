@@ -146,7 +146,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                         productName: product.productName,),
                                   );
                                 });
-                                break;
 
                               case 'edit':
                                 WidgetsBinding.instance
@@ -154,7 +153,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                   await showEditProductDialog(context, ref,
                                       product: product,);
                                 });
-                                break;
                               case 'cancel':
                               default:
                                 // Do nothing for cancel or undefined actions

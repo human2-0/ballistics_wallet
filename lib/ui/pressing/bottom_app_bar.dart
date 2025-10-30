@@ -25,10 +25,12 @@ class RootBottomBar extends ConsumerStatefulWidget {
 class _RootBottomBarState extends ConsumerState<RootBottomBar>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  ProviderSubscription<int?>? _activeIndexTabSub;
 
   int activeIndex = 0;
 
   void setActiveTab(int index) {
+    if (activeIndex == index) return;
     setState(() {
       activeIndex = index;
     });
@@ -53,6 +55,22 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
     _tabController = TabController(length: 4, vsync: this);
     _tabController.animation!.addListener(_handleTabAnimation);
+    // Riverpod listener for external tab index requests
+    _activeIndexTabSub = ref.listenManual<int?>
+    (
+      activeIndexTabProvider,
+      (previous, next) {
+        if (!mounted || next == null) return;
+        if (_tabController.index != next) {
+          _tabController.animateTo(next);
+        }
+        if (activeIndex != next) {
+          setActiveTab(next);
+        }
+        // Reset the provider to avoid repeated triggers
+        ref.read(activeIndexTabProvider.notifier).updateIndex(null);
+      },
+    );
   }
 
   void _handleTabAnimation() {
@@ -65,6 +83,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   @override
   void dispose() {
+    _activeIndexTabSub?.close();
     _tabController.dispose();
     super.dispose();
   }
@@ -78,6 +97,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
       'assets/wallet_screen.webp',
       'assets/profile_screen.webp',
     ]) {
+      // Start caching without awaiting to avoid blocking the UI thread.
       await precacheImage(AssetImage(path), context);
     }
   }
@@ -99,19 +119,6 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   @override
   Widget build(BuildContext context) {
-    final activeIndex = ref.watch(activeIndexTabProvider);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (activeIndex == 1) {
-        setActiveTab(1);
-        _tabController.animateTo(activeIndex);
-      }
-
-      if (activeIndex != 0) {
-        ref.read(activeIndexTabProvider.notifier).updateIndex(null);
-      }
-    });
-
     return Scaffold(
       endDrawerEnableOpenDragGesture: false,
       endDrawer: ref.watch(bonusTableSelectorProvider)

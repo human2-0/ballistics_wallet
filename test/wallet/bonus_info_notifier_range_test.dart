@@ -14,10 +14,10 @@ void main() {
 
   setUpAll(() async {
     tempDir = await Directory.systemTemp.createTemp('wallet_provider_test');
-    Hive.init(tempDir.path);
-    Hive.registerAdapter(ProducedAdapter());
-    Hive.registerAdapter(BonusInfoAdapter());
-    Hive.registerAdapter(CustomDateRangeAdapter());
+    Hive..init(tempDir.path)
+    ..registerAdapter(ProducedAdapter())
+    ..registerAdapter(BonusInfoAdapter())
+    ..registerAdapter(CustomDateRangeAdapter());
   });
 
   tearDownAll(() async {
@@ -71,9 +71,9 @@ void main() {
     await rangeBox.put(
       'myCustomDateRange',
       CustomDateRange(
-        hoursStart: DateTime(2024, 7, 1),
+        hoursStart: DateTime(2024, 7),
         hoursEnd: DateTime(2024, 7, 3),
-        bonusStart: DateTime(2024, 7, 1),
+        bonusStart: DateTime(2024, 7),
         bonusEnd: DateTime(2024, 7, 3),
       ),
     );

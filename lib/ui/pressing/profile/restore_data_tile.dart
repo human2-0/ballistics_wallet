@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:flutter/material.dart';
@@ -20,43 +21,59 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
       _isLoading = true;
     });
 
-    try {
-      final hasPermission =
-          await ref.read(backupManagerProvider.notifier).requestPermissions();
-      if (!mounted) return;
-
-      if (hasPermission) {
-        await ref.read(backupManagerProvider.notifier).restoreBackup();
-        if (!mounted) return;
-
-        await ref.read(bonusInfoListProvider.notifier).refreshHive();
-        if (!mounted) return;
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Successfully restored data.'),
-                duration: Duration(seconds: 5),
-              ),
-            );
-          }
-        });
-      }
-    } on FormatException catch (e) {
-      if (!mounted) return;
-
+    // helper: show snack later on UI thread
+    Future<void> snack(String text) async {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to restore data: $e'),
-              duration: const Duration(seconds: 5),
-            ),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(text), duration: const Duration(seconds: 5)),
+        );
       });
+    }
+
+    // Retry-once wrapper: repo stays non-interactive; UI triggers sign-in/scope only if needed
+    Future<void> restoreWithRetries() async {
+      var retried = false;
+      while (true) {
+        try {
+          // keep your storage permission check here, it's non-interactive
+          final hasPermission = await ref.read(backupManagerProvider.notifier).requestPermissions();
+          if (!hasPermission) {
+            throw const FormatException('Storage permission not granted.');
+          }
+
+          await ref.read(backupManagerProvider.notifier).restoreBackup(); // non-interactive
+          return;
+        } catch (e) {
+          final msg = e.toString().toLowerCase();
+          if (!retried && msg.contains('notsignedin')) {
+            retried = true;
+            await ref.read(authRepositoryProvider).signInWithGoogle(); // interactive on tap
+            continue;
+          }
+          if (!retried && msg.contains('missingdrivescope')) {
+            retried = true;
+            await ref.read(authRepositoryProvider).ensureDriveFileScope(); // interactive on tap
+            continue;
+          }
+          rethrow;
+        }
+      }
+    }
+
+    try {
+      await restoreWithRetries();
+
+      // refresh local cache/UI after successful restore
+      if (!mounted) return;
+      await ref.read(bonusInfoListProvider.notifier).refreshHive();
+
+      await snack('Successfully restored data.');
+    } on FormatException catch (e) {
+      await snack('Failed to restore data: $e');
     } finally {
+      // Always refresh the silent active state to keep icons accurate
+      await ref.read(backupManagerProvider.notifier).checkActiveState();
       if (mounted) {
         setState(() {
           _isLoading = false;

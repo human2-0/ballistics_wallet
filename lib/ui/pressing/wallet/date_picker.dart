@@ -173,7 +173,7 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
           value: [selectedDate],
           onValueChanged: (values) {
             if (values.isNotEmpty) {
-              ref.read(selectedDateProvider.notifier).state = values.first!;
+              ref.read(selectedDateProvider.notifier).state = values.first;
             }
           },
         ),

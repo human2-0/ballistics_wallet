@@ -97,7 +97,6 @@ class LastSelectedProducts extends ConsumerWidget {
                                 ),
                               );
                             });
-                            break;
 
                           case 'edit':
                             WidgetsBinding.instance
@@ -109,7 +108,6 @@ class LastSelectedProducts extends ConsumerWidget {
                               );
 
                             });
-                            break;
                           case 'cancel':
                           default:
                             // Do nothing for cancel or undefined actions

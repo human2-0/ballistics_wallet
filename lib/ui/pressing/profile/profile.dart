@@ -123,8 +123,14 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               child: Text('Account'),
             ),
-            const BackUpDataTile(),
-            const RestoreDataTile(),
+            const ExpansionTile(
+              leading: Icon(Icons.cloud_outlined),
+              title: Text('Backup & Restore'),
+              children: [
+                BackUpDataTile(),
+                RestoreDataTile(),
+              ],
+            ),
             const Divider(),
             const Padding(
               padding: EdgeInsets.fromLTRB(
@@ -178,9 +184,9 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                 style: TextStyle(color: Colors.red),
               ),
               onTap: () async {
-                // Trigger sign out logic
                 await authRepo.signOut();
-                // Close the drawer
+                if (!context.mounted) return;
+                Navigator.of(context).pop();
               },
             ),
             ListTile(
@@ -209,9 +215,6 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
                         backgroundImage: NetworkImage(
                           userState.avatarUrl ?? 'http://non-existing.com',
                         ),
-                        onBackgroundImageError: (_, __) {
-                          debugPrint(_.toString());
-                        },
                         child: userState.avatarUrl == null
                             ? const Image(
                                 image: AssetImage('assets/default_avatar.webp'),

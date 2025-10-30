@@ -56,8 +56,8 @@ class _MinimumAnimatedTileState extends ConsumerState<MinimumAnimatedTile>
         ref.read(activeIndexTabProvider.notifier).updateIndex(1);
         context.pop();
       },
-      onLongPress: () {
-        _controller.forward();
+      onLongPress: () async {
+        await _controller.forward();
       },
       onLongPressUp: () {
         _controller.reset();
@@ -182,8 +182,8 @@ class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
         ref.read(activeIndexTabProvider.notifier).updateIndex(1);
         context.pop();
       },
-      onLongPress: () {
-        _controller.forward();
+      onLongPress: () async {
+        await _controller.forward();
       },
       onLongPressUp: () {
         _controller.reset();

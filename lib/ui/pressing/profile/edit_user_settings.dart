@@ -26,6 +26,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
   void dispose() {
     _hoursController.dispose();
     _minutesController.dispose();
+    _hourlyRateController.dispose();
     super.dispose();
   }
 
@@ -78,7 +79,7 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
                 controller: _hourlyRateController,
                 hintText: 'New hourly rate',
                 labelText: 'New hourly rate',
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
               const SizedBox(height: 16),
               Row(
@@ -95,9 +96,8 @@ class _EditWorkingHoursDialogState extends State<EditWorkingHoursDialog> {
                     onPressed: () {
                       final hours = int.tryParse(_hoursController.text) ?? 0;
                       final minutes = int.tryParse(_minutesController.text) ?? 0;
-                      final hourlyRate = double.tryParse(
-                        _hourlyRateController.text,
-                      ) ?? 0;
+                      final hourlyRateText = _hourlyRateController.text.replaceAll(',', '.');
+                      final hourlyRate = double.tryParse(hourlyRateText) ?? 0;
 
                       // Convert hours and minutes to a double representing the total hours
                       final totalHours = hours + (minutes / 60.0);

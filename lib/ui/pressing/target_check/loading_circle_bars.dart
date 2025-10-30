@@ -105,13 +105,14 @@ class RainbowCircularProgressIndicatorState extends State<RainbowCircularProgres
   late Animation<double> _progressAnimation;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
 
     _colorRotationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat();
+    );
+   await AnimationController(vsync: this).repeat();
 
     _progressController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -123,20 +124,20 @@ class RainbowCircularProgressIndicatorState extends State<RainbowCircularProgres
       end: ((widget.percentage - 100) / 71.5).clamp(0.0, 1.0),
     ).animate(_progressController);
 
-    _progressController.forward();
+    await _progressController.forward();
   }
 
   @override
-  void didUpdateWidget(covariant RainbowCircularProgressIndicator oldWidget) {
+  Future<void> didUpdateWidget(covariant RainbowCircularProgressIndicator oldWidget)async  {
     super.didUpdateWidget(oldWidget);
     if (widget.percentage != oldWidget.percentage) {
       _progressAnimation = Tween<double>(
         begin: _progressAnimation.value,
         end: ((widget.percentage - 100) / 71.5).clamp(0.0, 1.0),
       ).animate(_progressController);
-      _progressController
-        ..reset()
-        ..forward();
+      
+      _progressController.reset();
+      await _progressController.forward();
     }
   }
 
@@ -230,7 +231,7 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
   late Animation<double> _progressAnimation;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
@@ -243,11 +244,11 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
       parent: _controller,
       curve: Curves.easeInOutCubic,
     ),);
-    _controller.forward();
+    await _controller.forward();
   }
 
   @override
-  void didUpdateWidget(MinimumCircle oldWidget) {
+  Future<void> didUpdateWidget(MinimumCircle oldWidget) async {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.percentage != widget.percentage) {
       _progressAnimation = Tween<double>(
@@ -257,7 +258,7 @@ class MinimumCircleState extends State<MinimumCircle> with SingleTickerProviderS
         parent: _controller,
         curve: Curves.easeInOutCubic,
       ),);
-      _controller.forward(from: 0);
+      await _controller.forward(from: 0);
     }
   }
 

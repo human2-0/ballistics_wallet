@@ -13,7 +13,7 @@ void main() {
   });
 
   test('addProduct and fetchProductInfo work with Firestore', () async {
-    final pressing = Pressing('Red', 1.0, 2.0);
+    const pressing = Pressing('Red', 1, 2);
     await repo.addProduct('Widget', 100, [pressing]);
 
     final products = await repo.fetchProductInfo();
@@ -22,7 +22,7 @@ void main() {
   });
 
   test('editProductInfo updates product in Firestore', () async {
-    final pressing = Pressing('Blue', 2.0, 3.0);
+    const pressing = Pressing('Blue', 2, 3);
     await repo.addProduct('Gadget', 50, [pressing]);
 
     final updated = ProductInfo(
@@ -39,7 +39,7 @@ void main() {
   });
 
   test('deleteProduct removes product from Firestore', () async {
-    final pressing = Pressing('Green', 3.0, 4.0);
+    const pressing = Pressing('Green', 3, 4);
     await repo.addProduct('Thing', 20, [pressing]);
 
     await repo.deleteProduct('Thing');

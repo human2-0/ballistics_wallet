@@ -19,7 +19,7 @@ class TargetButtonState extends ConsumerState<TargetButton>
   late Animation<Color?> _colorAnimation;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     _rotationController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -41,13 +41,13 @@ class TargetButtonState extends ConsumerState<TargetButton>
 
 
     if (widget.productName.isNotEmpty) {
-      _rotationController.repeat();
-      _pulseController.repeat(reverse: true);
+      await _rotationController.repeat();
+      await _pulseController.repeat(reverse: true);
     }
   }
 
   @override
-  void didUpdateWidget(covariant TargetButton oldWidget) {
+  Future<void> didUpdateWidget(covariant TargetButton oldWidget) async {
     super.didUpdateWidget(oldWidget);
 
     if (widget.productName != oldWidget.productName) {
@@ -60,10 +60,10 @@ class TargetButtonState extends ConsumerState<TargetButton>
 
       if (widget.productName.isNotEmpty) {
         if (!_rotationController.isAnimating) {
-          _rotationController.repeat();
+          await _rotationController.repeat();
         }
         if (!_pulseController.isAnimating) {
-          _pulseController.repeat();
+          await _pulseController.repeat();
         }
       } else {
         _rotationController.stop();

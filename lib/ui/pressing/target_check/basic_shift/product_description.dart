@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+enum HistorySort { newest, oldest, highestBonus }
+
 Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
   final product = ref.read(focusedProductProvider);
   final originalDescription = product.description ?? '';
@@ -23,8 +25,21 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
     builder: (ctx) {
       // local state for “edit / view” mode
       var isEditing = originalDescription.isEmpty;
+      var sort = HistorySort.newest;
       return StatefulBuilder(
-        builder: (context, setState) => Padding(
+        builder: (context, setState) {
+          // Prepare a sorted copy of history according to the selected sort mode
+          final sortedHistory = [...history];
+          switch (sort) {
+            case HistorySort.highestBonus:
+              sortedHistory.sort((a, b) => b.bonus.compareTo(a.bonus));
+            case HistorySort.newest:
+              sortedHistory.sort((a, b) => b.date.compareTo(a.date));
+            case HistorySort.oldest:
+              sortedHistory.sort((a, b) => a.date.compareTo(b.date));
+          }
+
+          return Padding(
             padding: EdgeInsets.only(
               left: 24,
               right: 24,
@@ -75,18 +90,49 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'History',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      const Text(
+                        'History',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      Text(
+                        sort == HistorySort.highestBonus
+                            ? 'Highest bonus'
+                            : (sort == HistorySort.oldest ? 'Oldest' : 'Newest'),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(width: 8),
+                      PopupMenuButton<HistorySort>(
+                        tooltip: 'Sort history',
+                        icon: const Icon(Icons.sort),
+                        onSelected: (value) => setState(() => sort = value),
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(
+                            value: HistorySort.newest,
+                            child: Text('Newest'),
+                          ),
+                          PopupMenuItem(
+                            value: HistorySort.oldest,
+                            child: Text('Oldest'),
+                          ),
+                          PopupMenuItem(
+                            value: HistorySort.highestBonus,
+                            child: Text('Highest bonus'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.3,
                     child: history.isEmpty
                         ? const Center(child: Text('No history available.'))
                         : ListView.builder(
-                            itemCount: history.length,
+                            itemCount: sortedHistory.length,
                             itemBuilder: (context, index) {
-                              final entry = history[index];
+                              final entry = sortedHistory[index];
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4),
                                 child: DecoratedBox(
@@ -170,7 +216,8 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                 ],
               ),
             ),
-          ),
+          );
+        },
       );
     },
   );
