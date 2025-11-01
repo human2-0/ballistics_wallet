@@ -3,7 +3,6 @@ import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class MinimumAnimatedTile extends ConsumerStatefulWidget {
   const MinimumAnimatedTile({
@@ -52,9 +51,27 @@ class _MinimumAnimatedTileState extends ConsumerState<MinimumAnimatedTile>
   @override
   Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
+        // Update the amount first so state is ready when we return.
         ref.read(amountPerBatchProvider.notifier).state = widget.target;
-        ref.read(activeIndexTabProvider.notifier).updateIndex(1);
-        context.pop();
+
+        if (!context.mounted) return;
+
+        // Close the end drawer (do NOT pop the route via GoRouter).
+        final scaffold = Scaffold.maybeOf(context);
+        if (scaffold != null && scaffold.isEndDrawerOpen) {
+          scaffold.closeEndDrawer();
+        } else {
+          // Fallback: if this context is inside the drawer route, a plain Navigator.pop will close it.
+          final nav = Navigator.of(context);
+          if (nav.canPop()) {
+            nav.pop();
+          }
+        }
+
+        // Then request the tab switch on the Root scope.
+        await Future.microtask(() {
+          ref.read(activeIndexTabProvider.notifier).state = 1;
+        });
       },
       onLongPress: () async {
         await _controller.forward();
@@ -176,11 +193,28 @@ class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
   @override
   Widget build(BuildContext context) => GestureDetector(
       onTap: () async {
-        // await context.push('/split');
+        // Prepare state for the destination tab
         ref.read(requiredAmountProvider.notifier).state = widget.requiredAmount;
         ref.read(amountPerBatchProvider.notifier).state = widget.requiredAmount;
-        ref.read(activeIndexTabProvider.notifier).updateIndex(1);
-        context.pop();
+
+        if (!context.mounted) return;
+
+        // Close the end drawer (do NOT pop the route via GoRouter).
+        final scaffold = Scaffold.maybeOf(context);
+        if (scaffold != null && scaffold.isEndDrawerOpen) {
+          scaffold.closeEndDrawer();
+        } else {
+          // Fallback: if this context is inside the drawer route, a plain Navigator.pop will close it.
+          final nav = Navigator.of(context);
+          if (nav.canPop()) {
+            nav.pop();
+          }
+        }
+
+        // Then request the tab switch on the Root scope.
+        await Future.microtask(() {
+          ref.read(activeIndexTabProvider.notifier).state = 1;
+        });
       },
       onLongPress: () async {
         await _controller.forward();

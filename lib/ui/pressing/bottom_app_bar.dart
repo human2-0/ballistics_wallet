@@ -9,6 +9,7 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_check/overtime_shif
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/target_checker_main_tree.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_root.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,6 +29,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   ProviderSubscription<int?>? _activeIndexTabSub;
 
   int activeIndex = 0;
+  bool _isBottomBarVisible = true;
 
   void setActiveTab(int index) {
     if (activeIndex == index) return;
@@ -56,19 +58,18 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
     _tabController = TabController(length: 4, vsync: this);
     _tabController.animation!.addListener(_handleTabAnimation);
     // Riverpod listener for external tab index requests
-    _activeIndexTabSub = ref.listenManual<int?>
-    (
+    _activeIndexTabSub = ref.listenManual<int?>(
       activeIndexTabProvider,
-      (previous, next) {
-        if (!mounted || next == null) return;
-        if (_tabController.index != next) {
+      (prev, next) {
+        debugPrint('activeIndexTabProvider: $prev -> $next');
+        if (!mounted) return;
+        // Treat provider as an edge-triggered event: only react to null -> index transitions.
+        if (prev != null || next == null) return;
+        if (next >= 0 && next < _tabController.length && _tabController.index != next) {
           _tabController.animateTo(next);
         }
-        if (activeIndex != next) {
-          setActiveTab(next);
-        }
-        // Reset the provider to avoid repeated triggers
-        ref.read(activeIndexTabProvider.notifier).updateIndex(null);
+        // Reset to null after consumption so future events fire cleanly.
+        ref.read(activeIndexTabProvider.notifier).state = null;
       },
     );
   }
@@ -79,6 +80,26 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
     if (newIndex != activeIndex) {
       setActiveTab(newIndex);
     }
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    // Prefer UserScrollNotification for clear intent; fall back to metrics
+    if (notification is UserScrollNotification) {
+      final dir = notification.direction;
+      if (dir == ScrollDirection.reverse && _isBottomBarVisible) {
+        setState(() => _isBottomBarVisible = false);
+      } else if (dir == ScrollDirection.forward && !_isBottomBarVisible) {
+        setState(() => _isBottomBarVisible = true);
+      }
+    } else if (notification is ScrollUpdateNotification) {
+      final dir = notification.metrics.axisDirection;
+      if (dir == AxisDirection.up && _isBottomBarVisible) {
+        setState(() => _isBottomBarVisible = false);
+      } else if (dir == AxisDirection.down && !_isBottomBarVisible) {
+        setState(() => _isBottomBarVisible = true);
+      }
+    }
+    return false; // allow notifications to continue bubbling
   }
 
   @override
@@ -134,16 +155,19 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
             ),
           ),
           SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) => TabBarView(
-                controller: _tabController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: const <Widget>[
-                  TargetChecker(),
-                  SplitCheck(),
-                  WalletRoot(),
-                  ProfilePage(),
-                ],
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _handleScrollNotification,
+              child: LayoutBuilder(
+                builder: (context, constraints) => TabBarView(
+                  controller: _tabController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: const <Widget>[
+                    TargetChecker(),
+                    SplitCheck(),
+                    WalletRoot(),
+                    ProfilePage(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -151,7 +175,12 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
             bottom: 0,
             left: 0,
             right: 0,
-            child: buildBottomNavigationBar(context),
+            child: AnimatedSlide(
+              offset: Offset(0, _isBottomBarVisible ? 0 : 1.2),
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              child: buildBottomNavigationBar(context),
+            ),
           ),
         ],
       ),
@@ -161,7 +190,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
   Widget buildBottomNavigationBar(BuildContext context) => Container(
         height: MediaQuery.of(context).size.height * 0.08,
         decoration: BoxDecoration(
-          color: Colors.brown[50],
+          color: Colors.brown[50]!.withAlpha(128),
           borderRadius: BorderRadius.circular(66),
           boxShadow: const [
             BoxShadow(

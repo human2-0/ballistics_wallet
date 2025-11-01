@@ -80,15 +80,65 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                     child: TextField(
                       controller: controller,
                       maxLines: null,
+                      minLines: 3,
+                      autofocus: isEditing,
+                      textInputAction: TextInputAction.newline,
                       readOnly: !isEditing,
+                      maxLength: 400,
                       decoration: InputDecoration(
+                        labelText: 'Description',
                         hintText: isEditing
                             ? 'Add tips, tricks, sweet‑spot powder amounts, or anything else helpful…'
                             : null,
-                        border: const OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.10),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.35)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.75), width: 1.4),
+                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        counterText: '${controller.text.length}/400',
+                        counterStyle: Theme.of(context).textTheme.labelSmall,
+                        suffixIcon: isEditing
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    tooltip: 'Clear',
+                                    icon: const Icon(Icons.close),
+                                    onPressed: controller.clear,
+                                  ),
+                                ],
+                              )
+                            : null,
                       ),
                     ),
                   ),
+                  if (isEditing) ...[
+                    const SizedBox(height: 8),
+                    _DescriptionToolbar(
+                      onInsert: (s) {
+                        final sel = controller.selection;
+                        if (!sel.isValid) {
+                          controller..text += s
+                          ..selection = TextSelection.collapsed(offset: controller.text.length);
+                        } else {
+                          final newText = controller.text.replaceRange(sel.start, sel.end, s);
+                          final newOffset = sel.start + s.length;
+                          controller.value = controller.value.copyWith(
+                            text: newText,
+                            selection: TextSelection.collapsed(offset: newOffset),
+                            composing: TextRange.empty,
+                          );
+                        }
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -127,37 +177,16 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.3,
-                    child: history.isEmpty
+                    child: sortedHistory.isEmpty
                         ? const Center(child: Text('No history available.'))
-                        : ListView.builder(
+                        : ListView.separated(
                             itemCount: sortedHistory.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 6),
                             itemBuilder: (context, index) {
                               final entry = sortedHistory[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).cardColor,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        offset: const Offset(4, 4),
-                                        blurRadius: 6,
-                                      ),
-                                      BoxShadow(
-                                        color: Colors.white.withValues(alpha:0.7),
-                                        offset: const Offset(-4, -4),
-                                        blurRadius: 6,
-                                      ),
-                                    ],
-                                  ),
-                                  child: ListTile(
-                                    dense: true,
-                                    title: Text('£ ${entry.bonus.toStringAsFixed(0)}'),
-                                    subtitle: Text(DateFormat.yMMMd().format(entry.date)),
-                                  ),
-                                ),
+                              return _HistoryTile(
+                                date: entry.date,
+                                bonus: entry.bonus,
                               );
                             },
                           ),
@@ -221,4 +250,97 @@ Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
       );
     },
   );
+}
+
+class _HistoryTile extends StatelessWidget {
+  const _HistoryTile({required this.date, required this.bonus});
+  final DateTime date;
+  final double bonus;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surface = theme.colorScheme.surface;
+    final divider = theme.dividerColor.withValues(alpha: 0.20);
+    final primary = theme.colorScheme.primary;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Row(
+          children: [
+            // Amount pill (compact, high contrast)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: primary.withValues(alpha: 0.45)),
+              ),
+              child: Text(
+                '£ ${bonus.toStringAsFixed(0)}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Date, subtle
+            Expanded(
+              child: Text(
+                DateFormat.yMMMd().format(date),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DescriptionToolbar extends StatelessWidget {
+  const _DescriptionToolbar({required this.onInsert});
+  final void Function(String text) onInsert;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final chipStyle = theme.textTheme.labelSmall;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        const _QuickChip(label: '• bullet', insert: '• '),
+        const _QuickChip(label: 'Tip:', insert: 'Tip: '),
+        const _QuickChip(label: 'Note:', insert: 'Note: '),
+      ].map((c) => ActionChip(
+            label: Text(c.label, style: chipStyle),
+            onPressed: () => onInsert(c.insert),
+          )).toList(),
+    );
+  }
+}
+
+class _QuickChip {
+  const _QuickChip({required this.label, required this.insert});
+  final String label;
+  final String insert;
 }

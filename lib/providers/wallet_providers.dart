@@ -84,10 +84,14 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
 
   /// Returns all bonus entries for a given product, including date and amount.
   List<BonusInfo> getProductHistory(String productName) {
-    return state.bonusInfo
-        .where(
-            (entry) => entry.produced.any((p) => p.productName == productName),)
-        .toList();
+    final needle = productName.trim().toLowerCase();
+    if (needle.isEmpty) return const [];
+    return state.bonusInfo.where((entry) {
+      return entry.produced.any((p) {
+        final name = p.productName.trim().toLowerCase();
+        return name == needle;
+      });
+    }).toList();
   }
 
   Future<void> loadBonusInfos() async {

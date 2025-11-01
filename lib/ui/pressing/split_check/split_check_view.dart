@@ -9,6 +9,59 @@ import 'package:ballistics_wallet_flutter/ui/pressing/split_check/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+enum _ColorAction { custom, clearCustom }
+
+final perColorOverridesProvider = StateProvider<Map<String, int>>((ref) => {});
+
+Future<void> _showCustomAmountDialog(
+  BuildContext context,
+  WidgetRef ref, {
+  required String colorKey,
+  required int initialValue,
+}) async {
+  final controller = TextEditingController(text: initialValue.toString());
+  final focusNode = FocusNode();
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Custom amount per batch'),
+      content: CustomTextField(
+        controller: controller,
+        focusNode: focusNode,
+        hintText: 'Enter custom amount',
+        labelText: 'Amount per batch',
+        keyboardType: TextInputType.number,
+        showClearIcon: true,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final raw = controller.text.trim();
+            final next = {...ref.read(perColorOverridesProvider)};
+            if (raw.isEmpty) {
+              // Empty input clears the custom override (revert to global per-batch)
+              next.remove(colorKey);
+            } else {
+              final val = int.tryParse(raw);
+              if (val != null && val >= 0) {
+                // Allow any non-negative integer; 0 means contribute nothing
+                next[colorKey] = val;
+              }
+            }
+            ref.read(perColorOverridesProvider.notifier).state = next;
+            Navigator.of(ctx).pop();
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    ),
+  );
+}
+
 class SplitCheck extends ConsumerWidget {
   const SplitCheck({super.key});
 
@@ -309,63 +362,148 @@ class ResultsList extends ConsumerWidget {
     final list = ref.watch(focusedProductProvider).product;
     if (list.isEmpty) return const SizedBox.shrink();
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: list.length,
-      itemBuilder: (ctx, i) {
-        final item = list[i];
-        final powderKg = ((item.systemG * perBatch) / 1000).toStringAsFixed(2);
-        final citricKg =
-            ((item.systemCitric * perBatch) / 1000).toStringAsFixed(2);
-        final rawColor = extractColorName(item.productColor);
-        final bg = getColorFromString(rawColor);
-        final fg = getColorFromString(rawColor, accent: true);
+    final overrides = ref.watch(perColorOverridesProvider);
 
-        return Padding(
-          padding: const EdgeInsets.all(4),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(33),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (overrides.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Chip(label: Text('Custom: ${overrides.length}')),
+                TextButton(
+                  onPressed: () {
+                    ref.read(perColorOverridesProvider.notifier).state = {};
+                  },
+                  child: const Text('Reset all'),
+                ),
+              ],
             ),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: fg,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+        ],
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: list.length,
+          itemBuilder: (ctx, i) {
+            final item = list[i];
+            final colorKey = item.productColor;
+            final hasCustom = overrides.containsKey(colorKey);
+            final usedPerBatch = overrides[colorKey] ?? perBatch;
+
+            final powderKg =
+                ((item.systemG * usedPerBatch) / 1000).toStringAsFixed(2);
+            final citricKg =
+                ((item.systemCitric * usedPerBatch) / 1000).toStringAsFixed(2);
+            final rawColor = extractColorName(item.productColor);
+            final bg = getColorFromString(rawColor);
+            final fg = getColorFromString(rawColor, accent: true);
+
+            return Padding(
+              padding: const EdgeInsets.all(4),
+              child: Stack(
                 children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    child: Center(
-                      child: Text(
-                        extractColorNameForUser(item.productColor),
-                        style: const TextStyle(fontSize: 20),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.circular(33),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: fg,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    extractColorNameForUser(item.productColor),
+                                    style: const TextStyle(fontSize: 20),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  if (hasCustom)
+                                    const SizedBox(height: 4),
+                                  if (hasCustom)
+                                    const Text(
+                                      'Custom',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                'Powder: $powderKg kg',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              Text(
+                                'Citric: $citricKg kg',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '$usedPerBatch / batch',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  Column(
-                    children: [
-                      Text(
-                        'Powder: $powderKg kg',
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      Text(
-                        'Citric: $citricKg kg',
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ],
+                  Positioned(
+                    right: 2,
+                    top: 2,
+                    child: PopupMenuButton<_ColorAction>(
+                      onSelected: (action) async {
+                        switch (action) {
+                          case _ColorAction.custom:
+                            await _showCustomAmountDialog(
+                              context,
+                              ref,
+                              colorKey: colorKey,
+                              initialValue: hasCustom ? (overrides[colorKey] ?? perBatch) : perBatch,
+                            );
+                          case _ColorAction.clearCustom:
+                            final next = {...ref.read(perColorOverridesProvider)};
+                            next.remove(colorKey);
+                            ref.read(perColorOverridesProvider.notifier).state = next;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: _ColorAction.custom,
+                          child: Text('Custom amount…'),
+                        ),
+                        if (hasCustom)
+                          const PopupMenuItem(
+                            value: _ColorAction.clearCustom,
+                            child: Text('Clear custom'),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ],
     );
   }
 }

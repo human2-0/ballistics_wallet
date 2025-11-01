@@ -57,6 +57,16 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
           onPressed: () async => _handlePickCustomRange(context, bonusInfoList),
           child: const Text('Pick custom range'),
         ),
+        const SizedBox(height: 8),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _LegendSwatch(color: Colors.purple, label: 'Hours range'),
+            SizedBox(width: 12),
+            _LegendSwatch(color: Colors.green, label: 'Bonus range'),
+          ],
+        ),
+        const SizedBox(height: 8),
         CalendarDatePicker2(
           key: _calendarKey,
           config: CalendarDatePicker2Config(
@@ -75,6 +85,29 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
               final dailyBonusInfo = bonusInfoList
                   .where((info) => isSameDay(info.date, date))
                   .toList();
+
+              // Determine if this day is within custom ranges (hours / bonus)
+              CustomDateRange? savedRange;
+              if (Hive.isBoxOpen('customDateRangeBox')) {
+                final box = Hive.box<CustomDateRange>('customDateRangeBox');
+                savedRange = box.get('myCustomDateRange');
+              }
+
+              var inHours = false;
+              var inBonus = false;
+              if (savedRange != null) {
+                final d = _dateOnly(date);
+                if (savedRange.hoursStart != null && savedRange.hoursEnd != null) {
+                  final hs = _dateOnly(savedRange.hoursStart!);
+                  final he = _dateOnly(savedRange.hoursEnd!);
+                  inHours = !d.isBefore(hs) && !d.isAfter(he);
+                }
+                if (savedRange.bonusStart != null && savedRange.bonusEnd != null) {
+                  final bs = _dateOnly(savedRange.bonusStart!);
+                  final be = _dateOnly(savedRange.bonusEnd!);
+                  inBonus = !d.isBefore(bs) && !d.isAfter(be);
+                }
+              }
 
               // Non-selected cell color
               const primaryColor = Colors.orange;
@@ -139,12 +172,14 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                       ],
                     );
 
-              return DecoratedBox(
+              // Build the base day cell
+              final baseCell = DecoratedBox(
                 decoration: cellDecoration,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const SizedBox(height: 2),
                     Flexible(
                       child: Text(
                         date.day.toString(),
@@ -165,8 +200,48 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 2),
                   ],
                 ),
+              );
+
+              // Overlay visual highlights for custom ranges
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  baseCell,
+                  if (inHours)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.purple[50]!.withValues(alpha: 0.18),
+                            borderRadius: const BorderRadius.all(Radius.circular(16)),
+                            border: Border.all(
+                              color: Colors.purple[200]!.withValues(alpha: 0.9),
+                              width: 1.25,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (inBonus)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Container(
+                          margin: const EdgeInsets.all(2.5),
+                          decoration: BoxDecoration(
+                            color: Colors.green[50]!.withValues(alpha: 0.14),
+                            borderRadius: const BorderRadius.all(Radius.circular(13)),
+                            border: Border.all(
+                              color: Colors.green[300]!.withValues(alpha: 0.9),
+                              width: 1.25,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),
@@ -392,6 +467,32 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     return '${date.day}/${date.month}/${date.year}';
+  }
+}
+
+class _LegendSwatch extends StatelessWidget {
+  const _LegendSwatch({required this.color, required this.label});
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: color.withValues(alpha: 0.12),
+            border: Border.all(color: color.withValues(alpha: 0.65), width: 1.25),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
+    );
   }
 }
 

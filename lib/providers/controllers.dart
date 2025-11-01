@@ -110,14 +110,12 @@ class AllowanceEditingControllerNotifier
   }
 }
 
-class ActiveIndexNotifier extends StateNotifier<int> {
-  ActiveIndexNotifier() : super(0);
+class ActiveIndexNotifier extends StateNotifier<int?> {
+  ActiveIndexNotifier() : super(null);
 
   void updateIndex(int? index) {
     state = index ?? 0;
   }
 }
 
-final activeIndexTabProvider = StateNotifierProvider<ActiveIndexNotifier, int>(
-  (ref) => ActiveIndexNotifier(),
-);
+final activeIndexTabProvider = StateProvider<int?>((ref) => null);
