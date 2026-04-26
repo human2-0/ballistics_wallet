@@ -24,11 +24,11 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref
-                .read(bonusInfoListProvider.notifier)
-                .loadBonusInfos()
-                .catchError((Object e, StackTrace st) {
-                  debugPrint('loadBonusInfos failed → $e');
-               });
+          .read(bonusInfoListProvider.notifier)
+          .loadBonusInfos()
+          .catchError((Object e, StackTrace st) {
+            debugPrint('loadBonusInfos failed → $e');
+          });
     });
     _currentViewDate = DateTime.now();
   }
@@ -82,9 +82,14 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
               isToday,
               textStyle,
             }) {
-              final dailyBonusInfo = bonusInfoList
-                  .where((info) => isSameDay(info.date, date))
-                  .toList();
+              final dailyBonusInfo =
+                  bonusInfoList
+                      .where((info) => isSameDay(info.date, date))
+                      .toList();
+              final dailyBonusTotal = dailyBonusInfo.fold<double>(
+                0,
+                (sum, info) => sum + info.bonus,
+              );
 
               // Determine if this day is within custom ranges (hours / bonus)
               CustomDateRange? savedRange;
@@ -97,12 +102,14 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
               var inBonus = false;
               if (savedRange != null) {
                 final d = _dateOnly(date);
-                if (savedRange.hoursStart != null && savedRange.hoursEnd != null) {
+                if (savedRange.hoursStart != null &&
+                    savedRange.hoursEnd != null) {
                   final hs = _dateOnly(savedRange.hoursStart!);
                   final he = _dateOnly(savedRange.hoursEnd!);
                   inHours = !d.isBefore(hs) && !d.isAfter(he);
                 }
-                if (savedRange.bonusStart != null && savedRange.bonusEnd != null) {
+                if (savedRange.bonusStart != null &&
+                    savedRange.bonusEnd != null) {
                   final bs = _dateOnly(savedRange.bonusStart!);
                   final be = _dateOnly(savedRange.bonusEnd!);
                   inBonus = !d.isBefore(bs) && !d.isAfter(be);
@@ -114,63 +121,70 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
               // Selected cell color
               const selectedPrimaryColor = Colors.blue;
 
-              final cellDecoration = (isSelected ?? false)
-                  ? BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        stops: const [0.1, 0.5, 0.7, 0.9],
-                        colors: [
-                          selectedPrimaryColor[50]!.withValues(alpha: 0.4),
-                          selectedPrimaryColor[100]!,
-                          selectedPrimaryColor[200]!,
-                          selectedPrimaryColor[300]!,
+              final cellDecoration =
+                  (isSelected ?? false)
+                      ? BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            selectedPrimaryColor[50]!.withValues(alpha: 0.4),
+                            selectedPrimaryColor[100]!,
+                            selectedPrimaryColor[200]!,
+                            selectedPrimaryColor[300]!,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: selectedPrimaryColor[500]!.withValues(
+                              alpha: 0.6,
+                            ),
+                            offset: const Offset(5, 5),
+                            blurRadius: 5,
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            offset: const Offset(-5, -5),
+                            blurRadius: 5,
+                            spreadRadius: -2,
+                          ),
                         ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: selectedPrimaryColor[500]!.withValues(alpha: 0.6),
-                          offset: const Offset(5, 5),
-                          blurRadius: 5,
-                          spreadRadius: -5,
+                      )
+                      : BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(16),
                         ),
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          offset: const Offset(-5, -5),
-                          blurRadius: 5,
-                          spreadRadius: -2,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.1, 0.5, 0.7, 0.9],
+                          colors: [
+                            primaryColor[50]!.withValues(alpha: 0.5),
+                            primaryColor[100]!,
+                            primaryColor[200]!,
+                            primaryColor[300]!,
+                          ],
                         ),
-                      ],
-                    )
-                  : BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        stops: const [0.1, 0.5, 0.7, 0.9],
-                        colors: [
-                          primaryColor[50]!.withValues(alpha: 0.5),
-                          primaryColor[100]!,
-                          primaryColor[200]!,
-                          primaryColor[300]!,
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor[500]!.withValues(alpha: 0.6),
+                            offset: const Offset(5, 5),
+                            blurRadius: 5,
+                            spreadRadius: -5,
+                          ),
+                          BoxShadow(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            offset: const Offset(-5, -5),
+                            blurRadius: 5,
+                            spreadRadius: -2,
+                          ),
                         ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: primaryColor[500]!.withValues(alpha: 0.6),
-                          offset: const Offset(5, 5),
-                          blurRadius: 5,
-                          spreadRadius: -5,
-                        ),
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          offset: const Offset(-5, -5),
-                          blurRadius: 5,
-                          spreadRadius: -2,
-                        ),
-                      ],
-                    );
+                      );
 
               // Build the base day cell
               final baseCell = DecoratedBox(
@@ -190,16 +204,20 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                         ),
                       ),
                     ),
-                    ...dailyBonusInfo.map(
-                      (info) => Text(
-                        '£${formatDouble(info.bonus)}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.green[600],
-                          fontWeight: FontWeight.bold,
+                    if (dailyBonusInfo.isNotEmpty)
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '£${formatDouble(dailyBonusTotal)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.green[600],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
                     const SizedBox(height: 2),
                   ],
                 ),
@@ -216,7 +234,9 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.purple[50]!.withValues(alpha: 0.18),
-                            borderRadius: const BorderRadius.all(Radius.circular(16)),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(16),
+                            ),
                             border: Border.all(
                               color: Colors.purple[200]!.withValues(alpha: 0.9),
                               width: 1.25,
@@ -232,7 +252,9 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
                           margin: const EdgeInsets.all(2.5),
                           decoration: BoxDecoration(
                             color: Colors.green[50]!.withValues(alpha: 0.14),
-                            borderRadius: const BorderRadius.all(Radius.circular(13)),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(13),
+                            ),
                             border: Border.all(
                               color: Colors.green[300]!.withValues(alpha: 0.9),
                               width: 1.25,
@@ -273,16 +295,19 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
     if (!context.mounted) return;
 
     // Step 2: pick range for total bonuses
-    final bonusRange =
-        await _pickRange(localContext, 'Select Range for Bonuses');
+    final bonusRange = await _pickRange(
+      localContext,
+      'Select Range for Bonuses',
+    );
     // If user pressed cancel => bonusRange == null => exit
     if (bonusRange == null || bonusRange.length != 2) {
       return;
     }
 
     // Save these custom ranges to Hive
-    final customRangeBox =
-        await Hive.openBox<CustomDateRange>('customDateRangeBox');
+    final customRangeBox = await Hive.openBox<CustomDateRange>(
+      'customDateRangeBox',
+    );
     final customDateRange = CustomDateRange(
       hoursStart: hoursRange[0],
       hoursEnd: hoursRange[1],
@@ -313,24 +338,25 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
     // Show the results in a dialog
     await showDialog<void>(
       context: localContext,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Custom Range Results'),
-        content: SingleChildScrollView(
-          child: Text(
-            'Hours Range: ${_formatDate(hoursRange[0])} - ${_formatDate(hoursRange[1])}\n'
-            'Bonus Range: ${_formatDate(bonusRange[0])} - ${_formatDate(bonusRange[1])}\n\n'
-            'Total Hours: ${formatDouble(results['hours']!)}\n'
-            'Total Bonus: £${formatDouble(results['bonus']!)}\n'
-            'Total Salary: £${formatDouble(results['salary']!)}',
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Custom Range Results'),
+            content: SingleChildScrollView(
+              child: Text(
+                'Hours Range: ${_formatDate(hoursRange[0])} - ${_formatDate(hoursRange[1])}\n'
+                'Bonus Range: ${_formatDate(bonusRange[0])} - ${_formatDate(bonusRange[1])}\n\n'
+                'Total Hours: ${formatDouble(results['hours']!)}\n'
+                'Total Bonus: £${formatDouble(results['bonus']!)}\n'
+                'Total Salary: £${formatDouble(results['salary']!)}',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(localContext),
+                child: const Text('Close'),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(localContext),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -342,8 +368,9 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
     final localContext = context;
 
     // 1) Open your Hive box (async gap below)
-    final customRangeBox =
-        await Hive.openBox<CustomDateRange>('customDateRangeBox');
+    final customRangeBox = await Hive.openBox<CustomDateRange>(
+      'customDateRangeBox',
+    );
     // (If you're in a State or ConsumerState, optionally you can do `if (!mounted) return null;`)
     if (!localContext.mounted) return null;
 
@@ -371,47 +398,49 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
       firstDayOfWeek: 1,
     );
 
-    final backgroundColor = title.toLowerCase().contains('hours')
-        ? Colors.purple[50]
-        : title.toLowerCase().contains('bonus')
+    final backgroundColor =
+        title.toLowerCase().contains('hours')
+            ? Colors.purple[50]
+            : title.toLowerCase().contains('bonus')
             ? Colors.green[50]
             : Colors.white;
 
     // 3) Invoke showDialog **synchronously**, using your localContext
     return showDialog<List<DateTime?>?>(
       context: localContext,
-      builder: (dialogContext) => Dialog(
-        backgroundColor: backgroundColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                title,
-                style: Theme.of(localContext).textTheme.titleLarge,
-              ),
+      builder:
+          (dialogContext) => Dialog(
+            backgroundColor: backgroundColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            const Divider(height: 1),
-            SizedBox(
-              height: 400,
-              width: 325,
-              child: CalendarDatePicker2WithActionButtons(
-                config: config,
-                value: initialDates,
-                onCancelTapped: () => Navigator.of(dialogContext).pop(),
-                onValueChanged: (values) {
-                  Navigator.of(dialogContext).pop(values);
-                },
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    title,
+                    style: Theme.of(localContext).textTheme.titleLarge,
+                  ),
+                ),
+                const Divider(height: 1),
+                SizedBox(
+                  height: 400,
+                  width: 325,
+                  child: CalendarDatePicker2WithActionButtons(
+                    config: config,
+                    value: initialDates,
+                    onCancelTapped: () => Navigator.of(dialogContext).pop(),
+                    onValueChanged: (values) {
+                      Navigator.of(dialogContext).pop(values);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -452,11 +481,7 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
 
     final totalSalary = totalBonus + (totalHours * hourlyRate);
 
-    return {
-      'hours': totalHours,
-      'bonus': totalBonus,
-      'salary': totalSalary,
-    };
+    return {'hours': totalHours, 'bonus': totalBonus, 'salary': totalSalary};
   }
 
   bool isSameDay(DateTime? date1, DateTime? date2) =>
@@ -486,7 +511,10 @@ class _LegendSwatch extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
             color: color.withValues(alpha: 0.12),
-            border: Border.all(color: color.withValues(alpha: 0.65), width: 1.25),
+            border: Border.all(
+              color: color.withValues(alpha: 0.65),
+              width: 1.25,
+            ),
           ),
         ),
         const SizedBox(width: 6),

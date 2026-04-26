@@ -114,8 +114,11 @@ class ActiveIndexNotifier extends StateNotifier<int?> {
   ActiveIndexNotifier() : super(null);
 
   void updateIndex(int? index) {
-    state = index ?? 0;
+    state = index;
   }
 }
 
-final activeIndexTabProvider = StateProvider<int?>((ref) => null);
+final activeIndexTabProvider =
+    StateNotifierProvider<ActiveIndexNotifier, int?>(
+  (ref) => ActiveIndexNotifier(),
+);

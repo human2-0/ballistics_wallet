@@ -12,6 +12,8 @@
 .swiftpm/
 migrate_working_dir/
 *.env
+firepit-log.txt
+ios_backup/
 
 # IntelliJ related
 *.iml
@@ -32,6 +34,13 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+macos/Pods/
+macos/Flutter/ephemeral/
 
 # Specific project folders
 boost_ballistics/build/
@@ -49,13 +58,13 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/build/
+/android/.gradle/
+/android/.kotlin/
+/android/app/.cxx/
 
-# Global build folder
-
-# Exclude the entire ios folder
-ios/
-
-android/
-
-# Note: Excluding the ios/ folder means all its contents, including build artifacts,
-# source code, configurations, and any other files within that directory will not be tracked by Git.
+# Local Firebase configuration. Provide these per environment.
+android/app/google-services.json
+android/app/client_secret*.json
+ios/GoogleService-Info*.plist
+ios/Runner/GoogleService-Info*.plist
+macos/Runner/GoogleService-Info*.plist

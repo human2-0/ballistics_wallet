@@ -147,14 +147,7 @@ class LastSelectedProducts extends ConsumerWidget {
                       ),
                       onTap: () async {
                         FocusScope.of(context).unfocus();
-                        ref.read(focusedProductProvider.notifier).state =
-                            product;
-
-                        await ref
-                            .read(lastSelectedProductProvider.notifier)
-                            .saveSelectedProduct(
-                              product,
-                            );
+                        ref.read(focusedProductProvider.notifier).state = product;
                         ref.read(targetProvider.notifier).state = product.target;
                         ref
                             .read(productNameControllerProvider.notifier)
@@ -162,6 +155,10 @@ class LastSelectedProducts extends ConsumerWidget {
                             .text = product.productName;
                         ref.read(showListProvider.notifier).state = false;
                         ref.read(focusNodeProvider).unfocus();
+
+                        await ref
+                            .read(lastSelectedProductProvider.notifier)
+                            .saveSelectedProduct(product);
                       },
                       // Add any additional fields and UI customizations you need here...
                     ),

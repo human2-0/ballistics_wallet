@@ -1,1 +1,0 @@
-/Users/mat-dwor/Documents/ballistics_wallet/build/app/intermediates/cxx/Debug/1p3y4o11/obj/arm64-v8a

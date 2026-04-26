@@ -8,10 +8,17 @@ import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math';
 
-enum _ColorAction { custom, clearCustom }
+enum _ColorAction { custom, clearCustom, selectColor, clearColor }
 
-final perColorOverridesProvider = StateProvider<Map<String, int>>((ref) => {});
+String _colorLabel(String value) {
+  if (value.isEmpty) return value;
+  if (value.startsWith('#') || value.toLowerCase().startsWith('0x')) {
+    return 'Custom';
+  }
+  return value[0].toUpperCase() + value.substring(1);
+}
 
 Future<void> _showCustomAmountDialog(
   BuildContext context,
@@ -60,6 +67,224 @@ Future<void> _showCustomAmountDialog(
       ],
     ),
   );
+}
+
+Future<void> _showColorPickerDialog(
+  BuildContext context,
+  WidgetRef ref, {
+  required String colorKey,
+  required String? currentValue,
+}) async {
+  final isNamed = currentValue != null &&
+      splitCheckColorOptions.contains(currentValue.toLowerCase());
+  final initialNamed = isNamed ? currentValue!.toLowerCase() : null;
+  final initialParsed = currentValue != null
+      ? parseColorString(currentValue)
+      : null;
+  final initialColor = initialParsed ??
+      (initialNamed != null ? getColorFromString(initialNamed) : Colors.blue);
+  var selectedColor = initialColor;
+  var selectedName = initialNamed;
+
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Select color'),
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _HueWheelPicker(
+                  size: (MediaQuery.of(context).size.width * 0.8)
+                      .clamp(210.0, 320.0),
+                  color: selectedColor,
+                  onChanged: (next) {
+                    setState(() {
+                      selectedColor = next;
+                      selectedName = null;
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: selectedColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black26),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(colorToHex(selectedColor)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: splitCheckColorOptions.map((name) {
+                    final isSelected = selectedName == name;
+                    return ChoiceChip(
+                      label: Text(_colorLabel(name)),
+                      selected: isSelected,
+                      selectedColor: getColorFromString(name, accent: true),
+                      backgroundColor: getColorFromString(name),
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.black : Colors.black87,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                      onSelected: (_) {
+                        setState(() {
+                          selectedName = name;
+                          selectedColor = getColorFromString(name);
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final value = selectedName ?? colorToHex(selectedColor);
+            ref
+                .read(perColorDisplayOverridesProvider.notifier)
+                .setOverride(colorKey, value);
+            Navigator.of(ctx).pop();
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    ),
+  );
+}
+
+class _HueWheelPicker extends StatelessWidget {
+  const _HueWheelPicker({
+    required this.size,
+    required this.color,
+    required this.onChanged,
+  });
+
+  final double size;
+  final Color color;
+  final ValueChanged<Color> onChanged;
+
+  void _handleChange(Offset localPosition, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final dx = localPosition.dx - center.dx;
+    final dy = localPosition.dy - center.dy;
+    final radius = size.width / 2;
+    final distance = sqrt(dx * dx + dy * dy);
+    if (distance > radius) return;
+    final hue = (atan2(dy, dx) * 180 / pi + 360) % 360;
+    final saturation = (distance / radius).clamp(0.0, 1.0);
+    final next = HSVColor.fromAHSV(1, hue, saturation, 1).toColor();
+    onChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final paintSize = Size(size, size);
+    return SizedBox(
+      width: size,
+      height: size,
+      child: GestureDetector(
+        onPanDown: (details) => _handleChange(details.localPosition, paintSize),
+        onPanUpdate: (details) =>
+            _handleChange(details.localPosition, paintSize),
+        onTapDown: (details) => _handleChange(details.localPosition, paintSize),
+        child: CustomPaint(
+          size: paintSize,
+          painter: _HueWheelPainter(color),
+        ),
+      ),
+    );
+  }
+}
+
+class _HueWheelPainter extends CustomPainter {
+  _HueWheelPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    final hueShader = SweepGradient(
+      colors: const [
+        Colors.red,
+        Colors.yellow,
+        Colors.green,
+        Colors.cyan,
+        Colors.blue,
+        Colors.purple,
+        Colors.red,
+      ],
+    ).createShader(rect);
+    final huePaint = Paint()..shader = hueShader;
+    canvas.drawCircle(center, radius, huePaint);
+
+    final satShader = RadialGradient(
+      colors: [
+        Colors.white,
+        Colors.white.withValues(alpha: 0),
+      ],
+    ).createShader(rect);
+    final satPaint = Paint()..shader = satShader;
+    canvas.drawCircle(center, radius, satPaint);
+
+    final hsv = HSVColor.fromColor(color);
+    final angle = hsv.hue * pi / 180;
+    final r = hsv.saturation * radius;
+    final indicator = Offset(
+      center.dx + cos(angle) * r,
+      center.dy + sin(angle) * r,
+    );
+    canvas.drawCircle(
+      indicator,
+      8,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawCircle(
+      indicator,
+      8,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+    canvas.drawCircle(
+      indicator,
+      8,
+      Paint()
+        ..color = Colors.black87
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _HueWheelPainter oldDelegate) {
+    return oldDelegate.color != color;
+  }
 }
 
 class SplitCheck extends ConsumerWidget {
@@ -363,12 +588,11 @@ class ResultsList extends ConsumerWidget {
     if (list.isEmpty) return const SizedBox.shrink();
 
     final overrides = ref.watch(perColorOverridesProvider);
+    final colorOverrides = ref.watch(perColorDisplayOverridesProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (overrides.isNotEmpty) ...[
-          Padding(
+    final header = overrides.isEmpty
+        ? const SizedBox.shrink()
+        : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: Wrap(
               spacing: 8,
@@ -384,125 +608,162 @@ class ResultsList extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
-        ],
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: list.length,
-          itemBuilder: (ctx, i) {
-            final item = list[i];
-            final colorKey = item.productColor;
-            final hasCustom = overrides.containsKey(colorKey);
-            final usedPerBatch = overrides[colorKey] ?? perBatch;
+          );
 
-            final powderKg =
-                ((item.systemG * usedPerBatch) / 1000).toStringAsFixed(2);
-            final citricKg =
-                ((item.systemCitric * usedPerBatch) / 1000).toStringAsFixed(2);
-            final rawColor = extractColorName(item.productColor);
-            final bg = getColorFromString(rawColor);
-            final fg = getColorFromString(rawColor, accent: true);
+    final items = ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: list.length,
+      itemBuilder: (ctx, i) {
+        final item = list[i];
+        final colorKey = item.productColor;
+        final hasCustom = overrides.containsKey(colorKey);
+        final hasColorOverride = colorOverrides.containsKey(colorKey);
+        final usedPerBatch = overrides[colorKey] ?? perBatch;
+        final colorName =
+            colorOverrides[colorKey] ?? extractColorName(item.productColor);
+        final powderKg =
+            ((item.systemG * usedPerBatch) / 1000).toStringAsFixed(2);
+        final citricKg =
+            ((item.systemCitric * usedPerBatch) / 1000).toStringAsFixed(2);
+        final bg = getColorFromString(colorName);
+        final fg = getColorFromString(colorName, accent: true);
 
-            return Padding(
-              padding: const EdgeInsets.all(4),
-              child: Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: bg,
-                      borderRadius: BorderRadius.circular(33),
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: fg,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    extractColorNameForUser(item.productColor),
-                                    style: const TextStyle(fontSize: 20),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  if (hasCustom)
-                                    const SizedBox(height: 4),
-                                  if (hasCustom)
-                                    const Text(
-                                      'Custom',
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Column(
+        return Padding(
+          padding: const EdgeInsets.all(4),
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(33),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: fg,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.25,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Powder: $powderKg kg',
+                                extractColorNameForUser(item.productColor),
                                 style: const TextStyle(fontSize: 20),
+                                textAlign: TextAlign.center,
                               ),
-                              Text(
-                                'Citric: $citricKg kg',
-                                style: const TextStyle(fontSize: 20),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '$usedPerBatch / batch',
-                                style: const TextStyle(fontSize: 12),
-                              ),
+                              if (hasCustom) const SizedBox(height: 4),
+                              if (hasCustom)
+                                const Text(
+                                  'Custom',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              if (hasColorOverride) const SizedBox(height: 2),
+                              if (hasColorOverride)
+                                Text(
+                                  'Color: ${_colorLabel(colorName)}',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
                             ],
+                          ),
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Powder: $powderKg kg',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          Text(
+                            'Citric: $citricKg kg',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '$usedPerBatch / batch',
+                            style: const TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                  Positioned(
-                    right: 2,
-                    top: 2,
-                    child: PopupMenuButton<_ColorAction>(
-                      onSelected: (action) async {
-                        switch (action) {
-                          case _ColorAction.custom:
-                            await _showCustomAmountDialog(
-                              context,
-                              ref,
-                              colorKey: colorKey,
-                              initialValue: hasCustom ? (overrides[colorKey] ?? perBatch) : perBatch,
-                            );
-                          case _ColorAction.clearCustom:
-                            final next = {...ref.read(perColorOverridesProvider)};
-                            next.remove(colorKey);
-                            ref.read(perColorOverridesProvider.notifier).state = next;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: _ColorAction.custom,
-                          child: Text('Custom amount…'),
-                        ),
-                        if (hasCustom)
-                          const PopupMenuItem(
-                            value: _ColorAction.clearCustom,
-                            child: Text('Clear custom'),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            );
-          },
-        ),
+              Positioned(
+                right: 2,
+                top: 2,
+                child: PopupMenuButton<_ColorAction>(
+                  onSelected: (action) async {
+                    switch (action) {
+                      case _ColorAction.custom:
+                        await _showCustomAmountDialog(
+                          context,
+                          ref,
+                          colorKey: colorKey,
+                          initialValue:
+                              hasCustom ? (overrides[colorKey] ?? perBatch) : perBatch,
+                        );
+                        break;
+                      case _ColorAction.clearCustom:
+                        final next = {...ref.read(perColorOverridesProvider)};
+                        next.remove(colorKey);
+                        ref.read(perColorOverridesProvider.notifier).state = next;
+                        break;
+                      case _ColorAction.selectColor:
+                        await _showColorPickerDialog(
+                          context,
+                          ref,
+                          colorKey: colorKey,
+                          currentValue: colorOverrides[colorKey],
+                        );
+                        break;
+                      case _ColorAction.clearColor:
+                        ref
+                            .read(perColorDisplayOverridesProvider.notifier)
+                            .clearOverride(colorKey);
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: _ColorAction.selectColor,
+                      child: Text('Select color...'),
+                    ),
+                    const PopupMenuItem(
+                      value: _ColorAction.custom,
+                      child: Text('Custom amount...'),
+                    ),
+                    if (hasCustom)
+                      const PopupMenuItem(
+                        value: _ColorAction.clearCustom,
+                        child: Text('Clear custom'),
+                      ),
+                    if (hasColorOverride)
+                      const PopupMenuItem(
+                        value: _ColorAction.clearColor,
+                        child: Text('Clear color'),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        header,
+        items,
       ],
     );
   }

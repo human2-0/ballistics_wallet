@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 
 class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
   BonusInfoNotifier(this._repository, this.userId)
-      : super(BonusInfoAndRatio()) {
+    : super(BonusInfoAndRatio()) {
     scheduleMicrotask(() async {
       await init();
       await loadBonusInfos(); // Add this line
@@ -84,14 +84,17 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
 
   /// Returns all bonus entries for a given product, including date and amount.
   List<BonusInfo> getProductHistory(String productName) {
-    final needle = productName.trim().toLowerCase();
-    if (needle.isEmpty) return const [];
-    return state.bonusInfo.where((entry) {
-      return entry.produced.any((p) {
-        final name = p.productName.trim().toLowerCase();
-        return name == needle;
-      });
-    }).toList();
+    final normalizedName = productName.toLowerCase().trim();
+    if (normalizedName.isEmpty) {
+      return const [];
+    }
+    return state.bonusInfo
+        .where(
+          (entry) => entry.produced.any(
+            (p) => p.productName.toLowerCase().trim() == normalizedName,
+          ),
+        )
+        .toList();
   }
 
   Future<void> loadBonusInfos() async {
@@ -110,11 +113,15 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
       final updatedBonusInfo = box.values.toList();
 
       // Calculate the total ratio based on the updated _productRatios map
-      final updatedRatio =
-          _productRatios.values.fold<double>(0, (a, b) => a + b);
+      final updatedRatio = _productRatios.values.fold<double>(
+        0,
+        (a, b) => a + b,
+      );
       // Create a new state with the updated list
-      state =
-          BonusInfoAndRatio(bonusInfo: updatedBonusInfo, ratio: updatedRatio);
+      state = BonusInfoAndRatio(
+        bonusInfo: updatedBonusInfo,
+        ratio: updatedRatio,
+      );
     } else {
       // Use box values if not empty
       final updatedBonusInfo = box.values.toList();
@@ -125,11 +132,15 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
       _productRatios = ratio;
 
       // Calculate the total ratio based on the updated _productRatios map
-      final updatedRatio =
-          _productRatios.values.fold<double>(0, (a, b) => a + b);
+      final updatedRatio = _productRatios.values.fold<double>(
+        0,
+        (a, b) => a + b,
+      );
       // Create a new state with the updated list
-      state =
-          BonusInfoAndRatio(bonusInfo: updatedBonusInfo, ratio: updatedRatio);
+      state = BonusInfoAndRatio(
+        bonusInfo: updatedBonusInfo,
+        ratio: updatedRatio,
+      );
     }
   }
 
@@ -259,43 +270,8 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     return total;
   }
 
-  Future<List<MonthlyData>> getHistoricalMonthlyData() async {
-    final historicalData = <MonthlyData>[];
-    final endDate = DateTime.now();
-    var startDate = state.bonusInfo.isNotEmpty
-        ? state.bonusInfo
-            .map((b) => b.date)
-            .reduce((a, b) => a.isBefore(b) ? a : b)
-        : DateTime.now().subtract(const Duration(days: 365));
-
-    // This logic ensures you continue until the current month's data is processed fully
-    while (startDate.year < endDate.year ||
-        (startDate.year == endDate.year && startDate.month <= endDate.month)) {
-      // Define month range based on the 19th to the 18th span
-      final monthStart = DateTime(startDate.year, startDate.month, 19);
-      final monthEnd = DateTime(startDate.year, startDate.month + 1, 18);
-
-      var monthlyHours = 0.0;
-      var monthlyBonus = 0.0;
-      for (final bonusInfo in state.bonusInfo) {
-        // Check if the date is within the current range, inclusive of both start and end
-        if (bonusInfo.date.isAtLeast(monthStart) &&
-            bonusInfo.date.isBefore(monthEnd.add(const Duration(days: 1)))) {
-          monthlyHours += bonusInfo.workingHours;
-          monthlyBonus += bonusInfo.bonus;
-        }
-      }
-
-      // Label the month according to the pay period's ending month
-      final monthLabel = DateFormat('MMMM yyyy').format(monthEnd);
-      historicalData.add(MonthlyData(monthLabel, monthlyHours, monthlyBonus));
-
-      // Increment to the next month start from the 19th
-      startDate = DateTime(startDate.year, startDate.month + 1, 19);
-    }
-
-    return historicalData;
-  }
+  Future<List<MonthlyData>> getHistoricalMonthlyData() async =>
+      buildMonthlyHistoricalData(bonusInfo: state.bonusInfo);
 }
 
 final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
@@ -303,18 +279,13 @@ final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 final isOvertimeProvider = StateProvider<bool>((ref) => false);
 
 final bonusInfoListProvider =
-    StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>(
-  (ref) {
-    final authRepo = ref.read(authRepositoryProvider);
-    final userId = authRepo.currentUserId;
-    final bonusInfoRepo = ref.read(bonusInfoRepositoryProvider);
+    StateNotifierProvider<BonusInfoNotifier, BonusInfoAndRatio>((ref) {
+      final authRepo = ref.read(authRepositoryProvider);
+      final userId = authRepo.currentUserId;
+      final bonusInfoRepo = ref.read(bonusInfoRepositoryProvider);
 
-    return BonusInfoNotifier(
-      bonusInfoRepo,
-      userId,
-    );
-  },
-);
+      return BonusInfoNotifier(bonusInfoRepo, userId);
+    });
 
 final bonusInfoRepositoryProvider = Provider<BonusInfoRepository>((ref) {
   return BonusInfoRepository();
@@ -343,6 +314,115 @@ class WalletSummary {
   final double totalHours;
   final double totalSalary;
 }
+
+/// Builds paycheck-month summaries from wallet entries.
+List<MonthlyData> buildMonthlyHistoricalData({
+  required List<BonusInfo> bonusInfo,
+  double hourlyRate = 0,
+  DateTime? now,
+}) {
+  if (bonusInfo.isEmpty) {
+    return const [];
+  }
+
+  final today = _historyDateOnly(now ?? DateTime.now());
+  final monthAnchors = <DateTime>[_paycheckMonthForHours(today)];
+  for (final info in bonusInfo) {
+    monthAnchors
+      ..add(_paycheckMonthForHours(info.date))
+      ..add(_paycheckMonthForBonus(info.date));
+  }
+  monthAnchors.sort();
+
+  var cursor = monthAnchors.first;
+  final endMonth = monthAnchors.last;
+  final historicalData = <MonthlyData>[];
+
+  while (!_isAfterMonth(cursor, endMonth)) {
+    final hoursStart = DateTime(cursor.year, cursor.month - 1, 20);
+    final hoursEnd = DateTime(cursor.year, cursor.month, 19);
+    final previousBonusEnd = bonusPayrollCloseDateForMonth(
+      cursor.year,
+      cursor.month - 1,
+    );
+    final bonusStart = previousBonusEnd.add(const Duration(days: 1));
+    final bonusEnd = bonusPayrollCloseDateForMonth(cursor.year, cursor.month);
+
+    var monthlyHours = 0.0;
+    var monthlyBonus = 0.0;
+    for (final info in bonusInfo) {
+      final date = _historyDateOnly(info.date);
+      if (_isWithinInclusive(date, hoursStart, hoursEnd)) {
+        monthlyHours += info.workingHours;
+      }
+      if (_isWithinInclusive(date, bonusStart, bonusEnd)) {
+        monthlyBonus += info.bonus;
+      }
+    }
+
+    historicalData.add(
+      MonthlyData.detailed(
+        month: DateFormat('MMMM yyyy').format(cursor),
+        totalHours: monthlyHours,
+        totalBonus: monthlyBonus,
+        hourlyRate: hourlyRate,
+        hoursStart: hoursStart,
+        hoursEnd: hoursEnd,
+        bonusStart: bonusStart,
+        bonusEnd: bonusEnd,
+      ),
+    );
+    cursor = DateTime(cursor.year, cursor.month + 1);
+  }
+
+  return historicalData;
+}
+
+/// Returns the bonus payroll close date for a paycheck month.
+DateTime bonusPayrollCloseDateForMonth(int year, int month) {
+  var closeDate = DateTime(year, month, 18);
+  while (_isWeekend(closeDate)) {
+    closeDate = closeDate.subtract(const Duration(days: 1));
+  }
+  return closeDate;
+}
+
+DateTime _paycheckMonthForHours(DateTime date) {
+  final cleanDate = _historyDateOnly(date);
+  if (cleanDate.day >= 20) {
+    return DateTime(cleanDate.year, cleanDate.month + 1);
+  }
+  return DateTime(cleanDate.year, cleanDate.month);
+}
+
+DateTime _paycheckMonthForBonus(DateTime date) {
+  final cleanDate = _historyDateOnly(date);
+  final closeDate = bonusPayrollCloseDateForMonth(
+    cleanDate.year,
+    cleanDate.month,
+  );
+  if (cleanDate.isAfter(closeDate)) {
+    return DateTime(cleanDate.year, cleanDate.month + 1);
+  }
+  return DateTime(cleanDate.year, cleanDate.month);
+}
+
+bool _isWeekend(DateTime date) =>
+    date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+
+bool _isWithinInclusive(DateTime date, DateTime start, DateTime end) {
+  final cleanDate = _historyDateOnly(date);
+  final cleanStart = _historyDateOnly(start);
+  final cleanEnd = _historyDateOnly(end);
+  return !cleanDate.isBefore(cleanStart) && !cleanDate.isAfter(cleanEnd);
+}
+
+bool _isAfterMonth(DateTime month, DateTime other) =>
+    month.year > other.year ||
+    (month.year == other.year && month.month > other.month);
+
+DateTime _historyDateOnly(DateTime date) =>
+    DateTime(date.year, date.month, date.day);
 
 extension DateTimeExtensions on DateTime {
   /// Checks if this DateTime is at least (later than or the same as) another DateTime.

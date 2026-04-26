@@ -1,6 +1,74 @@
 import 'package:flutter/material.dart';
 
+const splitCheckColorOptions = <String>[
+  'red',
+  'green',
+  'blue',
+  'yellow',
+  'orange',
+  'purple',
+  'lilac',
+  'pink',
+  'white',
+];
+
+const splitCheckPaletteColors = <Color>[
+  Colors.red,
+  Colors.pink,
+  Colors.purple,
+  Colors.deepPurple,
+  Colors.indigo,
+  Colors.blue,
+  Colors.lightBlue,
+  Colors.cyan,
+  Colors.teal,
+  Colors.green,
+  Colors.lightGreen,
+  Colors.lime,
+  Colors.yellow,
+  Colors.amber,
+  Colors.orange,
+  Colors.deepOrange,
+  Colors.brown,
+  Colors.grey,
+  Colors.blueGrey,
+  Colors.black,
+  Colors.white,
+];
+
+String colorToHex(Color color) {
+  final value = color.value.toRadixString(16).padLeft(8, '0');
+  return '#${value.substring(2).toUpperCase()}';
+}
+
+Color? parseColorString(String colorName) {
+  final trimmed = colorName.trim();
+  if (trimmed.isEmpty) return null;
+  if (trimmed.startsWith('#')) {
+    final hex = trimmed.substring(1);
+    if (hex.length == 6 || hex.length == 8) {
+      final fullHex = hex.length == 6 ? 'FF$hex' : hex;
+      final value = int.tryParse(fullHex, radix: 16);
+      if (value != null) return Color(value);
+    }
+  }
+  if (trimmed.toLowerCase().startsWith('0x')) {
+    final value = int.tryParse(trimmed.substring(2), radix: 16);
+    if (value != null) return Color(value);
+  }
+  return null;
+}
+
+Color _accentFrom(Color color) {
+  // Nudge toward white for a subtle lighter inner shade.
+  return Color.lerp(color, Colors.white, 0.18) ?? color;
+}
+
 Color getColorFromString(String colorName, {bool accent = false}) {
+  final parsed = parseColorString(colorName);
+  if (parsed != null) {
+    return accent ? _accentFrom(parsed) : parsed;
+  }
   switch (colorName.toLowerCase()) {
     case 'red':
       return accent ? Colors.redAccent : Colors.red;
@@ -26,6 +94,9 @@ Color getColorFromString(String colorName, {bool accent = false}) {
 }
 
 bool isValidColor(String colorName) {
+  if (parseColorString(colorName) != null) {
+    return true;
+  }
   switch (colorName.toLowerCase()) {
     case 'red':
     case 'green':

@@ -13,7 +13,7 @@ class SlideToBasicShiftState extends State<SlideToBasicShift>
   late Animation<Offset> _slideAnimation;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
 
     _slideController = AnimationController(
@@ -26,15 +26,15 @@ class SlideToBasicShiftState extends State<SlideToBasicShift>
       end: const Offset(0.15, 0),
     ).animate(
       CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
-    )..addStatusListener((status) async {
+    )..addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        await _slideController.reverse();
+        _slideController.reverse();
       } else if (status == AnimationStatus.dismissed) {
-        await _slideController.forward();
+        _slideController.forward();
       }
     });
 
-    await _slideController.forward();
+    _slideController.forward();
   }
 
   @override
