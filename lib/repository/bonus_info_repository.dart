@@ -3,7 +3,6 @@ import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
 class BonusInfoRepository {
-
   BonusInfoRepository();
   final String _boxName = 'bonusInfoBox';
 
@@ -24,8 +23,8 @@ class BonusInfoRepository {
 
     // Find an existing BonusInfo entry for the same user and day
     final existingBonus = box.values.firstWhereOrNull(
-          (element) =>
-      element.userId == bonusInfo.userId &&
+      (element) =>
+          element.userId == bonusInfo.userId &&
           element.date.day == bonusInfo.date.day &&
           element.date.month == bonusInfo.date.month &&
           element.date.year == bonusInfo.date.year,
@@ -35,17 +34,26 @@ class BonusInfoRepository {
       // Iterate over the new produced items to add or update existing ones
       final updatedProducedList = List<Produced>.from(existingBonus.produced);
       for (final newProducedItem in bonusInfo.produced) {
-        final index = updatedProducedList.indexWhere((produced) => produced.productName == newProducedItem.productName);
+        final index = updatedProducedList.indexWhere(
+          (produced) => produced.productName == newProducedItem.productName,
+        );
         if (index != -1) {
           // Product exists, update its amount
-          updatedProducedList[index] = updatedProducedList[index].copyWith(amount: newProducedItem.amount);
+          updatedProducedList[index] = updatedProducedList[index].copyWith(
+            amount: newProducedItem.amount,
+            ratio: newProducedItem.ratio,
+            allowance: newProducedItem.allowance,
+          );
         } else {
           // Product doesn't exist, add new item
           updatedProducedList.add(newProducedItem);
         }
       }
       // Update the existing entry with the modified produced list
-      final updatedBonusInfo = existingBonus.copyWith(bonus: bonusInfo.bonus, produced: updatedProducedList);
+      final updatedBonusInfo = existingBonus.copyWith(
+        bonus: bonusInfo.bonus,
+        produced: updatedProducedList,
+      );
       await box.put(existingBonus.id, updatedBonusInfo);
 
       return 'Product updated successfully.';
@@ -56,8 +64,6 @@ class BonusInfoRepository {
     }
   }
 
-
-
   Future<List<BonusInfo>> getAllBonusInfos() async {
     final box = await openBox();
     return box.values.toList();
@@ -67,25 +73,24 @@ class BonusInfoRepository {
     final box = await Hive.openBox<BonusInfo>('bonusInfoBox');
 
     // Find the key of the item that matches the condition
-    final keyToUpdate = box.keys.firstWhereOrNull(
-          (k) {
-        final item = box.get(k);
-        return item != null &&
-            item.userId == bonusInfo.userId &&
-            item.date.day == bonusInfo.date.day &&
-            item.date.month == bonusInfo.date.month &&
-            item.date.year == bonusInfo.date.year &&
-            item.produced.any((produced) => produced.productName == bonusInfo.produced.first.productName);
-      },
-    );
+    final keyToUpdate = box.keys.firstWhereOrNull((k) {
+      final item = box.get(k);
+      return item != null &&
+          item.userId == bonusInfo.userId &&
+          item.date.day == bonusInfo.date.day &&
+          item.date.month == bonusInfo.date.month &&
+          item.date.year == bonusInfo.date.year &&
+          item.produced.any(
+            (produced) =>
+                produced.productName == bonusInfo.produced.first.productName,
+          );
+    });
 
     // If an existing item is found, update it with the new info
     if (keyToUpdate != null) {
       await box.put(keyToUpdate, bonusInfo);
     }
   }
-
-
 
   Future<void> deleteBonusInfo(BonusInfo info) async {
     final box = await openBox();
@@ -118,14 +123,12 @@ class BonusInfoRepository {
           !bonusInfo.isOvertime) {
         for (final produced in bonusInfo.produced) {
           // Assuming Produced includes productName and ratio
-          productInfo[produced.productName.toLowerCase().trim()] = produced.ratio;
+          productInfo[produced.productName.toLowerCase().trim()] =
+              produced.ratio;
         }
       }
     }
 
     return productInfo;
   }
-
-
-
 }

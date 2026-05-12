@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/custom_date_range.dart';
 import 'package:ballistics_wallet_flutter/models/monthly_historical_data.dart';
+import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/ratio_and_bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/bonus_info_repository.dart';
@@ -50,18 +51,12 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     double workingHours,
     double allowanceProvided,
   ) {
-    var productTargetAdjusted = 0;
+    final productTargetAdjusted = adjustedProductTarget(
+      productTarget: productTarget,
+      workingHours: workingHours,
+      allowanceProvided: allowanceProvided,
+    );
 
-    // If workingHours are equal to 8, adjust productTarget with respect to workingHours and allowance
-    if (workingHours > 0) {
-      productTargetAdjusted =
-          (productTarget * ((workingHours - allowanceProvided) / workingHours))
-              .ceil();
-    } else {
-      if (workingHours == 0) {
-        productTargetAdjusted = productTarget;
-      }
-    }
     // Handle zero cases
     if (userNumber == 0 || productTargetAdjusted == 0) {
       // If this product is already in the map, remove it
@@ -79,8 +74,108 @@ class BonusInfoNotifier extends StateNotifier<BonusInfoAndRatio> {
     state = BonusInfoAndRatio(bonusInfo: state.bonusInfo, ratio: updatedRatio);
   }
 
+  int adjustedProductTarget({
+    required int productTarget,
+    required double workingHours,
+    required double allowanceProvided,
+  }) {
+    if (workingHours <= 0) {
+      return productTarget;
+    }
+
+    final workingTimeAfterAllowance = workingHours - allowanceProvided;
+    if (workingTimeAfterAllowance <= 0) {
+      return 0;
+    }
+
+    return (productTarget * (workingTimeAfterAllowance / workingHours)).ceil();
+  }
+
+  double calculateProductRatio({
+    required int productTarget,
+    required int userNumber,
+    required double workingHours,
+    required double allowanceProvided,
+  }) {
+    final productTargetAdjusted = adjustedProductTarget(
+      productTarget: productTarget,
+      workingHours: workingHours,
+      allowanceProvided: allowanceProvided,
+    );
+
+    if (userNumber == 0 || productTargetAdjusted == 0) {
+      return 0;
+    }
+
+    return userNumber / productTargetAdjusted.toDouble();
+  }
+
   double getProductRatio(String productName) =>
       _productRatios[productName] ?? 0;
+
+  Future<void> applyAllowanceToTodayEntries({
+    required List<ProductInfo> products,
+    required double workingHours,
+    required double allowanceProvided,
+  }) async {
+    final today = DateTime.now();
+    final productsByName = {
+      for (final product in products)
+        product.productName.toLowerCase().trim(): product,
+    };
+    var changed = false;
+
+    final entries = await _repository.getAllBonusInfos();
+    for (final entry in entries) {
+      if (entry.isOvertime || !_isSameDay(entry.date, today)) {
+        continue;
+      }
+
+      final updatedProduced = <Produced>[];
+      var entryChanged = false;
+
+      for (final produced in entry.produced) {
+        final product =
+            productsByName[produced.productName.toLowerCase().trim()];
+        if (product == null) {
+          updatedProduced.add(produced.copyWith(allowance: allowanceProvided));
+          entryChanged =
+              entryChanged || produced.allowance != allowanceProvided;
+          continue;
+        }
+
+        final updatedRatio = calculateProductRatio(
+          productTarget: product.target,
+          userNumber: produced.amount,
+          workingHours: workingHours,
+          allowanceProvided: allowanceProvided,
+        );
+        updatedProduced.add(
+          produced.copyWith(ratio: updatedRatio, allowance: allowanceProvided),
+        );
+        entryChanged =
+            entryChanged ||
+            produced.ratio != updatedRatio ||
+            produced.allowance != allowanceProvided;
+      }
+
+      if (entryChanged) {
+        await _repository.updateBonusInfo(
+          entry.copyWith(produced: updatedProduced),
+        );
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      await loadBonusInfos();
+    }
+  }
+
+  bool _isSameDay(DateTime left, DateTime right) =>
+      left.day == right.day &&
+      left.month == right.month &&
+      left.year == right.year;
 
   /// Returns all bonus entries for a given product, including date and amount.
   List<BonusInfo> getProductHistory(String productName) {
@@ -292,8 +387,10 @@ final bonusInfoRepositoryProvider = Provider<BonusInfoRepository>((ref) {
 });
 
 final walletSummaryProvider = FutureProvider<WalletSummary>((ref) async {
+  ref.watch(bonusInfoListProvider.select((s) => s.bonusInfo));
   final bonusNotifier = ref.read(bonusInfoListProvider.notifier);
-  final userState = ref.watch(userNotifierProvider);
+  final hourlyRate =
+      ref.watch(userNotifierProvider.select((s) => s.hourlyRate)) ?? 0;
 
   // 3️⃣  Do the maths *inside* the selected range.
   final results = await Future.wait([
@@ -302,7 +399,7 @@ final walletSummaryProvider = FutureProvider<WalletSummary>((ref) async {
   ]);
   final totalBonus = results[0];
   final totalHours = results[1];
-  final totalSalary = totalBonus + totalHours * (userState.hourlyRate ?? 0);
+  final totalSalary = totalBonus + totalHours * hourlyRate;
 
   return WalletSummary(totalBonus, totalHours, totalSalary);
 });

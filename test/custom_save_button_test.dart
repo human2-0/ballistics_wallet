@@ -18,10 +18,12 @@ import 'auth_repository_test.mocks.dart';
 import 'wallet/bonus_info_list_test.mocks.dart';
 import 'wallet/fake_bonus_info_classes.dart';
 
-
 /// Fake notifiers used to satisfy provider overrides in tests.
-class FakeNumberEditingControllerNotifier extends NumberEditingControllerNotifier {
-  FakeNumberEditingControllerNotifier();
+class FakeNumberEditingControllerNotifier
+    extends NumberEditingControllerNotifier {
+  FakeNumberEditingControllerNotifier() {
+    controller.text = '5';
+  }
 
   // Always provide the fixed test value “5”.
 }
@@ -32,11 +34,7 @@ class FakeAllowanceNotifier extends AllowanceNotifier {
   // Always provide the fixed test value `0.0`.
 }
 
-
-@GenerateNiceMocks([
-  MockSpec<AuthRepository>(),
-  MockSpec<BackupManager>(),
-])
+@GenerateNiceMocks([MockSpec<AuthRepository>(), MockSpec<BackupManager>()])
 void main() {
   testWidgets('CustomSaveButton saves bonus on tap', (tester) async {
     final mockAuth = MockAuthRepository();
@@ -46,8 +44,10 @@ void main() {
 
     final fakeBonusNotifier = FakeBonusInfoNotifier();
     final fakeUserNotifier = FakeUserNotifier();
-    fakeUserNotifier.state =
-        fakeUserNotifier.state.copyWith(backup: true, askForBackup: true);
+    fakeUserNotifier.state = fakeUserNotifier.state.copyWith(
+      backup: false,
+      askForBackup: true,
+    );
 
     final overrides = [
       bonusInfoListProvider.overrideWith((ref) => fakeBonusNotifier),
@@ -62,7 +62,9 @@ void main() {
           product: const [],
         ),
       ),
-      numberControllerProvider.overrideWith((ref) => FakeNumberEditingControllerNotifier()),
+      numberControllerProvider.overrideWith(
+        (ref) => FakeNumberEditingControllerNotifier(),
+      ),
       targetProvider.overrideWith((ref) => 100),
       allowanceProvider.overrideWith(FakeAllowanceNotifier.new),
       bonusCalculator.overrideWithProvider(
@@ -73,9 +75,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides,
-        child: const MaterialApp(
-          home: Scaffold(body: CustomSaveButton()),
-        ),
+        child: const MaterialApp(home: Scaffold(body: CustomSaveButton())),
       ),
     );
 
@@ -87,9 +87,12 @@ void main() {
 
     expect(fakeBonusNotifier.state.bonusInfo.length, 1);
     expect(find.text('Fake bonus added'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 2));
   });
 
-  testWidgets('CustomSaveButton disabled when product is empty', (tester) async {
+  testWidgets('CustomSaveButton disabled when product is empty', (
+    tester,
+  ) async {
     final mockAuth = MockAuthRepository();
     final mockBackup = MockBackupManager();
     when(mockAuth.currentUserId).thenReturn('user123');
@@ -97,8 +100,10 @@ void main() {
 
     final fakeBonusNotifier = FakeBonusInfoNotifier();
     final fakeUserNotifier = FakeUserNotifier();
-    fakeUserNotifier.state =
-        fakeUserNotifier.state.copyWith(backup: true, askForBackup: true);
+    fakeUserNotifier.state = fakeUserNotifier.state.copyWith(
+      backup: false,
+      askForBackup: true,
+    );
 
     final overrides = [
       bonusInfoListProvider.overrideWith((ref) => fakeBonusNotifier),
@@ -113,7 +118,9 @@ void main() {
           product: const [],
         ),
       ),
-      numberControllerProvider.overrideWith((ref) => FakeNumberEditingControllerNotifier()),
+      numberControllerProvider.overrideWith(
+        (ref) => FakeNumberEditingControllerNotifier(),
+      ),
       targetProvider.overrideWith((ref) => 100),
       allowanceProvider.overrideWith(FakeAllowanceNotifier.new),
       bonusCalculator.overrideWithProvider(
@@ -124,9 +131,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides,
-        child: const MaterialApp(
-          home: Scaffold(body: CustomSaveButton()),
-        ),
+        child: const MaterialApp(home: Scaffold(body: CustomSaveButton())),
       ),
     );
 

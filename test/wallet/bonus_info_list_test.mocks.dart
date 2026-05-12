@@ -1429,18 +1429,15 @@ class MockBonusInfoNotifier extends _i1.Mock implements _i20.BonusInfoNotifier {
       ) as double);
 
   @override
-  _i10.Future<List<MapEntry<_i11.BonusInfo, _i11.Produced>>>
-      getProductHistory(String? productName) => (super.noSuchMethod(
-            Invocation.method(
-              #getProductHistory,
-              [productName],
-            ),
-            returnValue: _i10.Future<List<MapEntry<_i11.BonusInfo, _i11.Produced>>>
-                .value(<MapEntry<_i11.BonusInfo, _i11.Produced>>[]),
-            returnValueForMissingStub: _i10.Future<
-                    List<MapEntry<_i11.BonusInfo, _i11.Produced>>>
-                .value(<MapEntry<_i11.BonusInfo, _i11.Produced>>[]),
-          ) as _i10.Future<List<MapEntry<_i11.BonusInfo, _i11.Produced>>>);
+  List<_i11.BonusInfo> getProductHistory(String? productName) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getProductHistory,
+          [productName],
+        ),
+        returnValue: <_i11.BonusInfo>[],
+        returnValueForMissingStub: <_i11.BonusInfo>[],
+      ) as List<_i11.BonusInfo>);
 
   @override
   _i10.Future<void> loadBonusInfos() => (super.noSuchMethod(
