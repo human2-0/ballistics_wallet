@@ -1,0 +1,61 @@
+# General
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+*.env
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code - Uncomment if you wish to ignore
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Specific project folders
+boost_ballistics/build/
+signUpForm/firebase-tools-instant-win.exe
+firebasetutorial/android/app/PowerShell-7.2.6-win-x64.msi
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio build artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/app/build/
+
+# Global build folder
+
+# Exclude the entire ios folder
+ios/
+
+android/
+
+# Note: Excluding the ios/ folder means all its contents, including build artifacts,
+# source code, configurations, and any other files within that directory will not be tracked by Git.

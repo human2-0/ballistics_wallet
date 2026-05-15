@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final productNameControllerProvider =
+    StateNotifierProvider<TextEditingControllerNotifier, String>(
+      (ref) => TextEditingControllerNotifier(),
+    );
+
+class TextEditingControllerNotifier extends StateNotifier<String> {
+  TextEditingControllerNotifier() : super('') {
+    _controller = TextEditingController();
+    _controller.addListener(_textChanged);
+  }
+  late final TextEditingController _controller;
+
+  TextEditingController get controller => _controller;
+
+  void _textChanged() {
+    state = _controller.text;
+  }
+
+  @override
+  void dispose() {
+    _controller
+      ..removeListener(_textChanged)
+      ..dispose();
+    super.dispose();
+  }
+}
+
+final numberControllerProvider =
+    StateNotifierProvider<NumberEditingControllerNotifier, String>(
+      (ref) => NumberEditingControllerNotifier(),
+    );
+
+class NumberEditingControllerNotifier extends StateNotifier<String> {
+  NumberEditingControllerNotifier() : super('') {
+    _controller = TextEditingController();
+    _controller.addListener(_textChanged);
+  }
+  late final TextEditingController _controller;
+
+  TextEditingController get controller => _controller;
+
+  void _textChanged() {
+    state = _controller.text; // Update the state with the current text value
+  }
+
+  @override
+  void dispose() {
+    _controller
+      ..removeListener(_textChanged)
+      ..dispose();
+    super.dispose();
+  }
+}
+
+final allowanceControllerProvider = Provider<TextEditingController>(
+  (ref) => ref.watch(textEditingControllerProvider),
+);
+
+final textEditingControllerProvider = Provider<TextEditingController>(
+  (ref) => TextEditingController(),
+);
+
+final allowanceEditingControllerNotifierProvider = StateNotifierProvider<
+  AllowanceEditingControllerNotifier,
+  TextEditingController
+>((ref) {
+  final controller = ref.watch(textEditingControllerProvider);
+  return AllowanceEditingControllerNotifier(controller);
+});
+
+class AllowanceEditingControllerNotifier
+    extends StateNotifier<TextEditingController> {
+  AllowanceEditingControllerNotifier(super._state) {
+    state.addListener(_textChanged);
+  }
+
+  void _textChanged() {}
+
+  @override
+  void dispose() {
+    state
+      ..removeListener(_textChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  void updateText(String newText) {
+    if (newText != state.text) {
+      state.value = TextEditingValue(
+        text: newText,
+        selection:
+            state.selection.isValid
+                ? state.selection
+                : TextSelection.collapsed(offset: newText.length),
+      );
+    }
+  }
+}
+
+class ActiveIndexNotifier extends StateNotifier<int?> {
+  ActiveIndexNotifier() : super(null);
+
+  int? get activeIndex => state;
+
+  set activeIndex(int? index) {
+    state = index;
+  }
+}
+
+final activeIndexTabProvider = StateNotifierProvider<ActiveIndexNotifier, int?>(
+  (ref) => ActiveIndexNotifier(),
+);
