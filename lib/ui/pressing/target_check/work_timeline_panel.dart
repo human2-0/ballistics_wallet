@@ -2,12 +2,14 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:ballistics_wallet_flutter/models/work_schedule.dart';
 import 'package:ballistics_wallet_flutter/models/work_timeline_plan.dart';
 import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/work_timeline_provider.dart';
 import 'package:ballistics_wallet_flutter/services/work_timeline_notification_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +30,7 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
   late final FocusNode _targetFocusNode;
   late final FocusNode _batchFocusNode;
   Timer? _timer;
+  TimeOfDay? _debugTimeOverride;
   String? _lastReminderSignature;
 
   static const double _minSegmentTileHeight = 68;
@@ -43,7 +46,7 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
     _batchFocusNode = FocusNode();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
-        setState(() => _now = DateTime.now());
+        setState(() => _now = _currentAppTime());
       }
     });
   }
@@ -63,7 +66,6 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
     final settings = ref.watch(workTimelineSettingsProvider);
     final plan = ref.watch(workTimelinePlanProvider(_now));
     final currentSegment = WorkSchedule.currentSegment(_now);
-    final nextEvent = WorkSchedule.nextEvent(_now);
     final progress = WorkSchedule.progressFor(_now);
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -73,7 +75,7 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
     return Material(
       elevation: 18,
       color: Colors.transparent,
-      borderRadius: const BorderRadius.horizontal(left: Radius.circular(28)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -84,81 +86,100 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
           ),
         ),
         child: SafeArea(
-          left: false,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 12, 10, 6),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Work timeline',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final timelineHeightBasis =
+                  math.max(360, constraints.maxHeight - 250).toDouble();
+              final segmentHeights = _segmentHeights(timelineHeightBasis);
+              final timelineHeight = segmentHeights.fold<double>(
+                0,
+                (total, height) => total + height,
+              );
+
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 10, 10, 6),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 40),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: Container(
+                                      width: 42,
+                                      height: 4,
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange[200],
+                                        borderRadius: BorderRadius.circular(99),
+                                      ),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Work timeline',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${WorkSchedule.start.label} - '
+                                    '${WorkSchedule.finish.label}',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${WorkSchedule.start.label} - '
-                            '${WorkSchedule.finish.label}',
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w600,
+                            IconButton(
+                              tooltip: 'Close timeline',
+                              icon: const Icon(Icons.close),
+                              onPressed: widget.onClose,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: 'Close timeline',
-                      icon: const Icon(Icons.close),
-                      onPressed: widget.onClose,
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: _TimelineStatusCard(
-                  plan: plan,
-                  settings: settings,
-                  currentSegment: currentSegment,
-                  nextEvent: nextEvent,
-                  now: _now,
-                  targetController: _targetController,
-                  batchController: _batchController,
-                  targetFocusNode: _targetFocusNode,
-                  batchFocusNode: _batchFocusNode,
-                  onTargetChanged: (value) {
-                    unawaited(_handleTargetChanged(value));
-                  },
-                  onBatchChanged: _handleBatchChanged,
-                  onBreakReminderChanged: (value) {
-                    unawaited(_handleBreakReminderChanged(value));
-                  },
-                  onBatchReminderChanged: (value) {
-                    unawaited(_handleBatchReminderChanged(value));
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final availableHeight = constraints.maxHeight;
-                      final segmentHeights = _segmentHeights(availableHeight);
-                      final timelineHeight = segmentHeights.fold<double>(
-                        0,
-                        (total, height) => total + height,
-                      );
-                      return SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
+                      if (kDebugMode)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+                          child: _DebugTimeControls(
+                            now: _now,
+                            isOverridden: _debugTimeOverride != null,
+                            onPick: _pickDebugTime,
+                            onReset: _clearDebugTime,
+                            onShift: _shiftDebugTime,
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: _TimelineStatusCard(
+                          plan: plan,
+                          currentSegment: currentSegment,
+                          now: _now,
+                          targetController: _targetController,
+                          batchController: _batchController,
+                          targetFocusNode: _targetFocusNode,
+                          batchFocusNode: _batchFocusNode,
+                          onTargetChanged: _handleTargetChanged,
+                          onBatchChanged: _handleBatchChanged,
+                          onAutoPlanBatchSize: _handleAutoPlanBatchSize,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
                         child: SizedBox(
                           height: timelineHeight,
                           child: Stack(
@@ -188,12 +209,12 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
                             ],
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -294,7 +315,7 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
     if (!_targetFocusNode.hasFocus) {
       final targetText =
           settings.targetBonus > 0
-              ? settings.targetBonus.toStringAsFixed(2)
+              ? settings.targetBonus.floor().toString()
               : '';
       if (_targetController.text != targetText) {
         _targetController.text = targetText;
@@ -309,12 +330,13 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
     }
   }
 
-  Future<void> _handleTargetChanged(String value) async {
-    final normalized = value.replaceAll(',', '.').trim();
-    final target = double.tryParse(normalized) ?? 0;
-    await ref
-        .read(workTimelineSettingsProvider.notifier)
-        .setTargetBonus(target);
+  void _handleTargetChanged(String value) {
+    final target = int.tryParse(value.trim()) ?? 0;
+    unawaited(
+      ref
+          .read(workTimelineSettingsProvider.notifier)
+          .setTargetBonus(target.toDouble()),
+    );
   }
 
   void _handleBatchChanged(String value) {
@@ -322,22 +344,51 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
     ref.read(amountPerBatchProvider.notifier).state = perBatch;
   }
 
-  Future<void> _handleBreakReminderChanged(bool value) async {
-    if (value) {
-      await WorkTimelineNotificationService.instance.requestPermissions();
-    }
-    await ref
-        .read(workTimelineSettingsProvider.notifier)
-        .setBreakReminderEnabled(value);
+  void _handleAutoPlanBatchSize(int batchSize) {
+    if (batchSize <= 0) return;
+    _batchFocusNode.unfocus();
+    _batchController.text = batchSize.toString();
+    ref.read(amountPerBatchProvider.notifier).state = batchSize;
   }
 
-  Future<void> _handleBatchReminderChanged(bool value) async {
-    if (value) {
-      await WorkTimelineNotificationService.instance.requestPermissions();
-    }
-    await ref
-        .read(workTimelineSettingsProvider.notifier)
-        .setBatchReminderEnabled(value);
+  DateTime _currentAppTime() {
+    final realNow = DateTime.now();
+    final debugOverride = _debugTimeOverride;
+    if (!kDebugMode || debugOverride == null) return realNow;
+    return DateTime(
+      realNow.year,
+      realNow.month,
+      realNow.day,
+      debugOverride.hour,
+      debugOverride.minute,
+    );
+  }
+
+  Future<void> _pickDebugTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_now),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _debugTimeOverride = picked;
+      _now = _currentAppTime();
+    });
+  }
+
+  void _shiftDebugTime(int minutes) {
+    final shifted = _now.add(Duration(minutes: minutes));
+    setState(() {
+      _debugTimeOverride = TimeOfDay.fromDateTime(shifted);
+      _now = _currentAppTime();
+    });
+  }
+
+  void _clearDebugTime() {
+    setState(() {
+      _debugTimeOverride = null;
+      _now = DateTime.now();
+    });
   }
 
   void _syncReminderSchedule(
@@ -377,12 +428,77 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
   }
 }
 
+class _DebugTimeControls extends StatelessWidget {
+  const _DebugTimeControls({
+    required this.now,
+    required this.isOverridden,
+    required this.onPick,
+    required this.onReset,
+    required this.onShift,
+  });
+
+  final DateTime now;
+  final bool isOverridden;
+  final VoidCallback onPick;
+  final VoidCallback onReset;
+  final ValueChanged<int> onShift;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.black.withValues(alpha: 0.05),
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: Colors.orange[100]!),
+    ),
+    child: Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Icon(
+          Icons.bug_report_outlined,
+          size: 17,
+          color: isOverridden ? Colors.deepOrange : Colors.grey[700],
+        ),
+        Text(
+          'Debug time ${_clockLabel(now)}',
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+        ),
+        IconButton(
+          tooltip: 'Back 15 minutes',
+          visualDensity: VisualDensity.compact,
+          icon: const Icon(Icons.remove_circle_outline, size: 18),
+          onPressed: () => onShift(-15),
+        ),
+        IconButton(
+          tooltip: 'Forward 15 minutes',
+          visualDensity: VisualDensity.compact,
+          icon: const Icon(Icons.add_circle_outline, size: 18),
+          onPressed: () => onShift(15),
+        ),
+        TextButton.icon(
+          onPressed: onPick,
+          icon: const Icon(Icons.schedule_outlined, size: 17),
+          label: const Text('Pick'),
+        ),
+        if (isOverridden)
+          IconButton(
+            tooltip: 'Use real time',
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.restart_alt, size: 18),
+            onPressed: onReset,
+          ),
+      ],
+    ),
+  );
+}
+
 class _TimelineStatusCard extends StatelessWidget {
   const _TimelineStatusCard({
     required this.plan,
-    required this.settings,
     required this.currentSegment,
-    required this.nextEvent,
     required this.now,
     required this.targetController,
     required this.batchController,
@@ -390,14 +506,11 @@ class _TimelineStatusCard extends StatelessWidget {
     required this.batchFocusNode,
     required this.onTargetChanged,
     required this.onBatchChanged,
-    required this.onBreakReminderChanged,
-    required this.onBatchReminderChanged,
+    required this.onAutoPlanBatchSize,
   });
 
   final WorkTimelinePlan plan;
-  final WorkTimelineSettings settings;
   final WorkScheduleSegment? currentSegment;
-  final DateTime nextEvent;
   final DateTime now;
   final TextEditingController targetController;
   final TextEditingController batchController;
@@ -405,18 +518,20 @@ class _TimelineStatusCard extends StatelessWidget {
   final FocusNode batchFocusNode;
   final ValueChanged<String> onTargetChanged;
   final ValueChanged<String> onBatchChanged;
-  final ValueChanged<bool> onBreakReminderChanged;
-  final ValueChanged<bool> onBatchReminderChanged;
+  final ValueChanged<int> onAutoPlanBatchSize;
 
   @override
   Widget build(BuildContext context) {
     final title = currentSegment?.title ?? _offShiftTitle(now);
-    final countdown = WorkSchedule.formatDuration(nextEvent.difference(now));
-    final nextEventName = WorkSchedule.eventNameFor(nextEvent).toLowerCase();
     final progress =
-        plan.targetBonus > 0
-            ? (plan.currentBonus / plan.targetBonus).clamp(0.0, 1.0)
+        plan.requiredRatio > 0
+            ? (plan.currentRatio / plan.requiredRatio).clamp(0.0, 1.0)
             : 0.0;
+    final autoBatchSize = _suggestEvenBatchSize(plan);
+    final canAutoPlan =
+        autoBatchSize > 0 &&
+        autoBatchSize != plan.perBatch &&
+        plan.perBatch > 0;
 
     return Container(
       width: double.infinity,
@@ -440,13 +555,6 @@ class _TimelineStatusCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                '£${plan.currentBonus.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.green[900],
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -462,29 +570,46 @@ class _TimelineStatusCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
             children: [
-              SizedBox(
-                width: 122,
+              Expanded(
                 child: _TimelineNumberField(
                   controller: targetController,
                   focusNode: targetFocusNode,
                   label: 'Target £',
                   icon: Icons.flag_outlined,
-                  decimal: true,
                   onChanged: onTargetChanged,
                 ),
               ),
-              SizedBox(
-                width: 118,
+              const SizedBox(width: 8),
+              Expanded(
                 child: _TimelineNumberField(
                   controller: batchController,
                   focusNode: batchFocusNode,
-                  label: 'Per batch',
+                  label: 'Batch',
                   icon: Icons.inventory_2_outlined,
                   onChanged: onBatchChanged,
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 48,
+                child: Tooltip(
+                  message:
+                      autoBatchSize > 0
+                          ? 'Use $autoBatchSize per batch for a more even '
+                              'block split'
+                          : 'Set a target and batch size first',
+                  child: OutlinedButton.icon(
+                    onPressed:
+                        canAutoPlan
+                            ? () => onAutoPlanBatchSize(autoBatchSize)
+                            : null,
+                    icon: const Icon(Icons.auto_awesome, size: 18),
+                    label: Text(
+                      autoBatchSize > 0 ? 'Auto $autoBatchSize' : 'Auto',
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -502,40 +627,6 @@ class _TimelineStatusCard extends StatelessWidget {
               fontSize: 12.5,
               height: 1.25,
             ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              _MetricChip(
-                icon: Icons.timer_outlined,
-                label: '$countdown to $nextEventName',
-              ),
-              _MetricChip(icon: Icons.speed_outlined, label: plan.paceSummary),
-              _MetricChip(
-                icon: Icons.view_week_outlined,
-                label: plan.batchSummary,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _ReminderToggle(
-                icon: Icons.coffee_outlined,
-                tooltip: 'Remind during breaks to update the score',
-                value: settings.breakReminderEnabled,
-                onChanged: onBreakReminderChanged,
-              ),
-              const SizedBox(width: 6),
-              _ReminderToggle(
-                icon: Icons.notifications_active_outlined,
-                tooltip: 'Remind when a planned batch should start',
-                value: settings.batchReminderEnabled,
-                onChanged: onBatchReminderChanged,
-              ),
-            ],
           ),
         ],
       ),
@@ -558,7 +649,6 @@ class _TimelineNumberField extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onChanged,
-    this.decimal = false,
   });
 
   final TextEditingController controller;
@@ -566,18 +656,13 @@ class _TimelineNumberField extends StatelessWidget {
   final String label;
   final IconData icon;
   final ValueChanged<String> onChanged;
-  final bool decimal;
 
   @override
   Widget build(BuildContext context) => TextField(
     controller: controller,
     focusNode: focusNode,
-    keyboardType: TextInputType.numberWithOptions(decimal: decimal),
-    inputFormatters: [
-      FilteringTextInputFormatter.allow(
-        decimal ? RegExp('[0-9,.]') : RegExp('[0-9]'),
-      ),
-    ],
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
     onChanged: onChanged,
     decoration: InputDecoration(
       isDense: true,
@@ -598,75 +683,79 @@ class _TimelineNumberField extends StatelessWidget {
   );
 }
 
-class _MetricChip extends StatelessWidget {
-  const _MetricChip({required this.icon, required this.label});
+int _suggestEvenBatchSize(WorkTimelinePlan plan) {
+  if (!plan.canPlanUnits || plan.perBatch <= 0) return 0;
 
-  final IconData icon;
-  final String label;
+  const maxTableBatchSize = 150;
+  final blockUnits =
+      plan.segmentPlans
+          .where((segmentPlan) => segmentPlan.hasFutureProduction)
+          .map((segmentPlan) => segmentPlan.plannedUnits)
+          .where((units) => units > 0)
+          .toList();
+  if (blockUnits.isEmpty) return 0;
 
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: 0.72),
-      borderRadius: BorderRadius.circular(99),
-      border: Border.all(color: Colors.orange[100]!),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 15),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
-        ),
-      ],
-    ),
-  );
+  final preferred = plan.perBatch.clamp(1, maxTableBatchSize);
+  final lowerBound = math.max(1, (preferred * 0.75).floor());
+  final upperBound = math.min(maxTableBatchSize, (preferred * 1.25).ceil());
+  var bestSize = preferred;
+  var bestScore = double.infinity;
+
+  for (var size = lowerBound; size <= upperBound; size++) {
+    final score = _batchEvennessScore(
+      blockUnits: blockUnits,
+      batchSize: size,
+      preferredSize: preferred,
+    );
+    if (score < bestScore - 0.0001 ||
+        ((score - bestScore).abs() <= 0.0001 &&
+            (preferred - size).abs() < (preferred - bestSize).abs())) {
+      bestScore = score;
+      bestSize = size;
+    }
+  }
+
+  return bestSize;
 }
 
-class _ReminderToggle extends StatelessWidget {
-  const _ReminderToggle({
-    required this.icon,
-    required this.tooltip,
-    required this.value,
-    required this.onChanged,
-  });
+double _batchEvennessScore({
+  required List<int> blockUnits,
+  required int batchSize,
+  required int preferredSize,
+}) {
+  var splitQuality = 0.0;
+  var totalBatchCount = 0;
 
-  final IconData icon;
-  final String tooltip;
-  final bool value;
-  final ValueChanged<bool> onChanged;
+  for (final units in blockUnits) {
+    final batchCount = (units / batchSize).ceil();
+    final remainder = units % batchSize;
+    final lastBatchRatio =
+        remainder == 0 ? 1.0 : remainder / math.max(1, batchSize);
+    totalBatchCount += batchCount;
 
-  @override
-  Widget build(BuildContext context) => Tooltip(
-    message: tooltip,
-    child: InkWell(
-      borderRadius: BorderRadius.circular(99),
-      onTap: () => onChanged(!value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color:
-              value ? Colors.green[100] : Colors.white.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(99),
-          border: Border.all(color: value ? Colors.green : Colors.orange[100]!),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: value ? Colors.green[900] : null),
-            Transform.scale(
-              scale: 0.72,
-              child: Switch(value: value, onChanged: onChanged),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
+    if (batchCount < 3) {
+      splitQuality += units <= batchSize ? 4 : 32;
+    } else if (batchCount <= 4) {
+      splitQuality += 0;
+    } else {
+      splitQuality += (batchCount - 4) * 12;
+    }
+
+    if (batchCount > 1 && lastBatchRatio < 0.45) {
+      splitQuality += (0.45 - lastBatchRatio) * 40;
+    }
+  }
+
+  final distanceFromPreferred =
+      (preferredSize - batchSize).abs() / math.max(1, preferredSize);
+  return (distanceFromPreferred * 100) +
+      splitQuality +
+      (totalBatchCount * 0.35);
 }
+
+String _clockLabel(DateTime time) =>
+    '${time.hour.toString().padLeft(2, '0')}:'
+    '${time.minute.toString().padLeft(2, '0')}';
 
 class _TimelineRail extends StatelessWidget {
   const _TimelineRail({required this.progress});
@@ -798,6 +887,10 @@ class _TimelineSegmentTile extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (plan.batchLabel.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    _BlockBatchChip(label: plan.batchLabel),
+                  ],
                 ],
               ],
             );
@@ -830,6 +923,31 @@ class _TimelineSegmentTile extends StatelessWidget {
         return Colors.deepOrange;
     }
   }
+}
+
+class _BlockBatchChip extends StatelessWidget {
+  const _BlockBatchChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerRight,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.76),
+        borderRadius: BorderRadius.circular(99),
+        border: Border.all(color: Colors.orange[100]!),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+      ),
+    ),
+  );
 }
 
 class _TimelineMarker extends StatelessWidget {

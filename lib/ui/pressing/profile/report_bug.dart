@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 
@@ -29,17 +30,20 @@ class _ReportBugEmailScreenState extends State<ReportBugEmailScreen> {
     try {
       await FlutterEmailSender.send(email);
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bug report sent successfully!'),
-          ),
+        showAppNotification(
+          context,
+          'Bug report sent.',
+          type: AppNotificationType.success,
         );
         _titleController.clear();
         _descriptionController.clear();
       });
-    } on FormatException catch (error) {
+    } on FormatException {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: Unable to send email')),
+        showAppNotification(
+          context,
+          'Unable to send email.',
+          type: AppNotificationType.error,
         );
       });
     } finally {
@@ -95,12 +99,13 @@ class _ReportBugEmailScreenState extends State<ReportBugEmailScreen> {
               ),
               const SizedBox(height: 16),
               Center(
-                child: _isSending
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                  onPressed: _sendEmail,
-                  child: const Text('Send Email'),
-                ),
+                child:
+                    _isSending
+                        ? const CircularProgressIndicator()
+                        : ElevatedButton(
+                          onPressed: _sendEmail,
+                          child: const Text('Send Email'),
+                        ),
               ),
             ],
           ),

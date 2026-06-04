@@ -14,11 +14,19 @@ void main() {
 
   test('addProduct and fetchProductInfo work with Firestore', () async {
     const pressing = Pressing('Red', 1, 2);
-    await repo.addProduct('Widget', 100, [pressing]);
+    await repo.addProduct(
+      'Widget',
+      100,
+      [pressing],
+      customWeightRangeMinGrams: 120,
+      customWeightRangeMaxGrams: 130,
+    );
 
     final products = await repo.fetchProductInfo();
     expect(products.length, 1);
     expect(products.first.productName, 'Widget');
+    expect(products.first.customWeightRangeMinGrams, 120);
+    expect(products.first.customWeightRangeMaxGrams, 130);
   });
 
   test('editProductInfo updates product in Firestore', () async {
@@ -30,6 +38,8 @@ void main() {
       target: 75,
       imageName: 'Gadget',
       product: [pressing],
+      customWeightRangeMinGrams: 210,
+      customWeightRangeMaxGrams: 225,
     );
     final result = await repo.editProductInfo(updated);
     expect(result, true);
@@ -37,6 +47,8 @@ void main() {
     final products = await repo.fetchProductInfo();
     expect(products.first.target, 75);
     expect(products.first.imageName, 'Gadget');
+    expect(products.first.customWeightRangeMinGrams, 210);
+    expect(products.first.customWeightRangeMaxGrams, 225);
   });
 
   test('fetchProductInfo falls back to product-name image slug', () async {
@@ -49,6 +61,8 @@ void main() {
 
     final products = await repo.fetchProductInfo();
     expect(products.single.imageName, 'sticky_dates_bath_bomb');
+    expect(products.single.customWeightRangeMinGrams, isNull);
+    expect(products.single.customWeightRangeMaxGrams, isNull);
   });
 
   test('deleteProduct removes product from Firestore', () async {

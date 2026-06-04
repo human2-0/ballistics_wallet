@@ -187,6 +187,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				D3C57EBDC11B73A87BDE2B69 /* [CP] Copy Pods Resources */,
 				AF674A16E0C86207AF99CDDA /* [CP] Embed Pods Frameworks */,
+				BAD5D5F02DD4E00100A11CE5 /* Generate SPM Framework dSYMs */,
 			);
 			buildRules = (
 			);
@@ -333,6 +334,21 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		BAD5D5F02DD4E00100A11CE5 /* Generate SPM Framework dSYMs */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate SPM Framework dSYMs";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${ACTION:-}\" != \"install\" ]; then\n  exit 0\nfi\n\nframeworks=\"FirebaseFirestoreInternal absl grpc grpcpp objective_c openssl_grpc\"\nframeworks_dir=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n[ -d \"$frameworks_dir\" ] || exit 0\n\nfor framework in $frameworks; do\n  binary=\"${frameworks_dir}/${framework}.framework/${framework}\"\n  [ -f \"$binary\" ] || continue\n\n  tmp_dsym=\"${DERIVED_FILE_DIR}/${framework}.framework.dSYM\"\n  rm -rf \"$tmp_dsym\"\n  dsymutil \"$binary\" -o \"$tmp_dsym\" || continue\n\n  if [ -n \"${DWARF_DSYM_FOLDER_PATH:-}\" ]; then\n    mkdir -p \"$DWARF_DSYM_FOLDER_PATH\"\n    rm -rf \"${DWARF_DSYM_FOLDER_PATH}/${framework}.framework.dSYM\"\n    cp -R \"$tmp_dsym\" \"$DWARF_DSYM_FOLDER_PATH/\"\n  fi\n\n  if [ -n \"${ARCHIVE_PATH:-}\" ]; then\n    mkdir -p \"${ARCHIVE_PATH}/dSYMs\"\n    rm -rf \"${ARCHIVE_PATH}/dSYMs/${framework}.framework.dSYM\"\n    cp -R \"$tmp_dsym\" \"${ARCHIVE_PATH}/dSYMs/\"\n  fi\ndone\n";
 		};
 		D3C57EBDC11B73A87BDE2B69 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

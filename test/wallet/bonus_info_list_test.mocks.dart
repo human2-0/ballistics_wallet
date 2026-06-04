@@ -488,12 +488,19 @@ class MockProductInfoRepository extends _i1.Mock
     List<_i14.Pressing>? pressings, {
     bool? ayr = true,
     String? description,
+    double? customWeightRangeMinGrams,
+    double? customWeightRangeMaxGrams,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #addProduct,
               [productName, target, pressings],
-              {#ayr: ayr, #description: description},
+              {
+                #ayr: ayr,
+                #description: description,
+                #customWeightRangeMinGrams: customWeightRangeMinGrams,
+                #customWeightRangeMaxGrams: customWeightRangeMaxGrams,
+              },
             ),
             returnValue: _i10.Future<void>.value(),
             returnValueForMissingStub: _i10.Future<void>.value(),
@@ -1053,14 +1060,19 @@ class MockProductInfoNotifier extends _i1.Mock
   _i10.Future<void> addProductInfo(
     String? productName,
     int? target,
-    List<_i14.Pressing>? pressings,
-  ) =>
+    List<_i14.Pressing>? pressings, {
+    double? customWeightRangeMinGrams,
+    double? customWeightRangeMaxGrams,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#addProductInfo, [
-              productName,
-              target,
-              pressings,
-            ]),
+            Invocation.method(
+              #addProductInfo,
+              [productName, target, pressings],
+              {
+                #customWeightRangeMinGrams: customWeightRangeMinGrams,
+                #customWeightRangeMaxGrams: customWeightRangeMaxGrams,
+              },
+            ),
             returnValue: _i10.Future<void>.value(),
             returnValueForMissingStub: _i10.Future<void>.value(),
           )

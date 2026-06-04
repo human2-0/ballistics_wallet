@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
@@ -8,7 +10,6 @@ import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:math';
 
 enum _ColorAction { custom, clearCustom, selectColor, clearColor }
 
@@ -30,42 +31,43 @@ Future<void> _showCustomAmountDialog(
   final focusNode = FocusNode();
   await showDialog<void>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Text('Custom amount per batch'),
-      content: CustomTextField(
-        controller: controller,
-        focusNode: focusNode,
-        hintText: 'Enter custom amount',
-        labelText: 'Amount per batch',
-        keyboardType: TextInputType.number,
-        showClearIcon: true,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: const Text('Cancel'),
+    builder:
+        (ctx) => AlertDialog(
+          title: const Text('Custom amount per batch'),
+          content: CustomTextField(
+            controller: controller,
+            focusNode: focusNode,
+            hintText: 'Enter custom amount',
+            labelText: 'Amount per batch',
+            keyboardType: TextInputType.number,
+            showClearIcon: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final raw = controller.text.trim();
+                final next = {...ref.read(perColorOverridesProvider)};
+                if (raw.isEmpty) {
+                  // Empty input clears the custom override (revert to global per-batch)
+                  next.remove(colorKey);
+                } else {
+                  final val = int.tryParse(raw);
+                  if (val != null && val >= 0) {
+                    // Allow any non-negative integer; 0 means contribute nothing
+                    next[colorKey] = val;
+                  }
+                }
+                ref.read(perColorOverridesProvider.notifier).state = next;
+                Navigator.of(ctx).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () {
-            final raw = controller.text.trim();
-            final next = {...ref.read(perColorOverridesProvider)};
-            if (raw.isEmpty) {
-              // Empty input clears the custom override (revert to global per-batch)
-              next.remove(colorKey);
-            } else {
-              final val = int.tryParse(raw);
-              if (val != null && val >= 0) {
-                // Allow any non-negative integer; 0 means contribute nothing
-                next[colorKey] = val;
-              }
-            }
-            ref.read(perColorOverridesProvider.notifier).state = next;
-            Navigator.of(ctx).pop();
-          },
-          child: const Text('Save'),
-        ),
-      ],
-    ),
   );
 }
 
@@ -75,101 +77,113 @@ Future<void> _showColorPickerDialog(
   required String colorKey,
   required String? currentValue,
 }) async {
-  final isNamed = currentValue != null &&
+  final isNamed =
+      currentValue != null &&
       splitCheckColorOptions.contains(currentValue.toLowerCase());
   final initialNamed = isNamed ? currentValue!.toLowerCase() : null;
-  final initialParsed = currentValue != null
-      ? parseColorString(currentValue)
-      : null;
-  final initialColor = initialParsed ??
+  final initialParsed =
+      currentValue != null ? parseColorString(currentValue) : null;
+  final initialColor =
+      initialParsed ??
       (initialNamed != null ? getColorFromString(initialNamed) : Colors.blue);
   var selectedColor = initialColor;
   var selectedName = initialNamed;
 
   await showDialog<void>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Text('Select color'),
-      content: StatefulBuilder(
-        builder: (context, setState) {
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _HueWheelPicker(
-                  size: (MediaQuery.of(context).size.width * 0.8)
-                      .clamp(210.0, 320.0),
-                  color: selectedColor,
-                  onChanged: (next) {
-                    setState(() {
-                      selectedColor = next;
-                      selectedName = null;
-                    });
-                  },
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    builder:
+        (ctx) => AlertDialog(
+          title: const Text('Select color'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: selectedColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.black26),
+                    _HueWheelPicker(
+                      size: (MediaQuery.of(context).size.width * 0.8).clamp(
+                        210.0,
+                        320.0,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(colorToHex(selectedColor)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: splitCheckColorOptions.map((name) {
-                    final isSelected = selectedName == name;
-                    return ChoiceChip(
-                      label: Text(_colorLabel(name)),
-                      selected: isSelected,
-                      selectedColor: getColorFromString(name, accent: true),
-                      backgroundColor: getColorFromString(name),
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.black : Colors.black87,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      ),
-                      onSelected: (_) {
+                      color: selectedColor,
+                      onChanged: (next) {
                         setState(() {
-                          selectedName = name;
-                          selectedColor = getColorFromString(name);
+                          selectedColor = next;
+                          selectedName = null;
                         });
                       },
-                    );
-                  }).toList(),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: selectedColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black26),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(colorToHex(selectedColor)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          splitCheckColorOptions.map((name) {
+                            final isSelected = selectedName == name;
+                            return ChoiceChip(
+                              label: Text(_colorLabel(name)),
+                              selected: isSelected,
+                              selectedColor: getColorFromString(
+                                name,
+                                accent: true,
+                              ),
+                              backgroundColor: getColorFromString(name),
+                              labelStyle: TextStyle(
+                                color:
+                                    isSelected ? Colors.black : Colors.black87,
+                                fontWeight:
+                                    isSelected
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                              ),
+                              onSelected: (_) {
+                                setState(() {
+                                  selectedName = name;
+                                  selectedColor = getColorFromString(name);
+                                });
+                              },
+                            );
+                          }).toList(),
+                    ),
+                  ],
                 ),
-              ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
             ),
-          );
-        },
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: const Text('Cancel'),
+            TextButton(
+              onPressed: () {
+                final value = selectedName ?? colorToHex(selectedColor);
+                ref
+                    .read(perColorDisplayOverridesProvider.notifier)
+                    .setOverride(colorKey, value);
+                Navigator.of(ctx).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () {
-            final value = selectedName ?? colorToHex(selectedColor);
-            ref
-                .read(perColorDisplayOverridesProvider.notifier)
-                .setOverride(colorKey, value);
-            Navigator.of(ctx).pop();
-          },
-          child: const Text('Save'),
-        ),
-      ],
-    ),
   );
 }
 
@@ -205,13 +219,10 @@ class _HueWheelPicker extends StatelessWidget {
       height: size,
       child: GestureDetector(
         onPanDown: (details) => _handleChange(details.localPosition, paintSize),
-        onPanUpdate: (details) =>
-            _handleChange(details.localPosition, paintSize),
+        onPanUpdate:
+            (details) => _handleChange(details.localPosition, paintSize),
         onTapDown: (details) => _handleChange(details.localPosition, paintSize),
-        child: CustomPaint(
-          size: paintSize,
-          painter: _HueWheelPainter(color),
-        ),
+        child: CustomPaint(size: paintSize, painter: _HueWheelPainter(color)),
       ),
     );
   }
@@ -241,10 +252,7 @@ class _HueWheelPainter extends CustomPainter {
     canvas.drawCircle(center, radius, huePaint);
 
     final satShader = RadialGradient(
-      colors: [
-        Colors.white,
-        Colors.white.withValues(alpha: 0),
-      ],
+      colors: [Colors.white, Colors.white.withValues(alpha: 0)],
     ).createShader(rect);
     final satPaint = Paint()..shader = satShader;
     canvas.drawCircle(center, radius, satPaint);
@@ -295,7 +303,8 @@ class SplitCheck extends ConsumerWidget {
     final calc = ref.watch(splitCalculatorProvider);
     return GestureDetector(
       onTap: () => FocusScope.of(ctx).unfocus(), // dismisses keyboard on tap
-      behavior: HitTestBehavior.opaque, // ensures even empty space registers tap
+      behavior:
+          HitTestBehavior.opaque, // ensures even empty space registers tap
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
@@ -318,7 +327,9 @@ class SplitCheck extends ConsumerWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.orange[50],
-                        borderRadius: const BorderRadius.all(Radius.circular(33)),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(33),
+                        ),
                       ),
                       child: const Column(
                         children: [
@@ -409,8 +420,9 @@ class AmountSlider extends StatelessWidget {
           max: 150,
           divisions: 149,
           label: amt.toString(),
-          onChanged: (v) =>
-              ref.read(amountPerBatchProvider.notifier).state = v.round(),
+          onChanged:
+              (v) =>
+                  ref.read(amountPerBatchProvider.notifier).state = v.round(),
         );
       },
     );
@@ -485,33 +497,29 @@ class _ProductPickerState extends ConsumerState<ProductPicker> {
                     itemCount: options.length,
                     itemBuilder: (context, index) {
                       final option = options.elementAt(index);
-                      return GestureDetector(
-                        onTap: () => onSelected(option),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(33)),
-                              color: Colors.orange[50],
+                      return Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Material(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(33),
+                          ),
+                          child: ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(33),
                             ),
-                            child: ListTile(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(33),
-                              ),
-                              title: Center(
-                                child: Text(
-                                  option.productName,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
+                            title: Center(
+                              child: Text(
+                                option.productName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
                               ),
-                              tileColor: Colors.white,
-                              selectedTileColor: Colors.grey[200],
                             ),
+                            selectedTileColor: Colors.grey[200],
+                            onTap: () => onSelected(option),
                           ),
                         ),
                       );
@@ -526,18 +534,23 @@ class _ProductPickerState extends ConsumerState<ProductPicker> {
       optionsBuilder: (textEditingValue) {
         final query = textEditingValue.text.toLowerCase();
         if (query.isEmpty) return const <ProductInfo>[];
-        return allProducts
-            .where((p) => p.productName.toLowerCase().contains(query));
+        return allProducts.where(
+          (p) => p.productName.toLowerCase().contains(query),
+        );
       },
       displayStringForOption: (option) => option.productName,
+      initialValue: _controller.value,
       fieldViewBuilder: (context, fieldController, focusNode, onSubmitted) {
-        // drive from shared controller
-        fieldController.value = _controller.value;
         return CustomTextField(
           controller: fieldController,
           focusNode: focusNode,
           hintText: 'Add product name',
           labelText: 'Product',
+          onChanged: (_) {
+            if (_controller.value != fieldController.value) {
+              _controller.value = fieldController.value;
+            }
+          },
           onSubmitted: (_) => onSubmitted(),
           showClearIcon: true,
         );
@@ -590,25 +603,26 @@ class ResultsList extends ConsumerWidget {
     final overrides = ref.watch(perColorOverridesProvider);
     final colorOverrides = ref.watch(perColorDisplayOverridesProvider);
 
-    final header = overrides.isEmpty
-        ? const SizedBox.shrink()
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Chip(label: Text('Custom: ${overrides.length}')),
-                TextButton(
-                  onPressed: () {
-                    ref.read(perColorOverridesProvider.notifier).state = {};
-                  },
-                  child: const Text('Reset all'),
-                ),
-              ],
-            ),
-          );
+    final header =
+        overrides.isEmpty
+            ? const SizedBox.shrink()
+            : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Chip(label: Text('Custom: ${overrides.length}')),
+                  TextButton(
+                    onPressed: () {
+                      ref.read(perColorOverridesProvider.notifier).state = {};
+                    },
+                    child: const Text('Reset all'),
+                  ),
+                ],
+              ),
+            );
 
     final items = ListView.builder(
       shrinkWrap: true,
@@ -622,10 +636,11 @@ class ResultsList extends ConsumerWidget {
         final usedPerBatch = overrides[colorKey] ?? perBatch;
         final colorName =
             colorOverrides[colorKey] ?? extractColorName(item.productColor);
-        final powderKg =
-            ((item.systemG * usedPerBatch) / 1000).toStringAsFixed(2);
-        final citricKg =
-            ((item.systemCitric * usedPerBatch) / 1000).toStringAsFixed(2);
+        final powderKg = ((item.systemG * usedPerBatch) / 1000).toStringAsFixed(
+          2,
+        );
+        final citricKg = ((item.systemCitric * usedPerBatch) / 1000)
+            .toStringAsFixed(2);
         final bg = getColorFromString(colorName);
         final fg = getColorFromString(colorName, accent: true);
 
@@ -708,13 +723,16 @@ class ResultsList extends ConsumerWidget {
                           ref,
                           colorKey: colorKey,
                           initialValue:
-                              hasCustom ? (overrides[colorKey] ?? perBatch) : perBatch,
+                              hasCustom
+                                  ? (overrides[colorKey] ?? perBatch)
+                                  : perBatch,
                         );
                         break;
                       case _ColorAction.clearCustom:
                         final next = {...ref.read(perColorOverridesProvider)};
                         next.remove(colorKey);
-                        ref.read(perColorOverridesProvider.notifier).state = next;
+                        ref.read(perColorOverridesProvider.notifier).state =
+                            next;
                         break;
                       case _ColorAction.selectColor:
                         await _showColorPickerDialog(
@@ -731,26 +749,27 @@ class ResultsList extends ConsumerWidget {
                         break;
                     }
                   },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: _ColorAction.selectColor,
-                      child: Text('Select color...'),
-                    ),
-                    const PopupMenuItem(
-                      value: _ColorAction.custom,
-                      child: Text('Custom amount...'),
-                    ),
-                    if (hasCustom)
-                      const PopupMenuItem(
-                        value: _ColorAction.clearCustom,
-                        child: Text('Clear custom'),
-                      ),
-                    if (hasColorOverride)
-                      const PopupMenuItem(
-                        value: _ColorAction.clearColor,
-                        child: Text('Clear color'),
-                      ),
-                  ],
+                  itemBuilder:
+                      (context) => [
+                        const PopupMenuItem(
+                          value: _ColorAction.selectColor,
+                          child: Text('Select color...'),
+                        ),
+                        const PopupMenuItem(
+                          value: _ColorAction.custom,
+                          child: Text('Custom amount...'),
+                        ),
+                        if (hasCustom)
+                          const PopupMenuItem(
+                            value: _ColorAction.clearCustom,
+                            child: Text('Clear custom'),
+                          ),
+                        if (hasColorOverride)
+                          const PopupMenuItem(
+                            value: _ColorAction.clearColor,
+                            child: Text('Clear color'),
+                          ),
+                      ],
                 ),
               ),
             ],
@@ -761,10 +780,7 @@ class ResultsList extends ConsumerWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        header,
-        items,
-      ],
+      children: [header, items],
     );
   }
 }

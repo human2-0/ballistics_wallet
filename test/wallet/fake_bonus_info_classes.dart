@@ -29,7 +29,7 @@ class FakeProductInfoRepository implements ProductInfoRepository {
   /// Pass in an initial list of products. If none is provided,
   /// the fake will start with an empty list.
   FakeProductInfoRepository([List<ProductInfo>? initialProducts])
-      : _products = initialProducts ?? [];
+    : _products = initialProducts ?? [];
   final List<ProductInfo> _products;
 
   @override
@@ -77,6 +77,8 @@ class FakeProductInfoRepository implements ProductInfoRepository {
     List<Pressing> pressings, {
     bool ayr = true,
     String? description,
+    double? customWeightRangeMinGrams,
+    double? customWeightRangeMaxGrams,
   }) {
     // TODO: implement addProduct
     throw UnimplementedError();
@@ -113,7 +115,7 @@ class FakeBonusInfoRepositoryForBonusInfo extends BonusInfoRepository {
     // No-op in fake.
   }
 
-// If there are other methods, implement them minimally or throw UnimplementedError.
+  // If there are other methods, implement them minimally or throw UnimplementedError.
 }
 
 /// A fake notifier that extends BonusInfoNotifier so that it is acceptable for the provider override.
@@ -121,7 +123,7 @@ class FakeBonusInfoRepositoryForBonusInfo extends BonusInfoRepository {
 class FakeBonusInfoNotifier extends BonusInfoNotifier {
   /// We call the super constructor with our fake repository and a dummy userId.
   FakeBonusInfoNotifier()
-      : super(FakeBonusInfoRepositoryForBonusInfo(), 'fakeUserId') {
+    : super(FakeBonusInfoRepositoryForBonusInfo(), 'fakeUserId') {
     // Override the initial state without triggering async initialization.
     state = BonusInfoAndRatio(bonusInfo: []);
   }
@@ -157,8 +159,10 @@ class FakeBonusInfoNotifier extends BonusInfoNotifier {
     // Recalculate the total ratio from _productRatios.
     final totalRatio = _productRatios.values.fold<double>(0, (a, b) => a + b);
     // Update the state with the in-memory bonus list and calculated ratio.
-    state =
-        BonusInfoAndRatio(bonusInfo: List.from(_bonusList), ratio: totalRatio);
+    state = BonusInfoAndRatio(
+      bonusInfo: List.from(_bonusList),
+      ratio: totalRatio,
+    );
   }
 
   @override
@@ -194,10 +198,12 @@ class FakeBonusInfoNotifier extends BonusInfoNotifier {
       _productRatios[productName] = newRatio;
     }
     final totalRatio = _productRatios.values.fold<double>(0, (a, b) => a + b);
-    state =
-        BonusInfoAndRatio(bonusInfo: List.from(_bonusList), ratio: totalRatio);
+    state = BonusInfoAndRatio(
+      bonusInfo: List.from(_bonusList),
+      ratio: totalRatio,
+    );
   }
 
-// Optionally, override other methods (like getTotalWorkingHours, getHistoricalMonthlyData, etc.)
-// with in-memory calculations if your tests need them.
+  // Optionally, override other methods (like getTotalWorkingHours, getHistoricalMonthlyData, etc.)
+  // with in-memory calculations if your tests need them.
 }

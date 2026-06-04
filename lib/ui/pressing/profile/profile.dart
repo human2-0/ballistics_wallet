@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/profile/backup_data_tile.dart';
@@ -45,8 +46,10 @@ class ProfilePageState extends ConsumerState<ProfilePage> {
       });
     } on FormatException {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not load version number.')),
+        showAppNotification(
+          context,
+          'Could not load version number.',
+          type: AppNotificationType.warning,
         );
       });
     }

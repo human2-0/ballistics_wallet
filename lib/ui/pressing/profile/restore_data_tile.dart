@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
@@ -22,11 +23,17 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
     });
 
     // helper: show snack later on UI thread
-    Future<void> snack(String text) async {
+    Future<void> snack(
+      String text, {
+      AppNotificationType type = AppNotificationType.info,
+    }) async {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(text), duration: const Duration(seconds: 5)),
+        showAppNotification(
+          context,
+          text,
+          type: type,
+          duration: const Duration(seconds: 5),
         );
       });
     }
@@ -37,23 +44,32 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
       while (true) {
         try {
           // keep your storage permission check here, it's non-interactive
-          final hasPermission = await ref.read(backupManagerProvider.notifier).requestPermissions();
+          final hasPermission =
+              await ref
+                  .read(backupManagerProvider.notifier)
+                  .requestPermissions();
           if (!hasPermission) {
             throw const FormatException('Storage permission not granted.');
           }
 
-          await ref.read(backupManagerProvider.notifier).restoreBackup(); // non-interactive
+          await ref
+              .read(backupManagerProvider.notifier)
+              .restoreBackup(); // non-interactive
           return;
         } catch (e) {
           final msg = e.toString().toLowerCase();
           if (!retried && msg.contains('notsignedin')) {
             retried = true;
-            await ref.read(authRepositoryProvider).signInWithGoogle(); // interactive on tap
+            await ref
+                .read(authRepositoryProvider)
+                .signInWithGoogle(); // interactive on tap
             continue;
           }
           if (!retried && msg.contains('missingdrivescope')) {
             retried = true;
-            await ref.read(authRepositoryProvider).ensureDriveFileScope(); // interactive on tap
+            await ref
+                .read(authRepositoryProvider)
+                .ensureDriveFileScope(); // interactive on tap
             continue;
           }
           rethrow;
@@ -68,9 +84,12 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
       if (!mounted) return;
       await ref.read(bonusInfoListProvider.notifier).refreshHive();
 
-      await snack('Successfully restored data.');
+      await snack('Data restored.', type: AppNotificationType.success);
     } on FormatException catch (e) {
-      await snack('Failed to restore data: $e');
+      await snack(
+        'Failed to restore data: $e',
+        type: AppNotificationType.error,
+      );
     } finally {
       // Always refresh the silent active state to keep icons accurate
       await ref.read(backupManagerProvider.notifier).checkActiveState();
@@ -103,14 +122,17 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context)
-                  .pop(false), // This will close the dialog and return false
+              onPressed:
+                  () => Navigator.of(
+                    context,
+                  ).pop(false), // This will close the dialog and return false
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pop(true); // This will close the dialog and return true
+                Navigator.of(
+                  context,
+                ).pop(true); // This will close the dialog and return true
               },
               child: const Text('Proceed'),
             ),
@@ -125,10 +147,7 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
     return ListTile(
       dense: true,
       leading: const Icon(Icons.cloud_download_outlined, color: Colors.blue),
-      title: const Text(
-        'Restore with backup',
-        style: TextStyle(fontSize: 16),
-      ),
+      title: const Text('Restore with backup', style: TextStyle(fontSize: 16)),
       trailing: _isLoading ? const CircularProgressIndicator() : null,
       onTap: () async => _handleTap(context, ref),
     );

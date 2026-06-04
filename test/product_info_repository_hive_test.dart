@@ -35,12 +35,16 @@ void main() {
       target: 100,
       imageName: 'Widget',
       product: [pressing],
+      customWeightRangeMinGrams: 120,
+      customWeightRangeMaxGrams: 130,
     );
 
     await repo.addProduct(product);
     final products = await repo.fetchProductInfo();
     expect(products.length, 1);
     expect(products.first.productName, 'Widget');
+    expect(products.first.customWeightRangeMinGrams, 120);
+    expect(products.first.customWeightRangeMaxGrams, 130);
   });
 
   test('editProductInfo updates an existing product', () async {
@@ -53,12 +57,18 @@ void main() {
     );
 
     await repo.addProduct(product);
-    final updated = product.copyWith(target: 75);
+    final updated = product.copyWith(
+      target: 75,
+      customWeightRangeMinGrams: 210,
+      customWeightRangeMaxGrams: 225,
+    );
     final result = await repo.editProductInfo(updated);
     expect(result, true);
 
     final products = await repo.fetchProductInfo();
     expect(products.first.target, 75);
+    expect(products.first.customWeightRangeMinGrams, 210);
+    expect(products.first.customWeightRangeMaxGrams, 225);
   });
 
   test('deleteProduct removes product from box', () async {

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rive/rive.dart';
 
+/// Renders the circular ratio Rive animation.
 class RiveEllipses extends ConsumerStatefulWidget {
+  /// Creates the circular ratio Rive animation widget.
   const RiveEllipses({super.key});
 
   @override
@@ -23,25 +25,30 @@ class _RiveEllipsesState extends ConsumerState<RiveEllipses> {
   }
 
   Future<void> _loadRiveFile() async {
-    final riveFile = await ref.read(riveFileProvider);
-    final controller = RiveWidgetController(
-      riveFile,
-      artboardSelector: ArtboardSelector.byName('Circles'),
-      stateMachineSelector: StateMachineSelector.byName('Loading State'),
-    );
-    // Rive 0.14 still supports legacy state machine inputs used by this asset.
-    // ignore: deprecated_member_use
-    final inputControl = controller.stateMachine.number('ratio');
-    if (!mounted) {
-      inputControl?.dispose();
-      controller.dispose();
-      return;
-    }
+    try {
+      final riveFile = await ref.read(riveFileProvider);
+      final controller = RiveWidgetController(
+        riveFile,
+        artboardSelector: ArtboardSelector.byName('Circles'),
+        stateMachineSelector: StateMachineSelector.byName('Loading State'),
+      );
+      // Rive 0.14 still supports legacy state machine inputs used by this asset.
+      // ignore: deprecated_member_use
+      final inputControl = controller.stateMachine.number('ratio');
+      if (!mounted) {
+        inputControl?.dispose();
+        controller.dispose();
+        return;
+      }
 
-    setState(() {
-      _inputControl = inputControl;
-      _riveController = controller;
-    });
+      setState(() {
+        _inputControl = inputControl;
+        _riveController = controller;
+      });
+    } on Object catch (error, stackTrace) {
+      debugPrint('Failed to load Rive circles animation: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   @override

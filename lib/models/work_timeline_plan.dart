@@ -10,7 +10,9 @@ class WorkTimelinePlan {
   const WorkTimelinePlan({
     required this.targetBonus,
     required this.currentBonus,
+    required this.projectedBonus,
     required this.currentRatio,
+    required this.projectedRatio,
     required this.requiredRatio,
     required this.targetTierBonus,
     required this.targetAboveMaxTier,
@@ -92,6 +94,15 @@ class WorkTimelinePlan {
             ? amountLeft / productionRemaining
             : _zeroDouble();
     final projectedUnits = actualPace * productionRemaining;
+    final projectedRatio =
+        adjustedTarget > 0
+            ? safeCurrentRatio + (projectedUnits / adjustedTarget)
+            : safeCurrentRatio;
+    final projectedBonus = _bonusForRatio(
+      ratio: projectedRatio,
+      effectiveFactor: effectiveFactor,
+      useAyrBonusTable: useAyrBonusTable,
+    );
     final projectedSurplus = _positiveDifference(projectedUnits, amountLeft);
     final projectedDeficit = _positiveDifference(amountLeft, projectedUnits);
     final estimatedMinutes =
@@ -108,7 +119,9 @@ class WorkTimelinePlan {
     return WorkTimelinePlan(
       targetBonus: safeTargetBonus,
       currentBonus: currentBonus,
+      projectedBonus: projectedBonus,
       currentRatio: safeCurrentRatio,
+      projectedRatio: projectedRatio,
       requiredRatio: requiredRatio,
       targetTierBonus: targetTier?.bonus ?? 0,
       targetAboveMaxTier: targetTier?.isMaxFallback ?? false,
@@ -137,13 +150,16 @@ class WorkTimelinePlan {
         now: now,
         amountLeft: amountLeft,
         requiredPace: requiredPace,
+        perBatch: safePerBatch,
       ),
     );
   }
 
   final double targetBonus;
   final double currentBonus;
+  final double projectedBonus;
   final double currentRatio;
+  final double projectedRatio;
   final double requiredRatio;
   final double targetTierBonus;
   final bool targetAboveMaxTier;
@@ -171,6 +187,7 @@ class WorkTimelinePlan {
       canPlanUnits && hasPaceData && projectedDeficitUnits >= 1;
   bool get isAheadPace =>
       canPlanUnits && hasPaceData && projectedSurplusUnits >= 1;
+  bool get hasProjection => hasPaceData && productionRemainingMinutes > 0;
 
   String get headline {
     if (!hasTarget) {
@@ -211,8 +228,8 @@ class WorkTimelinePlan {
       return 'No production time is left today.';
     }
     if (!hasPaceData) {
-      return 'Need about ${requiredUnitsPerMinute.toStringAsFixed(1)} per '
-          'minute from here.';
+      return 'Use the work blocks below as the unit plan for the rest of the '
+          'shift.';
     }
     if (isBehindPace) {
       final percent =
@@ -220,8 +237,8 @@ class WorkTimelinePlan {
               ? ((requiredUnitsPerMinute / actualUnitsPerMinute) - 1) * 100
               : 100.0;
       return 'Current pace misses by about ${projectedDeficitUnits.ceil()} '
-          'units. Speed up ${percent.clamp(0, 999).round()}% or lower the '
-          'target.';
+          'units. Speed up about ${percent.clamp(0, 999).round()}% or lower '
+          'the target.';
     }
     if (isAheadPace) {
       final spareMinutes =
@@ -231,8 +248,7 @@ class WorkTimelinePlan {
       return 'At current pace you have about ${spareMinutes.round()} min '
           'spare, enough for ${projectedSurplusUnits.floor()} extra units.';
     }
-    return 'Pace is close. Keep around '
-        '${requiredUnitsPerMinute.toStringAsFixed(1)} per minute.';
+    return 'Pace is close. Follow the remaining block plan.';
   }
 
   String get batchSummary {
@@ -243,10 +259,8 @@ class WorkTimelinePlan {
   }
 
   String get paceSummary {
-    final required = requiredUnitsPerMinute.toStringAsFixed(1);
-    if (!hasPaceData) return '$required/min needed';
-    final actual = actualUnitsPerMinute.toStringAsFixed(1);
-    return '$actual/min now, $required/min needed';
+    if (!hasProjection) return 'Projection starts after work begins';
+    return 'At this pace: £${projectedBonus.toStringAsFixed(2)}';
   }
 
   static double _effectiveBonusFactor({
@@ -331,6 +345,7 @@ class WorkTimelinePlan {
     required DateTime now,
     required int amountLeft,
     required double requiredPace,
+    required int perBatch,
   }) {
     var remainingAmount = amountLeft;
     return WorkSchedule.segments.map((segment) {
@@ -349,6 +364,7 @@ class WorkTimelinePlan {
         segment: segment,
         remainingMinutes: remainingMinutes,
         plannedUnits: plannedUnits,
+        perBatch: perBatch,
       );
     }).toList();
   }
@@ -451,14 +467,32 @@ class WorkTimelineSegmentPlan {
     required this.segment,
     required this.remainingMinutes,
     required this.plannedUnits,
+    required this.perBatch,
   });
 
   final WorkScheduleSegment segment;
   final double remainingMinutes;
   final int plannedUnits;
+  final int perBatch;
 
   bool get hasFutureProduction =>
       segment.type == WorkScheduleSegmentType.work && remainingMinutes > 0;
+
+  int get fullBatches =>
+      plannedUnits > 0 && perBatch > 0 ? plannedUnits ~/ perBatch : 0;
+
+  int get extraBatchUnits =>
+      plannedUnits > 0 && perBatch > 0 ? plannedUnits % perBatch : 0;
+
+  String get batchLabel {
+    if (plannedUnits <= 0) return '';
+    if (perBatch <= 0) return 'add batch size';
+    if (fullBatches == 0) return '$extraBatchUnits small batch';
+    if (extraBatchUnits == 0) {
+      return fullBatches == 1 ? '1 batch' : '$fullBatches batches';
+    }
+    return '$fullBatches batches + $extraBatchUnits';
+  }
 }
 
 class _BonusTierTarget {

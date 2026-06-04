@@ -6,6 +6,8 @@ class ProductWeightSummary extends StatelessWidget {
   const ProductWeightSummary({
     required this.weightGrams,
     required this.hasFormula,
+    this.customMinGrams,
+    this.customMaxGrams,
     super.key,
   });
 
@@ -15,19 +17,27 @@ class ProductWeightSummary extends StatelessWidget {
   /// Whether split data exists for the selected product.
   final bool hasFormula;
 
+  /// Optional custom minimum finished product weight in grams.
+  final double? customMinGrams;
+
+  /// Optional custom maximum finished product weight in grams.
+  final double? customMaxGrams;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasCustomRange = customMinGrams != null && customMaxGrams != null;
+    final hasWeightData = hasFormula || hasCustomRange;
     final textColor =
-        hasFormula
+        hasWeightData
             ? Colors.brown.shade900
             : theme.textTheme.bodySmall?.color?.withValues(alpha: 0.65);
     final borderColor =
-        hasFormula
+        hasWeightData
             ? Colors.orange.shade300
             : theme.dividerColor.withValues(alpha: 0.45);
     final backgroundColor =
-        hasFormula ? Colors.orange.shade50 : theme.colorScheme.surface;
+        hasWeightData ? Colors.orange.shade50 : theme.colorScheme.surface;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -50,7 +60,7 @@ class ProductWeightSummary extends StatelessWidget {
             Icon(
               Icons.scale_outlined,
               size: 20,
-              color: hasFormula ? Colors.orange.shade800 : textColor,
+              color: hasWeightData ? Colors.orange.shade800 : textColor,
             ),
             const SizedBox(height: 4),
             Text(
@@ -61,7 +71,9 @@ class ProductWeightSummary extends StatelessWidget {
               style: theme.textTheme.labelSmall?.copyWith(color: textColor),
             ),
             Text(
-              hasFormula ? _formatRange(weightGrams) : 'No data',
+              hasWeightData
+                  ? _formatRange(weightGrams, customMinGrams, customMaxGrams)
+                  : 'No data',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -76,9 +88,20 @@ class ProductWeightSummary extends StatelessWidget {
     );
   }
 
-  static String _formatRange(double weightGrams) {
-    final lower = weightGrams * 0.95;
-    final upper = weightGrams * 1.05;
+  static String _formatRange(
+    double weightGrams,
+    double? customMinGrams,
+    double? customMaxGrams,
+  ) {
+    if (customMinGrams != null && customMaxGrams != null) {
+      final min = _formatWeight(customMinGrams);
+      final max = _formatWeight(customMaxGrams);
+      return '$min-$max g';
+    }
+
+    const offset = 5 / 100;
+    final lower = weightGrams * (1 - offset);
+    final upper = weightGrams * (1 + offset);
     return '${_formatWeight(lower)}-${_formatWeight(upper)} g';
   }
 

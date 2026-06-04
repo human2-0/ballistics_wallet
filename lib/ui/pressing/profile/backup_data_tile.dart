@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
@@ -31,11 +32,17 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
 
     var retried = false;
 
-    Future<void> showSnack(String text) async {
+    Future<void> showSnack(
+      String text, {
+      AppNotificationType type = AppNotificationType.info,
+    }) async {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(text), duration: const Duration(seconds: 5)),
+        showAppNotification(
+          context,
+          text,
+          type: type,
+          duration: const Duration(seconds: 5),
         );
       });
     }
@@ -44,14 +51,16 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
       try {
         await ref.read(backupManagerProvider.notifier).backupData();
         await ref.read(userNotifierProvider.notifier).doBackUp(true);
-        await showSnack('Successfully uploaded data.');
+        await showSnack('Data backed up.', type: AppNotificationType.success);
         break;
       } on FormatException catch (e) {
         final msg = e.toString().toLowerCase(); // normalize for matching
         // Decoupled handling: repository throws domain errors; detect by code in message
         if (!retried && msg.contains('notsignedin')) {
           retried = true;
-          await ref.read(authRepositoryProvider).signInWithGoogle(); // interactive on tap
+          await ref
+              .read(authRepositoryProvider)
+              .signInWithGoogle(); // interactive on tap
           continue; // retry once
         }
         if (!retried && msg.contains('missingdrivescope')) {
@@ -60,7 +69,10 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
           await ref.read(authRepositoryProvider).ensureDriveFileScope();
           continue; // retry once
         }
-        await showSnack('Failed to back up data: $e');
+        await showSnack(
+          'Failed to back up data: $e',
+          type: AppNotificationType.error,
+        );
         break;
       } finally {
         // Refresh the silent UI state regardless of outcome
@@ -86,14 +98,17 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context)
-                  .pop(false), // This will close the dialog and return false
+              onPressed:
+                  () => Navigator.of(
+                    context,
+                  ).pop(false), // This will close the dialog and return false
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pop(true); // This will close the dialog and return true
+                Navigator.of(
+                  context,
+                ).pop(true); // This will close the dialog and return true
               },
               child: const Text('Proceed'),
             ),
@@ -114,14 +129,17 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context)
-                  .pop(false), // This will close the dialog and return false
+              onPressed:
+                  () => Navigator.of(
+                    context,
+                  ).pop(false), // This will close the dialog and return false
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pop(true); // This will close the dialog and return true
+                Navigator.of(
+                  context,
+                ).pop(true); // This will close the dialog and return true
               },
               child: const Text('Proceed'),
             ),
@@ -160,18 +178,19 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
     final isActive = ref.watch(backupManagerProvider).isActive;
     final isBackupOn = ref.watch(userNotifierProvider).backup ?? false;
     return ListTile(
-      leading: (isActive && isBackupOn)
-          ? const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.cloud_done, color: Colors.green),
-                Text('in sync'),
-              ],
-            )
-          : const Padding(
-              padding: EdgeInsets.all(8),
-              child: Icon(Icons.cloud_upload_outlined, color: Colors.blue),
-            ),
+      leading:
+          (isActive && isBackupOn)
+              ? const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_done, color: Colors.green),
+                  Text('in sync'),
+                ],
+              )
+              : const Padding(
+                padding: EdgeInsets.all(8),
+                child: Icon(Icons.cloud_upload_outlined, color: Colors.blue),
+              ),
       title: const Text('Back up data'),
       trailing: _isLoading ? const CircularProgressIndicator() : null,
       onTap: () async => _handleTap(context, ref),

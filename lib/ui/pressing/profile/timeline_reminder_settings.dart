@@ -75,52 +75,18 @@ class TimelineReminderSettings extends ConsumerWidget {
     WidgetRef ref,
     WorkTimelineSettings settings,
   ) async {
-    final controller = TextEditingController(
-      text:
-          settings.targetBonus > 0
-              ? settings.targetBonus.toStringAsFixed(2)
-              : '',
-    );
-    await showDialog<void>(
+    final target = await showDialog<int>(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: const Text('Timeline target'),
-            content: TextField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9,.]')),
-              ],
-              decoration: const InputDecoration(
-                labelText: 'Target £',
-                prefixIcon: Icon(Icons.flag_outlined),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  final normalized = controller.text.replaceAll(',', '.');
-                  final target = double.tryParse(normalized) ?? 0;
-                  unawaited(
-                    ref
-                        .read(workTimelineSettingsProvider.notifier)
-                        .setTargetBonus(target),
-                  );
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Save'),
-              ),
-            ],
+          (context) => _TimelineTargetDialog(
+            initialTarget: settings.targetBonus.floor(),
           ),
     );
-    controller.dispose();
+    if (target != null) {
+      await ref
+          .read(workTimelineSettingsProvider.notifier)
+          .setTargetBonus(target.toDouble());
+    }
   }
 
   Future<void> _setBreakReminder(WidgetRef ref, bool value) async {
@@ -140,6 +106,59 @@ class TimelineReminderSettings extends ConsumerWidget {
         .read(workTimelineSettingsProvider.notifier)
         .setBatchReminderEnabled(value);
   }
+}
+
+class _TimelineTargetDialog extends StatefulWidget {
+  const _TimelineTargetDialog({required this.initialTarget});
+
+  final int initialTarget;
+
+  @override
+  State<_TimelineTargetDialog> createState() => _TimelineTargetDialogState();
+}
+
+class _TimelineTargetDialogState extends State<_TimelineTargetDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: widget.initialTarget > 0 ? widget.initialTarget.toString() : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Timeline target'),
+    content: TextField(
+      controller: _controller,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      decoration: const InputDecoration(
+        labelText: 'Target £',
+        prefixIcon: Icon(Icons.flag_outlined),
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
+      ),
+      TextButton(
+        onPressed: () {
+          Navigator.of(context).pop(int.tryParse(_controller.text.trim()) ?? 0);
+        },
+        child: const Text('Save'),
+      ),
+    ],
+  );
 }
 
 class _ReminderRow extends StatelessWidget {

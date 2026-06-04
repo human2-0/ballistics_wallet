@@ -30,24 +30,29 @@ class _RiveEllipsesState extends ConsumerState<TargetBoard> {
   }
 
   Future<void> _loadRiveFile() async {
-    final riveFile = await ref.read(riveFileProvider);
-    final controller = RiveWidgetController(
-      riveFile,
-      artboardSelector: ArtboardSelector.byName('target'),
-      stateMachineSelector: StateMachineSelector.byName('Target Check'),
-    );
-    // Rive 0.14 still supports legacy state machine inputs used by this asset.
-    // ignore: deprecated_member_use
-    final inputControl = controller.stateMachine.boolean('productSelected');
-    if (!mounted) {
-      inputControl?.dispose();
-      controller.dispose();
-      return;
+    try {
+      final riveFile = await ref.read(riveFileProvider);
+      final controller = RiveWidgetController(
+        riveFile,
+        artboardSelector: ArtboardSelector.byName('target'),
+        stateMachineSelector: StateMachineSelector.byName('Target Check'),
+      );
+      // Rive 0.14 still supports legacy state machine inputs used by this asset.
+      // ignore: deprecated_member_use
+      final inputControl = controller.stateMachine.boolean('productSelected');
+      if (!mounted) {
+        inputControl?.dispose();
+        controller.dispose();
+        return;
+      }
+      setState(() {
+        _inputControl = inputControl;
+        _riveController = controller;
+      });
+    } on Object catch (error, stackTrace) {
+      debugPrint('Failed to load Rive target animation: $error');
+      debugPrintStack(stackTrace: stackTrace);
     }
-    setState(() {
-      _inputControl = inputControl;
-      _riveController = controller;
-    });
   }
 
   void _openEndDrawer() {

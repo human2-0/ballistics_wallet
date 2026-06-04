@@ -1,3 +1,7 @@
+// Widgets in this file are app screens, not package API.
+// ignore_for_file: public_member_api_docs, prefer_expression_function_bodies
+// ignore_for_file: unnecessary_underscores, lines_longer_than_80_chars
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -21,8 +25,6 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
 
   @override
   Widget build(BuildContext context) {
-    // We’ll build the outer Scaffold immediately; only the row with the
-    // numbers needs to wait for an async calculation.
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -36,138 +38,112 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
         ),
       ),
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          // ---------- TOTALS ROW (async) ----------------------------------
-          Consumer(
-            builder: (context, ref, _) {
-              final summary = ref.watch(walletSummaryProvider);
-              return summary.when(
-                data: (summary) => _buildTotalsRow(context, summary),
-                loading:
-                    () => const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: CircularProgressIndicator(),
-                    ),
-                error:
-                    (_, __) =>
-                        _buildTotalsRow(context, const WalletSummary(0, 0, 0)),
-              );
-            },
-          ),
-          // ---------------------------------------------------------------
-          Expanded(
-            child: switch (_selectedTool) {
-              _WalletTool.calendar => const _WalletCalendarTool(),
-              _WalletTool.history => const WalletHistory(),
-              _WalletTool.stats => const _WalletStatsTool(),
-            },
-          ),
-        ],
-      ),
+      body: switch (_selectedTool) {
+        _WalletTool.calendar => const _WalletCalendarTool(),
+        _WalletTool.history => const WalletHistory(),
+        _WalletTool.stats => const _WalletStatsTool(),
+      },
     );
   }
+}
 
-  // -------------------------------------------------------------------------
-  // Helper
-  Widget _buildTotalsRow(BuildContext context, WalletSummary summary) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-      _buildGradientBox(
-        context: context,
-        title: 'Hours',
-        value: formatDouble(summary.totalHours),
-        colors: [
-          Colors.purple[400]!.withValues(alpha: 0.4),
-          Colors.purple[300]!,
-          Colors.purple[200]!,
-          Colors.purple[100]!,
-        ],
-      ),
-      _buildGradientBox(
-        context: context,
-        title: 'Salary £${formatDouble(summary.totalSalary)}',
-        value: '',
-        colors: [
-          Colors.yellow[800]!.withValues(alpha: 0.4),
-          Colors.yellow[700]!,
-          Colors.yellow[600]!,
-          Colors.yellow[300]!,
-        ],
-      ),
-      _buildGradientBox(
-        context: context,
-        title: 'Bonus',
-        value: '£${formatDouble(summary.totalBonus)}',
-        colors: [
-          Colors.green[400]!.withValues(alpha: 0.4),
-          Colors.green[300]!,
-          Colors.green[200]!,
-          Colors.green[100]!,
-        ],
-      ),
-    ],
-  );
+enum _WalletTool { calendar, history, stats }
 
-  Widget _buildGradientBox({
-    required BuildContext context,
-    required String title,
-    required String value,
-    required List<Color> colors,
-  }) => Padding(
-    padding: const EdgeInsets.all(5),
-    child: SizedBox(
-      width: MediaQuery.of(context).size.width * 0.30,
-      height: MediaQuery.of(context).size.height * 0.1,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(33)),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: colors,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
+Widget _buildTotalsRow(BuildContext context, WalletSummary summary) => Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    _buildGradientBox(
+      context: context,
+      title: 'Hours',
+      value: formatDouble(summary.totalHours),
+      colors: [
+        Colors.purple[400]!.withValues(alpha: 0.4),
+        Colors.purple[300]!,
+        Colors.purple[200]!,
+        Colors.purple[100]!,
+      ],
+    ),
+    _buildGradientBox(
+      context: context,
+      title: 'Income',
+      value: '£${formatDouble(summary.totalSalary)}',
+      colors: [
+        Colors.yellow[800]!.withValues(alpha: 0.4),
+        Colors.yellow[700]!,
+        Colors.yellow[600]!,
+        Colors.yellow[300]!,
+      ],
+    ),
+    _buildGradientBox(
+      context: context,
+      title: 'Bonus',
+      value: '£${formatDouble(summary.totalBonus)}',
+      colors: [
+        Colors.green[400]!.withValues(alpha: 0.4),
+        Colors.green[300]!,
+        Colors.green[200]!,
+        Colors.green[100]!,
+      ],
+    ),
+  ],
+);
+
+Widget _buildGradientBox({
+  required BuildContext context,
+  required String title,
+  required String value,
+  required List<Color> colors,
+}) => Padding(
+  padding: const EdgeInsets.all(5),
+  child: SizedBox(
+    width: MediaQuery.of(context).size.width * 0.30,
+    height: MediaQuery.of(context).size.height * 0.1,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(33)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Center(
-              child:
-                  value.isNotEmpty
-                      ? Text(
-                        '$title\n$value',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
-                      )
-                      : Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                        textAlign: TextAlign.center,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Center(
+            child:
+                value.isNotEmpty
+                    ? Text(
+                      '$title\n$value',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-            ),
+                      textAlign: TextAlign.center,
+                    )
+                    : Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
           ),
         ),
       ),
     ),
-  );
-}
-
-enum _WalletTool { calendar, history, stats }
+  ),
+);
 
 class _WalletToolSelector extends StatelessWidget {
   const _WalletToolSelector({
@@ -222,6 +198,22 @@ class _WalletCalendarTool extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Consumer(
+          builder: (context, ref, _) {
+            final summary = ref.watch(walletSummaryProvider);
+            return summary.when(
+              data: (summary) => _buildTotalsRow(context, summary),
+              loading:
+                  () => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    child: CircularProgressIndicator(),
+                  ),
+              error:
+                  (_, __) =>
+                      _buildTotalsRow(context, const WalletSummary(0, 0, 0)),
+            );
+          },
+        ),
         Padding(
           padding: const EdgeInsets.all(4),
           child: Container(
@@ -301,6 +293,14 @@ class _WalletStatsToolState extends ConsumerState<_WalletStatsTool> {
     final totalBonus = chartEntries.fold<double>(0, (sum, d) => sum + d.value);
     final avgBonus =
         chartEntries.isEmpty ? 0.0 : totalBonus / chartEntries.length;
+    final totalKg = productivity.fold<double>(
+      0,
+      (sum, stat) => sum + stat.totalKg,
+    );
+    final topWeightProduct =
+        productivity.isEmpty
+            ? null
+            : productivity.reduce((a, b) => a.totalKg >= b.totalKg ? a : b);
     final maxEntry =
         chartEntries.isEmpty
             ? null
@@ -375,6 +375,17 @@ class _WalletStatsToolState extends ConsumerState<_WalletStatsTool> {
                     _StatChip(
                       label: 'Average',
                       value: '£${formatDouble(avgBonus)}',
+                    ),
+                    _StatChip(
+                      label: 'Moved',
+                      value: '${formatDouble(totalKg)} kg',
+                    ),
+                    _StatChip(
+                      label: 'Top kg',
+                      value:
+                          topWeightProduct == null
+                              ? 'n/a'
+                              : '${topWeightProduct.displayName} (${formatDouble(topWeightProduct.totalKg)} kg)',
                     ),
                     _StatChip(
                       label: 'Best',
@@ -598,11 +609,13 @@ List<_ProductProductivity> _buildProductProductivity(
 ) {
   final targetByKey = <String, int>{};
   final displayByKey = <String, String>{};
+  final gramsByKey = <String, double>{};
   for (final item in products) {
     final key = item.productName.toLowerCase().trim();
     if (key.isEmpty) continue;
     targetByKey[key] = item.target;
     displayByKey[key] = item.productName;
+    gramsByKey[key] = item.finalProductWeightGrams;
   }
 
   final stats = <String, _ProductProductivity>{};
@@ -618,6 +631,7 @@ List<_ProductProductivity> _buildProductProductivity(
               key: key,
               displayName: displayName,
               target: targetByKey[key],
+              gramsPerUnit: gramsByKey[key] ?? 0,
             ),
           )
           .addAmount(produced.amount);
@@ -676,11 +690,13 @@ class _ProductProductivity {
     required this.key,
     required this.displayName,
     required this.target,
+    required this.gramsPerUnit,
   });
 
   final String key;
   final String displayName;
   final int? target;
+  final double gramsPerUnit;
   int totalAmount = 0;
   int entries = 0;
 
@@ -690,6 +706,8 @@ class _ProductProductivity {
   }
 
   double get avgPerEntry => entries == 0 ? 0.0 : totalAmount / entries;
+
+  double get totalKg => totalAmount * gramsPerUnit / 1000;
 
   int? get targetPercent {
     if (target == null || target == 0) return null;
@@ -749,6 +767,10 @@ class _ProductProductivityTile extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Total: ${formatDouble(stat.totalAmount.toDouble(), fractionDigits: 0)}',
+              style: theme.textTheme.bodySmall,
+            ),
+            Text(
+              'Moved: ${formatDouble(stat.totalKg)} kg',
               style: theme.textTheme.bodySmall,
             ),
             Text(

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/repository/auth_repository.dart';
@@ -60,26 +61,22 @@ class ProductImageRepository {
       throw const FormatException('The link did not return a supported image.');
     }
 
-    final imageName = productNameToImageName(product.productName);
-    final directory = await _productImagesDirectory();
-    final file = File(p.join(directory.path, '$imageName.png'));
-    await file.create(recursive: true);
-    await file.writeAsBytes(bytes, flush: true);
-    await FileImage(file).evict();
+    return _saveProductImageBytes(product: product, bytes: bytes);
+  }
 
-    var uploadedToDrive = false;
-    try {
-      await uploadProductImageToDrive(file);
-      uploadedToDrive = true;
-    } on Object {
-      uploadedToDrive = false;
+  /// Saves image bytes locally and tries to upload them to Drive.
+  Future<ProductImageSaveResult> saveProductImageFromBytes({
+    required ProductInfo product,
+    required Uint8List bytes,
+  }) {
+    if (bytes.isEmpty || bytes.length > _maxImageBytes) {
+      throw const FormatException('Image must be between 1 byte and 5 MB.');
+    }
+    if (!_looksLikeImage('', bytes)) {
+      throw const FormatException('Choose a supported image file.');
     }
 
-    return ProductImageSaveResult(
-      imageName: imageName,
-      file: file,
-      uploadedToDrive: uploadedToDrive,
-    );
+    return _saveProductImageBytes(product: product, bytes: bytes);
   }
 
   /// Uploads a product image to the `lush_assets` Google Drive folder.
@@ -123,6 +120,32 @@ class ProductImageRepository {
       await directory.create(recursive: true);
     }
     return directory;
+  }
+
+  Future<ProductImageSaveResult> _saveProductImageBytes({
+    required ProductInfo product,
+    required List<int> bytes,
+  }) async {
+    final imageName = productNameToImageName(product.productName);
+    final directory = await _productImagesDirectory();
+    final file = File(p.join(directory.path, '$imageName.png'));
+    await file.create(recursive: true);
+    await file.writeAsBytes(bytes, flush: true);
+    await FileImage(file).evict();
+
+    var uploadedToDrive = false;
+    try {
+      await uploadProductImageToDrive(file);
+      uploadedToDrive = true;
+    } on Object {
+      uploadedToDrive = false;
+    }
+
+    return ProductImageSaveResult(
+      imageName: imageName,
+      file: file,
+      uploadedToDrive: uploadedToDrive,
+    );
   }
 
   Future<drive.DriveApi> _driveApi() async {

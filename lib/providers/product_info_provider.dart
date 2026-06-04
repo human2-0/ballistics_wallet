@@ -12,7 +12,7 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
 
   void _loadProductInfoOnInit() {
     // Immediately executed async function to load product info on init
-    scheduleMicrotask(() async => loadProductInfo());
+    scheduleMicrotask(loadProductInfo);
   }
 
   Future<void> loadProductInfo() async {
@@ -22,9 +22,17 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
   Future<void> addProductInfo(
     String productName,
     int target,
-    List<Pressing> pressings,
-  ) async {
-    await _repository.addProduct(productName, target, pressings);
+    List<Pressing> pressings, {
+    double? customWeightRangeMinGrams,
+    double? customWeightRangeMaxGrams,
+  }) async {
+    await _repository.addProduct(
+      productName,
+      target,
+      pressings,
+      customWeightRangeMinGrams: customWeightRangeMinGrams,
+      customWeightRangeMaxGrams: customWeightRangeMaxGrams,
+    );
     // Reload the product info to update the state
     await loadProductInfo();
   }
@@ -48,12 +56,13 @@ class ProductInfoNotifier extends StateNotifier<List<ProductInfo>> {
 
 final productInfoProvider =
     StateNotifierProvider<ProductInfoNotifier, List<ProductInfo>>((ref) {
-  final repository = ref.read(productInfoRepo);
-  return ProductInfoNotifier(repository);
-});
+      final repository = ref.read(productInfoRepo);
+      return ProductInfoNotifier(repository);
+    });
 
-final productInfoRepo =
-    Provider<ProductInfoRepository>((ref) => ProductInfoRepository());
+final productInfoRepo = Provider<ProductInfoRepository>(
+  (ref) => ProductInfoRepository(),
+);
 
 final focusedProductProvider = StateProvider<ProductInfo>(
   (ref) => ProductInfo(

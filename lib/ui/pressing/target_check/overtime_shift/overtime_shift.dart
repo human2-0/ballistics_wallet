@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/custom_widgets/product_image_view.dart';
 import 'package:ballistics_wallet_flutter/custom_widgets/product_weight_summary.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
@@ -404,45 +405,48 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     itemCount: filteredProducts.length,
                                     itemBuilder: (context, index) {
                                       final product = filteredProducts[index];
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            33,
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        margin: const EdgeInsets.symmetric(
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
                                           vertical: 5,
                                           horizontal: 10,
                                         ),
-                                        child: ListTile(
-                                          title: Text(product.productName),
-                                          subtitle: Text(
-                                            'Target: ${((product.target.toDouble()) * (effectiveOvertimeHours / 7.00)).ceil()}',
+                                        child: Material(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            33,
                                           ),
-                                          onTap: () {
-                                            final selectedProductName =
-                                                product.productName;
-                                            textEditingController.text =
-                                                selectedProductName; // Update the controller's text
-                                            ref
-                                                .read(showListProvider.notifier)
-                                                .state = false;
-                                            ref
-                                                .read(focusNodeProvider)
-                                                .requestFocus();
+                                          child: ListTile(
+                                            title: Text(product.productName),
+                                            subtitle: Text(
+                                              'Target: ${((product.target.toDouble()) * (effectiveOvertimeHours / 7.00)).ceil()}',
+                                            ),
+                                            onTap: () {
+                                              final selectedProductName =
+                                                  product.productName;
+                                              textEditingController.text =
+                                                  selectedProductName; // Update the controller's text
+                                              ref
+                                                  .read(
+                                                    showListProvider.notifier,
+                                                  )
+                                                  .state = false;
+                                              ref
+                                                  .read(focusNodeProvider)
+                                                  .requestFocus();
 
-                                            // Update the targetProvider state when a product is selected
-                                            final productTarget =
-                                                ((product.target.toDouble()) *
-                                                        (effectiveOvertimeHours /
-                                                            7.00))
-                                                    .ceil();
-                                            ref
-                                                .read(targetProvider.notifier)
-                                                .state = productTarget;
-                                            overtimeAmountController.text = '';
-                                          },
+                                              // Update the targetProvider state when a product is selected
+                                              final productTarget =
+                                                  ((product.target.toDouble()) *
+                                                          (effectiveOvertimeHours /
+                                                              7.00))
+                                                      .ceil();
+                                              ref
+                                                  .read(targetProvider.notifier)
+                                                  .state = productTarget;
+                                              overtimeAmountController.text =
+                                                  '';
+                                            },
+                                          ),
                                         ),
                                       );
                                     },
@@ -482,6 +486,12 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                     weightGrams:
                                         focusedProduct.finalProductWeightGrams,
                                     hasFormula: focusedProduct.hasWeightFormula,
+                                    customMinGrams:
+                                        focusedProduct
+                                            .customWeightRangeMinGrams,
+                                    customMaxGrams:
+                                        focusedProduct
+                                            .customWeightRangeMaxGrams,
                                   ),
                                 ),
                               ],
@@ -788,17 +798,12 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                             .addPostFrameCallback((
                                                               timeStamp,
                                                             ) {
-                                                              ScaffoldMessenger.of(
+                                                              showAppNotification(
                                                                 buttonContext,
-                                                              ).showSnackBar(
-                                                                const SnackBar(
-                                                                  content: Text(
-                                                                    'Saved to Wallet successfully!',
-                                                                  ),
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .green,
-                                                                ),
+                                                                'Saved to wallet.',
+                                                                type:
+                                                                    AppNotificationType
+                                                                        .success,
                                                               );
                                                             });
                                                       } on FormatException catch (
@@ -812,22 +817,19 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                               )
                                                               .init();
                                                           // Handle the case where the bonus is already added today
-                                                          WidgetsBinding.instance.addPostFrameCallback((
-                                                            timeStamp,
-                                                          ) {
-                                                            ScaffoldMessenger.of(
-                                                              buttonContext,
-                                                            ).showSnackBar(
-                                                              const SnackBar(
-                                                                content: Text(
-                                                                  'This product has been overwritten because it was already added today.',
-                                                                ),
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .orange,
-                                                              ),
-                                                            );
-                                                          });
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback((
+                                                                timeStamp,
+                                                              ) {
+                                                                showAppNotification(
+                                                                  buttonContext,
+                                                                  'Today’s saved amount was updated.',
+                                                                  type:
+                                                                      AppNotificationType
+                                                                          .warning,
+                                                                );
+                                                              });
 
                                                           // Call editUserBonus if saveUserBonus fails
                                                           await pressingRepository
@@ -846,17 +848,12 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                               .addPostFrameCallback((
                                                                 timeStamp,
                                                               ) {
-                                                                ScaffoldMessenger.of(
+                                                                showAppNotification(
                                                                   buttonContext,
-                                                                ).showSnackBar(
-                                                                  SnackBar(
-                                                                    content: Text(
-                                                                      e.toString(),
-                                                                    ),
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .red,
-                                                                  ),
+                                                                  e.toString(),
+                                                                  type:
+                                                                      AppNotificationType
+                                                                          .error,
                                                                 );
                                                               });
                                                         }

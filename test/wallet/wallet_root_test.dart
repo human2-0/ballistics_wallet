@@ -425,6 +425,8 @@ class _FakeProductInfoRepository implements ProductInfoRepository {
     List<Pressing> pressings, {
     bool ayr = true,
     String? description,
+    double? customWeightRangeMinGrams,
+    double? customWeightRangeMaxGrams,
   }) async {}
 
   @override

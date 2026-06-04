@@ -23,13 +23,17 @@ class ProductInfoAdapter extends TypeAdapter<ProductInfo> {
       product: (fields[3] as List).cast<Pressing>(),
       ayr: fields[4] as bool?,
       description: fields[5] as String?,
+      customWeightRangeMinGrams:
+          fields[6] is num ? (fields[6] as num).toDouble() : null,
+      customWeightRangeMaxGrams:
+          fields[7] is num ? (fields[7] as num).toDouble() : null,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductInfo obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.productName)
       ..writeByte(1)
@@ -41,7 +45,11 @@ class ProductInfoAdapter extends TypeAdapter<ProductInfo> {
       ..writeByte(4)
       ..write(obj.ayr)
       ..writeByte(5)
-      ..write(obj.description);
+      ..write(obj.description)
+      ..writeByte(6)
+      ..write(obj.customWeightRangeMinGrams)
+      ..writeByte(7)
+      ..write(obj.customWeightRangeMaxGrams);
   }
 
   @override

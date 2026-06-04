@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 
-import 'package:ballistics_wallet_flutter/custom_widgets/toast_widget.dart';
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/basic_shift.dart';
@@ -22,6 +23,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   final allowanceController = TextEditingController();
   late AnimationController _flipController;
   late Animation<double> _flipAnimation;
+  bool _timelineSheetOpen = false;
 
   @override
   void initState() {
@@ -45,111 +47,99 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
   @override
   Widget build(BuildContext context) {
     final focusNode = ref.watch(focusNodeProvider);
-    final timelineOpen = ref.watch(workTimelineOpenProvider);
+    ref.listen<bool>(workTimelineOpenProvider, (previous, next) {
+      if (!next || _timelineSheetOpen) return;
+      _timelineSheetOpen = true;
+      unawaited(_showWorkTimelineSheet(context));
+    });
 
     final message = ref.watch(toastMessageProvider);
     if (message.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showToast(
+        showAppNotification(
           context,
           message,
-          colors: [Colors.greenAccent, Colors.green[100]!],
+          type: AppNotificationType.success,
         );
         ref.read(toastMessageProvider.notifier).state = '';
       });
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final sidebarWidth =
-            constraints.maxWidth < 420 ? constraints.maxWidth * 0.88 : 360.0;
-
-        return GestureDetector(
-          onTap: () {
-            focusNode.unfocus();
-            ref.read(showListProvider.notifier).state = false;
-          },
-          // onHorizontalDragStart: (details) {
-          //   _startPosition = details.globalPosition.dx;
-          // },
-          // onHorizontalDragUpdate: (details) {
-          //   setState(() {
-          //     final dx = details.globalPosition.dx - _startPosition;
-          //     _flipController.value += dx / containerWidth;
-          //     _startPosition = details.globalPosition.dx;
-          //   });
-          // },
-          // onHorizontalDragEnd: (details) async {
-          //   if (_flipController.value >= 0.5) {
-          //     await _flipController.forward();
-          //
-          //     ref.read(targetProvider.notifier).state = 0;
-          //     ref.read(textEditingControllerProvider).clear();
-          //   } else {
-          //     ref.read(targetProvider.notifier).state = 0;
-          //     ref.read(textEditingControllerProvider).clear();
-          //     await _flipController.reverse();
-          //   }
-          // },
-          child: Stack(
-            children: [
-              AnimatedBuilder(
-                animation: _flipAnimation,
-                builder:
-                    (context, child) => Transform(
-                      alignment: Alignment.topCenter,
-                      transform:
-                          Matrix4.identity()
-                            ..setEntry(3, 2, 0.001)
-                            ..rotateY(pi * _flipController.value),
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: IndexedStack(
-                          alignment: Alignment.topCenter,
-                          index: (_flipController.value < 0.5) ? 0 : 1,
-                          children: const [
-                            BasicShift(),
-                            // Transform(
-                            //   alignment: Alignment.center,
-                            //   transform: Matrix4.identity()..rotateY(pi),
-                            //   child: const OvertimeShift(),
-                            // ),
-                            // BackFlipCard
-                          ],
-                        ),
-                      ),
-                    ),
-              ),
-              if (timelineOpen)
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap:
-                        () =>
-                            ref.read(workTimelineOpenProvider.notifier).state =
-                                false,
-                    child: Container(
-                      color: Colors.black.withValues(alpha: 0.18),
-                    ),
-                  ),
-                ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 260),
-                curve: Curves.easeOutCubic,
-                top: 0,
-                bottom: 0,
-                right: timelineOpen ? 0 : -sidebarWidth,
-                width: sidebarWidth,
-                child: WorkTimelinePanel(
-                  onClose:
-                      () =>
-                          ref.read(workTimelineOpenProvider.notifier).state =
-                              false,
-                ),
-              ),
-            ],
-          ),
-        );
+    return GestureDetector(
+      onTap: () {
+        focusNode.unfocus();
+        ref.read(showListProvider.notifier).state = false;
       },
+      // onHorizontalDragStart: (details) {
+      //   _startPosition = details.globalPosition.dx;
+      // },
+      // onHorizontalDragUpdate: (details) {
+      //   setState(() {
+      //     final dx = details.globalPosition.dx - _startPosition;
+      //     _flipController.value += dx / containerWidth;
+      //     _startPosition = details.globalPosition.dx;
+      //   });
+      // },
+      // onHorizontalDragEnd: (details) async {
+      //   if (_flipController.value >= 0.5) {
+      //     await _flipController.forward();
+      //
+      //     ref.read(targetProvider.notifier).state = 0;
+      //     ref.read(textEditingControllerProvider).clear();
+      //   } else {
+      //     ref.read(targetProvider.notifier).state = 0;
+      //     ref.read(textEditingControllerProvider).clear();
+      //     await _flipController.reverse();
+      //   }
+      // },
+      child: AnimatedBuilder(
+        animation: _flipAnimation,
+        builder:
+            (context, child) => Transform(
+              alignment: Alignment.topCenter,
+              transform:
+                  Matrix4.identity()
+                    ..setEntry(3, 2, 0.001)
+                    ..rotateY(pi * _flipController.value),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: IndexedStack(
+                  alignment: Alignment.topCenter,
+                  index: (_flipController.value < 0.5) ? 0 : 1,
+                  children: const [
+                    BasicShift(),
+                    // Transform(
+                    //   alignment: Alignment.center,
+                    //   transform: Matrix4.identity()..rotateY(pi),
+                    //   child: const OvertimeShift(),
+                    // ),
+                    // BackFlipCard
+                  ],
+                ),
+              ),
+            ),
+      ),
     );
+  }
+
+  Future<void> _showWorkTimelineSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => FractionallySizedBox(
+            heightFactor: 0.9,
+            child: WorkTimelinePanel(
+              onClose: () => Navigator.of(context).pop(),
+            ),
+          ),
+    );
+
+    _timelineSheetOpen = false;
+    if (mounted) {
+      ref.read(workTimelineOpenProvider.notifier).state = false;
+    }
   }
 }

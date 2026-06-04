@@ -13,6 +13,8 @@ class ProductInfo extends HiveObject {
     required this.product,
     this.ayr,
     this.description,
+    this.customWeightRangeMinGrams,
+    this.customWeightRangeMaxGrams,
   });
 
   // Empty constructor for creating an instance with default values
@@ -23,6 +25,8 @@ class ProductInfo extends HiveObject {
     product: const [],
     description: '',
   );
+
+  static const double defaultWeightRangePercent = 5;
 
   @HiveField(0)
   final String productName;
@@ -42,6 +46,12 @@ class ProductInfo extends HiveObject {
   @HiveField(5)
   final String? description;
 
+  @HiveField(6)
+  final double? customWeightRangeMinGrams;
+
+  @HiveField(7)
+  final double? customWeightRangeMaxGrams;
+
   /// Total powder weight needed for one finished product.
   double get powderWeightGrams =>
       product.fold<double>(0, (total, pressing) => total + pressing.systemG);
@@ -56,7 +66,12 @@ class ProductInfo extends HiveObject {
   double get finalProductWeightGrams => powderWeightGrams + citricWeightGrams;
 
   /// Whether this product has enough split data to calculate finished weight.
-  bool get hasWeightFormula => product.isNotEmpty;
+  bool get hasWeightFormula => product.any(
+    (pressing) => pressing.systemG > 0 || pressing.systemCitric > 0,
+  );
+
+  bool get hasCustomWeightRange =>
+      customWeightRangeMinGrams != null && customWeightRangeMaxGrams != null;
 
   // Method to create a copy of ProductInfo with different fields
   ProductInfo copyWith({
@@ -66,6 +81,8 @@ class ProductInfo extends HiveObject {
     List<Pressing>? product,
     bool? ayr,
     String? description,
+    double? customWeightRangeMinGrams,
+    double? customWeightRangeMaxGrams,
   }) => ProductInfo(
     productName: productName ?? this.productName,
     target: target ?? this.target,
@@ -73,6 +90,10 @@ class ProductInfo extends HiveObject {
     product: product ?? this.product,
     ayr: ayr ?? this.ayr,
     description: description ?? this.description,
+    customWeightRangeMinGrams:
+        customWeightRangeMinGrams ?? this.customWeightRangeMinGrams,
+    customWeightRangeMaxGrams:
+        customWeightRangeMaxGrams ?? this.customWeightRangeMaxGrams,
   );
 }
 

@@ -40,6 +40,7 @@ class CustomTextField extends StatefulWidget {
     this.onChanged,
     this.showClearIcon = false,
     this.focusNode,
+    this.selectAllOnFocus = false,
   });
 
   final TextEditingController controller;
@@ -51,68 +52,86 @@ class CustomTextField extends StatefulWidget {
   final void Function(String)? onChanged;
   final bool showClearIcon;
   final FocusNode? focusNode;
+  final bool selectAllOnFocus;
 
   @override
-  _CustomTextFieldState createState() => _CustomTextFieldState();
+  State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  late final FocusNode _focusNode;
+  late final bool _ownsFocusNode;
+
   @override
   void initState() {
     super.initState();
+    _ownsFocusNode = widget.focusNode == null;
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_selectTextOnFocus);
     // Add listener to rebuild when text changes for the clear icon visibility
     widget.controller.addListener(_updateClearIconVisibility);
   }
 
   @override
   void dispose() {
+    _focusNode.removeListener(_selectTextOnFocus);
+    if (_ownsFocusNode) {
+      _focusNode.dispose();
+    }
     widget.controller.removeListener(_updateClearIconVisibility);
     super.dispose();
   }
 
+  void _selectTextOnFocus() {
+    if (!widget.selectAllOnFocus || !_focusNode.hasFocus) return;
+    widget.controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: widget.controller.text.length,
+    );
+  }
+
   void _updateClearIconVisibility() {
+    if (!mounted) return;
     setState(() {
       // This will trigger a rebuild when the text changes, updating the visibility of the clear icon
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: boxDecoration(),
-      child: TextField(
-        focusNode: widget.focusNode,
-        enabled: widget.enabled,
-        controller: widget.controller,
-        decoration: textFieldDecoration(
-          widget.hintText,
-          widget.labelText,
-        ).copyWith(
-          suffixIcon:
-              widget.showClearIcon && widget.controller.text.isNotEmpty
-                  ? IconButton(
-                    icon: Icon(
-                      Icons.clear,
-                      color: Colors.grey[600],
-                    ), // Style the icon as needed
-                    onPressed: () {
-                      widget.controller.clear();
-                      widget.onChanged?.call(
-                        '',
-                      ); // Trigger the onChanged callback with an empty string
-                    },
-                  )
-                  : null,
-        ),
-        keyboardType: widget.keyboardType,
-        textInputAction: TextInputAction.done,
-        textAlign: TextAlign.center,
-        onChanged: (value) {
-          // Pass change upstream if caller supplied a handler
-          widget.onChanged?.call(value);
-        },
-        onSubmitted: widget.onSubmitted,
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: boxDecoration(),
+    child: TextField(
+      focusNode: _focusNode,
+      enabled: widget.enabled,
+      controller: widget.controller,
+      decoration: textFieldDecoration(
+        widget.hintText,
+        widget.labelText,
+      ).copyWith(
+        suffixIcon:
+            widget.showClearIcon && widget.controller.text.isNotEmpty
+                ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: Colors.grey[600],
+                  ), // Style the icon as needed
+                  onPressed: () {
+                    widget.controller.clear();
+                    widget.onChanged?.call(
+                      '',
+                    ); // Trigger the onChanged callback with an empty string
+                  },
+                )
+                : null,
       ),
-    );
-  }
+      keyboardType: widget.keyboardType,
+      textInputAction: TextInputAction.done,
+      textAlign: TextAlign.center,
+      onChanged: (value) {
+        // Pass change upstream if caller supplied a handler
+        widget.onChanged?.call(value);
+      },
+      onSubmitted: widget.onSubmitted,
+    ),
+  );
 }

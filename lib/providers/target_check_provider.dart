@@ -1,3 +1,6 @@
+// Providers in this file are app state, not package API.
+// ignore_for_file: public_member_api_docs
+
 import 'dart:async';
 
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
@@ -27,6 +30,18 @@ final allowanceFocusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
 });
 
 final showListProvider = StateProvider<bool>((ref) => false);
+
+enum ProductListSource { lastSelected, allProducts }
+
+final productListSourceProvider = StateProvider<ProductListSource>(
+  (ref) => ProductListSource.lastSelected,
+);
+
+enum ProductEffortFilter { none, leastEffort, maxEffort }
+
+final productEffortFilterProvider = StateProvider<ProductEffortFilter>(
+  (ref) => ProductEffortFilter.none,
+);
 
 final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final focusNode = FocusNode();
@@ -64,7 +79,7 @@ final targetProvider = StateProvider<int>((ref) => 0);
 
 class AllowanceNotifier extends StateNotifier<double> {
   AllowanceNotifier(this.ref) : super(0) {
-    scheduleMicrotask(() async => _fetchInitialAllowance());
+    scheduleMicrotask(_fetchInitialAllowance);
   }
   final Ref ref;
 
@@ -96,7 +111,7 @@ class AllowanceNotifier extends StateNotifier<double> {
         );
         state = producedToday.allowance ?? 0;
       }
-    } catch (_) {
+    } on Object catch (_) {
       // Handle errors or log them
     }
   }
@@ -124,9 +139,7 @@ final allowanceProvider = StateNotifierProvider<AllowanceNotifier, double>(
 final overtimeRatioProvider = StateProvider<double>((ref) => 0.0);
 final overtimeWorkingHoursState = StateProvider<double?>((ref) => 0.0);
 
-final productsProvider = FutureProvider.autoDispose<List<ProductInfo>>((
-  ref,
-) async {
+final productsProvider = FutureProvider.autoDispose<List<ProductInfo>>((ref) {
   final productsList = ref.watch(productInfoProvider);
   return productsList;
 });

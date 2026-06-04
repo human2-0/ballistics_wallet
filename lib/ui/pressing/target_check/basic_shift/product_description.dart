@@ -1,12 +1,18 @@
+import 'dart:typed_data';
+
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_image_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart'
     show lastSelectedProductProvider;
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
+import 'package:ballistics_wallet_flutter/repository/product_image_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:pasteboard/pasteboard.dart';
 
 /// Sort order for the product history list.
 enum HistorySort {
@@ -70,21 +76,54 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
   }
 
   Future<void> _showAddImageDialog() async {
-    final imageUrl = await showDialog<String>(
+    final result = await showDialog<_AddProductImageResult>(
       context: context,
       builder: (_) => const _AddProductImageDialog(),
     );
 
-    if (imageUrl == null || imageUrl.isEmpty) return;
-    await _saveImageFromUrl(imageUrl);
+    if (result == null) return;
+    switch (result.method) {
+      case _AddImageMethod.url:
+        final imageUrl = result.imageUrl;
+        if (imageUrl == null || imageUrl.isEmpty) return;
+        await _saveImageFromUrl(imageUrl);
+      case _AddImageMethod.clipboard:
+        final bytes = result.imageBytes;
+        if (bytes == null || bytes.isEmpty) return;
+        await _saveImageFromBytes(bytes);
+      case _AddImageMethod.library:
+        final bytes = result.imageBytes;
+        if (bytes == null || bytes.isEmpty) return;
+        await _saveImageFromBytes(bytes);
+    }
   }
 
   Future<void> _saveImageFromUrl(String imageUrl) async {
-    setState(() => _isSavingImage = true);
+    await _saveImage(
+      (repository) => repository.saveProductImageFromUrl(
+        product: _product,
+        imageUrl: imageUrl,
+      ),
+    );
+  }
+
+  Future<void> _saveImageFromBytes(Uint8List bytes) async {
+    await _saveImage(
+      (repository) =>
+          repository.saveProductImageFromBytes(product: _product, bytes: bytes),
+    );
+  }
+
+  Future<void> _saveImage(
+    Future<ProductImageSaveResult> Function(ProductImageRepository repository)
+    save, {
+    bool manageSavingState = true,
+  }) async {
+    if (manageSavingState) {
+      setState(() => _isSavingImage = true);
+    }
     try {
-      final result = await ref
-          .read(productImageRepositoryProvider)
-          .saveProductImageFromUrl(product: _product, imageUrl: imageUrl);
+      final result = await save(ref.read(productImageRepositoryProvider));
       final updated = _product.copyWith(imageName: result.imageName);
       final saved = await ref
           .read(productInfoProvider.notifier)
@@ -97,25 +136,28 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
           .read(lastSelectedProductProvider.notifier)
           .saveSelectedProduct(updated);
       ref.read(focusedProductProvider.notifier).state = updated;
+      if (!mounted) return;
       setState(() => _product = updated);
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
+      showAppNotification(
+        context,
+        result.uploadedToDrive
+            ? 'Image saved and uploaded to Google Drive.'
+            : 'Image saved locally. Google Drive upload failed.',
+        type:
             result.uploadedToDrive
-                ? 'Image saved and uploaded to Google Drive.'
-                : 'Image saved locally. Google Drive upload failed.',
-          ),
-        ),
+                ? AppNotificationType.success
+                : AppNotificationType.warning,
       );
     } on Object catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showAppNotification(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add image: $error')));
+        'Failed to add image: $error',
+        type: AppNotificationType.error,
+      );
     } finally {
-      if (mounted) {
+      if (mounted && manageSavingState) {
         setState(() => _isSavingImage = false);
       }
     }
@@ -424,13 +466,28 @@ class _AddProductImageDialog extends StatefulWidget {
   State<_AddProductImageDialog> createState() => _AddProductImageDialogState();
 }
 
+enum _AddImageMethod { url, clipboard, library }
+
+class _AddProductImageResult {
+  const _AddProductImageResult(this.method, {this.imageUrl, this.imageBytes});
+
+  final _AddImageMethod method;
+  final String? imageUrl;
+  final Uint8List? imageBytes;
+}
+
 class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   late final TextEditingController _controller;
+  Uint8List? _imageBytes;
+  _AddImageMethod? _imageMethod;
+  bool _isReadingImage = false;
+  String? _imageError;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _controller.addListener(() => setState(() {}));
   }
 
   @override
@@ -439,32 +496,198 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
     super.dispose();
   }
 
+  Future<void> _pasteImage() async {
+    setState(() {
+      _isReadingImage = true;
+      _imageError = null;
+    });
+    try {
+      final bytes = await Pasteboard.image;
+      if (bytes == null || bytes.isEmpty) {
+        throw const FormatException('Clipboard does not contain an image.');
+      }
+      if (!mounted) return;
+      setState(() {
+        _imageBytes = bytes;
+        _imageMethod = _AddImageMethod.clipboard;
+        _imageError = null;
+      });
+    } on Object catch (error) {
+      if (!mounted) return;
+      setState(() => _imageError = error.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isReadingImage = false);
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    setState(() {
+      _isReadingImage = true;
+      _imageError = null;
+    });
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final bytes = await image.readAsBytes();
+      if (bytes.isEmpty) {
+        throw const FormatException('Selected image is empty.');
+      }
+      if (!mounted) return;
+      setState(() {
+        _imageBytes = bytes;
+        _imageMethod = _AddImageMethod.library;
+        _imageError = null;
+      });
+    } on Object catch (error) {
+      if (!mounted) return;
+      setState(() => _imageError = error.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isReadingImage = false);
+      }
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _imageBytes = null;
+      _imageMethod = null;
+      _imageError = null;
+    });
+  }
+
   void _submit() {
-    Navigator.pop(context, _controller.text.trim());
+    final bytes = _imageBytes;
+    if (bytes != null && bytes.isNotEmpty) {
+      Navigator.pop(
+        context,
+        _AddProductImageResult(_imageMethod!, imageBytes: bytes),
+      );
+      return;
+    }
+
+    Navigator.pop(
+      context,
+      _AddProductImageResult(
+        _AddImageMethod.url,
+        imageUrl: _controller.text.trim(),
+      ),
+    );
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Add product image'),
-    content: TextField(
-      controller: _controller,
-      autofocus: true,
-      keyboardType: TextInputType.url,
-      textInputAction: TextInputAction.done,
-      decoration: const InputDecoration(
-        labelText: 'Image link',
-        hintText: 'https://...',
+  Widget build(BuildContext context) {
+    final imageBytes = _imageBytes;
+    final canSave = imageBytes != null || _controller.text.trim().isNotEmpty;
+
+    return AlertDialog(
+      title: const Text('Add product image'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            keyboardType: TextInputType.url,
+            textInputAction: TextInputAction.done,
+            enabled: imageBytes == null,
+            decoration: const InputDecoration(
+              labelText: 'Image link',
+              hintText: 'https://...',
+            ),
+            onSubmitted: (_) {
+              if (canSave) _submit();
+            },
+          ),
+          const SizedBox(height: 12),
+          if (imageBytes != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 160,
+                    width: double.infinity,
+                    child: Image.memory(imageBytes, fit: BoxFit.contain),
+                  ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: IconButton.filledTonal(
+                      tooltip: 'Remove',
+                      onPressed: _removeImage,
+                      icon: const Icon(Icons.close),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (_imageError != null) ...[
+            Text(
+              _imageError!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _isReadingImage ? null : _pasteImage,
+                  icon: _ImageSourceButtonIcon(
+                    isLoading: _isReadingImage,
+                    icon: Icons.content_paste,
+                  ),
+                  label: const Text('Paste'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _isReadingImage ? null : _pickImage,
+                  icon: _ImageSourceButtonIcon(
+                    isLoading: _isReadingImage,
+                    icon: Icons.photo_library_outlined,
+                  ),
+                  label: const Text('Library'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      onSubmitted: (_) => _submit(),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
-      ),
-      ElevatedButton(onPressed: _submit, child: const Text('Save image')),
-    ],
-  );
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: canSave && !_isReadingImage ? _submit : null,
+          child: const Text('Save image'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ImageSourceButtonIcon extends StatelessWidget {
+  const _ImageSourceButtonIcon({required this.isLoading, required this.icon});
+
+  final bool isLoading;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isLoading) return Icon(icon);
+    return const SizedBox.square(
+      dimension: 18,
+      child: CircularProgressIndicator(strokeWidth: 2),
+    );
+  }
 }
 
 class _ImageToolsRow extends StatelessWidget {

@@ -179,6 +179,10 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                           child: ProductWeightSummary(
                             weightGrams: focusedProduct.finalProductWeightGrams,
                             hasFormula: focusedProduct.hasWeightFormula,
+                            customMinGrams:
+                                focusedProduct.customWeightRangeMinGrams,
+                            customMaxGrams:
+                                focusedProduct.customWeightRangeMaxGrams,
                           ),
                         ),
                       ],
@@ -299,8 +303,11 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                             ),
                           ),
                         ),
-                        Transform.scale(
-                          scale:2,
+                        Positioned(
+                          left: targetLeft,
+                          top: targetTop,
+                          width: targetSize,
+                          height: targetSize,
                           child: TargetBoard(
                             productName: focusedProduct.productName,
                             size: targetSize,
@@ -323,14 +330,48 @@ class BasicShiftCard extends ConsumerState<BasicShift>
   }
 
   Widget _buildProductList(WidgetRef ref) {
-    // Watch the current search term
-    final productNameController = ref.watch(productNameControllerProvider);
     final products = ref.watch(lastSelectedProductProvider);
-    if (productNameController.isEmpty && products.isNotEmpty) {
-      return const LastSelectedProducts();
-    } else {
-      return const ProductsListSuggested();
-    }
+    final source = ref.watch(productListSourceProvider);
+    final hasLastSelected = products.isNotEmpty;
+    final effectiveSource =
+        hasLastSelected ? source : ProductListSource.allProducts;
+
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: SegmentedButton<ProductListSource>(
+              selected: {effectiveSource},
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                  value: ProductListSource.lastSelected,
+                  label: const Text('Last selected'),
+                  icon: const Icon(Icons.history_rounded),
+                  enabled: hasLastSelected,
+                ),
+                const ButtonSegment(
+                  value: ProductListSource.allProducts,
+                  label: Text('All products'),
+                  icon: Icon(Icons.list_rounded),
+                ),
+              ],
+              onSelectionChanged: (selection) {
+                ref.read(productListSourceProvider.notifier).state =
+                    selection.single;
+                ref.read(showListProvider.notifier).state = true;
+              },
+            ),
+          ),
+          if (effectiveSource == ProductListSource.lastSelected)
+            const LastSelectedProducts()
+          else
+            const ProductsListSuggested(),
+        ],
+      ),
+    );
   }
 }
 

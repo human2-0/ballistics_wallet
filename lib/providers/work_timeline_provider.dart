@@ -112,8 +112,9 @@ final workTimelinePlanProvider = Provider.autoDispose.family<
     allowance: allowance,
   );
   final liveRatio =
-      bonusState.ratio +
-      math.max(0.0, ratioFromTypedAmount - savedProgress.ratio);
+      ratioFromTypedAmount > savedProgress.ratio
+          ? ratioFromTypedAmount
+          : savedProgress.ratio;
   final adjustedTarget = _adjustedProductTarget(
     productTarget: productTarget,
     workingHours: workingHours,

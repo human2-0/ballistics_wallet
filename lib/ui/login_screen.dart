@@ -1,3 +1,4 @@
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_controller.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/states/login_states.dart';
 import 'package:ballistics_wallet_flutter/providers/rive_file_provider.dart';
@@ -26,20 +27,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _loadRiveFile() async {
-    final riveFile = await ref.read(riveFileProvider);
-    final controller = rive.RiveWidgetController(
-      riveFile,
-      artboardSelector: rive.ArtboardSelector.byName('login'),
-      stateMachineSelector: rive.StateMachineSelector.byName('Login State'),
-    );
-    if (!mounted) {
-      controller.dispose();
-      return;
-    }
+    try {
+      final riveFile = await ref.read(riveFileProvider);
+      final controller = rive.RiveWidgetController(
+        riveFile,
+        artboardSelector: rive.ArtboardSelector.byName('login'),
+        stateMachineSelector: rive.StateMachineSelector.byName('Login State'),
+      );
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
 
-    setState(() {
-      _riveController = controller;
-    });
+      setState(() {
+        _riveController = controller;
+      });
+    } on Object catch (error, stackTrace) {
+      debugPrint('Failed to load Rive login animation: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   @override
@@ -52,9 +58,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     ref.listen<LoginState>(loginControllerProvider, (previous, state) {
       if (state is LoginStateError) {
-        ScaffoldMessenger.of(
+        showAppNotification(
           context,
-        ).showSnackBar(SnackBar(content: Text(state.error)));
+          state.error,
+          type: AppNotificationType.error,
+        );
       }
     });
 
