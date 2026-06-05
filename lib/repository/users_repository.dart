@@ -5,9 +5,7 @@ import 'package:hive/hive.dart';
 class UserRepository {
   static const String _boxName = 'settings';
 
-  Future<Box<UserSettings>> _openBox() async {
-    return Hive.openBox<UserSettings>(_boxName);
-  }
+  Future<Box<UserSettings>> _openBox() => Hive.openBox<UserSettings>(_boxName);
 
   Future<UserSettings?> getUserData(String userId) async {
     final box = await _openBox();
@@ -37,9 +35,7 @@ class UserRepository {
     final user = box.get(userId);
     if (user == null) return false;
 
-    final updatedUser = user.copyWith(
-      paidBreaks: newPaidBreaks,
-    );
+    final updatedUser = user.copyWith(paidBreaks: newPaidBreaks);
     await box.put(userId, updatedUser);
     return true;
   }
@@ -49,9 +45,7 @@ class UserRepository {
     final user = box.get(userId);
     if (user == null) return false;
 
-    final updatedUser = user.copyWith(
-      hourlyRate: newHourlyRate,
-    );
+    final updatedUser = user.copyWith(hourlyRate: newHourlyRate);
     await box.put(userId, updatedUser);
     return true;
   }
@@ -98,26 +92,24 @@ class UserState {
     double? hourlyRate,
     bool? backup,
     bool? askForBackup,
-  }) =>
-      UserState(
-        userId: userId ?? this.userId,
-        workingHours: workingHours ?? this.workingHours,
-        realWorkingHours: realWorkingHours ?? this.realWorkingHours,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-        paidBreaks: paidBreaks ?? this.paidBreaks,
-        hourlyRate: hourlyRate ?? this.hourlyRate,
-        backup: backup ?? this.backup,
-        askForBackup: askForBackup ?? this.askForBackup,
-      );
+  }) => UserState(
+    userId: userId ?? this.userId,
+    workingHours: workingHours ?? this.workingHours,
+    realWorkingHours: realWorkingHours ?? this.realWorkingHours,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    paidBreaks: paidBreaks ?? this.paidBreaks,
+    hourlyRate: hourlyRate ?? this.hourlyRate,
+    backup: backup ?? this.backup,
+    askForBackup: askForBackup ?? this.askForBackup,
+  );
 }
 
 class UserNotifier extends StateNotifier<UserState> {
   UserNotifier(this.userRepository) : super(UserState());
   final UserRepository userRepository;
 
-  double calculateEffectiveWorkingHours(double workingHours) {
-    return userRepository.calculateEffectiveWorkingHours(workingHours);
-  }
+  double calculateEffectiveWorkingHours(double workingHours) =>
+      userRepository.calculateEffectiveWorkingHours(workingHours);
 
   Future<void> dontAskAgain(bool value) async {
     state = state.copyWith(askForBackup: value);
@@ -160,13 +152,19 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 
   Future<bool> updateUserSettings(
-      double newWorkingHours, double newHourlyRate,) async {
+    double newWorkingHours,
+    double newHourlyRate,
+  ) async {
     if (state.userId == null) return false;
 
-    final updateWorkingHoursResult =
-        await userRepository.editWorkingHours(state.userId!, newWorkingHours);
-    final updateHourlyRateResult =
-        await userRepository.editHourlyRate(state.userId!, newHourlyRate);
+    final updateWorkingHoursResult = await userRepository.editWorkingHours(
+      state.userId!,
+      newWorkingHours,
+    );
+    final updateHourlyRateResult = await userRepository.editHourlyRate(
+      state.userId!,
+      newHourlyRate,
+    );
 
     if (updateWorkingHoursResult && updateHourlyRateResult) {
       state = state.copyWith(
@@ -183,8 +181,10 @@ class UserNotifier extends StateNotifier<UserState> {
 
   Future<bool> editPaidBreaks(bool newPaidBreaks) async {
     if (state.userId == null) return false;
-    final result =
-        await userRepository.editPaidBreaks(state.userId!, newPaidBreaks);
+    final result = await userRepository.editPaidBreaks(
+      state.userId!,
+      newPaidBreaks,
+    );
     if (result) {
       state = state.copyWith(paidBreaks: newPaidBreaks);
     }
@@ -202,15 +202,18 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 }
 
-final userRepositoryProvider =
-    Provider<UserRepository>((ref) => UserRepository());
+final userRepositoryProvider = Provider<UserRepository>(
+  (ref) => UserRepository(),
+);
 
 final userNotifierProvider = StateNotifierProvider<UserNotifier, UserState>(
   (ref) => UserNotifier(ref.watch(userRepositoryProvider)),
 );
 
-final userDataProvider =
-    FutureProvider.family<UserSettings?, String>((ref, uid) {
+final userDataProvider = FutureProvider.family<UserSettings?, String>((
+  ref,
+  uid,
+) {
   final userRepo = ref.watch(userRepositoryProvider);
   return userRepo.getUserData(uid);
 });

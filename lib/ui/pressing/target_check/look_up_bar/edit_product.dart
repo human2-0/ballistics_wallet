@@ -33,7 +33,8 @@ class _EditProductDialog extends ConsumerStatefulWidget {
 class _EditProductDialogState extends ConsumerState<_EditProductDialog> {
   late final TextEditingController _productNameController;
   late final TextEditingController _targetController;
-  late final TextEditingController _weightRangeController;
+  late final TextEditingController _weightRangeMinController;
+  late final TextEditingController _weightRangeMaxController;
   late final TextEditingController _ratioController;
   late final List<PressingEntry> _pressingEntries;
 
@@ -49,8 +50,11 @@ class _EditProductDialogState extends ConsumerState<_EditProductDialog> {
     _targetController = TextEditingController(
       text: widget.product.target.toString(),
     );
-    _weightRangeController = TextEditingController(
-      text: _formatCustomWeightRange(widget.product),
+    _weightRangeMinController = TextEditingController(
+      text: _formatWeightValue(widget.product.customWeightRangeMinGrams),
+    );
+    _weightRangeMaxController = TextEditingController(
+      text: _formatWeightValue(widget.product.customWeightRangeMaxGrams),
     );
     _ratioController = TextEditingController(
       text: _selectedRatio.toStringAsFixed(1),
@@ -63,7 +67,8 @@ class _EditProductDialogState extends ConsumerState<_EditProductDialog> {
   void dispose() {
     _productNameController.dispose();
     _targetController.dispose();
-    _weightRangeController.dispose();
+    _weightRangeMinController.dispose();
+    _weightRangeMaxController.dispose();
     _ratioController.dispose();
     for (final entry in _pressingEntries) {
       entry.dispose();
@@ -115,13 +120,15 @@ class _EditProductDialogState extends ConsumerState<_EditProductDialog> {
     }
 
     final updatedWeightRange = _parseWeightRange(
-      _weightRangeController.text.trim(),
+      minValue: _weightRangeMinController.text.trim(),
+      maxValue: _weightRangeMaxController.text.trim(),
     );
     if (updatedWeightRange == null &&
-        _weightRangeController.text.trim().isNotEmpty) {
+        (_weightRangeMinController.text.trim().isNotEmpty ||
+            _weightRangeMaxController.text.trim().isNotEmpty)) {
       showAppNotification(
         context,
-        'Use weight range like 120-130.',
+        'Enter both min and max weights, with min not greater than max.',
         type: AppNotificationType.error,
       );
       return;
@@ -207,11 +214,32 @@ class _EditProductDialogState extends ConsumerState<_EditProductDialog> {
                 selectAllOnFocus: true,
               ),
               const SizedBox(height: 16),
-              CustomTextField(
-                controller: _weightRangeController,
-                hintText: '120-130',
-                labelText: 'Weight range (g)',
-                selectAllOnFocus: true,
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      controller: _weightRangeMinController,
+                      hintText: '120',
+                      labelText: 'Min weight (g)',
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      selectAllOnFocus: true,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomTextField(
+                      controller: _weightRangeMaxController,
+                      hintText: '130',
+                      labelText: 'Max weight (g)',
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      selectAllOnFocus: true,
+                    ),
+                  ),
+                ],
               ),
               if (hasEntries) ...[
                 const SizedBox(height: 16),
@@ -535,19 +563,20 @@ class _PressingEntryRow extends StatelessWidget {
   );
 }
 
-String _formatCustomWeightRange(ProductInfo product) {
-  final minGrams = product.customWeightRangeMinGrams;
-  final maxGrams = product.customWeightRangeMaxGrams;
-  if (minGrams == null || maxGrams == null) return '';
-  return '${minGrams.ceil()}-${maxGrams.ceil()}';
+String _formatWeightValue(double? grams) {
+  if (grams == null) return '';
+  if (grams == grams.roundToDouble()) return grams.toInt().toString();
+  return grams.toString();
 }
 
-_ParsedWeightRange? _parseWeightRange(String value) {
-  if (value.isEmpty) return null;
-  final parts = value.split('-');
-  if (parts.length != 2) return null;
-  final minGrams = double.tryParse(parts[0].trim());
-  final maxGrams = double.tryParse(parts[1].trim());
+_ParsedWeightRange? _parseWeightRange({
+  required String minValue,
+  required String maxValue,
+}) {
+  if (minValue.isEmpty && maxValue.isEmpty) return null;
+  if (minValue.isEmpty || maxValue.isEmpty) return null;
+  final minGrams = double.tryParse(minValue);
+  final maxGrams = double.tryParse(maxValue);
   if (minGrams == null || maxGrams == null) return null;
   if (minGrams <= 0 || maxGrams <= 0 || minGrams > maxGrams) return null;
   return _ParsedWeightRange(minGrams, maxGrams);

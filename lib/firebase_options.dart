@@ -33,7 +33,7 @@ class DefaultFirebaseOptions {
           'DefaultFirebaseOptions have not been configured for linux - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
-      default:
+      case TargetPlatform.fuchsia:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         );
@@ -64,8 +64,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
     storageBucket: 'boost-ballistics.firebasestorage.app',
-    androidClientId: '291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com',
-    iosClientId: '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
+    androidClientId:
+        '291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com',
+    iosClientId:
+        '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
     iosBundleId: 'lush.co.uk.ballisticsWalletFlutter',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '291226983840',
     projectId: 'boost-ballistics',
     storageBucket: 'boost-ballistics.firebasestorage.app',
-    androidClientId: '291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com',
-    iosClientId: '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
+    androidClientId:
+        '291226983840-feuiubhtjvsobnjm3oahn0chtajgo006.apps.googleusercontent.com',
+    iosClientId:
+        '291226983840-bafnk27ucdeaddaimaq9kqdjjuadn6sp.apps.googleusercontent.com',
     iosBundleId: 'lush.co.uk.ballisticsWalletFlutter',
   );
 
@@ -89,5 +93,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'boost-ballistics.firebasestorage.app',
     measurementId: 'G-3Q5B2M5X9X',
   );
-
 }

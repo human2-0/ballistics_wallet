@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class OvertimeBonusTableV2 extends ConsumerWidget {
   const OvertimeBonusTableV2({super.key});
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(bonusTableProvider);
@@ -21,7 +20,6 @@ class OvertimeBonusTableV2 extends ConsumerWidget {
     }
 
     // Handle the display of the content
-
 
     return Scaffold(
       backgroundColor: Colors.transparent,

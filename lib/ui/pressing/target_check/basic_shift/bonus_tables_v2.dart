@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class BonusTableV2 extends ConsumerWidget {
   const BonusTableV2({super.key});
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(bonusTableProvider);
@@ -22,7 +21,6 @@ class BonusTableV2 extends ConsumerWidget {
 
     // Handle the display of the content
 
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: ListWheelScrollView(
@@ -31,10 +29,10 @@ class BonusTableV2 extends ConsumerWidget {
         children: state.listItems ?? [], // Use the list items from the state
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.of(context).pop(),
-          backgroundColor: Colors.red,
-          child: const Icon(Icons.close),
-        ),
+        onPressed: () => Navigator.of(context).pop(),
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.close),
+      ),
     );
   }
 }

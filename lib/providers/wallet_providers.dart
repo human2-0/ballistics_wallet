@@ -382,9 +382,9 @@ final bonusInfoListProvider =
       return BonusInfoNotifier(bonusInfoRepo, userId);
     });
 
-final bonusInfoRepositoryProvider = Provider<BonusInfoRepository>((ref) {
-  return BonusInfoRepository();
-});
+final bonusInfoRepositoryProvider = Provider<BonusInfoRepository>(
+  (ref) => BonusInfoRepository(),
+);
 
 final walletSummaryProvider = FutureProvider<WalletSummary>((ref) async {
   ref.watch(bonusInfoListProvider.select((s) => s.bonusInfo));
@@ -523,7 +523,5 @@ DateTime _historyDateOnly(DateTime date) =>
 
 extension DateTimeExtensions on DateTime {
   /// Checks if this DateTime is at least (later than or the same as) another DateTime.
-  bool isAtLeast(DateTime other) {
-    return isAfter(other) || isAtSameMomentAs(other);
-  }
+  bool isAtLeast(DateTime other) => isAfter(other) || isAtSameMomentAs(other);
 }

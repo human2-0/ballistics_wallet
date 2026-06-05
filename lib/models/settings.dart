@@ -13,13 +13,17 @@ class UserSettings extends HiveObject {
     double? hourlyRate,
     bool? backup,
     bool? askForBackup,
-  })  : workingHours = workingHours ?? _calculateEffectiveWorkingHours(workingHours ?? 8.0), // Default to 8.0 hours
-        realWorkingHours = realWorkingHours ?? 8.0,
-        avatarUrl = avatarUrl ?? 'assets/default_avatar.webp',
-        paidBreaks = paidBreaks ?? false,
-        hourlyRate = hourlyRate ?? 13.4, // Default to $20/hour
-        backup = backup ?? true,
-        askForBackup = askForBackup ?? true;
+  }) : workingHours =
+           workingHours ??
+           _calculateEffectiveWorkingHours(
+             workingHours ?? 8.0,
+           ), // Default to 8.0 hours
+       realWorkingHours = realWorkingHours ?? 8.0,
+       avatarUrl = avatarUrl ?? 'assets/default_avatar.webp',
+       paidBreaks = paidBreaks ?? false,
+       hourlyRate = hourlyRate ?? 13.4, // Default to $20/hour
+       backup = backup ?? true,
+       askForBackup = askForBackup ?? true;
 
   @HiveField(0)
   final String userId;
@@ -56,6 +60,7 @@ class UserSettings extends HiveObject {
       return workingHours;
     }
   }
+
   UserSettings copyWith({
     String? userId,
     double? workingHours,
@@ -65,16 +70,14 @@ class UserSettings extends HiveObject {
     double? hourlyRate,
     bool? backup,
     bool? askForBackup,
-  }) {
-    return UserSettings(
-      userId: userId ?? this.userId,
-      workingHours: workingHours ?? this.workingHours,
-      realWorkingHours: realWorkingHours ?? this.realWorkingHours,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-      paidBreaks: paidBreaks ?? this.paidBreaks,
-      hourlyRate: hourlyRate ?? this.hourlyRate,
-      backup: backup ?? this.backup,
-      askForBackup: askForBackup ?? this.askForBackup,
-    );
-  }
+  }) => UserSettings(
+    userId: userId ?? this.userId,
+    workingHours: workingHours ?? this.workingHours,
+    realWorkingHours: realWorkingHours ?? this.realWorkingHours,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    paidBreaks: paidBreaks ?? this.paidBreaks,
+    hourlyRate: hourlyRate ?? this.hourlyRate,
+    backup: backup ?? this.backup,
+    askForBackup: askForBackup ?? this.askForBackup,
+  );
 }

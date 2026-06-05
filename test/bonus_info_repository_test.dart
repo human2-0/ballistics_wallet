@@ -10,9 +10,10 @@ void main() {
 
   setUp(() async {
     tempDir = await Directory.systemTemp.createTemp();
-    Hive..init(tempDir.path)
-    ..registerAdapter(BonusInfoAdapter())
-    ..registerAdapter(ProducedAdapter());
+    Hive
+      ..init(tempDir.path)
+      ..registerAdapter(BonusInfoAdapter())
+      ..registerAdapter(ProducedAdapter());
   });
 
   tearDown(() async {

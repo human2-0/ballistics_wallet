@@ -4,9 +4,8 @@ import 'package:hive/hive.dart';
 class ProductInfoRepositoryHive {
   Box<ProductInfo> get _productBox => Hive.box<ProductInfo>('productInfo');
 
-  Future<List<ProductInfo>> fetchProductInfo() async {
-    return _productBox.values.toList();
-  }
+  Future<List<ProductInfo>> fetchProductInfo() async =>
+      _productBox.values.toList();
 
   Future<void> addProduct(ProductInfo product) async {
     await _productBox.put(product.productName, product);
@@ -16,7 +15,7 @@ class ProductInfoRepositoryHive {
     try {
       await _productBox.put(updatedProduct.productName, updatedProduct);
       return true;
-    } on FormatException catch (e) {
+    } on FormatException {
       return false;
     }
   }

@@ -11,7 +11,7 @@ class BackUpDataTile extends ConsumerStatefulWidget {
   const BackUpDataTile({super.key});
 
   @override
-  _BackUpDataTileState createState() => _BackUpDataTileState();
+  ConsumerState<BackUpDataTile> createState() => _BackUpDataTileState();
 }
 
 class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
@@ -87,11 +87,12 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
     }
   }
 
-  Future<bool> _showBackUpConfirmationDialog(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
+  Future<bool> _showBackUpConfirmationDialog(
+    BuildContext context,
+  ) => showDialog<bool>(
+    context: context,
+    builder:
+        (context) => AlertDialog(
           title: const Text('Back up your data'),
           content: const Text(
             'Backing up your current data will overwrite any other backups from Ballistics app stored in the Google Drive. Are you sure you want to proceed?',
@@ -113,16 +114,13 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
               child: const Text('Proceed'),
             ),
           ],
-        );
-      },
-    ).then((value) => value ?? false);
-  }
+        ),
+  ).then((value) => value ?? false);
 
-  Future<bool> _stopBackingUpData(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
+  Future<bool> _stopBackingUpData(BuildContext context) => showDialog<bool>(
+    context: context,
+    builder:
+        (context) => AlertDialog(
           title: const Text('Stop back up'),
           content: const Text(
             'Would you like to stop backing up your data to the Google Drive?',
@@ -144,10 +142,8 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
               child: const Text('Proceed'),
             ),
           ],
-        );
-      },
-    ).then((value) => value ?? false);
-  }
+        ),
+  ).then((value) => value ?? false);
 
   Future<void> _handleTap(BuildContext context, WidgetRef ref) async {
     final userData = ref.watch(userNotifierProvider);
@@ -193,7 +189,7 @@ class _BackUpDataTileState extends ConsumerState<BackUpDataTile> {
               ),
       title: const Text('Back up data'),
       trailing: _isLoading ? const CircularProgressIndicator() : null,
-      onTap: () async => _handleTap(context, ref),
+      onTap: () => _handleTap(context, ref),
     );
   }
 }

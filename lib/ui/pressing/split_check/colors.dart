@@ -37,7 +37,7 @@ const splitCheckPaletteColors = <Color>[
 ];
 
 String colorToHex(Color color) {
-  final value = color.value.toRadixString(16).padLeft(8, '0');
+  final value = color.toARGB32().toRadixString(16).padLeft(8, '0');
   return '#${value.substring(2).toUpperCase()}';
 }
 
@@ -59,10 +59,9 @@ Color? parseColorString(String colorName) {
   return null;
 }
 
-Color _accentFrom(Color color) {
-  // Nudge toward white for a subtle lighter inner shade.
-  return Color.lerp(color, Colors.white, 0.18) ?? color;
-}
+// Nudge toward white for a subtle lighter inner shade.
+Color _accentFrom(Color color) =>
+    Color.lerp(color, Colors.white, 0.18) ?? color;
 
 Color getColorFromString(String colorName, {bool accent = false}) {
   final parsed = parseColorString(colorName);

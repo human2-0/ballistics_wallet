@@ -101,11 +101,12 @@ class AllowanceEditingControllerNotifier
 }
 
 class ActiveIndexNotifier extends StateNotifier<int?> {
-  ActiveIndexNotifier() : super(null);
+  ActiveIndexNotifier() : super(0);
 
   int? get activeIndex => state;
 
   set activeIndex(int? index) {
+    if (state == index) return;
     state = index;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
@@ -15,7 +17,8 @@ class MinimumAnimatedTile extends ConsumerStatefulWidget {
   final VoidCallback onLongPressComplete;
 
   @override
-  _MinimumAnimatedTileState createState() => _MinimumAnimatedTileState();
+  ConsumerState<MinimumAnimatedTile> createState() =>
+      _MinimumAnimatedTileState();
 }
 
 class _MinimumAnimatedTileState extends ConsumerState<MinimumAnimatedTile>
@@ -50,13 +53,13 @@ class _MinimumAnimatedTileState extends ConsumerState<MinimumAnimatedTile>
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () async {
+    onTap: () {
       ref.read(amountPerBatchProvider.notifier).state = widget.target;
       ref.read(activeIndexTabProvider.notifier).activeIndex = 1;
       context.pop();
     },
     onLongPress: () {
-      _controller.forward();
+      unawaited(_controller.forward());
     },
     onLongPressUp: () {
       _controller.reset();
@@ -141,7 +144,7 @@ class BonusAnimatedTile extends ConsumerStatefulWidget {
   final VoidCallback onLongPressComplete;
 
   @override
-  _BonusAnimatedTileState createState() => _BonusAnimatedTileState();
+  ConsumerState<BonusAnimatedTile> createState() => _BonusAnimatedTileState();
 }
 
 class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
@@ -174,7 +177,7 @@ class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () async {
+    onTap: () {
       // await context.push('/split');
       ref.read(requiredAmountProvider.notifier).state = widget.requiredAmount;
       ref.read(amountPerBatchProvider.notifier).state = widget.requiredAmount;
@@ -182,7 +185,7 @@ class _BonusAnimatedTileState extends ConsumerState<BonusAnimatedTile>
       context.pop();
     },
     onLongPress: () {
-      _controller.forward();
+      unawaited(_controller.forward());
     },
     onLongPressUp: () {
       _controller.reset();

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/models/split_calculator_model.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,11 +15,11 @@ const _splitCheckColorsKey = 'perColorDisplayOverrides';
 class PerColorDisplayOverridesNotifier
     extends StateNotifier<Map<String, String>> {
   PerColorDisplayOverridesNotifier() : super({}) {
-    _load();
+    unawaited(_load());
   }
 
   Future<void> _load() async {
-    final box = await Hive.openBox(_splitCheckColorsBox);
+    final box = await Hive.openBox<Map<dynamic, dynamic>>(_splitCheckColorsBox);
     final stored = box.get(_splitCheckColorsKey);
     if (stored is Map) {
       final casted = <String, String>{};
@@ -31,32 +33,31 @@ class PerColorDisplayOverridesNotifier
   }
 
   Future<void> _save() async {
-    final box = await Hive.openBox(_splitCheckColorsBox);
+    final box = await Hive.openBox<Map<dynamic, dynamic>>(_splitCheckColorsBox);
     await box.put(_splitCheckColorsKey, state);
   }
 
   void setOverride(String key, String value) {
     state = {...state, key: value};
-    _save();
+    unawaited(_save());
   }
 
   void clearOverride(String key) {
-    final next = {...state};
-    next.remove(key);
+    final next = {...state}..remove(key);
     state = next;
-    _save();
+    unawaited(_save());
   }
 
   void reset() {
     state = {};
-    _save();
+    unawaited(_save());
   }
 }
 
-final perColorDisplayOverridesProvider =
-    StateNotifierProvider<PerColorDisplayOverridesNotifier, Map<String, String>>(
-  (ref) => PerColorDisplayOverridesNotifier(),
-);
+final perColorDisplayOverridesProvider = StateNotifierProvider<
+  PerColorDisplayOverridesNotifier,
+  Map<String, String>
+>((ref) => PerColorDisplayOverridesNotifier());
 
 final splitCalculatorProvider = Provider<SplitCalculator>((ref) {
   final requiredAmount = ref.watch(requiredAmountProvider);

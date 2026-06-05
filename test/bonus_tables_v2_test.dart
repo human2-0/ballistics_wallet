@@ -140,7 +140,7 @@ void main() {
     late MockRef ref;
     late MockUserNotifierStateNotifierProvider mockUserNotifierState;
 
-    setUp(() async {
+    setUp(() {
       ref = MockRef();
 
       // Initialize the notifier with the mock

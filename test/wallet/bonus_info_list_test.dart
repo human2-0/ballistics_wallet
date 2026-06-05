@@ -39,8 +39,9 @@ import 'fake_bonus_info_classes.dart';
   MockSpec<BonusInfoNotifier>(),
 ])
 void main() {
-  testWidgets('BonusInfoList shows "empty" state if box is empty',
-      (tester) async {
+  testWidgets('BonusInfoList shows "empty" state if box is empty', (
+    tester,
+  ) async {
     // 1. Create mocks
     final mockAuthRepository = MockAuthRepository();
     final mockBonusInfoRepository = MockBonusInfoRepository();
@@ -57,23 +58,24 @@ void main() {
     when(mockBox.values).thenReturn([]);
 
     // 5. Also stub getAllBonusInfos() => empty list
-    when(mockBonusInfoRepository.getAllBonusInfos())
-        .thenAnswer((_) async => []);
+    when(
+      mockBonusInfoRepository.getAllBonusInfos(),
+    ).thenAnswer((_) async => []);
     // Return something for getAllRatiosToday so it doesn't crash
-    when(mockBonusInfoRepository.getAllRatiosToday())
-        .thenAnswer((_) async => {});
+    when(
+      mockBonusInfoRepository.getAllRatiosToday(),
+    ).thenAnswer((_) async => {});
 
     // 6. Pump the widget with overridden providers
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(mockAuthRepository),
-          bonusInfoRepositoryProvider
-              .overrideWithValue(mockBonusInfoRepository),
+          bonusInfoRepositoryProvider.overrideWithValue(
+            mockBonusInfoRepository,
+          ),
         ],
-        child: const MaterialApp(
-          home: Scaffold(body: BonusInfoList()),
-        ),
+        child: const MaterialApp(home: Scaffold(body: BonusInfoList())),
       ),
     );
 
@@ -89,8 +91,9 @@ void main() {
     // Possibly you show a plus icon or "Add" text if empty:
     expect(find.byIcon(Icons.add), findsOneWidget);
   });
-  testWidgets('BonusInfoList renders items from the BonusInfoNotifier',
-      (tester) async {
+  testWidgets('BonusInfoList renders items from the BonusInfoNotifier', (
+    tester,
+  ) async {
     // 1) Mock repos
     final mockAuthRepository = MockAuthRepository();
     final mockBonusInfoRepository = MockBonusInfoRepository();
@@ -118,10 +121,12 @@ void main() {
     when(mockBonusInfoRepository.openBox()).thenAnswer((_) async => mockBox);
     when(mockBox.isEmpty).thenReturn(false);
     when(mockBox.values).thenReturn([sampleBonusInfo]);
-    when(mockBonusInfoRepository.getAllBonusInfos())
-        .thenAnswer((_) async => [sampleBonusInfo]);
-    when(mockBonusInfoRepository.getAllRatiosToday())
-        .thenAnswer((_) async => {'widgeta': 1.0});
+    when(
+      mockBonusInfoRepository.getAllBonusInfos(),
+    ).thenAnswer((_) async => [sampleBonusInfo]);
+    when(
+      mockBonusInfoRepository.getAllRatiosToday(),
+    ).thenAnswer((_) async => {'widgeta': 1.0});
 
     // 5) Pump the widget, override the date to match sampleBonusInfo.date
     await tester.pumpWidget(
@@ -130,8 +135,9 @@ void main() {
           // So the items pass the "isSameDay" check
           selectedDateProvider.overrideWith((_) => testDate),
           authRepositoryProvider.overrideWithValue(mockAuthRepository),
-          bonusInfoRepositoryProvider
-              .overrideWithValue(mockBonusInfoRepository),
+          bonusInfoRepositoryProvider.overrideWithValue(
+            mockBonusInfoRepository,
+          ),
         ],
         child: const MaterialApp(home: Scaffold(body: BonusInfoList())),
       ),
@@ -147,8 +153,9 @@ void main() {
     expect(find.text('10'), findsOneWidget);
   });
 
-  testWidgets('BonusInfoList opens AddBonusInfoModal and saves data',
-      (tester) async {
+  testWidgets('BonusInfoList opens AddBonusInfoModal and saves data', (
+    tester,
+  ) async {
     final goRouter = GoRouter(
       routes: [
         GoRoute(
@@ -192,8 +199,9 @@ void main() {
         product: [const Pressing('PressingY', 0, 0)],
       ),
     ];
-    when(mockProductInfoRepo.fetchProductInfo())
-        .thenAnswer((_) async => sampleProducts);
+    when(
+      mockProductInfoRepo.fetchProductInfo(),
+    ).thenAnswer((_) async => sampleProducts);
 
     // 4. Stub the BonusInfoRepo so no real Hive calls occur
     final mockBox = MockBox();
@@ -203,8 +211,9 @@ void main() {
 
     when(mockBonusInfoRepo.getAllBonusInfos()).thenAnswer((_) async => []);
     when(mockBonusInfoRepo.getAllRatiosToday()).thenAnswer((_) async => {});
-    when(mockBonusInfoRepo.addBonusInfo(any))
-        .thenAnswer((_) async => 'Product added.');
+    when(
+      mockBonusInfoRepo.addBonusInfo(any),
+    ).thenAnswer((_) async => 'Product added.');
 
     final testDate = DateTime(2023);
 
@@ -224,9 +233,12 @@ void main() {
     );
 
     // Stub addListener to prevent errors
-    when(mockUserNotifier.addListener(any,
-            fireImmediately: anyNamed('fireImmediately'),),)
-        .thenAnswer((_) => () {});
+    when(
+      mockUserNotifier.addListener(
+        any,
+        fireImmediately: anyNamed('fireImmediately'),
+      ),
+    ).thenAnswer((_) => () {});
 
     final bonusCalculatorOverride = Provider.family<double, double>(
       (ref, sumOfRatios) =>
@@ -245,14 +257,13 @@ void main() {
           userNotifierProvider.overrideWith((ref) => FakeUserNotifier()),
           backupManagerProvider.overrideWith((ref) => mockBackupNotifier),
           selectedDateProvider.overrideWith((ref) => testDate),
-          productInfoRepo
-              .overrideWithValue(FakeProductInfoRepository(sampleProducts)),
+          productInfoRepo.overrideWithValue(
+            FakeProductInfoRepository(sampleProducts),
+          ),
           bonusInfoListProvider.overrideWith((ref) => FakeBonusInfoNotifier()),
           // Add any other necessary overrides here
         ],
-        child: MaterialApp.router(
-          routerConfig: goRouter,
-        ),
+        child: MaterialApp.router(routerConfig: goRouter),
       ),
     );
 
@@ -289,8 +300,9 @@ void main() {
 
     // Because your modal closes via `addPostFrameCallback(...)` we need extra pumps:
     await tester.pump(); // start the close
-    await tester
-        .pump(const Duration(milliseconds: 100)); // let the callback run
+    await tester.pump(
+      const Duration(milliseconds: 100),
+    ); // let the callback run
     await tester.pumpAndSettle(); // finish animations and frame callbacks
 
     // 12. The bottom sheet should close, and 'addBonusButton' should no longer be in the widget tree
@@ -304,12 +316,11 @@ void main() {
       workingHours: 8,
       bonus: 123.45,
       isOvertime: false,
-      produced: [
-        Produced(productName: 'WidgetA', amount: 50, ratio: 0.5),
-      ],
+      produced: [Produced(productName: 'WidgetA', amount: 50, ratio: 0.5)],
     );
-    when(mockBonusInfoRepo.getAllBonusInfos())
-        .thenAnswer((_) async => [newItem]);
+    when(
+      mockBonusInfoRepo.getAllBonusInfos(),
+    ).thenAnswer((_) async => [newItem]);
 
     // If your code calls loadBonusInfos() automatically after adding,
     // let's let it settle:
@@ -320,8 +331,9 @@ void main() {
     expect(find.text('£123.45'), findsOneWidget);
   });
 
-  testWidgets('EditBonusInfoModal updates bonus info correctly',
-      (tester) async {
+  testWidgets('EditBonusInfoModal updates bonus info correctly', (
+    tester,
+  ) async {
     final sampleProducts = [
       ProductInfo(
         productName: 'WidgetA',
@@ -351,9 +363,7 @@ void main() {
       workingHours: 8,
       bonus: 100,
       isOvertime: false,
-      produced: [
-        Produced(productName: 'WidgetA', amount: 10, ratio: 0),
-      ],
+      produced: [Produced(productName: 'WidgetA', amount: 10, ratio: 0)],
     );
 
     // Initialize our fake notifier and add the sample bonus info.
@@ -372,28 +382,31 @@ void main() {
           userNotifierProvider.overrideWith((ref) => FakeUserNotifier()),
           backupManagerProvider.overrideWith((ref) => mockBackupNotifier),
           selectedDateProvider.overrideWith((ref) => testDate),
-          productInfoRepo
-              .overrideWithValue(FakeProductInfoRepository(sampleProducts)),
+          productInfoRepo.overrideWithValue(
+            FakeProductInfoRepository(sampleProducts),
+          ),
           bonusInfoListProvider.overrideWith((ref) => FakeBonusInfoNotifier()),
           bonusInfoListProvider.overrideWith((ref) => fakeBonusNotifier),
         ],
         child: MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder: (context) => ElevatedButton(
-                key: const Key('openEditModalButton'),
-                onPressed: () async {
-                  await showModalBottomSheet<Widget>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) => EditBonusInfoModal(
-                      bonusInfo: sampleBonusInfo,
-                      index: 0,
-                    ),
-                  );
-                },
-                child: const Text('Open Edit Modal'),
-              ),
+              builder:
+                  (context) => ElevatedButton(
+                    key: const Key('openEditModalButton'),
+                    onPressed: () async {
+                      await showModalBottomSheet<Widget>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder:
+                            (_) => EditBonusInfoModal(
+                              bonusInfo: sampleBonusInfo,
+                              index: 0,
+                            ),
+                      );
+                    },
+                    child: const Text('Open Edit Modal'),
+                  ),
             ),
           ),
         ),
@@ -408,8 +421,9 @@ void main() {
     // (Ensure that in your EditBonusInfoModal you assign these keys accordingly.)
     final workingHoursField = find.byKey(const Key('editWorkingHoursField'));
     final bonusField = find.byKey(const Key('editBonusField'));
-    final productNameField = find.byKey(const Key(
-        'editProductNameField_0',),); // Added key to typeahead TextField.
+    final productNameField = find.byKey(
+      const Key('editProductNameField_0'),
+    ); // Added key to typeahead TextField.
     final amountField = find.byKey(const Key('editAmountField_0'));
     final saveButton = find.widgetWithText(ElevatedButton, 'Save');
 

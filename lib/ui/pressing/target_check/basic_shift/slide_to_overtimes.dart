@@ -45,43 +45,55 @@ class SlideToOvertimeState extends State<SlideToOvertime>
 
   @override
   Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        children: <Widget>[
-          Container(
-            width: MediaQuery.of(context).size.width * 0.70,
-            height: MediaQuery.of(context).size.height * 0.05,
-            decoration: BoxDecoration(
-              color: Colors.orange[200],
-              borderRadius: BorderRadius.circular(33),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  offset: const Offset(0, 2),
-                  blurRadius: 5,
+    padding: const EdgeInsets.all(8),
+    child: Column(
+      children: <Widget>[
+        Container(
+          width: MediaQuery.of(context).size.width * 0.70,
+          height: MediaQuery.of(context).size.height * 0.05,
+          decoration: BoxDecoration(
+            color: Colors.orange[200],
+            borderRadius: BorderRadius.circular(33),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                offset: const Offset(0, 2),
+                blurRadius: 5,
+              ),
+            ],
+          ),
+          child: Center(
+            child: Column(
+              children: [
+                const Text('Slide for overtime card'),
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.orange,
+                        size: MediaQuery.of(context).size.aspectRatio * 30,
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.orange,
+                        size: MediaQuery.of(context).size.aspectRatio * 30,
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.orange,
+                        size: MediaQuery.of(context).size.aspectRatio * 30,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            child: Center(
-              child: Column(
-                children: [
-                  const Text('Slide for overtime card'),
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
-                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
-                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.orange, size: MediaQuery.of(context).size.aspectRatio * 30),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
 }

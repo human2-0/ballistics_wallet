@@ -4,26 +4,27 @@ class BallisticsPocketPrivacyPolicy extends StatelessWidget {
   const BallisticsPocketPrivacyPolicy({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.orange[50],
-      appBar: AppBar(
-        backgroundColor: Colors.orange[300],
-        title: const Text('Privacy Policy', style: TextStyle(color: Colors.white),),
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.orange[50],
+    appBar: AppBar(
+      backgroundColor: Colors.orange[300],
+      title: const Text(
+        'Privacy Policy',
+        style: TextStyle(color: Colors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Ballistics Pocket Privacy Policy',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '''
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ballistics Pocket Privacy Policy',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            const Text('''
 Last updated: 8 May 2024
 
 ## Introduction
@@ -73,13 +74,10 @@ We may update this policy from time to time. Any changes will be communicated th
 ## Contact Information
 If you have any questions or concerns about this Privacy Policy or data practices, please contact us at:
 - **Email:** devulopa@gmail.com
-                ''',
-                style: TextStyle(fontFamily: 'monospace'),
-              ),
-            ],
-          ),
+                ''', style: TextStyle(fontFamily: 'monospace')),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }

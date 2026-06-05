@@ -20,12 +20,18 @@ void main() {
   group('csvToList', () {
     test('parses data with \n line endings', () {
       const data = '1,2\n3,4';
-      expect(csvToList(data), [[1, 2], [3, 4]]);
+      expect(csvToList(data), [
+        [1, 2],
+        [3, 4],
+      ]);
     });
 
     test('parses data with \r\n line endings', () {
       const data = '1,2\r\n3,4';
-      expect(csvToList(data), [[1, 2], [3, 4]]);
+      expect(csvToList(data), [
+        [1, 2],
+        [3, 4],
+      ]);
     });
   });
 

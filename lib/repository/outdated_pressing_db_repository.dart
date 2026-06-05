@@ -1,18 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-
-
 // WARNING, THIS REPOSITORY IS DEPRECIATED AS OF PRODUCT INFO REPOSITORY, IT IS KEPT IN CASE I WOULD LIKE TO MIGRATE BACK TO FIRESTORE DATABASE
-
-
-
 
 class PressingRepository {
   PressingRepository();
   final FirebaseFirestore db = FirebaseFirestore.instance;
-
-
 
   Future<void> saveUserBonus(
     String userId,
@@ -22,8 +14,9 @@ class PressingRepository {
     double ratio, {
     double workingHours = 0,
   }) async {
-    final CollectionReference userBonusCollection =
-        db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection(
+      'userBonuses',
+    );
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -32,19 +25,20 @@ class PressingRepository {
     DocumentReference docRef;
     CollectionReference producedCollection;
 
-    final existingBonus = await userBonusCollection
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: today)
-        .where('date', isLessThan: tomorrow)
-        .get();
+    final existingBonus =
+        await userBonusCollection
+            .where('userId', isEqualTo: userId)
+            .where('date', isGreaterThanOrEqualTo: today)
+            .where('date', isLessThan: tomorrow)
+            .get();
 
     // Filter out documents where 'isOvertime' is true
-    final validBonusDocs = existingBonus.docs.where((doc) {
-      final data = doc.data() as Map<String, dynamic>?;
-      // Directly return the condition. If data is null, the condition evaluates to false.
-      return data?['isOvertime'] != true;
-    }).toList();
-
+    final validBonusDocs =
+        existingBonus.docs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>?;
+          // Directly return the condition. If data is null, the condition evaluates to false.
+          return data?['isOvertime'] != true;
+        }).toList();
 
     if (validBonusDocs.isNotEmpty) {
       // If a bonus exists for the current day, get its ID and check 'produced' subcollection
@@ -62,9 +56,10 @@ class PressingRepository {
     }
 
     producedCollection = docRef.collection('produced');
-    final existingProduced = await producedCollection
-        .where('productName', isEqualTo: productName)
-        .get();
+    final existingProduced =
+        await producedCollection
+            .where('productName', isEqualTo: productName)
+            .get();
 
     if (existingProduced.size > 0) {
       // If documents exist with the same productName, replace the amount and ratio
@@ -98,29 +93,33 @@ class PressingRepository {
     bool isOvertime = false,
     double workingHours = 0,
   }) async {
-    final CollectionReference userBonusCollection =
-        db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection(
+      'userBonuses',
+    );
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
-    final existingBonus = await userBonusCollection
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: today)
-        .where('date', isLessThan: tomorrow)
-        .where('isOvertime', isEqualTo: true)
-        .get();
+    final existingBonus =
+        await userBonusCollection
+            .where('userId', isEqualTo: userId)
+            .where('date', isGreaterThanOrEqualTo: today)
+            .where('date', isLessThan: tomorrow)
+            .where('isOvertime', isEqualTo: true)
+            .get();
 
     if (existingBonus.size > 0) {
       // If the overtime bonus exists, get its ID and check 'produced' subcollection
       final bonusId = existingBonus.docs.first.id;
       final docRef = userBonusCollection.doc(bonusId);
-      final CollectionReference producedCollection =
-          docRef.collection('produced');
-      final existingProduced = await producedCollection
-          .where('productName', isEqualTo: productName)
-          .get();
+      final CollectionReference producedCollection = docRef.collection(
+        'produced',
+      );
+      final existingProduced =
+          await producedCollection
+              .where('productName', isEqualTo: productName)
+              .get();
 
       if (existingProduced.size > 0) {
         // If documents exist with the same productName, replace the amount
@@ -155,8 +154,9 @@ class PressingRepository {
       });
 
       // Save product, amount, ratio, and workingHours to the 'produced' subcollection
-      final CollectionReference producedCollection =
-          docRef.collection('produced');
+      final CollectionReference producedCollection = docRef.collection(
+        'produced',
+      );
       await producedCollection.add({
         'productName': productName,
         'amount': amount,
@@ -184,10 +184,11 @@ class PressingRepository {
   Future<Map<DateTime, List<dynamic>>> fetchUserBonuses(String userId) async {
     final bonuses = <DateTime, List<dynamic>>{};
 
-    final QuerySnapshot snapshot = await db
-        .collection('userBonuses')
-        .where('userId', isEqualTo: userId)
-        .get();
+    final QuerySnapshot snapshot =
+        await db
+            .collection('userBonuses')
+            .where('userId', isEqualTo: userId)
+            .get();
 
     for (final doc in snapshot.docs) {
       // Safely cast the dynamic type to Timestamp and then convert to DateTime
@@ -235,8 +236,9 @@ class PressingRepository {
     double bonus,
     int amount,
   ) async {
-    final CollectionReference userBonusCollection =
-        db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection(
+      'userBonuses',
+    );
 
     // Edit existing bonus
     try {
@@ -244,22 +246,21 @@ class PressingRepository {
           .doc(bonusId)
           .collection('produced')
           .doc(producedId)
-          .update({
-        'amount': amount,
-        'bonus': bonus,
-      });
+          .update({'amount': amount, 'bonus': bonus});
     } on FormatException {
       rethrow; // rethrow the caught exception while preserving the original stack trace
     }
   }
 
   Future<void> deleteUserBonus(String bonusId) async {
-    final CollectionReference userBonusCollection =
-        db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection(
+      'userBonuses',
+    );
 
     // Reference to the 'produced' subcollection
-    final CollectionReference producedCollection =
-        userBonusCollection.doc(bonusId).collection('produced');
+    final CollectionReference producedCollection = userBonusCollection
+        .doc(bonusId)
+        .collection('produced');
 
     // Get all documents in the 'produced' subcollection
     final producedSnapshot = await producedCollection.get();
@@ -278,8 +279,9 @@ class PressingRepository {
     String bonusId,
     String itemId,
   ) async {
-    final CollectionReference userBonusCollection =
-        db.collection('userBonuses');
+    final CollectionReference userBonusCollection = db.collection(
+      'userBonuses',
+    );
     await userBonusCollection
         .doc(bonusId)
         .collection('produced')
@@ -299,12 +301,13 @@ class PressingRepository {
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
 
     // Fetch user's bonuses for today
-    final QuerySnapshot userBonusesSnapshot = await db
-        .collection('userBonuses')
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: today)
-        .where('date', isLessThan: tomorrow)
-        .get();
+    final QuerySnapshot userBonusesSnapshot =
+        await db
+            .collection('userBonuses')
+            .where('userId', isEqualTo: userId)
+            .where('date', isGreaterThanOrEqualTo: today)
+            .where('date', isLessThan: tomorrow)
+            .get();
 
     for (final DocumentSnapshot bonusDoc in userBonusesSnapshot.docs) {
       // Safely cast isOvertime to bool, defaulting to false if not present or not a bool
@@ -313,16 +316,19 @@ class PressingRepository {
 
       if (!isOvertime) {
         final QuerySnapshot producedSnapshot =
-        await bonusDoc.reference.collection('produced').get();
+            await bonusDoc.reference.collection('produced').get();
         for (final DocumentSnapshot producedDoc in producedSnapshot.docs) {
           final data = producedDoc.data() as Map<String, dynamic>?;
           if (data != null) {
             final productName = data['productName'] as String?;
-            final ratio = data['ratio'] as num?; // Cast to num to handle both int and double
+            final ratio =
+                data['ratio']
+                    as num?; // Cast to num to handle both int and double
 
             // Process productName and ratio
             if (productName != null && ratio != null) {
-              userInfo[productName.toLowerCase().trim()] = ratio.toDouble(); // Ensure ratio is treated as double
+              userInfo[productName.toLowerCase().trim()] =
+                  ratio.toDouble(); // Ensure ratio is treated as double
             }
           }
         }

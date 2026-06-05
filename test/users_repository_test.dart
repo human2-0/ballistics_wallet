@@ -24,13 +24,16 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  test('saveOrUpdateUserData and getUserData store and retrieve user', () async {
-    final user = UserSettings(userId: 'user1');
-    await repo.saveOrUpdateUserData(user);
+  test(
+    'saveOrUpdateUserData and getUserData store and retrieve user',
+    () async {
+      final user = UserSettings(userId: 'user1');
+      await repo.saveOrUpdateUserData(user);
 
-    final fetched = await repo.getUserData('user1');
-    expect(fetched?.userId, 'user1');
-  });
+      final fetched = await repo.getUserData('user1');
+      expect(fetched?.userId, 'user1');
+    },
+  );
 
   test('editWorkingHours updates working hours with effective value', () async {
     final user = UserSettings(userId: 'user2');

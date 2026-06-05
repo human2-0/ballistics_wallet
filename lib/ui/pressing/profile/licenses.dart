@@ -6,56 +6,50 @@ class LicenseScreen extends StatelessWidget {
   const LicenseScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.orange[50],
-      appBar: AppBar(
-       backgroundColor: Colors.orange[300],
-        title: const Text('Licenses' ,style: TextStyle(color: Colors.white),),
-      ),
-      body: ListView(
-        children: [
-          const ListTile(
-            title: Text('Ballistics Pocket License'),
-          ),
-          const Divider(),
-          const BallisticsPocketLicense(),
-          const Divider(),
-          ListTile(
-            title: const Text('List of Third-Party Licenses' ),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute<Widget>(
-                  builder: (context) => const ThirdPartyLicensesListScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.orange[50],
+    appBar: AppBar(
+      backgroundColor: Colors.orange[300],
+      title: const Text('Licenses', style: TextStyle(color: Colors.white)),
+    ),
+    body: ListView(
+      children: [
+        const ListTile(title: Text('Ballistics Pocket License')),
+        const Divider(),
+        const BallisticsPocketLicense(),
+        const Divider(),
+        ListTile(
+          title: const Text('List of Third-Party Licenses'),
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute<Widget>(
+                builder: (context) => const ThirdPartyLicensesListScreen(),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
 }
 
 class BallisticsPocketLicense extends StatelessWidget {
   const BallisticsPocketLicense({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Ballistics Pocket License',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '''
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(16),
+    child: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Ballistics Pocket License',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 16),
+          const Text('''
 Ballistics Pocket License
 
 Copyright (c) 2024 Mateusz Dwornikiewicz
@@ -83,46 +77,48 @@ of this software and associated documentation files (the "Software"), to use the
    
    ### Third-Party Licenses
 This project uses third-party libraries that are licensed under their respective terms. Please refer to their licenses in the third-party licenses section.
-              ''',
-              style: TextStyle(fontFamily: 'monospace'),
-            ),
-          ],
-        ),
+              ''', style: TextStyle(fontFamily: 'monospace')),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }
 
 class ThirdPartyLicensesListScreen extends StatelessWidget {
   const ThirdPartyLicensesListScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.orange[50],
-      appBar: AppBar(
-        backgroundColor: Colors.orange[300],
-        title: const Text('Third-Party Licenses',style: TextStyle(color: Colors.white)),
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.orange[50],
+    appBar: AppBar(
+      backgroundColor: Colors.orange[300],
+      title: const Text(
+        'Third-Party Licenses',
+        style: TextStyle(color: Colors.white),
       ),
-      body: ListView(
-        children: allDependencies
-            .map(
-              (package) => ListTile(
-                title: Text(package.name),
-                subtitle: Text(package.version),
-                onTap: () async => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ThirdPartyLicenseDetailScreen(package: package),
-                  ),
+    ),
+    body: ListView(
+      children:
+          allDependencies
+              .map(
+                (package) => ListTile(
+                  title: Text(package.name),
+                  subtitle: Text(package.version),
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder:
+                              (context) => ThirdPartyLicenseDetailScreen(
+                                package: package,
+                              ),
+                        ),
+                      ),
                 ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
+              )
+              .toList(),
+    ),
+  );
 }
 
 class ThirdPartyLicenseDetailScreen extends StatelessWidget {
@@ -131,43 +127,36 @@ class ThirdPartyLicenseDetailScreen extends StatelessWidget {
   final Package package;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.orange[50],
-      appBar: AppBar(backgroundColor: Colors.orange[300],
-        title: Text(package.name, style: const TextStyle(color: Colors.white),),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              package.name,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Version: ${package.version}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'License:',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  package.license ?? 'License information not available.',
-                  style: const TextStyle(fontFamily: 'monospace'),
-                ),
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.orange[50],
+    appBar: AppBar(
+      backgroundColor: Colors.orange[300],
+      title: Text(package.name, style: const TextStyle(color: Colors.white)),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(package.name, style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 8),
+          Text(
+            'Version: ${package.version}',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          Text('License:', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Text(
+                package.license ?? 'License information not available.',
+                style: const TextStyle(fontFamily: 'monospace'),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }

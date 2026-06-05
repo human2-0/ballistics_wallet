@@ -37,7 +37,7 @@ class RouterNotifier extends ChangeNotifier {
   RouterNotifier(this._ref) {
     _ref.listen<LoginState>(
       loginControllerProvider,
-      (_, __) => notifyListeners(),
+      (_, _) => notifyListeners(),
     );
   }
   final Ref _ref;
@@ -55,9 +55,7 @@ class RouterNotifier extends ChangeNotifier {
     ),
     GoRoute(
       name: 'split',
-      builder: (context, state) {
-        return const SplitCheck();
-      },
+      builder: (context, state) => const SplitCheck(),
       path: '/split',
     ),
     GoRoute(

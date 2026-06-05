@@ -25,25 +25,33 @@ class BonusInfo {
       date: map['date'] as DateTime,
       workingHours: (map['workingHours'] as num).toDouble(),
       isOvertime: map['isOvertime'] as bool? ?? false,
-      produced: (map['produced'] as List<dynamic>?)
+      produced:
+          (map['produced'] as List<dynamic>?)
               ?.map((e) => Produced.fromMap(e as Map<String, dynamic>))
               .toList() ??
           [],
     );
   }
 
-  factory BonusInfo.fromFirestore(Map<String, dynamic> firestoreData) {
-    return BonusInfo(
-      userId: firestoreData['userId'] as String? ?? '', // Provide default if null
-      bonus: (firestoreData['bonus'] as num?)?.toDouble() ?? 0.0, // Handle num? and null
-      date: (firestoreData['date'] as Timestamp?)?.toDate() ?? DateTime.now(), // Handle Timestamp? and null, default to now
-      workingHours: (firestoreData['workingHours'] as num?)?.toDouble() ?? 0.0,
-      isOvertime: firestoreData['isOvertime'] as bool? ?? false,
-      produced: (firestoreData['produced'] as List<dynamic>? ?? []) // Handle null list
-          .map((item) => Produced.fromFirestore(item as Map<String, dynamic>)) // Assuming Produced has fromFirestore too
-          .toList(),
-    );
-  }
+  factory BonusInfo.fromFirestore(
+    Map<String, dynamic> firestoreData,
+  ) => BonusInfo(
+    userId: firestoreData['userId'] as String? ?? '', // Provide default if null
+    bonus:
+        (firestoreData['bonus'] as num?)?.toDouble() ??
+        0.0, // Handle num? and null
+    date:
+        (firestoreData['date'] as Timestamp?)?.toDate() ??
+        DateTime.now(), // Handle Timestamp? and null, default to now
+    workingHours: (firestoreData['workingHours'] as num?)?.toDouble() ?? 0.0,
+    isOvertime: firestoreData['isOvertime'] as bool? ?? false,
+    produced:
+        (firestoreData['produced'] as List<dynamic>? ?? []) // Handle null list
+            .map(
+              (item) => Produced.fromFirestore(item as Map<String, dynamic>),
+            ) // Assuming Produced has fromFirestore too
+            .toList(),
+  );
 
   static const Uuid _uuid = Uuid();
 
@@ -56,14 +64,14 @@ class BonusInfo {
     bool? isOvertime,
     List<Produced>? produced,
   }) => BonusInfo(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      bonus: bonus ?? this.bonus,
-      date: date ?? this.date,
-      workingHours: workingHours ?? this.workingHours,
-      isOvertime: isOvertime ?? this.isOvertime,
-      produced: produced ?? this.produced,
-    );
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    bonus: bonus ?? this.bonus,
+    date: date ?? this.date,
+    workingHours: workingHours ?? this.workingHours,
+    isOvertime: isOvertime ?? this.isOvertime,
+    produced: produced ?? this.produced,
+  );
 
   @HiveField(0)
   final String id;
@@ -89,7 +97,6 @@ class BonusInfo {
 
 @HiveType(typeId: 1)
 class Produced {
-
   Produced({
     required this.productName,
     required this.amount,
@@ -103,13 +110,12 @@ class Produced {
     ratio: (map['ratio'] as num?)?.toDouble() ?? 0.0,
     allowance: (map['allowance'] as num?)?.toDouble(),
   );
-  factory Produced.fromFirestore(Map<String, dynamic> firestoreData) {
-    return Produced(
-      productName: firestoreData['productName'] as String? ?? '',
-      amount: firestoreData['amount'] as int? ?? 0,
-      ratio: (firestoreData['ratio'] as num?)?.toDouble() ?? 0.0,
-    );
-  }
+  factory Produced.fromFirestore(Map<String, dynamic> firestoreData) =>
+      Produced(
+        productName: firestoreData['productName'] as String? ?? '',
+        amount: firestoreData['amount'] as int? ?? 0,
+        ratio: (firestoreData['ratio'] as num?)?.toDouble() ?? 0.0,
+      );
 
   Produced copyWith({
     String? productName,
@@ -123,14 +129,13 @@ class Produced {
     allowance: allowance ?? this.allowance,
   );
 
-  Map<String, dynamic> toMap() {
-    return {
-      'productName': productName,
-      'amount': amount,
-      'ratio': ratio,
-      'allowance': allowance, // This will include allowance in the map, even if it is null
-    };
-  }
+  Map<String, dynamic> toMap() => {
+    'productName': productName,
+    'amount': amount,
+    'ratio': ratio,
+    'allowance':
+        allowance, // This will include allowance in the map, even if it is null
+  };
 
   @HiveField(0)
   final String productName;

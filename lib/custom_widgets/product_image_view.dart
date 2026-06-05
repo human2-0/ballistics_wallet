@@ -32,24 +32,23 @@ class ProductImageView extends StatelessWidget {
     return Image.asset(
       'assets/images/$name.png',
       fit: fit,
-      errorBuilder: (context, exception, stackTrace) {
-        return FutureBuilder<File?>(
-          future: ProductImageRepository.localImageFile(name),
-          builder: (context, snapshot) {
-            final file = snapshot.data;
-            if (file == null) {
-              return fallbackBuilder(context);
-            }
-            return Image.file(
-              file,
-              fit: fit,
-              errorBuilder: (context, exception, stackTrace) {
+      errorBuilder:
+          (context, exception, stackTrace) => FutureBuilder<File?>(
+            future: ProductImageRepository.localImageFile(name),
+            builder: (context, snapshot) {
+              final file = snapshot.data;
+              if (file == null) {
                 return fallbackBuilder(context);
-              },
-            );
-          },
-        );
-      },
+              }
+              return Image.file(
+                file,
+                fit: fit,
+                errorBuilder:
+                    (context, exception, stackTrace) =>
+                        fallbackBuilder(context),
+              );
+            },
+          ),
     );
   }
 }

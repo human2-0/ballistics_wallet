@@ -5,7 +5,6 @@ part 'custom_date_range.g.dart';
 
 @HiveType(typeId: 30)
 class CustomDateRange extends HiveObject {
-
   CustomDateRange({
     this.hoursStart,
     this.hoursEnd,

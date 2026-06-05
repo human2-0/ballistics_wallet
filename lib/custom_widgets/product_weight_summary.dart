@@ -8,6 +8,7 @@ class ProductWeightSummary extends StatelessWidget {
     required this.hasFormula,
     this.customMinGrams,
     this.customMaxGrams,
+    this.onLongPress,
     super.key,
   });
 
@@ -22,6 +23,9 @@ class ProductWeightSummary extends StatelessWidget {
 
   /// Optional custom maximum finished product weight in grams.
   final double? customMaxGrams;
+
+  /// Called when the badge is long-pressed.
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +43,75 @@ class ProductWeightSummary extends StatelessWidget {
     final backgroundColor =
         hasWeightData ? Colors.orange.shade50 : theme.colorScheme.surface;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
+    final badge = DecoratedBox(
+      decoration: _badgeDecoration(backgroundColor, borderColor),
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.scale_outlined,
+                  size: 20,
+                  color: hasWeightData ? Colors.orange.shade800 : textColor,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Weight range',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelSmall?.copyWith(color: textColor),
+                ),
+                Text(
+                  hasWeightData
+                      ? _formatRange(
+                        weightGrams,
+                        customMinGrams,
+                        customMaxGrams,
+                      )
+                      : 'No data',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: textColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (onLongPress != null)
+            Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(
+                Icons.edit_outlined,
+                size: 14,
+                color: Colors.orange.shade900.withValues(alpha: 0.78),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    if (onLongPress == null) return badge;
+
+    return Tooltip(
+      message: 'Hold to edit weight range',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onLongPress: onLongPress,
+        child: badge,
+      ),
+    );
+  }
+
+  BoxDecoration _badgeDecoration(Color backgroundColor, Color borderColor) =>
+      BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor),
@@ -51,42 +122,7 @@ class ProductWeightSummary extends StatelessWidget {
             offset: const Offset(0, 2),
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.scale_outlined,
-              size: 20,
-              color: hasWeightData ? Colors.orange.shade800 : textColor,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Weight range',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.labelSmall?.copyWith(color: textColor),
-            ),
-            Text(
-              hasWeightData
-                  ? _formatRange(weightGrams, customMinGrams, customMaxGrams)
-                  : 'No data',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: textColor,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
   static String _formatRange(
     double weightGrams,

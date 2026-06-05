@@ -62,7 +62,7 @@ class ProductInfoRepository {
     double? customWeightRangeMaxGrams,
   }) async {
     final cleanedProductName = productName.trim();
-    final validPressings = _validatedPressings(pressings);
+    final validPressings = _validatedPressings(pressings, allowEmpty: true);
     if (cleanedProductName.isEmpty) {
       throw const FormatException('Product name is required.');
     }
@@ -95,7 +95,10 @@ class ProductInfoRepository {
 
   Future<bool> editProductInfo(ProductInfo updatedProduct) async {
     try {
-      final validPressings = _validatedPressings(updatedProduct.product);
+      final validPressings = _validatedPressings(
+        updatedProduct.product,
+        allowEmpty: true,
+      );
       if (updatedProduct.target <= 0) {
         throw const FormatException('Target must be greater than zero.');
       }
@@ -163,7 +166,10 @@ class ProductInfoRepository {
     }
   }
 
-  List<Pressing> _validatedPressings(List<Pressing> pressings) {
+  List<Pressing> _validatedPressings(
+    List<Pressing> pressings, {
+    bool allowEmpty = false,
+  }) {
     final validPressings =
         pressings
             .map(
@@ -174,6 +180,7 @@ class ProductInfoRepository {
             .toList();
 
     if (validPressings.isEmpty) {
+      if (allowEmpty) return const [];
       throw const FormatException('Add at least one colour and powder amount.');
     }
 

@@ -33,9 +33,7 @@ class FakeProductInfoRepository implements ProductInfoRepository {
   final List<ProductInfo> _products;
 
   @override
-  Future<List<ProductInfo>> fetchProductInfo() async {
-    return _products;
-  }
+  Future<List<ProductInfo>> fetchProductInfo() async => _products;
 
   /// Optionally, add a method to update the products list,
 
@@ -88,22 +86,14 @@ class FakeProductInfoRepository implements ProductInfoRepository {
 /// A fake repository that implements BonusInfoRepository with minimal functionality.
 class FakeBonusInfoRepositoryForBonusInfo extends BonusInfoRepository {
   @override
-  Future<Map<String, double>> getAllRatiosToday() async {
-    // Return an empty map (or pre-populate with some fake ratios if needed)
-    return {};
-  }
+  Future<Map<String, double>> getAllRatiosToday() => Future.value({});
 
   @override
-  Future<Box<BonusInfo>> openBox() async {
-    // For our fake, we won’t use a Hive box.
-    // If your FakeBonusInfoNotifier doesn’t call openBox(), you can throw or return a dummy.
-    throw UnimplementedError('openBox is not used in the fake');
-  }
+  Future<Box<BonusInfo>> openBox() =>
+      Future.error(UnimplementedError('openBox is not used in the fake'));
 
   @override
-  Future<String> addBonusInfo(BonusInfo bonusInfo) async {
-    return 'Fake bonus added';
-  }
+  Future<String> addBonusInfo(BonusInfo bonusInfo) async => 'Fake bonus added';
 
   @override
   Future<void> updateBonusInfo(BonusInfo bonusInfo) async {
@@ -166,14 +156,13 @@ class FakeBonusInfoNotifier extends BonusInfoNotifier {
   }
 
   @override
-  Future<double> getTotalWorkingHours() async {
-    return _bonusList.fold<double>(0, (sum, b) => sum + b.workingHours);
-  }
+  Future<double> getTotalWorkingHours() => Future.value(
+    _bonusList.fold<double>(0, (total, b) => total + b.workingHours),
+  );
 
   @override
-  Future<double> getTotalBonus() async {
-    return _bonusList.fold<double>(0, (sum, b) => sum + b.bonus);
-  }
+  Future<double> getTotalBonus() =>
+      Future.value(_bonusList.fold<double>(0, (total, b) => total + b.bonus));
 
   @override
   void updateRatio(

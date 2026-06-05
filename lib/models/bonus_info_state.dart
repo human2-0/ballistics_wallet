@@ -1,8 +1,6 @@
 // add_bonus_info_state.dart
 
-
 class AddBonusInfoState {
-
   AddBonusInfoState({
     required this.producedData,
     this.bonus = 0.0,
@@ -11,7 +9,8 @@ class AddBonusInfoState {
     this.isLoading = false,
     this.error,
   });
-  final List<Map<String, String>> producedData; // Holds productName and amount as strings
+  final List<Map<String, String>>
+  producedData; // Holds productName and amount as strings
   final double bonus;
   final double workingHours;
   final bool isOvertime;
@@ -25,14 +24,12 @@ class AddBonusInfoState {
     bool? isOvertime,
     bool? isLoading,
     String? error,
-  }) {
-    return AddBonusInfoState(
-      producedData: producedData ?? this.producedData,
-      bonus: bonus ?? this.bonus,
-      workingHours: workingHours ?? this.workingHours,
-      isOvertime: isOvertime ?? this.isOvertime,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
+  }) => AddBonusInfoState(
+    producedData: producedData ?? this.producedData,
+    bonus: bonus ?? this.bonus,
+    workingHours: workingHours ?? this.workingHours,
+    isOvertime: isOvertime ?? this.isOvertime,
+    isLoading: isLoading ?? this.isLoading,
+    error: error,
+  );
 }

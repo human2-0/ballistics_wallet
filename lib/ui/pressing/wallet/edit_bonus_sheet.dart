@@ -17,7 +17,7 @@ class EditBonusInfoModal extends ConsumerStatefulWidget {
   final int index;
 
   @override
-  _EditBonusInfoModalState createState() => _EditBonusInfoModalState();
+  ConsumerState<EditBonusInfoModal> createState() => _EditBonusInfoModalState();
 }
 
 class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
@@ -45,19 +45,23 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
     editedBonusInfo = widget.bonusInfo.copyWith();
 
     // Create controllers for each produced item (used elsewhere if needed).
-    productNameControllers = editedBonusInfo.produced
-        .map((p) => TextEditingController(text: p.productName))
-        .toList();
-    amountControllers = editedBonusInfo.produced
-        .map((p) => TextEditingController(text: p.amount.toString()))
-        .toList();
+    productNameControllers =
+        editedBonusInfo.produced
+            .map((p) => TextEditingController(text: p.productName))
+            .toList();
+    amountControllers =
+        editedBonusInfo.produced
+            .map((p) => TextEditingController(text: p.amount.toString()))
+            .toList();
     productNameFocusNodes =
         editedBonusInfo.produced.map((_) => FocusNode()).toList();
 
-    bonusController =
-        TextEditingController(text: editedBonusInfo.bonus.toStringAsFixed(2));
-    workingHoursController =
-        TextEditingController(text: editedBonusInfo.workingHours.toString());
+    bonusController = TextEditingController(
+      text: editedBonusInfo.bonus.toStringAsFixed(2),
+    );
+    workingHoursController = TextEditingController(
+      text: editedBonusInfo.workingHours.toString(),
+    );
   }
 
   @override
@@ -81,12 +85,13 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
     for (final product in editedBonusInfo.produced) {
       final targetInfo = productList.firstWhere(
         (p) => p.productName == product.productName,
-        orElse: () => ProductInfo(
-          productName: '',
-          imageName: '',
-          target: 0,
-          product: [const Pressing('', 0, 0)],
-        ),
+        orElse:
+            () => ProductInfo(
+              productName: '',
+              imageName: '',
+              target: 0,
+              product: [const Pressing('', 0, 0)],
+            ),
       );
       productTargets[product.productName] = targetInfo.target;
     }
@@ -114,8 +119,9 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
       productNameControllers.add(TextEditingController());
       amountControllers.add(TextEditingController());
       productNameFocusNodes.add(FocusNode());
-      editedBonusInfo.produced
-          .add(Produced(productName: '', amount: 0, ratio: 0));
+      editedBonusInfo.produced.add(
+        Produced(productName: '', amount: 0, ratio: 0),
+      );
     });
   }
 
@@ -185,7 +191,9 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.orange.withValues(alpha: 0.4),
+                                        color: Colors.orange.withValues(
+                                          alpha: 0.4,
+                                        ),
                                         offset: const Offset(-2, 2.5),
                                       ),
                                     ],
@@ -227,11 +235,10 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                                     )
                                     .toList();
                               },
-                              itemBuilder: (context, suggestion) {
-                                return ListTile(
-                                  title: Text(suggestion.productName),
-                                );
-                              },
+                              itemBuilder:
+                                  (context, suggestion) => ListTile(
+                                    title: Text(suggestion.productName),
+                                  ),
                               onSelected: (suggestion) {
                                 setState(() {
                                   // Use the captured textController from our map.
@@ -240,19 +247,21 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                                       suggestion.productName;
                                   editedBonusInfo.produced[index] =
                                       editedBonusInfo.produced[index].copyWith(
-                                    productName: suggestion.productName,
-                                  );
+                                        productName: suggestion.productName,
+                                      );
                                 });
                                 productTargets[suggestion.productName] =
                                     suggestion.target;
                                 // Optionally, unfocus the field.
-                                FocusScope.of(context)
-                                    .requestFocus(FocusNode());
+                                FocusScope.of(
+                                  context,
+                                ).requestFocus(FocusNode());
                               },
-                              emptyBuilder: (context) => const Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Text('No matches found'),
-                              ),
+                              emptyBuilder:
+                                  (context) => const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Text('No matches found'),
+                                  ),
                             ),
                           ),
                         ),
@@ -298,9 +307,10 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                             onChanged: (value) {
                               final newAmount = int.tryParse(value) ?? 0;
                               setState(() {
-                                editedBonusInfo.produced[index] =
-                                    editedBonusInfo.produced[index]
-                                        .copyWith(amount: newAmount);
+                                editedBonusInfo
+                                    .produced[index] = editedBonusInfo
+                                    .produced[index]
+                                    .copyWith(amount: newAmount);
                               });
                             },
                           ),
@@ -351,8 +361,9 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                         RegExp('[0-9]+[,.]{0,1}[0-9]*'),
@@ -366,8 +377,9 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                     onChanged: (value) {
                       final newBonus = double.tryParse(value) ?? 0.0;
                       setState(() {
-                        editedBonusInfo =
-                            editedBonusInfo.copyWith(bonus: newBonus);
+                        editedBonusInfo = editedBonusInfo.copyWith(
+                          bonus: newBonus,
+                        );
                       });
                     },
                   ),
@@ -389,8 +401,9 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                         RegExp('[0-9]+[,.]{0,1}[0-9]*'),

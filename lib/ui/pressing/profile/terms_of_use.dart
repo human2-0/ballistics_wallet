@@ -4,26 +4,24 @@ class BallisticsPocketTermsOfUse extends StatelessWidget {
   const BallisticsPocketTermsOfUse({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.orange[50],
-      appBar: AppBar(
-        backgroundColor: Colors.orange[300],
-        title: const Text('Terms of Use', style: TextStyle(color: Colors.white),),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Ballistics Pocket Terms of Use',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '''
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.orange[50],
+    appBar: AppBar(
+      backgroundColor: Colors.orange[300],
+      title: const Text('Terms of Use', style: TextStyle(color: Colors.white)),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ballistics Pocket Terms of Use',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            const Text('''
 Last updated: 8 May 2024
 
 ## Acceptance of Terms
@@ -59,13 +57,10 @@ These Terms of Use shall be governed by and construed in accordance with the law
 ## Contact Information
 If you have any questions about these Terms of Use, please contact us at:
 - **Email:** devulopa@gmail.com
-                ''',
-                style: TextStyle(fontFamily: 'monospace'),
-              ),
-            ],
-          ),
+                ''', style: TextStyle(fontFamily: 'monospace')),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }

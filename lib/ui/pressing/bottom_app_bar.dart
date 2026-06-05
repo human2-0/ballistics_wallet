@@ -39,6 +39,11 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
     });
   }
 
+  void _selectTab(int index) {
+    if (index < 0 || index >= _tabController.length) return;
+    ref.read(activeIndexTabProvider.notifier).activeIndex = index;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -65,15 +70,12 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
     ) {
       debugPrint('activeIndexTabProvider: $prev -> $next');
       if (!mounted) return;
-      // Only react to null -> index transitions.
-      if (prev != null || next == null) return;
-      if (next >= 0 &&
-          next < _tabController.length &&
-          _tabController.index != next) {
+      if (next == null) return;
+      if (next < 0 || next >= _tabController.length) return;
+      setActiveTab(next);
+      if (_tabController.index != next) {
         _tabController.animateTo(next);
       }
-      // Reset to null after consumption so future events fire cleanly.
-      ref.read(activeIndexTabProvider.notifier).activeIndex = null;
     });
   }
 
@@ -265,37 +267,25 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
                   icon: Icons.show_chart,
                   label: 'Target',
                   selected: activeIndex == 0,
-                  onTap: () {
-                    setActiveTab(0);
-                    _tabController.animateTo(0);
-                  },
+                  onTap: () => _selectTab(0),
                 ),
                 _BottomNavigationItem(
                   icon: Icons.balance_outlined,
                   label: 'Split',
                   selected: activeIndex == 1,
-                  onTap: () {
-                    setActiveTab(1);
-                    _tabController.animateTo(1);
-                  },
+                  onTap: () => _selectTab(1),
                 ),
                 _BottomNavigationItem(
                   icon: Icons.wallet_outlined,
                   label: 'Wallet',
                   selected: activeIndex == 2,
-                  onTap: () {
-                    setActiveTab(2);
-                    _tabController.animateTo(2);
-                  },
+                  onTap: () => _selectTab(2),
                 ),
                 _BottomNavigationItem(
                   icon: Icons.account_circle_outlined,
                   label: 'Profile',
                   selected: activeIndex == 3,
-                  onTap: () {
-                    setActiveTab(3);
-                    _tabController.animateTo(3);
-                  },
+                  onTap: () => _selectTab(3),
                 ),
               ],
             ),

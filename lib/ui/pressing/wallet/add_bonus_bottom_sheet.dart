@@ -9,12 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-
 class AddBonusInfoModal extends ConsumerStatefulWidget {
   const AddBonusInfoModal({super.key});
 
   @override
-  _AddBonusInfoModalState createState() => _AddBonusInfoModalState();
+  ConsumerState<AddBonusInfoModal> createState() => _AddBonusInfoModalState();
 }
 
 class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
@@ -47,8 +46,10 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
       initialProduced.length,
       (index) => FocusNode(),
     );
-    bonusController.text =
-        ref.read(addBonusInfoProvider).bonus.toStringAsFixed(2);
+    bonusController.text = ref
+        .read(addBonusInfoProvider)
+        .bonus
+        .toStringAsFixed(2);
     workingHoursController.text =
         ref.read(addBonusInfoProvider).workingHours.toString();
   }
@@ -113,15 +114,18 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.orange.withValues(alpha: 0.5),
+                                      color: Colors.orange.withValues(
+                                        alpha: 0.5,
+                                      ),
                                       offset: const Offset(-2, 2.5),
                                     ),
                                   ],
                                 ),
                                 child: TypeAheadField<ProductInfo>(
-                                  key: index == 0
-                                      ? const Key('productNameField')
-                                      : null,
+                                  key:
+                                      index == 0
+                                          ? const Key('productNameField')
+                                          : null,
 
                                   // Provide your own controller and focusNode if desired:
                                   controller: productNameControllers[index],
@@ -140,10 +144,10 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                   },
 
                                   // How to build each suggestion in the dropdown:
-                                  itemBuilder: (context, suggestion) =>
-                                      ListTile(
-                                    title: Text(suggestion.productName),
-                                  ),
+                                  itemBuilder:
+                                      (context, suggestion) => ListTile(
+                                        title: Text(suggestion.productName),
+                                      ),
 
                                   // What to do when a user taps a suggestion:
                                   onSelected: (suggestion) {
@@ -155,53 +159,60 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                       suggestion.productName,
                                     );
                                     // Move focus or do anything else here:
-                                    FocusScope.of(context)
-                                        .requestFocus(FocusNode());
+                                    FocusScope.of(
+                                      context,
+                                    ).requestFocus(FocusNode());
                                   },
 
                                   // (Optional) what to show if no items are found
-                                  emptyBuilder: (context) => const Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: Text('No matches found'),
-                                  ),
+                                  emptyBuilder:
+                                      (context) => const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Text('No matches found'),
+                                      ),
 
                                   // Build the actual TextField here:
                                   builder:
-                                      (context, textController, focusNode) =>
-                                          DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(33),
+                                      (
+                                        context,
+                                        textController,
+                                        focusNode,
+                                      ) => DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(33),
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.orange.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                              offset: const Offset(-2, 2.5),
+                                            ),
+                                          ],
+                                        ),
+                                        child: TextField(
+                                          controller:
+                                              textController, // Use the provided controller
+                                          focusNode:
+                                              focusNode, // Use the provided focus node
+                                          decoration: InputDecoration(
+                                            alignLabelWithHint: true,
+                                            hintText: 'Product Name',
+                                            label: const Center(
+                                              child: Text('Product Name'),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.orange[100],
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(33),
+                                              borderSide: BorderSide.none,
+                                            ),
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.orange.withValues(alpha: 0.5),
-                                          offset: const Offset(-2, 2.5),
-                                        ),
-                                      ],
-                                    ),
-                                    child: TextField(
-                                      controller:
-                                          textController, // Use the provided controller
-                                      focusNode:
-                                          focusNode, // Use the provided focus node
-                                      decoration: InputDecoration(
-                                        alignLabelWithHint: true,
-                                        hintText: 'Product Name',
-                                        label: const Center(
-                                          child: Text('Product Name'),
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.orange[100],
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(33),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
                                 ),
                               ),
                             ),
@@ -311,13 +322,17 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                splashColor: Colors.orange.withValues(alpha: 0.5),
+                                splashColor: Colors.orange.withValues(
+                                  alpha: 0.5,
+                                ),
                                 onTap: () {
                                   setState(() {
-                                    productNameControllers
-                                        .add(TextEditingController());
-                                    amountControllers
-                                        .add(TextEditingController());
+                                    productNameControllers.add(
+                                      TextEditingController(),
+                                    );
+                                    amountControllers.add(
+                                      TextEditingController(),
+                                    );
                                   });
                                   notifier.addProducedRow();
                                 },
@@ -459,16 +474,20 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                     // Submit Button
                     ElevatedButton(
                       key: const Key('addBonusButton'),
-                      onPressed: state.isLoading
-                          ? null
-                          : () async {
-                              if (_formKey.currentState!.validate()) {
-                                await notifier.saveBonusInfoAndBackup(context);
-                              }
-                            },
-                      child: state.isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Add Bonus'),
+                      onPressed:
+                          state.isLoading
+                              ? null
+                              : () async {
+                                if (_formKey.currentState!.validate()) {
+                                  await notifier.saveBonusInfoAndBackup(
+                                    context,
+                                  );
+                                }
+                              },
+                      child:
+                          state.isLoading
+                              ? const CircularProgressIndicator()
+                              : const Text('Add Bonus'),
                     ),
 
                     // Display error if any

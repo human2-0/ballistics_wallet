@@ -27,8 +27,8 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   Future<void> _fetchInitialData() async {
     final box = Hive.box<SelectedProduct>('selected_products');
     // Products are already sorted by date due to the box's structure
-    final products = box.values.toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+    final products =
+        box.values.toList()..sort((a, b) => a.date.compareTo(b.date));
     state = products;
   }
 
@@ -37,13 +37,17 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
       await Hive.openBox<SelectedProduct>('selected_products');
     }
     final box = Hive.box<SelectedProduct>('selected_products');
-    final productKey = box.values
-        .firstWhere(
-          (item) => item.productInfo.productName == productInfo.productName,
-          orElse: () =>
-              SelectedProduct(date: DateTime.now(), productInfo: productInfo),
-        )
-        .key;
+    final productKey =
+        box.values
+            .firstWhere(
+              (item) => item.productInfo.productName == productInfo.productName,
+              orElse:
+                  () => SelectedProduct(
+                    date: DateTime.now(),
+                    productInfo: productInfo,
+                  ),
+            )
+            .key;
     if (productKey != null) {
       await box.delete(productKey);
     }
@@ -52,8 +56,9 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
       productInfo: productInfo,
     );
     // Since DateTime.now() is used as a key, ensure uniqueness or handle potential collisions
-    await box
-        .add(selectedProduct); // Using add as we don't need to specify a key
+    await box.add(
+      selectedProduct,
+    ); // Using add as we don't need to specify a key
 
     await _fetchInitialData();
   }
@@ -61,20 +66,22 @@ class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
   Future<void> deleteSelectedProductByName(String productName) async {
     final box = await Hive.openBox<SelectedProduct>('selected_products');
     // Find and delete the product by name
-    final productKey = box.values
-        .firstWhere(
-          (item) => item.productInfo.productName == productName,
-          orElse: () => SelectedProduct(
-            date: DateTime.now(),
-            productInfo: ProductInfo(
-              productName: '',
-              imageName: '',
-              target: 0,
-              product: [],
-            ),
-          ),
-        )
-        .key;
+    final productKey =
+        box.values
+            .firstWhere(
+              (item) => item.productInfo.productName == productName,
+              orElse:
+                  () => SelectedProduct(
+                    date: DateTime.now(),
+                    productInfo: ProductInfo(
+                      productName: '',
+                      imageName: '',
+                      target: 0,
+                      product: [],
+                    ),
+                  ),
+            )
+            .key;
 
     if (productKey != null) {
       await box.delete(productKey);

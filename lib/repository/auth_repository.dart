@@ -17,13 +17,11 @@ class AuthRepository {
 
   String get currentUserId => _auth.currentUser?.uid ?? '';
 
-  Future<void> _ensureGoogleSignInInitialized() {
-    return _googleSignInInit ??= _googleSignIn.initialize();
-  }
+  Future<void> _ensureGoogleSignInInitialized() =>
+      _googleSignInInit ??= _googleSignIn.initialize();
 
-  Future<Box<UserSettings>> _openBox() {
-    return Hive.openBox<UserSettings>('settings');
-  }
+  Future<Box<UserSettings>> _openBox() =>
+      Hive.openBox<UserSettings>('settings');
 
   Future<User?> signInWithEmailAndPassword(
     String email,
@@ -53,7 +51,7 @@ class AuthRepository {
     await _googleSignIn.signOut();
     try {
       await _googleSignIn.disconnect();
-    } catch (_) {
+    } on Object catch (_) {
       // ignore disconnect errors and proceed with Firebase sign-out
     }
     await _auth.signOut();

@@ -6,7 +6,7 @@ class SendFeatureEmailScreen extends StatefulWidget {
   const SendFeatureEmailScreen({super.key});
 
   @override
-  _SendFeatureEmailScreenState createState() => _SendFeatureEmailScreenState();
+  State<SendFeatureEmailScreen> createState() => _SendFeatureEmailScreenState();
 }
 
 class _SendFeatureEmailScreenState extends State<SendFeatureEmailScreen> {
@@ -59,58 +59,56 @@ class _SendFeatureEmailScreenState extends State<SendFeatureEmailScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Send Feature Email')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title of the Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Send Feature Email')),
+    body: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: 'Title of the Email',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a title';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
-              Center(
-                child:
-                    _isSending
-                        ? const CircularProgressIndicator()
-                        : ElevatedButton(
-                          onPressed: _sendEmail,
-                          child: const Text('Send Email'),
-                        ),
-              ),
-            ],
-          ),
+              maxLines: 5,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a description';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child:
+                  _isSending
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                        onPressed: _sendEmail,
+                        child: const Text('Send Email'),
+                      ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }

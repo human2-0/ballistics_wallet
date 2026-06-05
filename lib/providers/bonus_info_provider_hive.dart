@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/repository/product_info_repository_hive.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';class ProductInfoNotifierHive extends StateNotifier<List<ProductInfo>> {
+class ProductInfoNotifierHive extends StateNotifier<List<ProductInfo>> {
   ProductInfoNotifierHive(this._repository) : super([]) {
     scheduleMicrotask(loadProductInfo);
   }
@@ -37,7 +38,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';class ProductInfoNotifie
 }
 
 final productInfoProviderHive =
-StateNotifierProvider<ProductInfoNotifierHive, List<ProductInfo>>((ref) {
-  final repository = ProductInfoRepositoryHive();
-  return ProductInfoNotifierHive(repository);
-});
+    StateNotifierProvider<ProductInfoNotifierHive, List<ProductInfo>>((ref) {
+      final repository = ProductInfoRepositoryHive();
+      return ProductInfoNotifierHive(repository);
+    });

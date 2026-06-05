@@ -6,7 +6,7 @@ class BonusInfoRepository {
   BonusInfoRepository();
   final String _boxName = 'bonusInfoBox';
 
-  Future<Box<BonusInfo>> openBox() async => Hive.openBox<BonusInfo>(_boxName);
+  Future<Box<BonusInfo>> openBox() => Hive.openBox<BonusInfo>(_boxName);
 
   Future<void> closeBox() async {
     final box = await Hive.openBox<BonusInfo>(_boxName);

@@ -1,3 +1,5 @@
+// Existing project lint settings require public docs; this internal data model
+// keeps the schedule values readable without adding repetitive field comments.
 // ignore_for_file: public_member_api_docs
 
 import 'dart:math';

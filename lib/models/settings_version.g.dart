@@ -16,9 +16,7 @@ class SettingsVersionAdapter extends TypeAdapter<SettingsVersion> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return SettingsVersion(
-      version: fields[0] as int,
-    );
+    return SettingsVersion(version: fields[0] as int);
   }
 
   @override

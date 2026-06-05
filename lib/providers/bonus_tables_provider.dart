@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BonusTableNotifier extends StateNotifier<BonusTableState> {
   BonusTableNotifier(this.ref) : super(BonusTableState()) {
-    scheduleMicrotask(() async => loadInitialData());
+    scheduleMicrotask(() => unawaited(loadInitialData()));
   }
   final Ref ref;
 

@@ -13,16 +13,13 @@ import 'package:go_router/go_router.dart';
 
 class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
   AddBonusInfoNotifier(this.ref)
-      : super(
-          AddBonusInfoState(
-            producedData: [
-              {
-                'productName': '',
-                'amount': '',
-              },
-            ],
-          ),
-        ) {
+    : super(
+        AddBonusInfoState(
+          producedData: [
+            {'productName': '', 'amount': ''},
+          ],
+        ),
+      ) {
     initialize();
   }
 
@@ -31,19 +28,14 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
   // Initialize the working hours based on user settings
   void initialize() {
     final userState = ref.read(userNotifierProvider);
-    state = state.copyWith(
-      workingHours: userState.realWorkingHours ?? 0.0,
-    );
+    state = state.copyWith(workingHours: userState.realWorkingHours ?? 0.0);
   }
 
   // Add a new produced row
   void addProducedRow() {
     final updatedProduced = [
       ...state.producedData,
-      {
-        'productName': '',
-        'amount': '',
-      },
+      {'productName': '', 'amount': ''},
     ];
     state = state.copyWith(producedData: updatedProduced);
   }
@@ -90,12 +82,13 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
       final productList = ref.read(productInfoProvider);
       final product = productList.firstWhere(
         (p) => p.productName == productName,
-        orElse: () => ProductInfo(
-          productName: productName,
-          imageName: '',
-          target: 0,
-          product: [],
-        ),
+        orElse:
+            () => ProductInfo(
+              productName: productName,
+              imageName: '',
+              target: 0,
+              product: [],
+            ),
       );
       final target = product.target;
       final ratio = (amount != 0 && target != 0) ? amount / target : 0.0;
@@ -109,9 +102,7 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
 
   // Handle form submission
   Future<void> saveBonusInfoAndBackup(BuildContext context) async {
-    state = state.copyWith(
-      isLoading: true,
-    );
+    state = state.copyWith(isLoading: true);
     try {
       final producedItems = handleSubmit();
       final userState = ref.read(userNotifierProvider);
@@ -150,28 +141,30 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
 
   // Convert produced data into a list of Produced objects
   List<Produced> handleSubmit() {
-    final producedItems = state.producedData.map((row) {
-      final productName = row['productName'] ?? '';
-      final amount = double.tryParse(row['amount'] ?? '') ?? 0.0;
-      final productList = ref.read(productInfoProvider);
-      final product = productList.firstWhere(
-        (p) => p.productName == productName,
-        orElse: () => ProductInfo(
-          productName: productName,
-          imageName: '',
-          target: 0,
-          product: [],
-        ),
-      );
-      final target = product.target;
-      final ratio = (amount != 0 && target != 0) ? amount / target : 0.0;
+    final producedItems =
+        state.producedData.map((row) {
+          final productName = row['productName'] ?? '';
+          final amount = double.tryParse(row['amount'] ?? '') ?? 0.0;
+          final productList = ref.read(productInfoProvider);
+          final product = productList.firstWhere(
+            (p) => p.productName == productName,
+            orElse:
+                () => ProductInfo(
+                  productName: productName,
+                  imageName: '',
+                  target: 0,
+                  product: [],
+                ),
+          );
+          final target = product.target;
+          final ratio = (amount != 0 && target != 0) ? amount / target : 0.0;
 
-      return Produced(
-        productName: productName,
-        amount: amount.toInt(),
-        ratio: ratio,
-      );
-    }).toList();
+          return Produced(
+            productName: productName,
+            amount: amount.toInt(),
+            ratio: ratio,
+          );
+        }).toList();
 
     return producedItems;
   }
@@ -180,5 +173,5 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
 // Define the provider
 final addBonusInfoProvider =
     StateNotifierProvider<AddBonusInfoNotifier, AddBonusInfoState>(
-  AddBonusInfoNotifier.new,
-);
+      AddBonusInfoNotifier.new,
+    );

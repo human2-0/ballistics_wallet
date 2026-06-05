@@ -54,7 +54,7 @@ class DatePickerCalendarState extends ConsumerState<DatePickerCalendar> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          onPressed: () async => _handlePickCustomRange(context, bonusInfoList),
+          onPressed: () => _handlePickCustomRange(context, bonusInfoList),
           child: const Text('Pick custom range'),
         ),
         const SizedBox(height: 8),
@@ -501,27 +501,22 @@ class _LegendSwatch extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: color.withValues(alpha: 0.12),
-            border: Border.all(
-              color: color.withValues(alpha: 0.65),
-              width: 1.25,
-            ),
-          ),
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 16,
+        height: 16,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: color.withValues(alpha: 0.12),
+          border: Border.all(color: color.withValues(alpha: 0.65), width: 1.25),
         ),
-        const SizedBox(width: 6),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
-    );
-  }
+      ),
+      const SizedBox(width: 6),
+      Text(label, style: Theme.of(context).textTheme.bodySmall),
+    ],
+  );
 }
 
 DateTime _dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);

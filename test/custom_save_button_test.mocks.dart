@@ -34,44 +34,24 @@ import 'package:state_notifier/state_notifier.dart' as _i11;
 
 class _FakeUserCredential_0 extends _i1.SmartFake
     implements _i2.UserCredential {
-  _FakeUserCredential_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeUserCredential_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeAuthRepository_1 extends _i1.SmartFake
     implements _i3.AuthRepository {
-  _FakeAuthRepository_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeAuthRepository_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeClient_2 extends _i1.SmartFake implements _i4.Client {
-  _FakeClient_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeClient_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeBackupState_3 extends _i1.SmartFake implements _i5.BackupState {
-  _FakeBackupState_3(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeBackupState_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [AuthRepository].
@@ -79,37 +59,43 @@ class _FakeBackupState_3 extends _i1.SmartFake implements _i5.BackupState {
 /// See the documentation for Mockito's code generation for more information.
 class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
   @override
-  _i6.Stream<_i2.User?> get authStateChange => (super.noSuchMethod(
-        Invocation.getter(#authStateChange),
-        returnValue: _i6.Stream<_i2.User?>.empty(),
-        returnValueForMissingStub: _i6.Stream<_i2.User?>.empty(),
-      ) as _i6.Stream<_i2.User?>);
+  _i6.Stream<_i2.User?> get authStateChange =>
+      (super.noSuchMethod(
+            Invocation.getter(#authStateChange),
+            returnValue: _i6.Stream<_i2.User?>.empty(),
+            returnValueForMissingStub: _i6.Stream<_i2.User?>.empty(),
+          )
+          as _i6.Stream<_i2.User?>);
 
   @override
-  String get userEmailAddress => (super.noSuchMethod(
-        Invocation.getter(#userEmailAddress),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#userEmailAddress),
-        ),
-        returnValueForMissingStub: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#userEmailAddress),
-        ),
-      ) as String);
+  String get userEmailAddress =>
+      (super.noSuchMethod(
+            Invocation.getter(#userEmailAddress),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#userEmailAddress),
+            ),
+            returnValueForMissingStub: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#userEmailAddress),
+            ),
+          )
+          as String);
 
   @override
-  String get currentUserId => (super.noSuchMethod(
-        Invocation.getter(#currentUserId),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#currentUserId),
-        ),
-        returnValueForMissingStub: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#currentUserId),
-        ),
-      ) as String);
+  String get currentUserId =>
+      (super.noSuchMethod(
+            Invocation.getter(#currentUserId),
+            returnValue: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#currentUserId),
+            ),
+            returnValueForMissingStub: _i7.dummyValue<String>(
+              this,
+              Invocation.getter(#currentUserId),
+            ),
+          )
+          as String);
 
   @override
   _i6.Future<_i2.User?> signInWithEmailAndPassword(
@@ -117,60 +103,49 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
     String? password,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #signInWithEmailAndPassword,
-          [
-            email,
-            password,
-          ],
-        ),
-        returnValue: _i6.Future<_i2.User?>.value(),
-        returnValueForMissingStub: _i6.Future<_i2.User?>.value(),
-      ) as _i6.Future<_i2.User?>);
+            Invocation.method(#signInWithEmailAndPassword, [email, password]),
+            returnValue: _i6.Future<_i2.User?>.value(),
+            returnValueForMissingStub: _i6.Future<_i2.User?>.value(),
+          )
+          as _i6.Future<_i2.User?>);
 
   @override
-  _i6.Future<void> signOut() => (super.noSuchMethod(
-        Invocation.method(
-          #signOut,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+  _i6.Future<void> signOut() =>
+      (super.noSuchMethod(
+            Invocation.method(#signOut, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 
   @override
-  _i6.Future<_i2.UserCredential> signInWithGoogle() => (super.noSuchMethod(
-        Invocation.method(
-          #signInWithGoogle,
-          [],
-        ),
-        returnValue: _i6.Future<_i2.UserCredential>.value(_FakeUserCredential_0(
-          this,
-          Invocation.method(
-            #signInWithGoogle,
-            [],
-          ),
-        )),
-        returnValueForMissingStub:
-            _i6.Future<_i2.UserCredential>.value(_FakeUserCredential_0(
-          this,
-          Invocation.method(
-            #signInWithGoogle,
-            [],
-          ),
-        )),
-      ) as _i6.Future<_i2.UserCredential>);
+  _i6.Future<_i2.UserCredential> signInWithGoogle() =>
+      (super.noSuchMethod(
+            Invocation.method(#signInWithGoogle, []),
+            returnValue: _i6.Future<_i2.UserCredential>.value(
+              _FakeUserCredential_0(
+                this,
+                Invocation.method(#signInWithGoogle, []),
+              ),
+            ),
+            returnValueForMissingStub: _i6.Future<_i2.UserCredential>.value(
+              _FakeUserCredential_0(
+                this,
+                Invocation.method(#signInWithGoogle, []),
+              ),
+            ),
+          )
+          as _i6.Future<_i2.UserCredential>);
 
   @override
   _i6.Future<_i8.GoogleSignInAccount?> getCurrentGoogleUser() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getCurrentGoogleUser,
-          [],
-        ),
-        returnValue: _i6.Future<_i8.GoogleSignInAccount?>.value(),
-        returnValueForMissingStub: _i6.Future<_i8.GoogleSignInAccount?>.value(),
-      ) as _i6.Future<_i8.GoogleSignInAccount?>);
+            Invocation.method(#getCurrentGoogleUser, []),
+            returnValue: _i6.Future<_i8.GoogleSignInAccount?>.value(),
+            returnValueForMissingStub:
+                _i6.Future<_i8.GoogleSignInAccount?>.value(),
+          )
+          as _i6.Future<_i8.GoogleSignInAccount?>);
 }
 
 /// A class which mocks [BackupManager].
@@ -178,219 +153,193 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
 /// See the documentation for Mockito's code generation for more information.
 class MockBackupManager extends _i1.Mock implements _i5.BackupManager {
   @override
-  _i3.AuthRepository get authRepository => (super.noSuchMethod(
-        Invocation.getter(#authRepository),
-        returnValue: _FakeAuthRepository_1(
-          this,
-          Invocation.getter(#authRepository),
-        ),
-        returnValueForMissingStub: _FakeAuthRepository_1(
-          this,
-          Invocation.getter(#authRepository),
-        ),
-      ) as _i3.AuthRepository);
+  _i3.AuthRepository get authRepository =>
+      (super.noSuchMethod(
+            Invocation.getter(#authRepository),
+            returnValue: _FakeAuthRepository_1(
+              this,
+              Invocation.getter(#authRepository),
+            ),
+            returnValueForMissingStub: _FakeAuthRepository_1(
+              this,
+              Invocation.getter(#authRepository),
+            ),
+          )
+          as _i3.AuthRepository);
 
   @override
   set authRepository(_i3.AuthRepository? _authRepository) => super.noSuchMethod(
-        Invocation.setter(
-          #authRepository,
-          _authRepository,
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.setter(#authRepository, _authRepository),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  _i4.Client get httpClient => (super.noSuchMethod(
-        Invocation.getter(#httpClient),
-        returnValue: _FakeClient_2(
-          this,
-          Invocation.getter(#httpClient),
-        ),
-        returnValueForMissingStub: _FakeClient_2(
-          this,
-          Invocation.getter(#httpClient),
-        ),
-      ) as _i4.Client);
+  _i4.Client get httpClient =>
+      (super.noSuchMethod(
+            Invocation.getter(#httpClient),
+            returnValue: _FakeClient_2(this, Invocation.getter(#httpClient)),
+            returnValueForMissingStub: _FakeClient_2(
+              this,
+              Invocation.getter(#httpClient),
+            ),
+          )
+          as _i4.Client);
 
   @override
   set onError(_i9.ErrorListener? _onError) => super.noSuchMethod(
-        Invocation.setter(
-          #onError,
-          _onError,
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.setter(#onError, _onError),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  bool get mounted => (super.noSuchMethod(
-        Invocation.getter(#mounted),
-        returnValue: false,
-        returnValueForMissingStub: false,
-      ) as bool);
+  bool get mounted =>
+      (super.noSuchMethod(
+            Invocation.getter(#mounted),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
 
   @override
-  _i6.Stream<_i5.BackupState> get stream => (super.noSuchMethod(
-        Invocation.getter(#stream),
-        returnValue: _i6.Stream<_i5.BackupState>.empty(),
-        returnValueForMissingStub: _i6.Stream<_i5.BackupState>.empty(),
-      ) as _i6.Stream<_i5.BackupState>);
+  _i6.Stream<_i5.BackupState> get stream =>
+      (super.noSuchMethod(
+            Invocation.getter(#stream),
+            returnValue: _i6.Stream<_i5.BackupState>.empty(),
+            returnValueForMissingStub: _i6.Stream<_i5.BackupState>.empty(),
+          )
+          as _i6.Stream<_i5.BackupState>);
 
   @override
-  _i5.BackupState get state => (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue: _FakeBackupState_3(
-          this,
-          Invocation.getter(#state),
-        ),
-        returnValueForMissingStub: _FakeBackupState_3(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i5.BackupState);
+  _i5.BackupState get state =>
+      (super.noSuchMethod(
+            Invocation.getter(#state),
+            returnValue: _FakeBackupState_3(this, Invocation.getter(#state)),
+            returnValueForMissingStub: _FakeBackupState_3(
+              this,
+              Invocation.getter(#state),
+            ),
+          )
+          as _i5.BackupState);
 
   @override
   set state(_i5.BackupState? value) => super.noSuchMethod(
-        Invocation.setter(
-          #state,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.setter(#state, value),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  _i5.BackupState get debugState => (super.noSuchMethod(
-        Invocation.getter(#debugState),
-        returnValue: _FakeBackupState_3(
-          this,
-          Invocation.getter(#debugState),
-        ),
-        returnValueForMissingStub: _FakeBackupState_3(
-          this,
-          Invocation.getter(#debugState),
-        ),
-      ) as _i5.BackupState);
-
-  @override
-  bool get hasListeners => (super.noSuchMethod(
-        Invocation.getter(#hasListeners),
-        returnValue: false,
-        returnValueForMissingStub: false,
-      ) as bool);
-
-  @override
-  _i6.Future<bool> requestPermissions() => (super.noSuchMethod(
-        Invocation.method(
-          #requestPermissions,
-          [],
-        ),
-        returnValue: _i6.Future<bool>.value(false),
-        returnValueForMissingStub: _i6.Future<bool>.value(false),
-      ) as _i6.Future<bool>);
-
-  @override
-  _i6.Future<void> backupData() => (super.noSuchMethod(
-        Invocation.method(
-          #backupData,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-
-  @override
-  _i6.Future<void> zipHiveFiles(
-    String? sourceDirPath,
-    String? zipFilePath,
-  ) =>
+  _i5.BackupState get debugState =>
       (super.noSuchMethod(
-        Invocation.method(
-          #zipHiveFiles,
-          [
-            sourceDirPath,
-            zipFilePath,
-          ],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+            Invocation.getter(#debugState),
+            returnValue: _FakeBackupState_3(
+              this,
+              Invocation.getter(#debugState),
+            ),
+            returnValueForMissingStub: _FakeBackupState_3(
+              this,
+              Invocation.getter(#debugState),
+            ),
+          )
+          as _i5.BackupState);
 
   @override
-  _i6.Future<void> uploadFileToDrive(_i10.File? file) => (super.noSuchMethod(
-        Invocation.method(
-          #uploadFileToDrive,
-          [file],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+  bool get hasListeners =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasListeners),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
 
   @override
-  _i6.Future<void> prompt(String? url) => (super.noSuchMethod(
-        Invocation.method(
-          #prompt,
-          [url],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+  _i6.Future<bool> requestPermissions() =>
+      (super.noSuchMethod(
+            Invocation.method(#requestPermissions, []),
+            returnValue: _i6.Future<bool>.value(false),
+            returnValueForMissingStub: _i6.Future<bool>.value(false),
+          )
+          as _i6.Future<bool>);
 
   @override
-  _i6.Future<_i10.File?> downloadBackupFile() => (super.noSuchMethod(
-        Invocation.method(
-          #downloadBackupFile,
-          [],
-        ),
-        returnValue: _i6.Future<_i10.File?>.value(),
-        returnValueForMissingStub: _i6.Future<_i10.File?>.value(),
-      ) as _i6.Future<_i10.File?>);
+  _i6.Future<void> backupData() =>
+      (super.noSuchMethod(
+            Invocation.method(#backupData, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> zipHiveFiles(String? sourceDirPath, String? zipFilePath) =>
+      (super.noSuchMethod(
+            Invocation.method(#zipHiveFiles, [sourceDirPath, zipFilePath]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> uploadFileToDrive(_i10.File? file) =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadFileToDrive, [file]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> prompt(String? url) =>
+      (super.noSuchMethod(
+            Invocation.method(#prompt, [url]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<_i10.File?> downloadBackupFile() =>
+      (super.noSuchMethod(
+            Invocation.method(#downloadBackupFile, []),
+            returnValue: _i6.Future<_i10.File?>.value(),
+            returnValueForMissingStub: _i6.Future<_i10.File?>.value(),
+          )
+          as _i6.Future<_i10.File?>);
 
   @override
   _i6.Future<void> extractAndOverwriteHiveData(_i10.File? zipFile) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #extractAndOverwriteHiveData,
-          [zipFile],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+            Invocation.method(#extractAndOverwriteHiveData, [zipFile]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 
   @override
-  _i6.Future<void> restoreBackup() => (super.noSuchMethod(
-        Invocation.method(
-          #restoreBackup,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-
-  @override
-  _i6.Future<void> checkActiveState() => (super.noSuchMethod(
-        Invocation.method(
-          #checkActiveState,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-
-  @override
-  bool updateShouldNotify(
-    _i5.BackupState? old,
-    _i5.BackupState? current,
-  ) =>
+  _i6.Future<void> restoreBackup() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #updateShouldNotify,
-          [
-            old,
-            current,
-          ],
-        ),
-        returnValue: false,
-        returnValueForMissingStub: false,
-      ) as bool);
+            Invocation.method(#restoreBackup, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> checkActiveState() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkActiveState, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  bool updateShouldNotify(_i5.BackupState? old, _i5.BackupState? current) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateShouldNotify, [old, current]),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
 
   @override
   _i9.RemoveListener addListener(
@@ -398,21 +347,19 @@ class MockBackupManager extends _i1.Mock implements _i5.BackupManager {
     bool? fireImmediately = true,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [listener],
-          {#fireImmediately: fireImmediately},
-        ),
-        returnValue: () {},
-        returnValueForMissingStub: () {},
-      ) as _i9.RemoveListener);
+            Invocation.method(
+              #addListener,
+              [listener],
+              {#fireImmediately: fireImmediately},
+            ),
+            returnValue: () {},
+            returnValueForMissingStub: () {},
+          )
+          as _i9.RemoveListener);
 
   @override
   void dispose() => super.noSuchMethod(
-        Invocation.method(
-          #dispose,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
 }

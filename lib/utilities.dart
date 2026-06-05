@@ -152,7 +152,7 @@ Future<Box<UserSettings>> openSettingsBox(String settingsBoxName) async {
   Box<UserSettings> box;
   try {
     box = await Hive.openBox<UserSettings>(settingsBoxName);
-  } on FormatException catch (e) {
+  } on FormatException {
     // Fallback: Delete the box and create a new one
     await Hive.deleteBoxFromDisk(settingsBoxName);
     box = await Hive.openBox<UserSettings>(settingsBoxName);

@@ -38,88 +38,53 @@ import 'package:state_notifier/state_notifier.dart' as _i4;
 
 class _FakeProviderContainer_0 extends _i1.SmartFake
     implements _i2.ProviderContainer {
-  _FakeProviderContainer_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeProviderContainer_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeKeepAliveLink_1 extends _i1.SmartFake implements _i2.KeepAliveLink {
-  _FakeKeepAliveLink_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeKeepAliveLink_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeProviderSubscription_2<State1> extends _i1.SmartFake
     implements _i2.ProviderSubscription<State1> {
-  _FakeProviderSubscription_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeProviderSubscription_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeBox_3<E> extends _i1.SmartFake implements _i3.Box<E> {
-  _FakeBox_3(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeBox_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeAlwaysAliveRefreshable_4<T> extends _i1.SmartFake
     implements _i2.AlwaysAliveRefreshable<T> {
-  _FakeAlwaysAliveRefreshable_4(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeAlwaysAliveRefreshable_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeStateNotifierProviderElement_5<
-        NotifierT extends _i4.StateNotifier<T>, T> extends _i1.SmartFake
+  NotifierT extends _i4.StateNotifier<T>,
+  T
+>
+    extends _i1.SmartFake
     implements _i2.StateNotifierProviderElement<NotifierT, T> {
   _FakeStateNotifierProviderElement_5(
     Object parent,
     Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  ) : super(parent, parentInvocation);
 }
 
 class _FakeOverride_6 extends _i1.SmartFake implements _i2.Override {
-  _FakeOverride_6(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeOverride_6(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeBonusInfoAndRatio_7 extends _i1.SmartFake
     implements _i5.BonusInfoAndRatio {
-  _FakeBonusInfoAndRatio_7(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeBonusInfoAndRatio_7(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeAlwaysAliveProviderListenable_8<State> extends _i1.SmartFake
@@ -127,31 +92,18 @@ class _FakeAlwaysAliveProviderListenable_8<State> extends _i1.SmartFake
   _FakeAlwaysAliveProviderListenable_8(
     Object parent,
     Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  ) : super(parent, parentInvocation);
 }
 
 class _FakeUserState_9 extends _i1.SmartFake implements _i6.UserState {
-  _FakeUserState_9(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeUserState_9(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeStateProviderElement_10<T> extends _i1.SmartFake
     implements _i2.StateProviderElement<T> {
-  _FakeStateProviderElement_10(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeStateProviderElement_10(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [Ref].
@@ -160,262 +112,177 @@ class _FakeStateProviderElement_10<T> extends _i1.SmartFake
 class MockRef<State extends Object?> extends _i1.Mock
     implements _i2.Ref<State> {
   @override
-  _i2.ProviderContainer get container => (super.noSuchMethod(
-        Invocation.getter(#container),
-        returnValue: _FakeProviderContainer_0(
-          this,
-          Invocation.getter(#container),
-        ),
-        returnValueForMissingStub: _FakeProviderContainer_0(
-          this,
-          Invocation.getter(#container),
-        ),
-      ) as _i2.ProviderContainer);
+  _i2.ProviderContainer get container =>
+      (super.noSuchMethod(
+            Invocation.getter(#container),
+            returnValue: _FakeProviderContainer_0(
+              this,
+              Invocation.getter(#container),
+            ),
+            returnValueForMissingStub: _FakeProviderContainer_0(
+              this,
+              Invocation.getter(#container),
+            ),
+          )
+          as _i2.ProviderContainer);
 
   @override
-  T refresh<T>(_i2.Refreshable<T>? provider) => (super.noSuchMethod(
-        Invocation.method(
-          #refresh,
-          [provider],
-        ),
-        returnValue: _i7.dummyValue<T>(
-          this,
-          Invocation.method(
-            #refresh,
-            [provider],
-          ),
-        ),
-        returnValueForMissingStub: _i7.dummyValue<T>(
-          this,
-          Invocation.method(
-            #refresh,
-            [provider],
-          ),
-        ),
-      ) as T);
+  T refresh<T>(_i2.Refreshable<T>? provider) =>
+      (super.noSuchMethod(
+            Invocation.method(#refresh, [provider]),
+            returnValue: _i7.dummyValue<T>(
+              this,
+              Invocation.method(#refresh, [provider]),
+            ),
+            returnValueForMissingStub: _i7.dummyValue<T>(
+              this,
+              Invocation.method(#refresh, [provider]),
+            ),
+          )
+          as T);
 
   @override
   void invalidate(_i2.ProviderOrFamily? provider) => super.noSuchMethod(
-        Invocation.method(
-          #invalidate,
-          [provider],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#invalidate, [provider]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void notifyListeners() => super.noSuchMethod(
-        Invocation.method(
-          #notifyListeners,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void listenSelf(
-    void Function(
-      State?,
-      State,
-    )? listener, {
-    void Function(
-      Object,
-      StackTrace,
-    )? onError,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #listenSelf,
-          [listener],
-          {#onError: onError},
-        ),
-        returnValueForMissingStub: null,
-      );
+    void Function(State?, State)? listener, {
+    void Function(Object, StackTrace)? onError,
+  }) => super.noSuchMethod(
+    Invocation.method(#listenSelf, [listener], {#onError: onError}),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void invalidateSelf() => super.noSuchMethod(
-        Invocation.method(
-          #invalidateSelf,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#invalidateSelf, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void onAddListener(void Function()? cb) => super.noSuchMethod(
-        Invocation.method(
-          #onAddListener,
-          [cb],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#onAddListener, [cb]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void onRemoveListener(void Function()? cb) => super.noSuchMethod(
-        Invocation.method(
-          #onRemoveListener,
-          [cb],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#onRemoveListener, [cb]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void onResume(void Function()? cb) => super.noSuchMethod(
-        Invocation.method(
-          #onResume,
-          [cb],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#onResume, [cb]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void onCancel(void Function()? cb) => super.noSuchMethod(
-        Invocation.method(
-          #onCancel,
-          [cb],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#onCancel, [cb]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void onDispose(void Function()? cb) => super.noSuchMethod(
-        Invocation.method(
-          #onDispose,
-          [cb],
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.method(#onDispose, [cb]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  T read<T>(_i2.ProviderListenable<T>? provider) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [provider],
-        ),
-        returnValue: _i7.dummyValue<T>(
-          this,
-          Invocation.method(
-            #read,
-            [provider],
-          ),
-        ),
-        returnValueForMissingStub: _i7.dummyValue<T>(
-          this,
-          Invocation.method(
-            #read,
-            [provider],
-          ),
-        ),
-      ) as T);
+  T read<T>(_i2.ProviderListenable<T>? provider) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [provider]),
+            returnValue: _i7.dummyValue<T>(
+              this,
+              Invocation.method(#read, [provider]),
+            ),
+            returnValueForMissingStub: _i7.dummyValue<T>(
+              this,
+              Invocation.method(#read, [provider]),
+            ),
+          )
+          as T);
 
   @override
-  bool exists(_i2.ProviderBase<Object?>? provider) => (super.noSuchMethod(
-        Invocation.method(
-          #exists,
-          [provider],
-        ),
-        returnValue: false,
-        returnValueForMissingStub: false,
-      ) as bool);
+  bool exists(_i2.ProviderBase<Object?>? provider) =>
+      (super.noSuchMethod(
+            Invocation.method(#exists, [provider]),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
 
   @override
-  T watch<T>(_i2.ProviderListenable<T>? provider) => (super.noSuchMethod(
-        Invocation.method(
-          #watch,
-          [provider],
-        ),
-        returnValue: _i7.dummyValue<T>(
-          this,
-          Invocation.method(
-            #watch,
-            [provider],
-          ),
-        ),
-        returnValueForMissingStub: _i7.dummyValue<T>(
-          this,
-          Invocation.method(
-            #watch,
-            [provider],
-          ),
-        ),
-      ) as T);
+  T watch<T>(_i2.ProviderListenable<T>? provider) =>
+      (super.noSuchMethod(
+            Invocation.method(#watch, [provider]),
+            returnValue: _i7.dummyValue<T>(
+              this,
+              Invocation.method(#watch, [provider]),
+            ),
+            returnValueForMissingStub: _i7.dummyValue<T>(
+              this,
+              Invocation.method(#watch, [provider]),
+            ),
+          )
+          as T);
 
   @override
-  _i2.KeepAliveLink keepAlive() => (super.noSuchMethod(
-        Invocation.method(
-          #keepAlive,
-          [],
-        ),
-        returnValue: _FakeKeepAliveLink_1(
-          this,
-          Invocation.method(
-            #keepAlive,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeKeepAliveLink_1(
-          this,
-          Invocation.method(
-            #keepAlive,
-            [],
-          ),
-        ),
-      ) as _i2.KeepAliveLink);
+  _i2.KeepAliveLink keepAlive() =>
+      (super.noSuchMethod(
+            Invocation.method(#keepAlive, []),
+            returnValue: _FakeKeepAliveLink_1(
+              this,
+              Invocation.method(#keepAlive, []),
+            ),
+            returnValueForMissingStub: _FakeKeepAliveLink_1(
+              this,
+              Invocation.method(#keepAlive, []),
+            ),
+          )
+          as _i2.KeepAliveLink);
 
   @override
   _i2.ProviderSubscription<T> listen<T>(
     _i2.ProviderListenable<T>? provider,
-    void Function(
-      T?,
-      T,
-    )? listener, {
-    void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(T?, T)? listener, {
+    void Function(Object, StackTrace)? onError,
     bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #listen,
-          [
-            provider,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<T>(
-          this,
-          Invocation.method(
-            #listen,
-            [
-              provider,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeProviderSubscription_2<T>(
-          this,
-          Invocation.method(
-            #listen,
-            [
-              provider,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<T>);
+            Invocation.method(
+              #listen,
+              [provider, listener],
+              {#onError: onError, #fireImmediately: fireImmediately},
+            ),
+            returnValue: _FakeProviderSubscription_2<T>(
+              this,
+              Invocation.method(
+                #listen,
+                [provider, listener],
+                {#onError: onError, #fireImmediately: fireImmediately},
+              ),
+            ),
+            returnValueForMissingStub: _FakeProviderSubscription_2<T>(
+              this,
+              Invocation.method(
+                #listen,
+                [provider, listener],
+                {#onError: onError, #fireImmediately: fireImmediately},
+              ),
+            ),
+          )
+          as _i2.ProviderSubscription<T>);
 }
 
 /// A class which mocks [BonusInfoRepository].
@@ -424,115 +291,102 @@ class MockRef<State extends Object?> extends _i1.Mock
 class MockBonusInfoRepository extends _i1.Mock
     implements _i8.BonusInfoRepository {
   @override
-  _i9.Future<_i3.Box<_i10.BonusInfo>> openBox() => (super.noSuchMethod(
-        Invocation.method(
-          #openBox,
-          [],
-        ),
-        returnValue: _i9.Future<_i3.Box<_i10.BonusInfo>>.value(
-            _FakeBox_3<_i10.BonusInfo>(
-          this,
-          Invocation.method(
-            #openBox,
-            [],
-          ),
-        )),
-        returnValueForMissingStub: _i9.Future<_i3.Box<_i10.BonusInfo>>.value(
-            _FakeBox_3<_i10.BonusInfo>(
-          this,
-          Invocation.method(
-            #openBox,
-            [],
-          ),
-        )),
-      ) as _i9.Future<_i3.Box<_i10.BonusInfo>>);
+  _i9.Future<_i3.Box<_i10.BonusInfo>> openBox() =>
+      (super.noSuchMethod(
+            Invocation.method(#openBox, []),
+            returnValue: _i9.Future<_i3.Box<_i10.BonusInfo>>.value(
+              _FakeBox_3<_i10.BonusInfo>(this, Invocation.method(#openBox, [])),
+            ),
+            returnValueForMissingStub:
+                _i9.Future<_i3.Box<_i10.BonusInfo>>.value(
+                  _FakeBox_3<_i10.BonusInfo>(
+                    this,
+                    Invocation.method(#openBox, []),
+                  ),
+                ),
+          )
+          as _i9.Future<_i3.Box<_i10.BonusInfo>>);
 
   @override
-  _i9.Future<void> closeBox() => (super.noSuchMethod(
-        Invocation.method(
-          #closeBox,
-          [],
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+  _i9.Future<void> closeBox() =>
+      (super.noSuchMethod(
+            Invocation.method(#closeBox, []),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
 
   @override
-  _i9.Future<void> reopenBox() => (super.noSuchMethod(
-        Invocation.method(
-          #reopenBox,
-          [],
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+  _i9.Future<void> reopenBox() =>
+      (super.noSuchMethod(
+            Invocation.method(#reopenBox, []),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
 
   @override
   _i9.Future<String> addBonusInfo(_i10.BonusInfo? bonusInfo) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addBonusInfo,
-          [bonusInfo],
-        ),
-        returnValue: _i9.Future<String>.value(_i7.dummyValue<String>(
-          this,
-          Invocation.method(
-            #addBonusInfo,
-            [bonusInfo],
-          ),
-        )),
-        returnValueForMissingStub:
-            _i9.Future<String>.value(_i7.dummyValue<String>(
-          this,
-          Invocation.method(
-            #addBonusInfo,
-            [bonusInfo],
-          ),
-        )),
-      ) as _i9.Future<String>);
+            Invocation.method(#addBonusInfo, [bonusInfo]),
+            returnValue: _i9.Future<String>.value(
+              _i7.dummyValue<String>(
+                this,
+                Invocation.method(#addBonusInfo, [bonusInfo]),
+              ),
+            ),
+            returnValueForMissingStub: _i9.Future<String>.value(
+              _i7.dummyValue<String>(
+                this,
+                Invocation.method(#addBonusInfo, [bonusInfo]),
+              ),
+            ),
+          )
+          as _i9.Future<String>);
 
   @override
-  _i9.Future<List<_i10.BonusInfo>> getAllBonusInfos() => (super.noSuchMethod(
-        Invocation.method(
-          #getAllBonusInfos,
-          [],
-        ),
-        returnValue: _i9.Future<List<_i10.BonusInfo>>.value(<_i10.BonusInfo>[]),
-        returnValueForMissingStub:
-            _i9.Future<List<_i10.BonusInfo>>.value(<_i10.BonusInfo>[]),
-      ) as _i9.Future<List<_i10.BonusInfo>>);
+  _i9.Future<List<_i10.BonusInfo>> getAllBonusInfos() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllBonusInfos, []),
+            returnValue: _i9.Future<List<_i10.BonusInfo>>.value(
+              <_i10.BonusInfo>[],
+            ),
+            returnValueForMissingStub: _i9.Future<List<_i10.BonusInfo>>.value(
+              <_i10.BonusInfo>[],
+            ),
+          )
+          as _i9.Future<List<_i10.BonusInfo>>);
 
   @override
   _i9.Future<void> updateBonusInfo(_i10.BonusInfo? bonusInfo) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #updateBonusInfo,
-          [bonusInfo],
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+            Invocation.method(#updateBonusInfo, [bonusInfo]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
 
   @override
-  _i9.Future<void> deleteBonusInfo(_i10.BonusInfo? info) => (super.noSuchMethod(
-        Invocation.method(
-          #deleteBonusInfo,
-          [info],
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+  _i9.Future<void> deleteBonusInfo(_i10.BonusInfo? info) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteBonusInfo, [info]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
 
   @override
-  _i9.Future<Map<String, double>> getAllRatiosToday() => (super.noSuchMethod(
-        Invocation.method(
-          #getAllRatiosToday,
-          [],
-        ),
-        returnValue: _i9.Future<Map<String, double>>.value(<String, double>{}),
-        returnValueForMissingStub:
-            _i9.Future<Map<String, double>>.value(<String, double>{}),
-      ) as _i9.Future<Map<String, double>>);
+  _i9.Future<Map<String, double>> getAllRatiosToday() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllRatiosToday, []),
+            returnValue: _i9.Future<Map<String, double>>.value(
+              <String, double>{},
+            ),
+            returnValueForMissingStub: _i9.Future<Map<String, double>>.value(
+              <String, double>{},
+            ),
+          )
+          as _i9.Future<Map<String, double>>);
 }
 
 /// A class which mocks [BonusInfoAndRatio].
@@ -540,36 +394,34 @@ class MockBonusInfoRepository extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockBonusInfoAndRatio extends _i1.Mock implements _i5.BonusInfoAndRatio {
   @override
-  List<_i10.BonusInfo> get bonusInfo => (super.noSuchMethod(
-        Invocation.getter(#bonusInfo),
-        returnValue: <_i10.BonusInfo>[],
-        returnValueForMissingStub: <_i10.BonusInfo>[],
-      ) as List<_i10.BonusInfo>);
+  List<_i10.BonusInfo> get bonusInfo =>
+      (super.noSuchMethod(
+            Invocation.getter(#bonusInfo),
+            returnValue: <_i10.BonusInfo>[],
+            returnValueForMissingStub: <_i10.BonusInfo>[],
+          )
+          as List<_i10.BonusInfo>);
 
   @override
   set bonusInfo(List<_i10.BonusInfo>? _bonusInfo) => super.noSuchMethod(
-        Invocation.setter(
-          #bonusInfo,
-          _bonusInfo,
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.setter(#bonusInfo, _bonusInfo),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  double get ratio => (super.noSuchMethod(
-        Invocation.getter(#ratio),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
+  double get ratio =>
+      (super.noSuchMethod(
+            Invocation.getter(#ratio),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
 
   @override
   set ratio(double? _ratio) => super.noSuchMethod(
-        Invocation.setter(
-          #ratio,
-          _ratio,
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.setter(#ratio, _ratio),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [UserRepository].
@@ -579,86 +431,56 @@ class MockUserRepository extends _i1.Mock implements _i6.UserRepository {
   @override
   _i9.Future<_i11.UserSettings?> getUserData(String? userId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getUserData,
-          [userId],
-        ),
-        returnValue: _i9.Future<_i11.UserSettings?>.value(),
-        returnValueForMissingStub: _i9.Future<_i11.UserSettings?>.value(),
-      ) as _i9.Future<_i11.UserSettings?>);
+            Invocation.method(#getUserData, [userId]),
+            returnValue: _i9.Future<_i11.UserSettings?>.value(),
+            returnValueForMissingStub: _i9.Future<_i11.UserSettings?>.value(),
+          )
+          as _i9.Future<_i11.UserSettings?>);
 
   @override
   _i9.Future<void> saveOrUpdateUserData(_i11.UserSettings? user) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #saveOrUpdateUserData,
-          [user],
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+            Invocation.method(#saveOrUpdateUserData, [user]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
 
   @override
-  _i9.Future<bool> editWorkingHours(
-    String? userId,
-    double? newWorkingHours,
-  ) =>
+  _i9.Future<bool> editWorkingHours(String? userId, double? newWorkingHours) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #editWorkingHours,
-          [
-            userId,
-            newWorkingHours,
-          ],
-        ),
-        returnValue: _i9.Future<bool>.value(false),
-        returnValueForMissingStub: _i9.Future<bool>.value(false),
-      ) as _i9.Future<bool>);
+            Invocation.method(#editWorkingHours, [userId, newWorkingHours]),
+            returnValue: _i9.Future<bool>.value(false),
+            returnValueForMissingStub: _i9.Future<bool>.value(false),
+          )
+          as _i9.Future<bool>);
 
   @override
-  _i9.Future<bool> editPaidBreaks(
-    String? userId,
-    bool? newPaidBreaks,
-  ) =>
+  _i9.Future<bool> editPaidBreaks(String? userId, bool? newPaidBreaks) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #editPaidBreaks,
-          [
-            userId,
-            newPaidBreaks,
-          ],
-        ),
-        returnValue: _i9.Future<bool>.value(false),
-        returnValueForMissingStub: _i9.Future<bool>.value(false),
-      ) as _i9.Future<bool>);
+            Invocation.method(#editPaidBreaks, [userId, newPaidBreaks]),
+            returnValue: _i9.Future<bool>.value(false),
+            returnValueForMissingStub: _i9.Future<bool>.value(false),
+          )
+          as _i9.Future<bool>);
 
   @override
-  _i9.Future<bool> editHourlyRate(
-    String? userId,
-    double? newHourlyRate,
-  ) =>
+  _i9.Future<bool> editHourlyRate(String? userId, double? newHourlyRate) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #editHourlyRate,
-          [
-            userId,
-            newHourlyRate,
-          ],
-        ),
-        returnValue: _i9.Future<bool>.value(false),
-        returnValueForMissingStub: _i9.Future<bool>.value(false),
-      ) as _i9.Future<bool>);
+            Invocation.method(#editHourlyRate, [userId, newHourlyRate]),
+            returnValue: _i9.Future<bool>.value(false),
+            returnValueForMissingStub: _i9.Future<bool>.value(false),
+          )
+          as _i9.Future<bool>);
 
   @override
   double calculateEffectiveWorkingHours(double? workingHours) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #calculateEffectiveWorkingHours,
-          [workingHours],
-        ),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
+            Invocation.method(#calculateEffectiveWorkingHours, [workingHours]),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
 }
 
 /// A class which mocks [StateNotifierProvider].
@@ -666,184 +488,150 @@ class MockUserRepository extends _i1.Mock implements _i6.UserRepository {
 /// See the documentation for Mockito's code generation for more information.
 class MockBonusInfoStateNotifierProvider extends _i1.Mock
     implements
-        _i2
-        .StateNotifierProvider<_i12.BonusInfoNotifier, _i5.BonusInfoAndRatio> {
+        _i2.StateNotifierProvider<
+          _i12.BonusInfoNotifier,
+          _i5.BonusInfoAndRatio
+        > {
   @override
   _i2.AlwaysAliveRefreshable<_i12.BonusInfoNotifier> get notifier =>
       (super.noSuchMethod(
-        Invocation.getter(#notifier),
-        returnValue: _FakeAlwaysAliveRefreshable_4<_i12.BonusInfoNotifier>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i12.BonusInfoNotifier>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i12.BonusInfoNotifier>);
+            Invocation.getter(#notifier),
+            returnValue: _FakeAlwaysAliveRefreshable_4<_i12.BonusInfoNotifier>(
+              this,
+              Invocation.getter(#notifier),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i12.BonusInfoNotifier>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i12.BonusInfoNotifier>);
 
   @override
   _i2.StateNotifierProviderElement<
-          _i12.BonusInfoNotifier, _i5.BonusInfoAndRatio>
-      createElement() => (super.noSuchMethod(
-            Invocation.method(
-              #createElement,
-              [],
-            ),
+    _i12.BonusInfoNotifier,
+    _i5.BonusInfoAndRatio
+  >
+  createElement() =>
+      (super.noSuchMethod(
+            Invocation.method(#createElement, []),
             returnValue: _FakeStateNotifierProviderElement_5<
-                _i12.BonusInfoNotifier, _i5.BonusInfoAndRatio>(
-              this,
-              Invocation.method(
-                #createElement,
-                [],
-              ),
-            ),
+              _i12.BonusInfoNotifier,
+              _i5.BonusInfoAndRatio
+            >(this, Invocation.method(#createElement, [])),
             returnValueForMissingStub: _FakeStateNotifierProviderElement_5<
-                _i12.BonusInfoNotifier, _i5.BonusInfoAndRatio>(
-              this,
-              Invocation.method(
-                #createElement,
-                [],
-              ),
-            ),
-          ) as _i2.StateNotifierProviderElement<_i12.BonusInfoNotifier,
-              _i5.BonusInfoAndRatio>);
+              _i12.BonusInfoNotifier,
+              _i5.BonusInfoAndRatio
+            >(this, Invocation.method(#createElement, [])),
+          )
+          as _i2.StateNotifierProviderElement<
+            _i12.BonusInfoNotifier,
+            _i5.BonusInfoAndRatio
+          >);
 
   @override
   _i2.Override overrideWith(
-          _i2.Create<
-                  _i12.BonusInfoNotifier,
-                  _i2.StateNotifierProviderRef<_i12.BonusInfoNotifier,
-                      _i5.BonusInfoAndRatio>>?
-              create) =>
+    _i2.Create<
+      _i12.BonusInfoNotifier,
+      _i2.StateNotifierProviderRef<
+        _i12.BonusInfoNotifier,
+        _i5.BonusInfoAndRatio
+      >
+    >?
+    create,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #overrideWith,
-          [create],
-        ),
-        returnValue: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-        returnValueForMissingStub: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-      ) as _i2.Override);
+            Invocation.method(#overrideWith, [create]),
+            returnValue: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+            returnValueForMissingStub: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+          )
+          as _i2.Override);
 
   @override
   _i2.ProviderSubscription<_i5.BonusInfoAndRatio> addListener(
     _i2.Node? node,
-    void Function(
-      _i5.BonusInfoAndRatio?,
-      _i5.BonusInfoAndRatio,
-    )? listener, {
-    required void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(_i5.BonusInfoAndRatio?, _i5.BonusInfoAndRatio)? listener, {
+    required void Function(Object, StackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [
-            node,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<_i5.BonusInfoAndRatio>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeProviderSubscription_2<_i5.BonusInfoAndRatio>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<_i5.BonusInfoAndRatio>);
+            Invocation.method(
+              #addListener,
+              [node, listener],
+              {
+                #onError: onError,
+                #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                #fireImmediately: fireImmediately,
+              },
+            ),
+            returnValue: _FakeProviderSubscription_2<_i5.BonusInfoAndRatio>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+            returnValueForMissingStub:
+                _FakeProviderSubscription_2<_i5.BonusInfoAndRatio>(
+                  this,
+                  Invocation.method(
+                    #addListener,
+                    [node, listener],
+                    {
+                      #onError: onError,
+                      #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                      #fireImmediately: fireImmediately,
+                    },
+                  ),
+                ),
+          )
+          as _i2.ProviderSubscription<_i5.BonusInfoAndRatio>);
 
   @override
-  _i5.BonusInfoAndRatio read(_i2.Node? node) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [node],
-        ),
-        returnValue: _FakeBonusInfoAndRatio_7(
-          this,
-          Invocation.method(
-            #read,
-            [node],
-          ),
-        ),
-        returnValueForMissingStub: _FakeBonusInfoAndRatio_7(
-          this,
-          Invocation.method(
-            #read,
-            [node],
-          ),
-        ),
-      ) as _i5.BonusInfoAndRatio);
+  _i5.BonusInfoAndRatio read(_i2.Node? node) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [node]),
+            returnValue: _FakeBonusInfoAndRatio_7(
+              this,
+              Invocation.method(#read, [node]),
+            ),
+            returnValueForMissingStub: _FakeBonusInfoAndRatio_7(
+              this,
+              Invocation.method(#read, [node]),
+            ),
+          )
+          as _i5.BonusInfoAndRatio);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(_i5.BonusInfoAndRatio)? selector) =>
+    Selected Function(_i5.BonusInfoAndRatio)? selector,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #select,
-          [selector],
-        ),
-        returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-      ) as _i2.AlwaysAliveProviderListenable<Selected>);
+            Invocation.method(#select, [selector]),
+            returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
+              this,
+              Invocation.method(#select, [selector]),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveProviderListenable_8<Selected>(
+                  this,
+                  Invocation.method(#select, [selector]),
+                ),
+          )
+          as _i2.AlwaysAliveProviderListenable<Selected>);
 }
 
 /// A class which mocks [StateNotifierProvider].
@@ -854,177 +642,134 @@ class MockUserNotifierStateNotifierProvider extends _i1.Mock
   @override
   _i2.AlwaysAliveRefreshable<_i6.UserNotifier> get notifier =>
       (super.noSuchMethod(
-        Invocation.getter(#notifier),
-        returnValue: _FakeAlwaysAliveRefreshable_4<_i6.UserNotifier>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i6.UserNotifier>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i6.UserNotifier>);
+            Invocation.getter(#notifier),
+            returnValue: _FakeAlwaysAliveRefreshable_4<_i6.UserNotifier>(
+              this,
+              Invocation.getter(#notifier),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i6.UserNotifier>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i6.UserNotifier>);
 
   @override
   _i2.StateNotifierProviderElement<_i6.UserNotifier, _i6.UserState>
-      createElement() => (super.noSuchMethod(
-            Invocation.method(
-              #createElement,
-              [],
-            ),
-            returnValue: _FakeStateNotifierProviderElement_5<_i6.UserNotifier,
-                _i6.UserState>(
-              this,
-              Invocation.method(
-                #createElement,
-                [],
-              ),
-            ),
+  createElement() =>
+      (super.noSuchMethod(
+            Invocation.method(#createElement, []),
+            returnValue: _FakeStateNotifierProviderElement_5<
+              _i6.UserNotifier,
+              _i6.UserState
+            >(this, Invocation.method(#createElement, [])),
             returnValueForMissingStub: _FakeStateNotifierProviderElement_5<
-                _i6.UserNotifier, _i6.UserState>(
-              this,
-              Invocation.method(
-                #createElement,
-                [],
-              ),
-            ),
-          ) as _i2
-              .StateNotifierProviderElement<_i6.UserNotifier, _i6.UserState>);
+              _i6.UserNotifier,
+              _i6.UserState
+            >(this, Invocation.method(#createElement, [])),
+          )
+          as _i2.StateNotifierProviderElement<_i6.UserNotifier, _i6.UserState>);
 
   @override
   _i2.Override overrideWith(
-          _i2.Create<
-                  _i6.UserNotifier,
-                  _i2
-                  .StateNotifierProviderRef<_i6.UserNotifier, _i6.UserState>>?
-              create) =>
+    _i2.Create<
+      _i6.UserNotifier,
+      _i2.StateNotifierProviderRef<_i6.UserNotifier, _i6.UserState>
+    >?
+    create,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #overrideWith,
-          [create],
-        ),
-        returnValue: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-        returnValueForMissingStub: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-      ) as _i2.Override);
+            Invocation.method(#overrideWith, [create]),
+            returnValue: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+            returnValueForMissingStub: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+          )
+          as _i2.Override);
 
   @override
   _i2.ProviderSubscription<_i6.UserState> addListener(
     _i2.Node? node,
-    void Function(
-      _i6.UserState?,
-      _i6.UserState,
-    )? listener, {
-    required void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(_i6.UserState?, _i6.UserState)? listener, {
+    required void Function(Object, StackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [
-            node,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<_i6.UserState>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeProviderSubscription_2<_i6.UserState>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<_i6.UserState>);
+            Invocation.method(
+              #addListener,
+              [node, listener],
+              {
+                #onError: onError,
+                #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                #fireImmediately: fireImmediately,
+              },
+            ),
+            returnValue: _FakeProviderSubscription_2<_i6.UserState>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+            returnValueForMissingStub:
+                _FakeProviderSubscription_2<_i6.UserState>(
+                  this,
+                  Invocation.method(
+                    #addListener,
+                    [node, listener],
+                    {
+                      #onError: onError,
+                      #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                      #fireImmediately: fireImmediately,
+                    },
+                  ),
+                ),
+          )
+          as _i2.ProviderSubscription<_i6.UserState>);
 
   @override
-  _i6.UserState read(_i2.Node? node) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [node],
-        ),
-        returnValue: _FakeUserState_9(
-          this,
-          Invocation.method(
-            #read,
-            [node],
-          ),
-        ),
-        returnValueForMissingStub: _FakeUserState_9(
-          this,
-          Invocation.method(
-            #read,
-            [node],
-          ),
-        ),
-      ) as _i6.UserState);
+  _i6.UserState read(_i2.Node? node) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [node]),
+            returnValue: _FakeUserState_9(
+              this,
+              Invocation.method(#read, [node]),
+            ),
+            returnValueForMissingStub: _FakeUserState_9(
+              this,
+              Invocation.method(#read, [node]),
+            ),
+          )
+          as _i6.UserState);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(_i6.UserState)? selector) =>
+    Selected Function(_i6.UserState)? selector,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #select,
-          [selector],
-        ),
-        returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-      ) as _i2.AlwaysAliveProviderListenable<Selected>);
+            Invocation.method(#select, [selector]),
+            returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
+              this,
+              Invocation.method(#select, [selector]),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveProviderListenable_8<Selected>(
+                  this,
+                  Invocation.method(#select, [selector]),
+                ),
+          )
+          as _i2.AlwaysAliveProviderListenable<Selected>);
 }
 
 /// A class which mocks [StateProvider].
@@ -1035,174 +780,140 @@ class MockOvertimeRatioProvider extends _i1.Mock
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get notifier =>
       (super.noSuchMethod(
-        Invocation.getter(#notifier),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
+            Invocation.getter(#notifier),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get state =>
       (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#state),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
+            Invocation.getter(#state),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
-  _i2.StateProviderElement<double> createElement() => (super.noSuchMethod(
-        Invocation.method(
-          #createElement,
-          [],
-        ),
-        returnValue: _FakeStateProviderElement_10<double>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeStateProviderElement_10<double>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-      ) as _i2.StateProviderElement<double>);
+  _i2.StateProviderElement<double> createElement() =>
+      (super.noSuchMethod(
+            Invocation.method(#createElement, []),
+            returnValue: _FakeStateProviderElement_10<double>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+            returnValueForMissingStub: _FakeStateProviderElement_10<double>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+          )
+          as _i2.StateProviderElement<double>);
 
   @override
   _i2.Override overrideWith(
-          _i2.Create<double, _i2.StateProviderRef<double>>? create) =>
+    _i2.Create<double, _i2.StateProviderRef<double>>? create,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #overrideWith,
-          [create],
-        ),
-        returnValue: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-        returnValueForMissingStub: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-      ) as _i2.Override);
+            Invocation.method(#overrideWith, [create]),
+            returnValue: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+            returnValueForMissingStub: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+          )
+          as _i2.Override);
 
   @override
   _i2.ProviderSubscription<double> addListener(
     _i2.Node? node,
-    void Function(
-      double?,
-      double,
-    )? listener, {
-    required void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(double?, double)? listener, {
+    required void Function(Object, StackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [
-            node,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<double>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeProviderSubscription_2<double>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<double>);
+            Invocation.method(
+              #addListener,
+              [node, listener],
+              {
+                #onError: onError,
+                #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                #fireImmediately: fireImmediately,
+              },
+            ),
+            returnValue: _FakeProviderSubscription_2<double>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+            returnValueForMissingStub: _FakeProviderSubscription_2<double>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+          )
+          as _i2.ProviderSubscription<double>);
 
   @override
-  double read(_i2.Node? node) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [node],
-        ),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
+  double read(_i2.Node? node) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [node]),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(double)? selector) =>
+    Selected Function(double)? selector,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #select,
-          [selector],
-        ),
-        returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-      ) as _i2.AlwaysAliveProviderListenable<Selected>);
+            Invocation.method(#select, [selector]),
+            returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
+              this,
+              Invocation.method(#select, [selector]),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveProviderListenable_8<Selected>(
+                  this,
+                  Invocation.method(#select, [selector]),
+                ),
+          )
+          as _i2.AlwaysAliveProviderListenable<Selected>);
 }
 
 /// A class which mocks [StateProvider].
@@ -1213,173 +924,139 @@ class MockOvertimeWorkingHoursState extends _i1.Mock
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double?>> get notifier =>
       (super.noSuchMethod(
-        Invocation.getter(#notifier),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double?>>);
+            Invocation.getter(#notifier),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double?>>);
 
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double?>> get state =>
       (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
-          this,
-          Invocation.getter(#state),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double?>>);
+            Invocation.getter(#state),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double?>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double?>>);
 
   @override
-  _i2.StateProviderElement<double?> createElement() => (super.noSuchMethod(
-        Invocation.method(
-          #createElement,
-          [],
-        ),
-        returnValue: _FakeStateProviderElement_10<double?>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeStateProviderElement_10<double?>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-      ) as _i2.StateProviderElement<double?>);
+  _i2.StateProviderElement<double?> createElement() =>
+      (super.noSuchMethod(
+            Invocation.method(#createElement, []),
+            returnValue: _FakeStateProviderElement_10<double?>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+            returnValueForMissingStub: _FakeStateProviderElement_10<double?>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+          )
+          as _i2.StateProviderElement<double?>);
 
   @override
   _i2.Override overrideWith(
-          _i2.Create<double?, _i2.StateProviderRef<double?>>? create) =>
+    _i2.Create<double?, _i2.StateProviderRef<double?>>? create,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #overrideWith,
-          [create],
-        ),
-        returnValue: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-        returnValueForMissingStub: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-      ) as _i2.Override);
+            Invocation.method(#overrideWith, [create]),
+            returnValue: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+            returnValueForMissingStub: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+          )
+          as _i2.Override);
 
   @override
   _i2.ProviderSubscription<double?> addListener(
     _i2.Node? node,
-    void Function(
-      double?,
-      double?,
-    )? listener, {
-    required void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(double?, double?)? listener, {
+    required void Function(Object, StackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [
-            node,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<double?>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeProviderSubscription_2<double?>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<double?>);
+            Invocation.method(
+              #addListener,
+              [node, listener],
+              {
+                #onError: onError,
+                #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                #fireImmediately: fireImmediately,
+              },
+            ),
+            returnValue: _FakeProviderSubscription_2<double?>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+            returnValueForMissingStub: _FakeProviderSubscription_2<double?>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+          )
+          as _i2.ProviderSubscription<double?>);
 
   @override
-  double? read(_i2.Node? node) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [node],
-        ),
-        returnValueForMissingStub: null,
-      ) as double?);
+  double? read(_i2.Node? node) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [node]),
+            returnValueForMissingStub: null,
+          )
+          as double?);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(double?)? selector) =>
+    Selected Function(double?)? selector,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #select,
-          [selector],
-        ),
-        returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-      ) as _i2.AlwaysAliveProviderListenable<Selected>);
+            Invocation.method(#select, [selector]),
+            returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
+              this,
+              Invocation.method(#select, [selector]),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveProviderListenable_8<Selected>(
+                  this,
+                  Invocation.method(#select, [selector]),
+                ),
+          )
+          as _i2.AlwaysAliveProviderListenable<Selected>);
 }
 
 /// A class which mocks [StateProvider].
@@ -1390,174 +1067,140 @@ class MockAllowanceProvider extends _i1.Mock
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get notifier =>
       (super.noSuchMethod(
-        Invocation.getter(#notifier),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
+            Invocation.getter(#notifier),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get state =>
       (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#state),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
+            Invocation.getter(#state),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
-  _i2.StateProviderElement<double> createElement() => (super.noSuchMethod(
-        Invocation.method(
-          #createElement,
-          [],
-        ),
-        returnValue: _FakeStateProviderElement_10<double>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeStateProviderElement_10<double>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-      ) as _i2.StateProviderElement<double>);
+  _i2.StateProviderElement<double> createElement() =>
+      (super.noSuchMethod(
+            Invocation.method(#createElement, []),
+            returnValue: _FakeStateProviderElement_10<double>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+            returnValueForMissingStub: _FakeStateProviderElement_10<double>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+          )
+          as _i2.StateProviderElement<double>);
 
   @override
   _i2.Override overrideWith(
-          _i2.Create<double, _i2.StateProviderRef<double>>? create) =>
+    _i2.Create<double, _i2.StateProviderRef<double>>? create,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #overrideWith,
-          [create],
-        ),
-        returnValue: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-        returnValueForMissingStub: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-      ) as _i2.Override);
+            Invocation.method(#overrideWith, [create]),
+            returnValue: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+            returnValueForMissingStub: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+          )
+          as _i2.Override);
 
   @override
   _i2.ProviderSubscription<double> addListener(
     _i2.Node? node,
-    void Function(
-      double?,
-      double,
-    )? listener, {
-    required void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(double?, double)? listener, {
+    required void Function(Object, StackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [
-            node,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<double>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeProviderSubscription_2<double>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<double>);
+            Invocation.method(
+              #addListener,
+              [node, listener],
+              {
+                #onError: onError,
+                #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                #fireImmediately: fireImmediately,
+              },
+            ),
+            returnValue: _FakeProviderSubscription_2<double>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+            returnValueForMissingStub: _FakeProviderSubscription_2<double>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+          )
+          as _i2.ProviderSubscription<double>);
 
   @override
-  double read(_i2.Node? node) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [node],
-        ),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
+  double read(_i2.Node? node) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [node]),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(double)? selector) =>
+    Selected Function(double)? selector,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #select,
-          [selector],
-        ),
-        returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-      ) as _i2.AlwaysAliveProviderListenable<Selected>);
+            Invocation.method(#select, [selector]),
+            returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
+              this,
+              Invocation.method(#select, [selector]),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveProviderListenable_8<Selected>(
+                  this,
+                  Invocation.method(#select, [selector]),
+                ),
+          )
+          as _i2.AlwaysAliveProviderListenable<Selected>);
 }
 
 /// A class which mocks [StateProvider].
@@ -1567,172 +1210,138 @@ class MockTargetProvider extends _i1.Mock implements _i2.StateProvider<double> {
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get notifier =>
       (super.noSuchMethod(
-        Invocation.getter(#notifier),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#notifier),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
+            Invocation.getter(#notifier),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#notifier),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
   _i2.AlwaysAliveRefreshable<_i13.StateController<double>> get state =>
       (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#state),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
+            Invocation.getter(#state),
+            returnValue:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveRefreshable_4<_i13.StateController<double>>(
+                  this,
+                  Invocation.getter(#state),
+                ),
+          )
+          as _i2.AlwaysAliveRefreshable<_i13.StateController<double>>);
 
   @override
-  _i2.StateProviderElement<double> createElement() => (super.noSuchMethod(
-        Invocation.method(
-          #createElement,
-          [],
-        ),
-        returnValue: _FakeStateProviderElement_10<double>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeStateProviderElement_10<double>(
-          this,
-          Invocation.method(
-            #createElement,
-            [],
-          ),
-        ),
-      ) as _i2.StateProviderElement<double>);
+  _i2.StateProviderElement<double> createElement() =>
+      (super.noSuchMethod(
+            Invocation.method(#createElement, []),
+            returnValue: _FakeStateProviderElement_10<double>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+            returnValueForMissingStub: _FakeStateProviderElement_10<double>(
+              this,
+              Invocation.method(#createElement, []),
+            ),
+          )
+          as _i2.StateProviderElement<double>);
 
   @override
   _i2.Override overrideWith(
-          _i2.Create<double, _i2.StateProviderRef<double>>? create) =>
+    _i2.Create<double, _i2.StateProviderRef<double>>? create,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #overrideWith,
-          [create],
-        ),
-        returnValue: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-        returnValueForMissingStub: _FakeOverride_6(
-          this,
-          Invocation.method(
-            #overrideWith,
-            [create],
-          ),
-        ),
-      ) as _i2.Override);
+            Invocation.method(#overrideWith, [create]),
+            returnValue: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+            returnValueForMissingStub: _FakeOverride_6(
+              this,
+              Invocation.method(#overrideWith, [create]),
+            ),
+          )
+          as _i2.Override);
 
   @override
   _i2.ProviderSubscription<double> addListener(
     _i2.Node? node,
-    void Function(
-      double?,
-      double,
-    )? listener, {
-    required void Function(
-      Object,
-      StackTrace,
-    )? onError,
+    void Function(double?, double)? listener, {
+    required void Function(Object, StackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool? fireImmediately,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #addListener,
-          [
-            node,
-            listener,
-          ],
-          {
-            #onError: onError,
-            #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-            #fireImmediately: fireImmediately,
-          },
-        ),
-        returnValue: _FakeProviderSubscription_2<double>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeProviderSubscription_2<double>(
-          this,
-          Invocation.method(
-            #addListener,
-            [
-              node,
-              listener,
-            ],
-            {
-              #onError: onError,
-              #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-              #fireImmediately: fireImmediately,
-            },
-          ),
-        ),
-      ) as _i2.ProviderSubscription<double>);
+            Invocation.method(
+              #addListener,
+              [node, listener],
+              {
+                #onError: onError,
+                #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                #fireImmediately: fireImmediately,
+              },
+            ),
+            returnValue: _FakeProviderSubscription_2<double>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+            returnValueForMissingStub: _FakeProviderSubscription_2<double>(
+              this,
+              Invocation.method(
+                #addListener,
+                [node, listener],
+                {
+                  #onError: onError,
+                  #onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+                  #fireImmediately: fireImmediately,
+                },
+              ),
+            ),
+          )
+          as _i2.ProviderSubscription<double>);
 
   @override
-  double read(_i2.Node? node) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [node],
-        ),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
+  double read(_i2.Node? node) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [node]),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
 
   @override
   _i2.AlwaysAliveProviderListenable<Selected> select<Selected>(
-          Selected Function(double)? selector) =>
+    Selected Function(double)? selector,
+  ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #select,
-          [selector],
-        ),
-        returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeAlwaysAliveProviderListenable_8<Selected>(
-          this,
-          Invocation.method(
-            #select,
-            [selector],
-          ),
-        ),
-      ) as _i2.AlwaysAliveProviderListenable<Selected>);
+            Invocation.method(#select, [selector]),
+            returnValue: _FakeAlwaysAliveProviderListenable_8<Selected>(
+              this,
+              Invocation.method(#select, [selector]),
+            ),
+            returnValueForMissingStub:
+                _FakeAlwaysAliveProviderListenable_8<Selected>(
+                  this,
+                  Invocation.method(#select, [selector]),
+                ),
+          )
+          as _i2.AlwaysAliveProviderListenable<Selected>);
 }

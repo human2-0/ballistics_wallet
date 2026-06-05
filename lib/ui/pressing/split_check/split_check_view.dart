@@ -80,7 +80,7 @@ Future<void> _showColorPickerDialog(
   final isNamed =
       currentValue != null &&
       splitCheckColorOptions.contains(currentValue.toLowerCase());
-  final initialNamed = isNamed ? currentValue!.toLowerCase() : null;
+  final initialNamed = isNamed ? currentValue.toLowerCase() : null;
   final initialParsed =
       currentValue != null ? parseColorString(currentValue) : null;
   final initialColor =
@@ -95,77 +95,78 @@ Future<void> _showColorPickerDialog(
         (ctx) => AlertDialog(
           title: const Text('Select color'),
           content: StatefulBuilder(
-            builder: (context, setState) {
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _HueWheelPicker(
-                      size: (MediaQuery.of(context).size.width * 0.8).clamp(
-                        210.0,
-                        320.0,
-                      ),
-                      color: selectedColor,
-                      onChanged: (next) {
-                        setState(() {
-                          selectedColor = next;
-                          selectedName = null;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: selectedColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black26),
-                          ),
+            builder:
+                (context, setState) => SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _HueWheelPicker(
+                        size: (MediaQuery.of(context).size.width * 0.8).clamp(
+                          210.0,
+                          320.0,
                         ),
-                        const SizedBox(width: 8),
-                        Text(colorToHex(selectedColor)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children:
-                          splitCheckColorOptions.map((name) {
-                            final isSelected = selectedName == name;
-                            return ChoiceChip(
-                              label: Text(_colorLabel(name)),
-                              selected: isSelected,
-                              selectedColor: getColorFromString(
-                                name,
-                                accent: true,
-                              ),
-                              backgroundColor: getColorFromString(name),
-                              labelStyle: TextStyle(
-                                color:
-                                    isSelected ? Colors.black : Colors.black87,
-                                fontWeight:
-                                    isSelected
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
-                              ),
-                              onSelected: (_) {
-                                setState(() {
-                                  selectedName = name;
-                                  selectedColor = getColorFromString(name);
-                                });
-                              },
-                            );
-                          }).toList(),
-                    ),
-                  ],
+                        color: selectedColor,
+                        onChanged: (next) {
+                          setState(() {
+                            selectedColor = next;
+                            selectedName = null;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: selectedColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.black26),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(colorToHex(selectedColor)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            splitCheckColorOptions.map((name) {
+                              final isSelected = selectedName == name;
+                              return ChoiceChip(
+                                label: Text(_colorLabel(name)),
+                                selected: isSelected,
+                                selectedColor: getColorFromString(
+                                  name,
+                                  accent: true,
+                                ),
+                                backgroundColor: getColorFromString(name),
+                                labelStyle: TextStyle(
+                                  color:
+                                      isSelected
+                                          ? Colors.black
+                                          : Colors.black87,
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                ),
+                                onSelected: (_) {
+                                  setState(() {
+                                    selectedName = name;
+                                    selectedColor = getColorFromString(name);
+                                  });
+                                },
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
           ),
           actions: [
             TextButton(
@@ -237,8 +238,8 @@ class _HueWheelPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     final rect = Rect.fromCircle(center: center, radius: radius);
-    final hueShader = SweepGradient(
-      colors: const [
+    final hueShader = const SweepGradient(
+      colors: [
         Colors.red,
         Colors.yellow,
         Colors.green,
@@ -264,35 +265,29 @@ class _HueWheelPainter extends CustomPainter {
       center.dx + cos(angle) * r,
       center.dy + sin(angle) * r,
     );
-    canvas.drawCircle(
-      indicator,
-      8,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.fill,
-    );
-    canvas.drawCircle(
-      indicator,
-      8,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
-    canvas.drawCircle(
-      indicator,
-      8,
-      Paint()
-        ..color = Colors.black87
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
-    );
+    final fillPaint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill;
+    final whiteStrokePaint =
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+    final darkStrokePaint =
+        Paint()
+          ..color = Colors.black87
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5;
+    canvas
+      ..drawCircle(indicator, 8, fillPaint)
+      ..drawCircle(indicator, 8, whiteStrokePaint)
+      ..drawCircle(indicator, 8, darkStrokePaint);
   }
 
   @override
-  bool shouldRepaint(covariant _HueWheelPainter oldDelegate) {
-    return oldDelegate.color != color;
-  }
+  bool shouldRepaint(covariant _HueWheelPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class SplitCheck extends ConsumerWidget {
@@ -361,7 +356,7 @@ class AmountInput extends ConsumerStatefulWidget {
   const AmountInput({super.key});
 
   @override
-  _AmountInputState createState() => _AmountInputState();
+  ConsumerState<AmountInput> createState() => _AmountInputState();
 }
 
 class _AmountInputState extends ConsumerState<AmountInput> {
@@ -409,24 +404,21 @@ class _AmountInputState extends ConsumerState<AmountInput> {
 class AmountSlider extends StatelessWidget {
   const AmountSlider({super.key});
   @override
-  Widget build(BuildContext context) {
-    return Consumer(
-      builder: (ctx, ref, _) {
-        final raw = ref.watch(amountPerBatchProvider);
-        final amt = raw.clamp(1, 150);
-        return Slider(
-          value: amt.toDouble(),
-          min: 1,
-          max: 150,
-          divisions: 149,
-          label: amt.toString(),
-          onChanged:
-              (v) =>
-                  ref.read(amountPerBatchProvider.notifier).state = v.round(),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => Consumer(
+    builder: (ctx, ref, _) {
+      final raw = ref.watch(amountPerBatchProvider);
+      final amt = raw.clamp(1, 150);
+      return Slider(
+        value: amt.toDouble(),
+        min: 1,
+        max: 150,
+        divisions: 149,
+        label: amt.toString(),
+        onChanged:
+            (v) => ref.read(amountPerBatchProvider.notifier).state = v.round(),
+      );
+    },
+  );
 }
 
 class SplitCalculator {
@@ -471,66 +463,65 @@ class _ProductPickerState extends ConsumerState<ProductPicker> {
     final allowance = ref.watch(allowanceProvider);
 
     return Autocomplete<ProductInfo>(
-      optionsViewBuilder: (context, onSelected, options) {
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-            child: Material(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(33),
-                topRight: Radius.circular(33),
-                bottomRight: Radius.circular(20),
-                bottomLeft: Radius.circular(20),
-              ),
-              color: Colors.orange[100],
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.4,
-                  minWidth: MediaQuery.of(context).size.width * 0.9,
+      optionsViewBuilder:
+          (context, onSelected, options) => Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+              child: Material(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(33),
+                  topRight: Radius.circular(33),
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(2),
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      final option = options.elementAt(index);
-                      return Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Material(
-                          color: Colors.white,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(33),
-                          ),
-                          child: ListTile(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(33),
+                color: Colors.orange[100],
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                    minWidth: MediaQuery.of(context).size.width * 0.9,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(2),
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final option = options.elementAt(index);
+                        return Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Material(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(33),
                             ),
-                            title: Center(
-                              child: Text(
-                                option.productName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(33),
+                              ),
+                              title: Center(
+                                child: Text(
+                                  option.productName,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
+                              selectedTileColor: Colors.grey[200],
+                              onTap: () => onSelected(option),
                             ),
-                            selectedTileColor: Colors.grey[200],
-                            onTap: () => onSelected(option),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        );
-      },
       optionsBuilder: (textEditingValue) {
         final query = textEditingValue.text.toLowerCase();
         if (query.isEmpty) return const <ProductInfo>[];
@@ -540,21 +531,20 @@ class _ProductPickerState extends ConsumerState<ProductPicker> {
       },
       displayStringForOption: (option) => option.productName,
       initialValue: _controller.value,
-      fieldViewBuilder: (context, fieldController, focusNode, onSubmitted) {
-        return CustomTextField(
-          controller: fieldController,
-          focusNode: focusNode,
-          hintText: 'Add product name',
-          labelText: 'Product',
-          onChanged: (_) {
-            if (_controller.value != fieldController.value) {
-              _controller.value = fieldController.value;
-            }
-          },
-          onSubmitted: (_) => onSubmitted(),
-          showClearIcon: true,
-        );
-      },
+      fieldViewBuilder:
+          (context, fieldController, focusNode, onSubmitted) => CustomTextField(
+            controller: fieldController,
+            focusNode: focusNode,
+            hintText: 'Add product name',
+            labelText: 'Product',
+            onChanged: (_) {
+              if (_controller.value != fieldController.value) {
+                _controller.value = fieldController.value;
+              }
+            },
+            onSubmitted: (_) => onSubmitted(),
+            showClearIcon: true,
+          ),
       onSelected: (selection) async {
         // compute new target based on product target & hours
         final calculated =
@@ -727,13 +717,11 @@ class ResultsList extends ConsumerWidget {
                                   ? (overrides[colorKey] ?? perBatch)
                                   : perBatch,
                         );
-                        break;
                       case _ColorAction.clearCustom:
                         final next = {...ref.read(perColorOverridesProvider)};
                         next.remove(colorKey);
                         ref.read(perColorOverridesProvider.notifier).state =
                             next;
-                        break;
                       case _ColorAction.selectColor:
                         await _showColorPickerDialog(
                           context,
@@ -741,12 +729,10 @@ class ResultsList extends ConsumerWidget {
                           colorKey: colorKey,
                           currentValue: colorOverrides[colorKey],
                         );
-                        break;
                       case _ColorAction.clearColor:
                         ref
                             .read(perColorDisplayOverridesProvider.notifier)
                             .clearOverride(colorKey);
-                        break;
                     }
                   },
                   itemBuilder:

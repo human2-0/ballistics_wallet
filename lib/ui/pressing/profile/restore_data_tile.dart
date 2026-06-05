@@ -9,7 +9,7 @@ class RestoreDataTile extends ConsumerStatefulWidget {
   const RestoreDataTile({super.key});
 
   @override
-  _RestoreDataTileState createState() => _RestoreDataTileState();
+  ConsumerState<RestoreDataTile> createState() => _RestoreDataTileState();
 }
 
 class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
@@ -111,11 +111,12 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
     }
   }
 
-  Future<bool> _showRestoreConfirmationDialog(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
+  Future<bool> _showRestoreConfirmationDialog(
+    BuildContext context,
+  ) => showDialog<bool>(
+    context: context,
+    builder:
+        (context) => AlertDialog(
           title: const Text('Restore Backup'),
           content: const Text(
             'Restoring from backup will overwrite your current data. Are you sure you want to proceed?',
@@ -137,19 +138,15 @@ class _RestoreDataTileState extends ConsumerState<RestoreDataTile> {
               child: const Text('Proceed'),
             ),
           ],
-        );
-      },
-    ).then((value) => value ?? false);
-  }
+        ),
+  ).then((value) => value ?? false);
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      leading: const Icon(Icons.cloud_download_outlined, color: Colors.blue),
-      title: const Text('Restore with backup', style: TextStyle(fontSize: 16)),
-      trailing: _isLoading ? const CircularProgressIndicator() : null,
-      onTap: () async => _handleTap(context, ref),
-    );
-  }
+  Widget build(BuildContext context) => ListTile(
+    dense: true,
+    leading: const Icon(Icons.cloud_download_outlined, color: Colors.blue),
+    title: const Text('Restore with backup', style: TextStyle(fontSize: 16)),
+    trailing: _isLoading ? const CircularProgressIndicator() : null,
+    onTap: () => _handleTap(context, ref),
+  );
 }

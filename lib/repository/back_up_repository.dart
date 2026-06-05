@@ -86,7 +86,7 @@ class BackupManager extends StateNotifier<BackupState> {
 
     File(
       zipFilePath,
-    ).writeAsBytesSync(ZipEncoder().encode(archive)!, flush: true);
+    ).writeAsBytesSync(ZipEncoder().encode(archive), flush: true);
   }
 
   Future<void> uploadFileToDrive(File file) async {
@@ -209,7 +209,7 @@ class BackupManager extends StateNotifier<BackupState> {
       await media.stream.forEach(dataStore.addAll);
       await localFile.writeAsBytes(dataStore);
       return localFile;
-    } on FormatException catch (e) {
+    } on FormatException {
       return null;
     }
   }
@@ -290,11 +290,9 @@ class BackupState {
     BackupStatus? status,
     String? message,
     bool? isActive,
-  }) {
-    return BackupState(
-      status: status ?? this.status,
-      message: message ?? this.message,
-      isActive: isActive ?? this.isActive,
-    );
-  }
+  }) => BackupState(
+    status: status ?? this.status,
+    message: message ?? this.message,
+    isActive: isActive ?? this.isActive,
+  );
 }

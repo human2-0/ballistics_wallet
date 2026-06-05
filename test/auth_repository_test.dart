@@ -28,7 +28,6 @@ void main() {
         authRepositoryProvider.overrideWithValue(mockAuthRepository),
         // Override toastMessageProvider with a StateNotifier for testing
         toastMessageProvider.overrideWith((ref) => ''),
-
       ],
     );
   });
@@ -37,10 +36,10 @@ void main() {
     container.dispose();
   });
 
-
   test('loginWithGoogle success', () async {
-    when(mockAuthRepository.signInWithGoogle())
-        .thenAnswer((_) async => MockUserCredential());
+    when(
+      mockAuthRepository.signInWithGoogle(),
+    ).thenAnswer((_) async => MockUserCredential());
 
     final loginController = container.read(loginControllerProvider.notifier);
 
@@ -50,14 +49,16 @@ void main() {
     verify(mockAuthRepository.signInWithGoogle()).called(1);
 
     // Access the state of the StateNotifier for toastMessage
-    expect(container.read(toastMessageProvider.notifier).state, "Welcome on board, Lush's Warrior!");
-
-
+    expect(
+      container.read(toastMessageProvider.notifier).state,
+      "Welcome on board, Lush's Warrior!",
+    );
   });
 
   test('loginWithGoogle failure', () async {
-    when(mockAuthRepository.signInWithGoogle())
-        .thenThrow(const FormatException('Test Exception'));
+    when(
+      mockAuthRepository.signInWithGoogle(),
+    ).thenThrow(const FormatException('Test Exception'));
     final loginController = container.read(loginControllerProvider.notifier);
 
     await loginController.loginWithGoogle();
@@ -65,8 +66,10 @@ void main() {
 
     final loginState = container.read(loginControllerProvider);
     expect(loginState, isA<LoginStateError>());
-    expect((loginState as LoginStateError).error,
-               'FormatException: Test Exception',);
+    expect(
+      (loginState as LoginStateError).error,
+      'FormatException: Test Exception',
+    );
 
     verify(mockAuthRepository.signInWithGoogle()).called(1);
   });

@@ -29,6 +29,23 @@ void main() {
     expect(products.first.customWeightRangeMaxGrams, 130);
   });
 
+  test('addProduct can store weight range without split pressings', () async {
+    await repo.addProduct(
+      'Widget',
+      100,
+      const [],
+      customWeightRangeMinGrams: 120,
+      customWeightRangeMaxGrams: 130,
+    );
+
+    final products = await repo.fetchProductInfo();
+    expect(products.length, 1);
+    expect(products.first.productName, 'Widget');
+    expect(products.first.product, isEmpty);
+    expect(products.first.customWeightRangeMinGrams, 120);
+    expect(products.first.customWeightRangeMaxGrams, 130);
+  });
+
   test('editProductInfo updates product in Firestore', () async {
     const pressing = Pressing('Blue', 2, 3);
     await repo.addProduct('Gadget', 50, [pressing]);
@@ -50,6 +67,30 @@ void main() {
     expect(products.first.customWeightRangeMinGrams, 210);
     expect(products.first.customWeightRangeMaxGrams, 225);
   });
+
+  test(
+    'editProductInfo can store weight range without split pressings',
+    () async {
+      const pressing = Pressing('Blue', 2, 3);
+      await repo.addProduct('Gadget', 50, [pressing]);
+
+      final updated = ProductInfo(
+        productName: 'Gadget',
+        target: 75,
+        imageName: 'Gadget',
+        product: const [],
+        customWeightRangeMinGrams: 210,
+        customWeightRangeMaxGrams: 225,
+      );
+      final result = await repo.editProductInfo(updated);
+      expect(result, true);
+
+      final products = await repo.fetchProductInfo();
+      expect(products.first.product, isEmpty);
+      expect(products.first.customWeightRangeMinGrams, 210);
+      expect(products.first.customWeightRangeMaxGrams, 225);
+    },
+  );
 
   test('fetchProductInfo falls back to product-name image slug', () async {
     await firestore.collection('targets').doc('pressing').set({

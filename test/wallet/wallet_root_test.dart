@@ -381,21 +381,17 @@ class FakeBonusInfoNotifier extends BonusInfoNotifier {
   }
 
   @override
-  Future<double> getTotalWorkingHours() async {
-    return _bonusList.fold<double>(0, (total, b) => total + b.workingHours);
-  }
+  Future<double> getTotalWorkingHours() async =>
+      _bonusList.fold<double>(0, (total, b) => total + b.workingHours);
 
   @override
-  Future<double> getTotalBonus() async {
-    return _bonusList.fold<double>(0, (total, b) => total + b.bonus);
-  }
+  Future<double> getTotalBonus() async =>
+      _bonusList.fold<double>(0, (total, b) => total + b.bonus);
 }
 
 class _FakeBonusInfoRepository extends BonusInfoRepository {
   @override
-  Future<Map<String, double>> getAllRatiosToday() async {
-    return {};
-  }
+  Future<Map<String, double>> getAllRatiosToday() async => {};
 }
 
 class FakeProductInfoNotifier extends ProductInfoNotifier {
@@ -414,9 +410,7 @@ class _FakeProductInfoRepository implements ProductInfoRepository {
   FirebaseFirestore get db => throw UnimplementedError();
 
   @override
-  Future<List<ProductInfo>> fetchProductInfo() async {
-    return _products;
-  }
+  Future<List<ProductInfo>> fetchProductInfo() async => _products;
 
   @override
   Future<void> addProduct(
@@ -430,9 +424,7 @@ class _FakeProductInfoRepository implements ProductInfoRepository {
   }) async {}
 
   @override
-  Future<bool> editProductInfo(ProductInfo updatedProduct) async {
-    return true;
-  }
+  Future<bool> editProductInfo(ProductInfo updatedProduct) async => true;
 
   @override
   Future<void> deleteProduct(String productName) async {}

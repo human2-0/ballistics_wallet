@@ -8,7 +8,7 @@ class BonusInfoList extends ConsumerStatefulWidget {
   const BonusInfoList({super.key});
 
   @override
-  _BonusInfoListState createState() => _BonusInfoListState();
+  ConsumerState<BonusInfoList> createState() => _BonusInfoListState();
 }
 
 class _BonusInfoListState extends ConsumerState<BonusInfoList> {
