@@ -69,9 +69,7 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                           );
 
                           controller.clear();
-                          ref.read(showListProvider.notifier).state = false;
-                          ref.read(focusNodeProvider).unfocus();
-                          focusNode.unfocus();
+                          dismissTargetCheckInputs(ref);
                           widget.numberController.clear();
 
                           ref.read(targetProvider.notifier).state = 0;
@@ -86,28 +84,31 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
               hintText: _hintForFilter(effortFilter),
             ),
             onTap: () {
-              ref.read(productListSourceProvider.notifier).state =
-                  ProductListSource.allProducts;
-              if (!showList) {
-                ref.read(showListProvider.notifier).state = true;
-
-                FocusScope.of(context).requestFocus(FocusNode());
-                widget.numberController.clear();
-              }
+              openProductLookup(ref);
+              widget.numberController.clear();
             },
             onChanged: (value) {
-              ref.read(productListSourceProvider.notifier).state =
-                  ProductListSource.allProducts;
+              ref
+                  .read(productListSourceProvider.notifier)
+                  .state = _sourceForSearchInput(ref, value);
               ref.read(showListProvider.notifier).state = true;
             },
             onSubmitted: (value) {
-              ref.read(showListProvider.notifier).state = false;
+              dismissTargetCheckInputs(ref);
             },
           ),
         ),
       ),
     );
   }
+}
+
+ProductListSource _sourceForSearchInput(WidgetRef ref, String value) {
+  if (value.trim().isEmpty &&
+      ref.read(lastSelectedProductProvider).isNotEmpty) {
+    return ProductListSource.lastSelected;
+  }
+  return ProductListSource.allProducts;
 }
 
 class _EffortFilterButton extends ConsumerWidget {

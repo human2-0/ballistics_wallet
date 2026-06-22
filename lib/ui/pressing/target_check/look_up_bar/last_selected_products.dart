@@ -26,8 +26,6 @@ class LastSelectedProducts extends ConsumerWidget {
         child: Column(
           children: [
             const SizedBox(height: 8),
-            const Text('Last selected products', style: TextStyle()),
-            const Divider(),
             Expanded(
               child: ListView.builder(
                 itemCount: products.length,
@@ -152,7 +150,6 @@ class LastSelectedProducts extends ConsumerWidget {
                           ],
                         ),
                         onTap: () async {
-                          FocusScope.of(context).unfocus();
                           ref.read(focusedProductProvider.notifier).state =
                               product;
                           ref.read(targetProvider.notifier).state =
@@ -161,8 +158,7 @@ class LastSelectedProducts extends ConsumerWidget {
                               .read(productNameControllerProvider.notifier)
                               .controller
                               .text = product.productName;
-                          ref.read(showListProvider.notifier).state = false;
-                          ref.read(focusNodeProvider).unfocus();
+                          dismissTargetCheckInputs(ref);
 
                           await ref
                               .read(lastSelectedProductProvider.notifier)

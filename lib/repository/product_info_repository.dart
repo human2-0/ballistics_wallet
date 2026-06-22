@@ -71,11 +71,14 @@ class ProductInfoRepository {
     }
 
     final formattedProductName = productNameToImageName(cleanedProductName);
+    final pressingsToStore =
+        validPressings.isEmpty ? const [Pressing.placeholder] : validPressings;
 
     final productData = {
       'target': target,
       'imageName': formattedProductName,
-      'pressings': validPressings.map((pressing) => pressing.toMap()).toList(),
+      'pressings':
+          pressingsToStore.map((pressing) => pressing.toMap()).toList(),
       'ayr': ayr,
       'description': description,
       'customWeightRangeMinGrams': customWeightRangeMinGrams,
@@ -170,7 +173,7 @@ class ProductInfoRepository {
     List<Pressing> pressings, {
     bool allowEmpty = false,
   }) {
-    final validPressings =
+    final normalizedPressings =
         pressings
             .map(
               (pressing) =>
@@ -179,7 +182,18 @@ class ProductInfoRepository {
             .where((pressing) => pressing.productColor.isNotEmpty)
             .toList();
 
+    // Once a real recipe is supplied, silently replace the quick-create
+    // placeholder instead of requiring the user to remove it separately.
+    final validPressings =
+        normalizedPressings
+            .where((pressing) => !pressing.isPlaceholder)
+            .toList();
+
     if (validPressings.isEmpty) {
+      final hasPlaceholder = normalizedPressings.any(
+        (pressing) => pressing.isPlaceholder,
+      );
+      if (hasPlaceholder) return const [Pressing.placeholder];
       if (allowEmpty) return const [];
       throw const FormatException('Add at least one colour and powder amount.');
     }

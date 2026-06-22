@@ -106,10 +106,7 @@ class BasicShiftCard extends ConsumerState<BasicShift>
 
     return GestureDetector(
       onTap: () {
-        numberFocusNode.unfocus();
-        allowanceFocusNode.unfocus();
-        ref.read(showListProvider.notifier).state = false;
-        ref.read(focusNodeProvider).unfocus();
+        dismissTargetCheckInputs(ref);
       },
       child: Container(
         width: cardWidth,
@@ -250,13 +247,14 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               visible: allowanceFocusNode.hasFocus,
                               child: IconButton(
                                 icon: const Icon(Icons.keyboard_hide),
-                                onPressed: allowanceFocusNode.unfocus,
+                                onPressed: () => dismissTargetCheckInputs(ref),
                               ),
                             ),
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
+                          textInputAction: TextInputAction.done,
                           onChanged: (value) async {
                             final parsedValue = int.tryParse(value) ?? 0;
                             final allowanceProvided =
@@ -276,6 +274,8 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                                   allowanceProvided,
                                 );
                           },
+                          onFieldSubmitted:
+                              (_) => dismissTargetCheckInputs(ref),
                         ),
                       ),
                     ),

@@ -29,22 +29,56 @@ void main() {
     expect(products.first.customWeightRangeMaxGrams, 130);
   });
 
-  test('addProduct can store weight range without split pressings', () async {
-    await repo.addProduct(
-      'Widget',
-      100,
-      const [],
-      customWeightRangeMinGrams: 120,
-      customWeightRangeMaxGrams: 130,
-    );
+  test(
+    'addProduct uses a colour placeholder without split pressings',
+    () async {
+      await repo.addProduct(
+        'Widget',
+        100,
+        const [],
+        customWeightRangeMinGrams: 120,
+        customWeightRangeMaxGrams: 130,
+      );
 
-    final products = await repo.fetchProductInfo();
-    expect(products.length, 1);
-    expect(products.first.productName, 'Widget');
-    expect(products.first.product, isEmpty);
-    expect(products.first.customWeightRangeMinGrams, 120);
-    expect(products.first.customWeightRangeMaxGrams, 130);
+      final products = await repo.fetchProductInfo();
+      expect(products.length, 1);
+      expect(products.first.productName, 'Widget');
+      expect(products.first.product, const [Pressing.placeholder]);
+      expect(products.first.hasWeightFormula, isFalse);
+      expect(products.first.customWeightRangeMinGrams, 120);
+      expect(products.first.customWeightRangeMaxGrams, 130);
+    },
+  );
+
+  test('editProductInfo accepts the quick-create colour placeholder', () async {
+    await repo.addProduct('Widget', 100, const []);
+
+    final product = (await repo.fetchProductInfo()).single;
+    final result = await repo.editProductInfo(product.copyWith(target: 125));
+
+    expect(result, isTrue);
+    final updated = (await repo.fetchProductInfo()).single;
+    expect(updated.target, 125);
+    expect(updated.product, const [Pressing.placeholder]);
   });
+
+  test(
+    'real split data replaces the quick-create colour placeholder',
+    () async {
+      await repo.addProduct('Widget', 100, const []);
+      final product = (await repo.fetchProductInfo()).single;
+
+      final result = await repo.editProductInfo(
+        product.copyWith(
+          product: [...product.product, const Pressing('Blue', 2, 1)],
+        ),
+      );
+
+      expect(result, isTrue);
+      final updated = (await repo.fetchProductInfo()).single;
+      expect(updated.product, const [Pressing('Blue', 2, 1)]);
+    },
+  );
 
   test('editProductInfo updates product in Firestore', () async {
     const pressing = Pressing('Blue', 2, 3);

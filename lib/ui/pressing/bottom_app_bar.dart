@@ -302,13 +302,18 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 class _TimelineToggleButton extends StatelessWidget {
   const _TimelineToggleButton({required this.isOpen, required this.onPressed});
 
+  static const double _surfaceOpacity = 0.88;
+
   final bool isOpen;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) => Material(
     elevation: 8,
-    color: isOpen ? Colors.deepOrange : Colors.white,
+    color:
+        isOpen
+            ? Colors.deepOrange.withValues(alpha: _surfaceOpacity)
+            : Colors.white.withValues(alpha: _surfaceOpacity),
     shape: const CircleBorder(),
     child: IconButton(
       tooltip: isOpen ? 'Close timeline' : 'Open timeline',

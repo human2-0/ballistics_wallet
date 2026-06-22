@@ -47,20 +47,41 @@ final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
   final focusNode = FocusNode();
   final focusNotifier = ref.read(focusNotifierProvider.notifier);
 
-  focusNode.addListener(() {
-    scheduleMicrotask(() => focusNotifier.setFocus(focusNode.hasFocus));
-  });
+  void handleFocusChange() {
+    final hasFocus = focusNode.hasFocus;
+    scheduleMicrotask(() => focusNotifier.setFocus(hasFocus));
+  }
+
+  focusNode.addListener(handleFocusChange);
 
   ref.onDispose(() {
     focusNode
-      ..removeListener(() {
-        scheduleMicrotask(() => focusNotifier.setFocus(focusNode.hasFocus));
-      })
+      ..removeListener(handleFocusChange)
       ..dispose();
   });
 
   return focusNode;
 });
+
+void openProductLookup(WidgetRef ref) {
+  ref.read(numberFocusNodeProvider).unfocus();
+  ref.read(allowanceFocusNodeProvider).unfocus();
+  ref.read(productListSourceProvider.notifier).state =
+      ref.read(lastSelectedProductProvider).isEmpty
+          ? ProductListSource.allProducts
+          : ProductListSource.lastSelected;
+  ref.read(showListProvider.notifier).state = true;
+}
+
+void dismissTargetCheckInputs(WidgetRef ref, {bool hideProductList = true}) {
+  FocusManager.instance.primaryFocus?.unfocus();
+  ref.read(focusNodeProvider).unfocus();
+  ref.read(numberFocusNodeProvider).unfocus();
+  ref.read(allowanceFocusNodeProvider).unfocus();
+  if (hideProductList) {
+    ref.read(showListProvider.notifier).state = false;
+  }
+}
 
 final focusNotifierProvider = StateNotifierProvider<FocusNotifier, bool>(
   (ref) => FocusNotifier(),

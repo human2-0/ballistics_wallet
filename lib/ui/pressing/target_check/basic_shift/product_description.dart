@@ -76,25 +76,42 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
   }
 
   Future<void> _showAddImageDialog() async {
-    final result = await showDialog<_AddProductImageResult>(
-      context: context,
-      builder: (_) => const _AddProductImageDialog(),
-    );
+    // The description field can otherwise reclaim focus when the nested image
+    // dialog closes, immediately reopening the keyboard over this sheet.
+    _focusNode
+      ..unfocus()
+      ..canRequestFocus = false;
+    FocusManager.instance.primaryFocus?.unfocus();
 
-    if (result == null) return;
-    switch (result.method) {
-      case _AddImageMethod.url:
-        final imageUrl = result.imageUrl;
-        if (imageUrl == null || imageUrl.isEmpty) return;
-        await _saveImageFromUrl(imageUrl);
-      case _AddImageMethod.clipboard:
-        final bytes = result.imageBytes;
-        if (bytes == null || bytes.isEmpty) return;
-        await _saveImageFromBytes(bytes);
-      case _AddImageMethod.library:
-        final bytes = result.imageBytes;
-        if (bytes == null || bytes.isEmpty) return;
-        await _saveImageFromBytes(bytes);
+    try {
+      final result = await showDialog<_AddProductImageResult>(
+        context: context,
+        builder: (_) => const _AddProductImageDialog(),
+      );
+
+      if (!mounted || result == null) return;
+      FocusManager.instance.primaryFocus?.unfocus();
+      switch (result.method) {
+        case _AddImageMethod.url:
+          final imageUrl = result.imageUrl;
+          if (imageUrl == null || imageUrl.isEmpty) return;
+          await _saveImageFromUrl(imageUrl);
+        case _AddImageMethod.clipboard:
+          final bytes = result.imageBytes;
+          if (bytes == null || bytes.isEmpty) return;
+          await _saveImageFromBytes(bytes);
+        case _AddImageMethod.library:
+          final bytes = result.imageBytes;
+          if (bytes == null || bytes.isEmpty) return;
+          await _saveImageFromBytes(bytes);
+      }
+    } finally {
+      if (mounted) {
+        _focusNode.canRequestFocus = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) FocusManager.instance.primaryFocus?.unfocus();
+        });
+      }
     }
   }
 
@@ -478,6 +495,7 @@ class _AddProductImageResult {
 
 class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   late final TextEditingController _controller;
+  late final FocusNode _urlFocusNode;
   Uint8List? _imageBytes;
   _AddImageMethod? _imageMethod;
   bool _isReadingImage = false;
@@ -487,16 +505,20 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _urlFocusNode = FocusNode();
     _controller.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _urlFocusNode.dispose();
     super.dispose();
   }
 
   Future<void> _pasteImage() async {
+    _urlFocusNode.unfocus();
+    FocusScope.of(context).unfocus();
     setState(() {
       _isReadingImage = true;
       _imageError = null;
@@ -508,6 +530,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
       }
       if (!mounted) return;
       setState(() {
+        _controller.clear();
         _imageBytes = bytes;
         _imageMethod = _AddImageMethod.clipboard;
         _imageError = null;
@@ -523,6 +546,8 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   }
 
   Future<void> _pickImage() async {
+    _urlFocusNode.unfocus();
+    FocusScope.of(context).unfocus();
     setState(() {
       _isReadingImage = true;
       _imageError = null;
@@ -536,6 +561,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
       }
       if (!mounted) return;
       setState(() {
+        _controller.clear();
         _imageBytes = bytes;
         _imageMethod = _AddImageMethod.library;
         _imageError = null;
@@ -559,6 +585,8 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   }
 
   void _submit() {
+    _urlFocusNode.unfocus();
+    FocusScope.of(context).unfocus();
     final bytes = _imageBytes;
     if (bytes != null && bytes.isNotEmpty) {
       Navigator.pop(
@@ -587,19 +615,9 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            keyboardType: TextInputType.url,
-            textInputAction: TextInputAction.done,
-            enabled: imageBytes == null,
-            decoration: const InputDecoration(
-              labelText: 'Image link',
-              hintText: 'https://...',
-            ),
-            onSubmitted: (_) {
-              if (canSave) _submit();
-            },
+          const Text(
+            'Paste an image, choose one from your phone library, or add an '
+            'image link.',
           ),
           const SizedBox(height: 12),
           if (imageBytes != null) ...[
@@ -657,6 +675,36 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Expanded(child: Divider()),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  'or use a link',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              const Expanded(child: Divider()),
+            ],
+          ),
+          const SizedBox(height: 4),
+          TextField(
+            controller: _controller,
+            focusNode: _urlFocusNode,
+            keyboardType: TextInputType.url,
+            textInputAction: TextInputAction.done,
+            enabled: imageBytes == null,
+            decoration: const InputDecoration(
+              labelText: 'Image link',
+              hintText: 'https://...',
+            ),
+            onTapOutside: (_) => _urlFocusNode.unfocus(),
+            onSubmitted: (_) {
+              if (canSave) _submit();
+            },
           ),
         ],
       ),

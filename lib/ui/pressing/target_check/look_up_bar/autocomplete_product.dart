@@ -48,8 +48,6 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
               allowance: allowance,
             ),
           );
-    final focusNode = ref.watch(focusNodeProvider);
-
     return Expanded(
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -62,7 +60,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                 : NotificationListener(
                   onNotification: (scrollNotification) {
                     if (scrollNotification is ScrollStartNotification) {
-                      focusNode.unfocus();
+                      dismissTargetCheckInputs(ref, hideProductList: false);
                     }
                     return true;
                   },
@@ -119,9 +117,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                 await ref
                                     .read(lastSelectedProductProvider.notifier)
                                     .saveSelectedProduct(product);
-                                ref.read(showListProvider.notifier).state =
-                                    false;
-                                ref.read(focusNodeProvider).unfocus();
+                                dismissTargetCheckInputs(ref);
                               },
                               onLongPress: () async {
                                 // Show the bottom sheet with options

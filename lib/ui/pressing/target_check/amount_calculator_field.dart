@@ -160,23 +160,20 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
         child: IconButton(
           icon: const Icon(Icons.keyboard_hide),
           onPressed: () {
-            widget.focusNode.unfocus();
-            if (_isOverlayVisible) {
-              _overlayEntry.remove();
-              _isOverlayVisible = false;
-            }
+            dismissTargetCheckInputs(widget.ref);
           },
         ),
       ),
     ),
     keyboardType: TextInputType.number, // Custom input type
+    textInputAction: TextInputAction.done,
     inputFormatters: [
       FilteringTextInputFormatter.allow(
         RegExp(r'[0-9+\-*/%.]'),
       ), // Allow digits and operators
     ],
     onFieldSubmitted: (value) {
-      _evaluateAndTriggerUpdate();
+      dismissTargetCheckInputs(widget.ref);
     },
   );
 

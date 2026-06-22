@@ -46,7 +46,6 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
 
   @override
   Widget build(BuildContext context) {
-    final focusNode = ref.watch(focusNodeProvider);
     ref.listen<bool>(workTimelineOpenProvider, (previous, next) {
       if (!next || _timelineSheetOpen) return;
       _timelineSheetOpen = true;
@@ -67,8 +66,7 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
 
     return GestureDetector(
       onTap: () {
-        focusNode.unfocus();
-        ref.read(showListProvider.notifier).state = false;
+        dismissTargetCheckInputs(ref);
       },
       // onHorizontalDragStart: (details) {
       //   _startPosition = details.globalPosition.dx;

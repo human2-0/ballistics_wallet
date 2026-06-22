@@ -108,6 +108,9 @@ class Pressing {
     (map['systemCitric'] as num).toDouble(),
   );
 
+  /// Split used when a product is created before its colour recipe is known.
+  static const placeholder = Pressing('Colour to be confirmed', 0, 0);
+
   @HiveField(1)
   final String productColor;
 
@@ -116,6 +119,8 @@ class Pressing {
 
   @HiveField(3)
   final double systemCitric;
+
+  bool get isPlaceholder => productColor.trim() == placeholder.productColor;
 
   Pressing copyWith({
     String? productColor,
