@@ -16,6 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+const _bottomNavigationSurfaceColor = Color(0x80EFEBE9);
+
 class RootBottomBar extends ConsumerStatefulWidget {
   const RootBottomBar({super.key});
 
@@ -230,7 +232,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
       child: Container(
         height: barHeight,
         decoration: BoxDecoration(
-          color: Colors.brown[50]!.withAlpha(128),
+          color: _bottomNavigationSurfaceColor,
           borderRadius: BorderRadius.circular(66),
           boxShadow: const [BoxShadow(color: Color(0x80D7BEB1), blurRadius: 5)],
         ),
@@ -302,8 +304,6 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 class _TimelineToggleButton extends StatelessWidget {
   const _TimelineToggleButton({required this.isOpen, required this.onPressed});
 
-  static const double _surfaceOpacity = 0.88;
-
   final bool isOpen;
   final VoidCallback onPressed;
 
@@ -312,8 +312,8 @@ class _TimelineToggleButton extends StatelessWidget {
     elevation: 8,
     color:
         isOpen
-            ? Colors.deepOrange.withValues(alpha: _surfaceOpacity)
-            : Colors.white.withValues(alpha: _surfaceOpacity),
+            ? Colors.deepOrange.withValues(alpha: 0.88)
+            : _bottomNavigationSurfaceColor,
     shape: const CircleBorder(),
     child: IconButton(
       tooltip: isOpen ? 'Close timeline' : 'Open timeline',

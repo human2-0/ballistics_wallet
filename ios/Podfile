@@ -27,8 +27,8 @@ require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'b
 flutter_ios_podfile_setup
 
 target 'Runner' do
-  # Dynamic linking is also fine; remove :linkage if you prefer:
-  use_frameworks!      # dynamic frameworks
+  # Rive's native renderer requires dynamic framework linkage on iOS.
+  use_frameworks!
 
   # If other Objective‑C pods complain about module maps, add:
   # use_modular_headers!

@@ -52,10 +52,12 @@ app.*.map.json
 
 # Global build folder
 
-# Exclude the entire ios folder
-ios/
+# Keep generated/untracked iOS content ignored, but allow Xcode Cloud scripts.
+/ios/*
+!/ios/ci_scripts/
+!/ios/ci_scripts/**
+
+# Ignore the nested legacy copy as well.
+ios_backup/ios/
 
 android/
-
-# Note: Excluding the ios/ folder means all its contents, including build artifacts,
-# source code, configurations, and any other files within that directory will not be tracked by Git.

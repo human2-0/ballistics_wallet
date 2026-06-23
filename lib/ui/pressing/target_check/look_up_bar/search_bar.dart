@@ -69,8 +69,10 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                           );
 
                           controller.clear();
-                          dismissTargetCheckInputs(ref);
                           widget.numberController.clear();
+
+                          openProductLookup(ref);
+                          focusNode.requestFocus();
 
                           ref.read(targetProvider.notifier).state = 0;
                           await ref.read(bonusInfoListProvider.notifier).init();
@@ -83,6 +85,7 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
               hintStyle: const TextStyle(color: Colors.grey),
               hintText: _hintForFilter(effortFilter),
             ),
+            textInputAction: TextInputAction.done,
             onTap: () {
               openProductLookup(ref);
               widget.numberController.clear();
@@ -93,9 +96,7 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
                   .state = _sourceForSearchInput(ref, value);
               ref.read(showListProvider.notifier).state = true;
             },
-            onSubmitted: (value) {
-              dismissTargetCheckInputs(ref);
-            },
+            onEditingComplete: () => dismissTargetCheckInputs(ref),
           ),
         ),
       ),
