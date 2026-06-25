@@ -21,17 +21,43 @@ void main() {
     test('parses data with \n line endings', () {
       const data = '1,2\n3,4';
       expect(csvToList(data), [
-        [1, 2],
-        [3, 4],
+        ['1', '2'],
+        ['3', '4'],
       ]);
     });
 
     test('parses data with \r\n line endings', () {
       const data = '1,2\r\n3,4';
       expect(csvToList(data), [
-        [1, 2],
-        [3, 4],
+        ['1', '2'],
+        ['3', '4'],
       ]);
+    });
+  });
+
+  group('productInfoFromRows', () {
+    test('groups duplicate product rows in one result', () {
+      final products = productInfoFromRows([
+        ['Bomb', '1,200', 'bomb', 'Red', '2.5', '1.5', 'unused'],
+        ['Bomb', '1,200', 'bomb', 'Blue', '3', '2', 'unused'],
+        ['Other', '0', 'other', 'White', '1', '1', 'unused'],
+      ]);
+
+      expect(products, hasLength(1));
+      expect(products.single.productName, 'Bomb');
+      expect(products.single.target, 1200);
+      expect(products.single.imageName, 'bomb');
+      expect(products.single.product, hasLength(2));
+    });
+
+    test('skips malformed rows and invalid targets', () {
+      final products = productInfoFromRows([
+        ['Too short'],
+        ['', '100', 'image', 'Red', '1', '1', 'unused'],
+        ['Invalid', null, 'image', 'Red', '1', '1', 'unused'],
+      ]);
+
+      expect(products, isEmpty);
     });
   });
 

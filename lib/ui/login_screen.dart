@@ -51,6 +51,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void dispose() {
     _riveController?.dispose();
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 

@@ -68,8 +68,6 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
     var isSearchBarFocused = false;
 
     final textEditingController = ref.watch(textEditingControllerProvider);
-    final numberController = TextEditingController();
-
     final products = ref.watch(productsProvider);
     final productTarget = ref.watch(targetProvider);
     ref.watch(bonusInfoListProvider);
@@ -219,8 +217,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                                       .state = false;
                                                   FocusScope.of(
                                                     context,
-                                                  ).requestFocus(FocusNode());
-                                                  numberController.clear();
+                                                  ).unfocus();
 
                                                   ref
                                                       .read(
@@ -325,10 +322,7 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                               .state = true;
                                           isSearchBarFocused = true;
 
-                                          FocusScope.of(
-                                            context,
-                                          ).requestFocus(FocusNode());
-                                          numberController.clear();
+                                          FocusScope.of(context).unfocus();
                                         });
                                       }
                                     }

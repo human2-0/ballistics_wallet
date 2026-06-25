@@ -68,7 +68,10 @@ Future<void> _showCustomAmountDialog(
             ),
           ],
         ),
-  );
+  ).whenComplete(() {
+    controller.dispose();
+    focusNode.dispose();
+  });
 }
 
 Future<void> _showColorPickerDialog(

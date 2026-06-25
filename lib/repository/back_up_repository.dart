@@ -8,37 +8,19 @@ import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+const int maxBackupArchiveBytes = 20 * 1024 * 1024;
+const int maxBackupEntryBytes = 20 * 1024 * 1024;
+const int maxBackupExpandedBytes = 50 * 1024 * 1024;
+const int maxBackupEntries = 128;
 
 class BackupManager extends StateNotifier<BackupState> {
   BackupManager(this.authRepository) : super(BackupState());
   AuthRepository authRepository;
-  final httpClient = http.Client();
 
-  Future<bool> requestPermissions() async {
-    final status = await Permission.storage.status;
-
-    if (status.isGranted) {
-      return true;
-    }
-
-    if (status.isPermanentlyDenied) {
-      await openAppSettings();
-      return false;
-    }
-
-    final result = await Permission.storage.request();
-
-    if (result.isGranted) {
-      return true;
-    } else {
-      if (result.isPermanentlyDenied) {
-        await openAppSettings();
-      }
-      return false;
-    }
-  }
+  /// Backups use application-private storage and require no broad storage
+  /// permission. Kept for compatibility with existing UI call sites.
+  Future<bool> requestPermissions() async => true;
 
   Future<void> backupData() async {
     state = BackupState(
@@ -47,7 +29,6 @@ class BackupManager extends StateNotifier<BackupState> {
     );
 
     try {
-      await requestPermissions();
       final docDir = await getApplicationDocumentsDirectory();
       // Assuming your Hive data is in the root of the documents directory or specify the correct path
       final hiveDataPath =
@@ -70,23 +51,36 @@ class BackupManager extends StateNotifier<BackupState> {
   Future<void> zipHiveFiles(String sourceDirPath, String zipFilePath) async {
     final sourceDir = Directory(sourceDirPath);
     if (!sourceDir.existsSync()) {
-      return;
-    }
-    final files = sourceDir.listSync().whereType<File>().toList();
-
-    final archive = Archive();
-    for (final file in files) {
-      final archiveFile = ArchiveFile(
-        p.basename(file.path),
-        file.lengthSync(),
-        await file.readAsBytes(),
-      );
-      archive.addFile(archiveFile);
+      throw const FormatException('Local backup data was not found.');
     }
 
-    File(
-      zipFilePath,
-    ).writeAsBytesSync(ZipEncoder().encode(archive), flush: true);
+    final files =
+        await sourceDir
+            .list(followLinks: false)
+            .where((entity) => entity is File)
+            .cast<File>()
+            .toList();
+    if (files.length > maxBackupEntries) {
+      throw const FormatException('Local backup contains too many files.');
+    }
+
+    var expandedBytes = 0;
+    final encoder = ZipFileEncoder()..create(zipFilePath);
+    try {
+      for (final file in files) {
+        final length = await file.length();
+        if (length > maxBackupEntryBytes) {
+          throw const FormatException('A local backup file is too large.');
+        }
+        expandedBytes += length;
+        if (expandedBytes > maxBackupExpandedBytes) {
+          throw const FormatException('Local backup data is too large.');
+        }
+        await encoder.addFile(file, p.basename(file.path));
+      }
+    } finally {
+      await encoder.close();
+    }
   }
 
   Future<void> uploadFileToDrive(File file) async {
@@ -115,30 +109,29 @@ class BackupManager extends StateNotifier<BackupState> {
       );
 
       final authClient = authenticatedClient(http.Client(), credentials);
-      final driveApi = drive.DriveApi(authClient);
-
-      // Search for the existing file
-      final fileList = await driveApi.files.list(
-        q: "name = 'BallisticsWalletBackup.zip' and trashed = false",
-        spaces: 'drive',
-      );
-
-      final fileToUpload = drive.File()..name = p.basename(file.path);
-      final media = drive.Media(file.openRead(), file.lengthSync());
-
-      if (fileList.files != null && fileList.files!.isNotEmpty) {
-        // File exists, update it
-        final existingFileId = fileList.files!.first.id!;
-        await driveApi.files.update(
-          fileToUpload,
-          existingFileId,
-          uploadMedia: media,
+      try {
+        final driveApi = drive.DriveApi(authClient);
+        final fileList = await driveApi.files.list(
+          q: "name = 'BallisticsWalletBackup.zip' and trashed = false",
+          spaces: 'drive',
         );
-      } else {
-        // File does not exist, create it
-      }
 
-      authClient.close();
+        final fileToUpload = drive.File()..name = p.basename(file.path);
+        final media = drive.Media(file.openRead(), await file.length());
+
+        if (fileList.files != null && fileList.files!.isNotEmpty) {
+          final existingFileId = fileList.files!.first.id!;
+          await driveApi.files.update(
+            fileToUpload,
+            existingFileId,
+            uploadMedia: media,
+          );
+        } else {
+          await driveApi.files.create(fileToUpload, uploadMedia: media);
+        }
+      } finally {
+        authClient.close();
+      }
     } on FormatException catch (e) {
       if (e is drive.DetailedApiRequestError) {
         // Handle specific Drive API errors here
@@ -146,16 +139,8 @@ class BackupManager extends StateNotifier<BackupState> {
     }
   }
 
-  Future<void> prompt(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {}
-  }
-
   Future<File?> downloadBackupFile() async {
     try {
-      await requestPermissions();
       final googleUser = await authRepository.getCurrentGoogleUser();
       if (googleUser == null) {
         await authRepository.signInWithGoogle();
@@ -180,35 +165,49 @@ class BackupManager extends StateNotifier<BackupState> {
       );
 
       final authClient = authenticatedClient(http.Client(), credentials);
-      final driveApi = drive.DriveApi(authClient);
+      try {
+        final driveApi = drive.DriveApi(authClient);
+        final fileList = await driveApi.files.list(
+          q: "name = 'BallisticsWalletBackup.zip' and trashed = false",
+          spaces: 'drive',
+        );
 
-      // List files in Google Drive
-      final fileList = await driveApi.files.list(
-        q: "name = 'BallisticsWalletBackup.zip'",
-        spaces: 'drive',
-      );
+        if (fileList.files == null || fileList.files!.isEmpty) {
+          return null;
+        }
 
-      if (fileList.files == null || fileList.files!.isEmpty) {
-        return null;
+        final file = fileList.files!.first;
+        final media =
+            await driveApi.files.get(
+                  file.id!,
+                  downloadOptions: drive.DownloadOptions.fullMedia,
+                )
+                as drive.Media;
+
+        final docDir = await getApplicationDocumentsDirectory();
+        final localFile = File('${docDir.path}/BallisticsWalletBackup.zip');
+        final sink = localFile.openWrite();
+        var downloadedBytes = 0;
+        try {
+          await for (final chunk in media.stream) {
+            downloadedBytes += chunk.length;
+            if (downloadedBytes > maxBackupArchiveBytes) {
+              throw const FormatException('Backup archive is too large.');
+            }
+            sink.add(chunk);
+          }
+        } catch (_) {
+          await sink.close();
+          if (localFile.existsSync()) {
+            localFile.deleteSync();
+          }
+          rethrow;
+        }
+        await sink.close();
+        return localFile;
+      } finally {
+        authClient.close();
       }
-
-      final file = fileList.files!.first;
-
-      // Download the file
-      final media =
-          await driveApi.files.get(
-                file.id!,
-                downloadOptions: drive.DownloadOptions.fullMedia,
-              )
-              as drive.Media;
-
-      // Save the file locally
-      final docDir = await getApplicationDocumentsDirectory();
-      final localFile = File('${docDir.path}/BallisticsWalletBackup.zip');
-      final dataStore = <int>[];
-      await media.stream.forEach(dataStore.addAll);
-      await localFile.writeAsBytes(dataStore);
-      return localFile;
     } on FormatException {
       return null;
     }
@@ -216,30 +215,7 @@ class BackupManager extends StateNotifier<BackupState> {
 
   Future<void> extractAndOverwriteHiveData(File zipFile) async {
     final docDir = await getApplicationDocumentsDirectory();
-    final hiveDataPath =
-        '${docDir.path}/hive'; // Path where Hive data is stored
-
-    final bytes = await zipFile.readAsBytes();
-    final archive = ZipDecoder().decodeBytes(bytes);
-
-    for (final file in archive) {
-      final filename = file.name;
-      final filePath = p.join(hiveDataPath, filename);
-
-      if (file.isFile) {
-        final fileData = file.content as List<int>;
-        File(filePath)
-          ..createSync(recursive: true) // Ensure the path exists
-          ..writeAsBytesSync(
-            fileData,
-            flush: true,
-          ); // Overwrite any existing file
-      } else {
-        if (!Directory(filePath).existsSync()) {
-          Directory(filePath).createSync(recursive: true);
-        }
-      }
-    }
+    await extractBackupArchive(zipFile, Directory(p.join(docDir.path, 'hive')));
   }
 
   Future<void> restoreBackup() async {
@@ -265,11 +241,63 @@ class BackupManager extends StateNotifier<BackupState> {
   }
 
   Future<void> checkActiveState() async {
-    final hasPermission = await Permission.storage.isGranted;
     final googleUser = await authRepository.getCurrentGoogleUser();
-    final isActive = hasPermission && googleUser != null;
+    state = state.copyWith(isActive: googleUser != null);
+  }
+}
 
-    state = state.copyWith(isActive: isActive);
+/// Extracts the app's flat Hive backup format after validating every entry.
+Future<void> extractBackupArchive(File zipFile, Directory destination) async {
+  final compressedBytes = await zipFile.length();
+  if (compressedBytes <= 0 || compressedBytes > maxBackupArchiveBytes) {
+    throw const FormatException('Backup archive has an invalid size.');
+  }
+
+  final archive = ZipDecoder().decodeBytes(
+    await zipFile.readAsBytes(),
+    verify: true,
+  );
+  if (archive.length > maxBackupEntries) {
+    throw const FormatException('Backup archive contains too many files.');
+  }
+
+  var expandedBytes = 0;
+  final validatedFiles = <(ArchiveFile, String)>[];
+  for (final entry in archive) {
+    if (!entry.isFile || entry.isSymbolicLink) {
+      throw const FormatException('Backup archive contains an invalid entry.');
+    }
+
+    final normalizedName = entry.name.replaceAll(r'\', '/');
+    final safeName = p.posix.basename(normalizedName);
+    if (safeName.isEmpty ||
+        safeName == '.' ||
+        safeName == '..' ||
+        safeName != normalizedName ||
+        p.posix.isAbsolute(normalizedName) ||
+        RegExp('^[a-zA-Z]:').hasMatch(normalizedName)) {
+      throw const FormatException('Backup archive contains an unsafe path.');
+    }
+
+    if (entry.size < 0 || entry.size > maxBackupEntryBytes) {
+      throw const FormatException('Backup archive contains an oversized file.');
+    }
+    expandedBytes += entry.size;
+    if (expandedBytes > maxBackupExpandedBytes) {
+      throw const FormatException('Expanded backup data is too large.');
+    }
+    validatedFiles.add((entry, safeName));
+  }
+
+  await destination.create(recursive: true);
+  for (final (entry, safeName) in validatedFiles) {
+    final content = entry.content;
+    if (content.length != entry.size) {
+      throw const FormatException('Backup archive contains invalid data.');
+    }
+    await File(
+      p.join(destination.path, safeName),
+    ).writeAsBytes(content, flush: true);
   }
 }
 

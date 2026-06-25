@@ -19,11 +19,15 @@ class ProductImageRepository {
 
   static const _driveFolderName = 'lush_assets';
   static const _maxImageBytes = 5 * 1024 * 1024;
+  static const _downloadTimeout = Duration(seconds: 20);
   static const _driveScopes = ['https://www.googleapis.com/auth/drive.file'];
 
   /// Authentication repository used for Drive upload authorization.
   final AuthRepository authRepository;
   final http.Client _httpClient;
+
+  /// Releases the reusable download client.
+  void dispose() => _httpClient.close();
 
   /// Returns a locally downloaded product image, if one exists.
   static Future<File?> localImageFile(String imageName) async {
@@ -45,15 +49,31 @@ class ProductImageRepository {
       throw const FormatException('Paste a valid http or https image link.');
     }
 
-    final response = await _httpClient.get(uri);
+    final request = http.Request('GET', uri);
+    final response = await _httpClient.send(request).timeout(_downloadTimeout);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw FormatException(
         'Image download failed: HTTP ${response.statusCode}.',
       );
     }
 
+    final declaredLength = response.contentLength;
+    if (declaredLength != null && declaredLength > _maxImageBytes) {
+      throw const FormatException('Image must be between 1 byte and 5 MB.');
+    }
+
+    final buffer = BytesBuilder(copy: false);
+    var receivedBytes = 0;
+    await for (final chunk in response.stream.timeout(_downloadTimeout)) {
+      receivedBytes += chunk.length;
+      if (receivedBytes > _maxImageBytes) {
+        throw const FormatException('Image must be between 1 byte and 5 MB.');
+      }
+      buffer.add(chunk);
+    }
+
     final contentType = response.headers['content-type'] ?? '';
-    final bytes = response.bodyBytes;
+    final bytes = buffer.takeBytes();
     if (bytes.isEmpty || bytes.length > _maxImageBytes) {
       throw const FormatException('Image must be between 1 byte and 5 MB.');
     }
@@ -81,35 +101,40 @@ class ProductImageRepository {
 
   /// Uploads a product image to the `lush_assets` Google Drive folder.
   Future<void> uploadProductImageToDrive(File file) async {
-    final driveApi = await _driveApi();
-    final folderId = await _findOrCreateDriveFolder(driveApi);
-    final fileName = p.basename(file.path);
-    final media = drive.Media(file.openRead(), file.lengthSync());
-    final metadata =
-        drive.File()
-          ..name = fileName
-          ..parents = [folderId];
+    final connection = await _driveConnection();
+    try {
+      final driveApi = connection.api;
+      final folderId = await _findOrCreateDriveFolder(driveApi);
+      final fileName = p.basename(file.path);
+      final media = drive.Media(file.openRead(), await file.length());
+      final metadata =
+          drive.File()
+            ..name = fileName
+            ..parents = [folderId];
 
-    final existing = await _findExistingDriveFile(
-      driveApi: driveApi,
-      fileName: fileName,
-      folderId: folderId,
-    );
-
-    if (existing != null) {
-      final existingParents = existing.parents ?? const <String>[];
-      final parentsToRemove = existingParents
-          .where((parentId) => parentId != folderId)
-          .join(',');
-      await driveApi.files.update(
-        metadata,
-        existing.id!,
-        addParents: existingParents.contains(folderId) ? null : folderId,
-        removeParents: parentsToRemove.isEmpty ? null : parentsToRemove,
-        uploadMedia: media,
+      final existing = await _findExistingDriveFile(
+        driveApi: driveApi,
+        fileName: fileName,
+        folderId: folderId,
       );
-    } else {
-      await driveApi.files.create(metadata, uploadMedia: media);
+
+      if (existing != null) {
+        final existingParents = existing.parents ?? const <String>[];
+        final parentsToRemove = existingParents
+            .where((parentId) => parentId != folderId)
+            .join(',');
+        await driveApi.files.update(
+          metadata,
+          existing.id!,
+          addParents: existingParents.contains(folderId) ? null : folderId,
+          removeParents: parentsToRemove.isEmpty ? null : parentsToRemove,
+          uploadMedia: media,
+        );
+      } else {
+        await driveApi.files.create(metadata, uploadMedia: media);
+      }
+    } finally {
+      connection.client.close();
     }
   }
 
@@ -148,7 +173,7 @@ class ProductImageRepository {
     );
   }
 
-  Future<drive.DriveApi> _driveApi() async {
+  Future<_DriveConnection> _driveConnection() async {
     var googleUser = await authRepository.getCurrentGoogleUser();
     if (googleUser == null) {
       await authRepository.signInWithGoogle();
@@ -176,7 +201,8 @@ class ProductImageRepository {
       _driveScopes,
     );
 
-    return drive.DriveApi(authenticatedClient(http.Client(), credentials));
+    final client = authenticatedClient(http.Client(), credentials);
+    return _DriveConnection(drive.DriveApi(client), client);
   }
 
   Future<String> _findOrCreateDriveFolder(drive.DriveApi driveApi) async {
@@ -258,6 +284,13 @@ class ProductImageRepository {
     }
     return false;
   }
+}
+
+class _DriveConnection {
+  const _DriveConnection(this.api, this.client);
+
+  final drive.DriveApi api;
+  final http.Client client;
 }
 
 /// Result of saving a product image from a pasted URL.

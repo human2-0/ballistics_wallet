@@ -4,8 +4,7 @@
     <application
         android:label="Ballistics"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
-        android:requestLegacyExternalStorage="true">  <!-- This should be within the application tag -->
+        android:icon="@mipmap/launcher_icon">
 
         <activity
             android:name=".MainActivity"
@@ -48,9 +47,6 @@
     </application>
 
     <!-- Permissions -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 

@@ -46,61 +46,62 @@ List<List<dynamic>> csvToList(String data) => const CsvDecoder().convert(data);
 Future<void> addDataToProductInfoBox(Box<ProductInfo> boxProductInfo) async {
   final data = await rootBundle.loadString('merged_data_final.csv');
   final rows = csvToList(data);
+  final products = productInfoFromRows(rows);
+  await boxProductInfo.putAll({
+    for (final product in products) product.productName: product,
+  });
+}
 
-  // Map to hold products grouped by productName
-  final productsByProductName = <String, List<Pressing>>{};
+/// Converts bundled product rows in one pass instead of repeatedly scanning
+/// the complete CSV for each product.
+List<ProductInfo> productInfoFromRows(List<List<dynamic>> rows) {
+  final productsByName = <String, _ProductSeed>{};
 
   for (final row in rows) {
-    // Ensure the row has at least 7 columns for merged data
     if (row.length < 7) continue;
 
     final productName = row[0]?.toString().trim();
+    if (productName == null || productName.isEmpty) continue;
 
-    // Parsing Pressing fields from the merged CSV
-    final product = Pressing(
-      row[3].toString(),
-      double.tryParse(row[4].toString()) ?? 0.0,
-      double.tryParse(row[5].toString()) ?? 0.0,
+    final seed = productsByName.putIfAbsent(
+      productName,
+      () => _ProductSeed(
+        target: _parseProductTarget(row[1]),
+        imageName: row[2]?.toString().trim() ?? '',
+      ),
     );
-
-    // Group products by productName
-    if (productName != null && productName.isNotEmpty) {
-      productsByProductName.putIfAbsent(productName, () => []);
-      productsByProductName[productName]!.add(product);
-    }
+    seed.pressings.add(
+      Pressing(
+        row[3].toString(),
+        double.tryParse(row[4].toString()) ?? 0.0,
+        double.tryParse(row[5].toString()) ?? 0.0,
+      ),
+    );
   }
 
-  // Create and store ProductInfo instances
-  for (final entry in productsByProductName.entries) {
-    final productName = entry.key;
-    final products = entry.value;
+  return [
+    for (final entry in productsByName.entries)
+      if (entry.value.target != null && entry.value.target != 0)
+        ProductInfo(
+          productName: entry.key,
+          target: entry.value.target!,
+          imageName: entry.value.imageName,
+          product: entry.value.pressings,
+        ),
+  ];
+}
 
-    // Assuming the target and imageName are the same for all products of the same productName.
-    // Adjust this logic if target and imageName vary per product within the same productName.
-    final targetString =
-        rows
-            .firstWhere((row) => row[0]?.toString().trim() == productName)[1]
-            ?.toString()
-            .replaceAll(RegExp('[,"]'), '')
-            .trim();
-    final cleanedTargetString = targetString?.replaceAll(RegExp('[^0-9]'), '');
-    final target = int.tryParse(cleanedTargetString!);
-    final imageName =
-        rows
-            .firstWhere((row) => row[0]?.toString().trim() == productName)[2]
-            ?.toString()
-            .trim();
+int? _parseProductTarget(Object? value) {
+  final cleaned = value?.toString().replaceAll(RegExp('[^0-9]'), '') ?? '';
+  return int.tryParse(cleaned);
+}
 
-    if (target != null && target != 0) {
-      final productInfo = ProductInfo(
-        productName: productName,
-        target: target,
-        imageName: imageName ?? '',
-        product: products,
-      );
-      await boxProductInfo.put(productName, productInfo);
-    }
-  }
+class _ProductSeed {
+  _ProductSeed({required this.target, required this.imageName});
+
+  final int? target;
+  final String imageName;
+  final List<Pressing> pressings = [];
 }
 
 Future<void> initHive() async {
@@ -131,7 +132,6 @@ Future<void> initHive() async {
 }
 
 Future<void> migrateSettingsBoxIfNeeded(String versionBoxName) async {
-  await Hive.openBox<SettingsVersion>(versionBoxName);
   final versionBox = await Hive.openBox<SettingsVersion>(versionBoxName);
   final storedVersion = versionBox.get(0);
   const currentSettingsVersion = 2;

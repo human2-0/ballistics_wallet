@@ -5,5 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Provides runtime product image download and Drive upload support.
 final productImageRepositoryProvider = Provider<ProductImageRepository>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
-  return ProductImageRepository(authRepository);
+  final repository = ProductImageRepository(authRepository);
+  ref.onDispose(repository.dispose);
+  return repository;
 });

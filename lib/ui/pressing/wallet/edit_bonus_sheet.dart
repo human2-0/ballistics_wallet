@@ -253,9 +253,7 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                                 productTargets[suggestion.productName] =
                                     suggestion.target;
                                 // Optionally, unfocus the field.
-                                FocusScope.of(
-                                  context,
-                                ).requestFocus(FocusNode());
+                                FocusScope.of(context).unfocus();
                               },
                               emptyBuilder:
                                   (context) => const Padding(

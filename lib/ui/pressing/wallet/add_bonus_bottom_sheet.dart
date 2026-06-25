@@ -159,9 +159,7 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                       suggestion.productName,
                                     );
                                     // Move focus or do anything else here:
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(FocusNode());
+                                    FocusScope.of(context).unfocus();
                                   },
 
                                   // (Optional) what to show if no items are found

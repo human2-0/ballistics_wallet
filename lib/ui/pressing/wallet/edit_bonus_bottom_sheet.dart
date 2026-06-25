@@ -25,6 +25,15 @@ Future<void> showEditModal(
   final bonusController = TextEditingController(
     text: editedBonusInfo.bonus.toString(),
   );
+  final controllers =
+      editedBonusInfo.produced
+          .map(
+            (entry) => {
+              'productName': TextEditingController(text: entry.productName),
+              'amount': TextEditingController(text: entry.amount.toString()),
+            },
+          )
+          .toList();
 
   await showModalBottomSheet<void>(
     context: context,
@@ -51,20 +60,6 @@ Future<void> showEditModal(
                 productTargets[product.productName] = targetInfo.target;
               }
             }
-
-            final controllers =
-                editedBonusInfo.produced
-                    .map(
-                      (e) => {
-                        'productName': TextEditingController(
-                          text: e.productName,
-                        ),
-                        'amount': TextEditingController(
-                          text: e.amount.toString(),
-                        ),
-                      },
-                    )
-                    .toList();
 
             void removeProducedItemAt(int index) {
               setState(() {
@@ -148,6 +143,8 @@ Future<void> showEditModal(
                                     ],
                                   ),
                                   child: TypeAheadField<ProductInfo>(
+                                    controller:
+                                        controllers[index]['productName'],
                                     // 1) Use the textFieldConfiguration to ensure typed text drives the suggestions.
                                     builder:
                                         (context, textController, focusNode) =>
@@ -461,5 +458,12 @@ Future<void> showEditModal(
             );
           },
         ),
-  );
+  ).whenComplete(() {
+    workingHoursController.dispose();
+    bonusController.dispose();
+    for (final rowControllers in controllers) {
+      rowControllers['productName']!.dispose();
+      rowControllers['amount']!.dispose();
+    }
+  });
 }

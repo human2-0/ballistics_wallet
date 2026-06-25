@@ -63,7 +63,7 @@ void main() {
 
     expect(find.text('Hours\n0.00'), findsOneWidget);
     expect(find.text('Bonus\n£0.00'), findsOneWidget);
-    expect(find.text('Salary £0.00'), findsOneWidget);
+    expect(find.text('Income\n£0.00'), findsOneWidget);
   });
 
   testWidgets('WalletRoot updates totals after a bonus is added', (
@@ -91,10 +91,10 @@ void main() {
     await tester.pump(); // frame 2: Future completes
     await tester.pump(); // frame 3: widget with data
 
-    // 3️⃣  Totals should now be: hours 8, bonus £150, salary £(150+8*100)=£950
+    // 3️⃣  Totals should now be: hours 8, bonus £150, income £(150+8*100)=£950
     expect(find.text('Hours\n8.00'), findsOneWidget);
     expect(find.text('Bonus\n£150.00'), findsOneWidget);
-    expect(find.text('Salary £950.00'), findsOneWidget);
+    expect(find.text('Income\n£950.00'), findsOneWidget);
   });
 
   testWidgets('WalletRoot reacts when hourly rate changes', (tester) async {
@@ -132,7 +132,7 @@ void main() {
     await tester.pump(); // frame 3: widget with data
 
     // Currently: hourlyRate = 100  -> salary  (200 + 12*100) = 1400
-    expect(find.text('Salary £1400.00'), findsOneWidget);
+    expect(find.text('Income\n£1400.00'), findsOneWidget);
 
     // Now drop hourlyRate to 10 and watch the UI change.
     fakeUserNotifier.state = fakeUserNotifier.state.copyWith(hourlyRate: 10);
@@ -141,7 +141,7 @@ void main() {
     await tester.pump(); // frame 3: widget with data
 
     // New salary should be 200 + 12*10 = 320
-    expect(find.text('Salary £320.00'), findsOneWidget);
+    expect(find.text('Income\n£320.00'), findsOneWidget);
   });
 
   testWidgets('WalletRoot shows monthly History summaries', (tester) async {
