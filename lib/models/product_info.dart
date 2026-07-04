@@ -15,6 +15,9 @@ class ProductInfo extends HiveObject {
     this.description,
     this.customWeightRangeMinGrams,
     this.customWeightRangeMaxGrams,
+    this.imageScale = 1,
+    this.imageOffsetX = 0,
+    this.imageOffsetY = 0,
   });
 
   // Empty constructor for creating an instance with default values
@@ -52,6 +55,18 @@ class ProductInfo extends HiveObject {
   @HiveField(7)
   final double? customWeightRangeMaxGrams;
 
+  /// Zoom applied to the product image in the target checker.
+  @HiveField(8, defaultValue: 1.0)
+  final double imageScale;
+
+  /// Horizontal image framing as a fraction of the image viewport width.
+  @HiveField(9, defaultValue: 0.0)
+  final double imageOffsetX;
+
+  /// Vertical image framing as a fraction of the image viewport height.
+  @HiveField(10, defaultValue: 0.0)
+  final double imageOffsetY;
+
   /// Total powder weight needed for one finished product.
   double get powderWeightGrams =>
       product.fold<double>(0, (total, pressing) => total + pressing.systemG);
@@ -83,6 +98,9 @@ class ProductInfo extends HiveObject {
     String? description,
     double? customWeightRangeMinGrams,
     double? customWeightRangeMaxGrams,
+    double? imageScale,
+    double? imageOffsetX,
+    double? imageOffsetY,
   }) => ProductInfo(
     productName: productName ?? this.productName,
     target: target ?? this.target,
@@ -94,6 +112,9 @@ class ProductInfo extends HiveObject {
         customWeightRangeMinGrams ?? this.customWeightRangeMinGrams,
     customWeightRangeMaxGrams:
         customWeightRangeMaxGrams ?? this.customWeightRangeMaxGrams,
+    imageScale: imageScale ?? this.imageScale,
+    imageOffsetX: imageOffsetX ?? this.imageOffsetX,
+    imageOffsetY: imageOffsetY ?? this.imageOffsetY,
   );
 }
 

@@ -14,8 +14,13 @@ class FocusNotifier extends StateNotifier<bool> {
 }
 
 class LastSelectedProductNotifier extends StateNotifier<List<SelectedProduct>> {
-  LastSelectedProductNotifier() : super([]) {
-    scheduleMicrotask(_initBox);
+  LastSelectedProductNotifier({
+    List<SelectedProduct> initialProducts = const [],
+    bool loadFromStorage = true,
+  }) : super(initialProducts) {
+    if (loadFromStorage) {
+      scheduleMicrotask(_initBox);
+    }
   }
 
   Future<void> _initBox() async {

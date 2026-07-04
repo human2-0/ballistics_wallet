@@ -103,6 +103,7 @@ class AllowanceNotifier extends StateNotifier<double> {
     scheduleMicrotask(_fetchInitialAllowance);
   }
   final Ref ref;
+  Future<void> _pendingPersistence = Future<void>.value();
 
   Future<void> _fetchInitialAllowance() async {
     try {
@@ -137,10 +138,33 @@ class AllowanceNotifier extends StateNotifier<double> {
     }
   }
 
-  Future<void> updateAllowance(double newAllowance) async {
-    if (newAllowance >= 0) {
-      // Example validation: allowance should not be negative
-      state = newAllowance;
+  void setAllowance(double newAllowance) {
+    if (newAllowance < 0 || state == newAllowance) return;
+    state = newAllowance;
+  }
+
+  Future<void> persistAllowance(double newAllowance) {
+    if (newAllowance < 0) return Future<void>.value();
+
+    final previousPersistence = _pendingPersistence;
+    return _pendingPersistence = _persistAfter(
+      previousPersistence,
+      newAllowance,
+    );
+  }
+
+  Future<void> _persistAfter(
+    Future<void> previousPersistence,
+    double newAllowance,
+  ) async {
+    try {
+      await previousPersistence;
+    } on Object catch (_) {
+      // A failed write must not poison the queue for later edits.
+    }
+    // A newer edit supersedes this queued value before it reaches storage.
+    if (state != newAllowance) return;
+    try {
       final userState = ref.read(userNotifierProvider);
       await ref
           .read(bonusInfoListProvider.notifier)
@@ -149,7 +173,14 @@ class AllowanceNotifier extends StateNotifier<double> {
             workingHours: userState.workingHours ?? 0.0,
             allowanceProvided: newAllowance,
           );
-    } else {}
+    } on Object catch (error) {
+      debugPrint('Failed to persist allowance: $error');
+    }
+  }
+
+  Future<void> updateAllowance(double newAllowance) {
+    setAllowance(newAllowance);
+    return persistAllowance(newAllowance);
   }
 }
 

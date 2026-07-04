@@ -41,10 +41,12 @@ dependencies:
   equatable: ^2.0.5
   expressions: ^0.2.5+1
   fake_cloud_firestore: ^4.0.0
+  firebase_analytics: ^12.3.0
   firebase_auth: ^6.4.0
   firebase_auth_mocks: ^0.15.1
   firebase_core: ^4.7.0
   firebase_core_platform_interface: ^6.0.3
+  firebase_crashlytics: ^5.2.0
   flutter:
     sdk: flutter
   flutter_email_sender: ^8.0.0

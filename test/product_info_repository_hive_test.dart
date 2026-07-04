@@ -61,6 +61,9 @@ void main() {
       target: 75,
       customWeightRangeMinGrams: 210,
       customWeightRangeMaxGrams: 225,
+      imageScale: 2.25,
+      imageOffsetX: 0.3,
+      imageOffsetY: -0.25,
     );
     final result = await repo.editProductInfo(updated);
     expect(result, true);
@@ -69,6 +72,9 @@ void main() {
     expect(products.first.target, 75);
     expect(products.first.customWeightRangeMinGrams, 210);
     expect(products.first.customWeightRangeMaxGrams, 225);
+    expect(products.first.imageScale, 2.25);
+    expect(products.first.imageOffsetX, 0.3);
+    expect(products.first.imageOffsetY, -0.25);
   });
 
   test('deleteProduct removes product from box', () async {

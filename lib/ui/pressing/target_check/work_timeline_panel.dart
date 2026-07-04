@@ -30,6 +30,7 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
   late final FocusNode _targetFocusNode;
   late final FocusNode _batchFocusNode;
   Timer? _timer;
+  Timer? _reminderSyncDebounce;
   TimeOfDay? _debugTimeOverride;
   String? _lastReminderSignature;
 
@@ -54,6 +55,7 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
   @override
   void dispose() {
     _timer?.cancel();
+    _reminderSyncDebounce?.cancel();
     _targetController.dispose();
     _batchController.dispose();
     _targetFocusNode.dispose();
@@ -414,7 +416,8 @@ class _WorkTimelinePanelState extends ConsumerState<WorkTimelinePanel> {
 
     if (_lastReminderSignature == signature) return;
     _lastReminderSignature = signature;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _reminderSyncDebounce?.cancel();
+    _reminderSyncDebounce = Timer(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       unawaited(
         WorkTimelineNotificationService.instance.syncPlan(

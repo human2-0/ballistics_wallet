@@ -2,6 +2,12 @@
 
 ## Local build
 
+Using Xcode's shared `Runner` scheme with Product → Archive automatically
+increments the Flutter/iOS build number by one before the archive begins. For
+example, `version: 1.9.2+1` becomes `version: 1.9.2+2`. This does not change the
+user-facing `1.9.2` marketing version. A failed or cancelled archive still
+consumes its build number.
+
 Build a signed App Store IPA with an automatically increasing build number:
 
 ```sh

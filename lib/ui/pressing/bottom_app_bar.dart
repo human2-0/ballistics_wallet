@@ -43,6 +43,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
 
   void _selectTab(int index) {
     if (index < 0 || index >= _tabController.length) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     ref.read(activeIndexTabProvider.notifier).activeIndex = index;
   }
 
@@ -74,6 +75,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
       if (!mounted) return;
       if (next == null) return;
       if (next < 0 || next >= _tabController.length) return;
+      FocusManager.instance.primaryFocus?.unfocus();
       setActiveTab(next);
       if (_tabController.index != next) {
         _tabController.animateTo(next);
@@ -154,7 +156,7 @@ class _RootBottomBarState extends ConsumerState<RootBottomBar>
         ref.watch(bonusTableSelectorProvider)
             ? const OvertimeBonusTableV2()
             : const BonusTableV2(),
-    resizeToAvoidBottomInset: false,
+    resizeToAvoidBottomInset: true,
     body: Stack(
       children: [
         Positioned.fill(

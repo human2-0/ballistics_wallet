@@ -27,6 +27,9 @@ void main() {
     expect(products.first.productName, 'Widget');
     expect(products.first.customWeightRangeMinGrams, 120);
     expect(products.first.customWeightRangeMaxGrams, 130);
+    expect(products.first.imageScale, 1);
+    expect(products.first.imageOffsetX, 0);
+    expect(products.first.imageOffsetY, 0);
   });
 
   test(
@@ -91,6 +94,9 @@ void main() {
       product: [pressing],
       customWeightRangeMinGrams: 210,
       customWeightRangeMaxGrams: 225,
+      imageScale: 1.8,
+      imageOffsetX: -0.2,
+      imageOffsetY: 0.15,
     );
     final result = await repo.editProductInfo(updated);
     expect(result, true);
@@ -100,6 +106,9 @@ void main() {
     expect(products.first.imageName, 'Gadget');
     expect(products.first.customWeightRangeMinGrams, 210);
     expect(products.first.customWeightRangeMaxGrams, 225);
+    expect(products.first.imageScale, 1.8);
+    expect(products.first.imageOffsetX, -0.2);
+    expect(products.first.imageOffsetY, 0.15);
   });
 
   test(
@@ -138,6 +147,9 @@ void main() {
     expect(products.single.imageName, 'sticky_dates_bath_bomb');
     expect(products.single.customWeightRangeMinGrams, isNull);
     expect(products.single.customWeightRangeMaxGrams, isNull);
+    expect(products.single.imageScale, 1);
+    expect(products.single.imageOffsetX, 0);
+    expect(products.single.imageOffsetY, 0);
   });
 
   test('deleteProduct removes product from Firestore', () async {

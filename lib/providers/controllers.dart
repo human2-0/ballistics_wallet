@@ -55,50 +55,11 @@ class NumberEditingControllerNotifier extends StateNotifier<String> {
   }
 }
 
-final allowanceControllerProvider = Provider<TextEditingController>(
-  (ref) => ref.watch(textEditingControllerProvider),
-);
-
-final textEditingControllerProvider = Provider<TextEditingController>(
-  (ref) => TextEditingController(),
-);
-
-final allowanceEditingControllerNotifierProvider = StateNotifierProvider<
-  AllowanceEditingControllerNotifier,
-  TextEditingController
->((ref) {
-  final controller = ref.watch(textEditingControllerProvider);
-  return AllowanceEditingControllerNotifier(controller);
+final allowanceControllerProvider = Provider<TextEditingController>((ref) {
+  final controller = TextEditingController();
+  ref.onDispose(controller.dispose);
+  return controller;
 });
-
-class AllowanceEditingControllerNotifier
-    extends StateNotifier<TextEditingController> {
-  AllowanceEditingControllerNotifier(super._state) {
-    state.addListener(_textChanged);
-  }
-
-  void _textChanged() {}
-
-  @override
-  void dispose() {
-    state
-      ..removeListener(_textChanged)
-      ..dispose();
-    super.dispose();
-  }
-
-  void updateText(String newText) {
-    if (newText != state.text) {
-      state.value = TextEditingValue(
-        text: newText,
-        selection:
-            state.selection.isValid
-                ? state.selection
-                : TextSelection.collapsed(offset: newText.length),
-      );
-    }
-  }
-}
 
 class ActiveIndexNotifier extends StateNotifier<int?> {
   ActiveIndexNotifier() : super(0);

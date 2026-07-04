@@ -50,6 +50,9 @@ class ProductInfoRepository {
       data,
       'customWeightRangeMaxGrams',
     ),
+    imageScale: _imageViewValueFromData(data, 'imageScale', 1),
+    imageOffsetX: _imageViewValueFromData(data, 'imageOffsetX', 0),
+    imageOffsetY: _imageViewValueFromData(data, 'imageOffsetY', 0),
   );
 
   Future<void> addProduct(
@@ -83,6 +86,9 @@ class ProductInfoRepository {
       'description': description,
       'customWeightRangeMinGrams': customWeightRangeMinGrams,
       'customWeightRangeMaxGrams': customWeightRangeMaxGrams,
+      'imageScale': 1.0,
+      'imageOffsetX': 0.0,
+      'imageOffsetY': 0.0,
     };
     _validateCustomWeightRange(
       customWeightRangeMinGrams,
@@ -115,6 +121,9 @@ class ProductInfoRepository {
         'description': updatedProduct.description,
         'customWeightRangeMinGrams': updatedProduct.customWeightRangeMinGrams,
         'customWeightRangeMaxGrams': updatedProduct.customWeightRangeMaxGrams,
+        'imageScale': updatedProduct.imageScale,
+        'imageOffsetX': updatedProduct.imageOffsetX,
+        'imageOffsetY': updatedProduct.imageOffsetY,
       };
       _validateCustomWeightRange(
         updatedProduct.customWeightRangeMinGrams,
@@ -157,6 +166,15 @@ class ProductInfoRepository {
       return value.toDouble();
     }
     return null;
+  }
+
+  double _imageViewValueFromData(
+    Map<String, dynamic> data,
+    String key,
+    double fallback,
+  ) {
+    final value = data[key];
+    return value is num ? value.toDouble() : fallback;
   }
 
   void _validateCustomWeightRange(double? minGrams, double? maxGrams) {

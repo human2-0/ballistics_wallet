@@ -179,51 +179,55 @@ class _EditBonusInfoModalState extends ConsumerState<EditBonusInfoModal> {
                               ],
                             ),
                             child: TypeAheadField<ProductInfo>(
-                              // Using the builder parameter
-                              builder: (context, textController, focusNode) {
-                                // Capture the textController in our map so we can use it in onSelected.
-                                textController.text =
-                                    productNameControllers[index].text;
-                                return DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(33),
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.orange.withValues(
-                                          alpha: 0.4,
+                              controller: productNameControllers[index],
+                              focusNode: productNameFocusNodes[index],
+                              builder:
+                                  (
+                                    context,
+                                    textController,
+                                    focusNode,
+                                  ) => DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(33),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.orange.withValues(
+                                            alpha: 0.4,
+                                          ),
+                                          offset: const Offset(-2, 2.5),
                                         ),
-                                        offset: const Offset(-2, 2.5),
-                                      ),
-                                    ],
-                                  ),
-                                  child: TextField(
-                                    key: Key('editProductNameField_$index'),
-                                    controller: textController,
-                                    focusNode: focusNode,
-                                    decoration: InputDecoration(
-                                      alignLabelWithHint: true,
-                                      hintText: 'Product Name',
-                                      label: const Center(
-                                        child: Text('Product Name'),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.orange[100],
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(33),
-                                        borderSide: BorderSide.none,
-                                      ),
+                                      ],
                                     ),
-                                    textAlign: TextAlign.center,
-                                    onChanged: (value) {
-                                      // Update the corresponding controller so that your data model is updated.
-                                      productNameControllers[index].text =
-                                          value;
-                                    },
+                                    child: TextField(
+                                      key: Key('editProductNameField_$index'),
+                                      controller: textController,
+                                      focusNode: focusNode,
+                                      decoration: InputDecoration(
+                                        alignLabelWithHint: true,
+                                        hintText: 'Product Name',
+                                        label: const Center(
+                                          child: Text('Product Name'),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.orange[100],
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            33,
+                                          ),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      onChanged: (value) {
+                                        editedBonusInfo
+                                            .produced[index] = editedBonusInfo
+                                            .produced[index]
+                                            .copyWith(productName: value);
+                                      },
+                                    ),
                                   ),
-                                );
-                              },
 
                               suggestionsCallback: (pattern) {
                                 final query = pattern.trim().toLowerCase();

@@ -26,6 +26,9 @@ class WorkTimelineNotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _initialized = false;
+  bool _disabledStateApplied = false;
+  _TimelineSyncRequest? _pendingSync;
+  Future<void>? _syncLoop;
 
   Future<void> initialize() async {
     if (_initialized || kIsWeb) return;
@@ -88,27 +91,70 @@ class WorkTimelineNotificationService {
     required bool breakReminderEnabled,
     required bool batchReminderEnabled,
     required DateTime now,
-  }) async {
-    await initialize();
-    await cancelTimelineReminders();
+  }) {
+    _pendingSync = _TimelineSyncRequest(
+      plan: plan,
+      breakReminderEnabled: breakReminderEnabled,
+      batchReminderEnabled: batchReminderEnabled,
+      now: now,
+    );
+    final activeLoop = _syncLoop;
+    if (activeLoop != null) return activeLoop;
 
-    if (!_initialized || (!breakReminderEnabled && !batchReminderEnabled)) {
+    late final Future<void> loop;
+    loop = _drainSyncRequests().whenComplete(() {
+      if (identical(_syncLoop, loop)) _syncLoop = null;
+    });
+    _syncLoop = loop;
+    return loop;
+  }
+
+  Future<void> _drainSyncRequests() async {
+    while (_pendingSync != null) {
+      final request = _pendingSync!;
+      _pendingSync = null;
+      try {
+        await _applySyncRequest(request);
+      } on Object catch (error) {
+        debugPrint('Work timeline reminder sync failed: $error');
+      }
+    }
+  }
+
+  Future<void> _applySyncRequest(_TimelineSyncRequest request) async {
+    await initialize();
+    if (!_initialized || kIsWeb) return;
+
+    if (!request.breakReminderEnabled && !request.batchReminderEnabled) {
+      if (_disabledStateApplied) return;
+      await cancelTimelineReminders();
+      _disabledStateApplied = true;
       return;
     }
 
-    if (breakReminderEnabled) {
-      await _scheduleBreakReminders(now);
+    _disabledStateApplied = false;
+    await cancelTimelineReminders();
+
+    if (request.breakReminderEnabled) {
+      await _scheduleBreakReminders(request.now);
     }
-    if (batchReminderEnabled) {
-      await _scheduleBatchReminders(plan, now);
+    if (request.batchReminderEnabled) {
+      await _scheduleBatchReminders(request.plan, request.now);
     }
   }
 
   Future<void> cancelTimelineReminders() async {
     if (!_initialized || kIsWeb) return;
-    for (var i = 0; i < _notificationSlots; i++) {
-      await _plugin.cancel(_breakBaseId + i);
-      await _plugin.cancel(_batchBaseId + i);
+    final pending = await _plugin.pendingNotificationRequests();
+    for (final notification in pending) {
+      final id = notification.id;
+      final isBreakReminder =
+          id >= _breakBaseId && id < _breakBaseId + _notificationSlots;
+      final isBatchReminder =
+          id >= _batchBaseId && id < _batchBaseId + _notificationSlots;
+      if (isBreakReminder || isBatchReminder) {
+        await _plugin.cancel(id);
+      }
     }
   }
 
@@ -187,4 +233,18 @@ class WorkTimelineNotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
+}
+
+class _TimelineSyncRequest {
+  const _TimelineSyncRequest({
+    required this.plan,
+    required this.breakReminderEnabled,
+    required this.batchReminderEnabled,
+    required this.now,
+  });
+
+  final WorkTimelinePlan plan;
+  final bool breakReminderEnabled;
+  final bool batchReminderEnabled;
+  final DateTime now;
 }

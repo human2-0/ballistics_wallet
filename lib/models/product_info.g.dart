@@ -27,13 +27,16 @@ class ProductInfoAdapter extends TypeAdapter<ProductInfo> {
           fields[6] is num ? (fields[6] as num).toDouble() : null,
       customWeightRangeMaxGrams:
           fields[7] is num ? (fields[7] as num).toDouble() : null,
+      imageScale: fields[8] is num ? (fields[8] as num).toDouble() : 1.0,
+      imageOffsetX: fields[9] is num ? (fields[9] as num).toDouble() : 0.0,
+      imageOffsetY: fields[10] is num ? (fields[10] as num).toDouble() : 0.0,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductInfo obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.productName)
       ..writeByte(1)
@@ -49,7 +52,13 @@ class ProductInfoAdapter extends TypeAdapter<ProductInfo> {
       ..writeByte(6)
       ..write(obj.customWeightRangeMinGrams)
       ..writeByte(7)
-      ..write(obj.customWeightRangeMaxGrams);
+      ..write(obj.customWeightRangeMaxGrams)
+      ..writeByte(8)
+      ..write(obj.imageScale)
+      ..writeByte(9)
+      ..write(obj.imageOffsetX)
+      ..writeByte(10)
+      ..write(obj.imageOffsetY);
   }
 
   @override

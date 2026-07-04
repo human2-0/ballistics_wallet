@@ -287,11 +287,24 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                 color: Colors.red,
                               ),
                               onPressed: () {
+                                final productNameController =
+                                    productNameControllers[index];
+                                final amountController =
+                                    amountControllers[index];
+                                final focusNode = productNameFocusNodes[index];
                                 setState(() {
                                   productNameControllers.removeAt(index);
                                   amountControllers.removeAt(index);
+                                  productNameFocusNodes.removeAt(index);
+                                  notifier.removeProducedRow(index);
                                 });
-                                notifier.removeProducedRow(index);
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  productNameController.dispose();
+                                  amountController.dispose();
+                                  focusNode.dispose();
+                                });
                               },
                             ),
                         ],
@@ -331,8 +344,9 @@ class _AddBonusInfoModalState extends ConsumerState<AddBonusInfoModal> {
                                     amountControllers.add(
                                       TextEditingController(),
                                     );
+                                    productNameFocusNodes.add(FocusNode());
+                                    notifier.addProducedRow();
                                   });
-                                  notifier.addProducedRow();
                                 },
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,

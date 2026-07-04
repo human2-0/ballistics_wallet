@@ -2,6 +2,7 @@ import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/models/settings.dart';
 
+import 'package:ballistics_wallet_flutter/providers/add_bonus_info_notifier_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/back_up_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -39,6 +40,47 @@ import 'fake_bonus_info_classes.dart';
   MockSpec<BonusInfoNotifier>(),
 ])
 void main() {
+  testWidgets('Add bonus recovers after an unexpected save failure', (
+    tester,
+  ) async {
+    final mockAuth = MockAuthRepository();
+    when(mockAuth.currentUserId).thenReturn('fakeUserId');
+    final container = ProviderContainer(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(mockAuth),
+        userNotifierProvider.overrideWith((ref) => FakeUserNotifier()),
+        productInfoRepo.overrideWithValue(FakeProductInfoRepository()),
+        bonusInfoListProvider.overrideWith(
+          (ref) => _FailingBonusInfoNotifier(),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    late BuildContext context;
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: Builder(
+            builder: (builderContext) {
+              context = builderContext;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+
+    await container
+        .read(addBonusInfoProvider.notifier)
+        .saveBonusInfoAndBackup(context);
+
+    final state = container.read(addBonusInfoProvider);
+    expect(state.isLoading, isFalse);
+    expect(state.error, contains('save failed'));
+  });
+
   testWidgets('BonusInfoList shows "empty" state if box is empty', (
     tester,
   ) async {
@@ -290,6 +332,17 @@ void main() {
     expect(workingHoursField, findsOneWidget);
     expect(addBonusButton, findsOneWidget);
 
+    // Adding and removing a row must keep controllers and focus nodes aligned.
+    await tester.tap(find.text('More Products'));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('amountField')), findsNWidgets(2));
+
+    await tester.tap(find.byIcon(Icons.remove_circle_outline));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const Key('amountField')), findsOneWidget);
+
     // Enter text
     await tester.enterText(productNameField, 'WidgetA');
     await tester.enterText(amountField, '50');
@@ -454,4 +507,10 @@ void main() {
     expect(updatedBonus.produced.first.productName, 'WidgetB');
     expect(updatedBonus.produced.first.amount, 20);
   });
+}
+
+class _FailingBonusInfoNotifier extends FakeBonusInfoNotifier {
+  @override
+  Future<String> addBonusInfo(BonusInfo bonusInfo) =>
+      Future<String>.error(StateError('save failed'));
 }

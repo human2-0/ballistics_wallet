@@ -153,6 +153,9 @@ class _EditProductDialogState extends ConsumerState<_EditProductDialog> {
       description: widget.product.description,
       customWeightRangeMinGrams: updatedWeightRange?.minGrams,
       customWeightRangeMaxGrams: updatedWeightRange?.maxGrams,
+      imageScale: widget.product.imageScale,
+      imageOffsetX: widget.product.imageOffsetX,
+      imageOffsetY: widget.product.imageOffsetY,
     );
 
     final result = await ref

@@ -49,6 +49,22 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
       }
       _evaluateAndTriggerUpdate(); // Evaluate when focus is lost
     }
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void didUpdateWidget(covariant CalculatorField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode == widget.focusNode) return;
+    oldWidget.focusNode.removeListener(_handleFocusChange);
+    if (_isOverlayVisible) {
+      _overlayEntry.remove();
+      _isOverlayVisible = false;
+    }
+    widget.focusNode.addListener(_handleFocusChange);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _handleFocusChange();
+    });
   }
 
   OverlayEntry _createOverlayEntry() => OverlayEntry(

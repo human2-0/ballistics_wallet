@@ -86,6 +86,7 @@ class SearchProductBarState extends ConsumerState<SearchProductBar> {
               hintText: _hintForFilter(effortFilter),
             ),
             textInputAction: TextInputAction.done,
+            onTapAlwaysCalled: true,
             onTap: () {
               openProductLookup(ref);
               widget.numberController.clear();

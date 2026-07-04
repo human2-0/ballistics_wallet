@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/bonus_info_state.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
@@ -120,22 +122,26 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
       );
 
       await ref.read(bonusInfoListProvider.notifier).addBonusInfo(newBonusInfo);
+      if (!mounted) return;
 
-      // Close the modal using GoRouter's navigation
+      final backupManager =
+          userState.backup ?? false
+              ? ref.read(backupManagerProvider.notifier)
+              : null;
+
+      state = state.copyWith(isLoading: false);
+
+      // Close the modal only after the form is no longer loading.
       if (context.mounted) {
         context.pop();
       }
 
       // Backup data in the background, if enabled
-      if (userState.backup!) {
-        Future.delayed(Duration.zero, () async {
-          await ref.read(backupManagerProvider.notifier).backupData();
-        });
+      if (backupManager != null) unawaited(backupManager.backupData());
+    } on Object catch (error) {
+      if (mounted) {
+        state = state.copyWith(isLoading: false, error: error.toString());
       }
-
-      state = state.copyWith(isLoading: false);
-    } on FormatException catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -172,6 +178,6 @@ class AddBonusInfoNotifier extends StateNotifier<AddBonusInfoState> {
 
 // Define the provider
 final addBonusInfoProvider =
-    StateNotifierProvider<AddBonusInfoNotifier, AddBonusInfoState>(
+    StateNotifierProvider.autoDispose<AddBonusInfoNotifier, AddBonusInfoState>(
       AddBonusInfoNotifier.new,
     );

@@ -59,8 +59,8 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  late final FocusNode _focusNode;
-  late final bool _ownsFocusNode;
+  late FocusNode _focusNode;
+  late bool _ownsFocusNode;
 
   @override
   void initState() {
@@ -70,6 +70,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
     _focusNode.addListener(_selectTextOnFocus);
     // Add listener to rebuild when text changes for the clear icon visibility
     widget.controller.addListener(_updateClearIconVisibility);
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_updateClearIconVisibility);
+      widget.controller.addListener(_updateClearIconVisibility);
+    }
+    if (oldWidget.focusNode != widget.focusNode) {
+      _focusNode.removeListener(_selectTextOnFocus);
+      if (_ownsFocusNode) _focusNode.dispose();
+      _ownsFocusNode = widget.focusNode == null;
+      _focusNode = widget.focusNode ?? FocusNode();
+      _focusNode.addListener(_selectTextOnFocus);
+    }
   }
 
   @override
@@ -131,7 +147,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         // Pass change upstream if caller supplied a handler
         widget.onChanged?.call(value);
       },
-      onSubmitted: widget.onSubmitted,
+      onSubmitted: widget.onSubmitted ?? (_) => _focusNode.unfocus(),
     ),
   );
 }

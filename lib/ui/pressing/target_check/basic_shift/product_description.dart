@@ -1,6 +1,8 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
+import 'package:ballistics_wallet_flutter/custom_widgets/product_image_view.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_image_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
@@ -86,7 +88,7 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
     try {
       final result = await showDialog<_AddProductImageResult>(
         context: context,
-        builder: (_) => const _AddProductImageDialog(),
+        builder: (_) => _AddProductImageDialog(product: _product),
       );
 
       if (!mounted || result == null) return;
@@ -95,15 +97,17 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
         case _AddImageMethod.url:
           final imageUrl = result.imageUrl;
           if (imageUrl == null || imageUrl.isEmpty) return;
-          await _saveImageFromUrl(imageUrl);
+          await _saveImageFromUrl(imageUrl, result);
         case _AddImageMethod.clipboard:
           final bytes = result.imageBytes;
           if (bytes == null || bytes.isEmpty) return;
-          await _saveImageFromBytes(bytes);
+          await _saveImageFromBytes(bytes, result);
         case _AddImageMethod.library:
           final bytes = result.imageBytes;
           if (bytes == null || bytes.isEmpty) return;
-          await _saveImageFromBytes(bytes);
+          await _saveImageFromBytes(bytes, result);
+        case _AddImageMethod.current:
+          await _saveImagePresentation(result);
       }
     } finally {
       if (mounted) {
@@ -115,25 +119,34 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
     }
   }
 
-  Future<void> _saveImageFromUrl(String imageUrl) async {
+  Future<void> _saveImageFromUrl(
+    String imageUrl,
+    _AddProductImageResult presentation,
+  ) async {
     await _saveImage(
       (repository) => repository.saveProductImageFromUrl(
         product: _product,
         imageUrl: imageUrl,
       ),
+      presentation,
     );
   }
 
-  Future<void> _saveImageFromBytes(Uint8List bytes) async {
+  Future<void> _saveImageFromBytes(
+    Uint8List bytes,
+    _AddProductImageResult presentation,
+  ) async {
     await _saveImage(
       (repository) =>
           repository.saveProductImageFromBytes(product: _product, bytes: bytes),
+      presentation,
     );
   }
 
   Future<void> _saveImage(
     Future<ProductImageSaveResult> Function(ProductImageRepository repository)
-    save, {
+    save,
+    _AddProductImageResult presentation, {
     bool manageSavingState = true,
   }) async {
     if (manageSavingState) {
@@ -141,7 +154,12 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
     }
     try {
       final result = await save(ref.read(productImageRepositoryProvider));
-      final updated = _product.copyWith(imageName: result.imageName);
+      final updated = _product.copyWith(
+        imageName: result.imageName,
+        imageScale: presentation.imageScale,
+        imageOffsetX: presentation.imageOffsetX,
+        imageOffsetY: presentation.imageOffsetY,
+      );
       final saved = await ref
           .read(productInfoProvider.notifier)
           .editProductInfo(updated);
@@ -177,6 +195,45 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
       if (mounted && manageSavingState) {
         setState(() => _isSavingImage = false);
       }
+    }
+  }
+
+  Future<void> _saveImagePresentation(
+    _AddProductImageResult presentation,
+  ) async {
+    setState(() => _isSavingImage = true);
+    try {
+      final updated = _product.copyWith(
+        imageScale: presentation.imageScale,
+        imageOffsetX: presentation.imageOffsetX,
+        imageOffsetY: presentation.imageOffsetY,
+      );
+      final saved = await ref
+          .read(productInfoProvider.notifier)
+          .editProductInfo(updated);
+      if (!saved) {
+        throw const FormatException('Product image view was not saved.');
+      }
+      await ref
+          .read(lastSelectedProductProvider.notifier)
+          .saveSelectedProduct(updated);
+      ref.read(focusedProductProvider.notifier).state = updated;
+      if (!mounted) return;
+      setState(() => _product = updated);
+      showAppNotification(
+        context,
+        'Image view updated.',
+        type: AppNotificationType.success,
+      );
+    } on Object catch (error) {
+      if (!mounted) return;
+      showAppNotification(
+        context,
+        'Failed to update image view: $error',
+        type: AppNotificationType.error,
+      );
+    } finally {
+      if (mounted) setState(() => _isSavingImage = false);
     }
   }
 
@@ -477,20 +534,32 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
 }
 
 class _AddProductImageDialog extends StatefulWidget {
-  const _AddProductImageDialog();
+  const _AddProductImageDialog({required this.product});
+
+  final ProductInfo product;
 
   @override
   State<_AddProductImageDialog> createState() => _AddProductImageDialogState();
 }
 
-enum _AddImageMethod { url, clipboard, library }
+enum _AddImageMethod { url, clipboard, library, current }
 
 class _AddProductImageResult {
-  const _AddProductImageResult(this.method, {this.imageUrl, this.imageBytes});
+  const _AddProductImageResult(
+    this.method, {
+    required this.imageScale,
+    required this.imageOffsetX,
+    required this.imageOffsetY,
+    this.imageUrl,
+    this.imageBytes,
+  });
 
   final _AddImageMethod method;
   final String? imageUrl;
   final Uint8List? imageBytes;
+  final double imageScale;
+  final double imageOffsetX;
+  final double imageOffsetY;
 }
 
 class _AddProductImageDialogState extends State<_AddProductImageDialog> {
@@ -500,12 +569,18 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   _AddImageMethod? _imageMethod;
   bool _isReadingImage = false;
   String? _imageError;
+  late double _imageScale;
+  late double _imageOffsetX;
+  late double _imageOffsetY;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _urlFocusNode = FocusNode();
+    _imageScale = widget.product.imageScale.clamp(1, 3);
+    _imageOffsetX = widget.product.imageOffsetX.clamp(-0.5, 0.5);
+    _imageOffsetY = widget.product.imageOffsetY.clamp(-0.5, 0.5);
     _controller.addListener(() => setState(() {}));
   }
 
@@ -584,6 +659,14 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
     });
   }
 
+  void _resetImageView() {
+    setState(() {
+      _imageScale = 1;
+      _imageOffsetX = 0;
+      _imageOffsetY = 0;
+    });
+  }
+
   void _submit() {
     _urlFocusNode.unfocus();
     FocusScope.of(context).unfocus();
@@ -591,122 +674,260 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
     if (bytes != null && bytes.isNotEmpty) {
       Navigator.pop(
         context,
-        _AddProductImageResult(_imageMethod!, imageBytes: bytes),
+        _AddProductImageResult(
+          _imageMethod!,
+          imageBytes: bytes,
+          imageScale: _imageScale,
+          imageOffsetX: _imageOffsetX,
+          imageOffsetY: _imageOffsetY,
+        ),
       );
       return;
     }
 
+    final imageUrl = _controller.text.trim();
     Navigator.pop(
       context,
       _AddProductImageResult(
-        _AddImageMethod.url,
-        imageUrl: _controller.text.trim(),
+        imageUrl.isEmpty ? _AddImageMethod.current : _AddImageMethod.url,
+        imageUrl: imageUrl.isEmpty ? null : imageUrl,
+        imageScale: _imageScale,
+        imageOffsetX: _imageOffsetX,
+        imageOffsetY: _imageOffsetY,
       ),
     );
   }
 
+  Widget? _previewImage() {
+    final bytes = _imageBytes;
+    if (bytes != null) {
+      return ProductImageFrame(
+        scale: _imageScale,
+        offsetX: _imageOffsetX,
+        offsetY: _imageOffsetY,
+        child: Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      );
+    }
+
+    final imageUrl = _controller.text.trim();
+    final uri = Uri.tryParse(imageUrl);
+    if (uri != null && (uri.isScheme('http') || uri.isScheme('https'))) {
+      return ProductImageFrame(
+        scale: _imageScale,
+        offsetX: _imageOffsetX,
+        offsetY: _imageOffsetY,
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder:
+              (context, error, stackTrace) => const Center(
+                child: Icon(Icons.broken_image_outlined, size: 48),
+              ),
+        ),
+      );
+    }
+
+    final imageName = widget.product.imageName.trim();
+    if (imageName.isEmpty || imageName == 'question') return null;
+    return ProductImageView(
+      imageName: imageName,
+      scale: _imageScale,
+      offsetX: _imageOffsetX,
+      offsetY: _imageOffsetY,
+      fallbackBuilder:
+          (context) =>
+              const Center(child: Icon(Icons.broken_image_outlined, size: 48)),
+    );
+  }
+
+  Widget _imageViewSlider({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required ValueChanged<double> onChanged,
+  }) => Row(
+    children: [
+      SizedBox(width: 52, child: Text(label)),
+      Expanded(
+        child: Slider(
+          value: value.clamp(min, max),
+          min: min,
+          max: max,
+          onChanged: onChanged,
+        ),
+      ),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
     final imageBytes = _imageBytes;
-    final canSave = imageBytes != null || _controller.text.trim().isNotEmpty;
+    final preview = _previewImage();
+    final hasCurrentImage =
+        widget.product.imageName.trim().isNotEmpty &&
+        widget.product.imageName != 'question';
+    final canSave =
+        imageBytes != null ||
+        _controller.text.trim().isNotEmpty ||
+        hasCurrentImage;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final previewSize = math.min(screenWidth * 0.48, screenWidth * 0.95 * 0.58);
 
     return AlertDialog(
-      title: const Text('Add product image'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Paste an image, choose one from your phone library, or add an '
-            'image link.',
-          ),
-          const SizedBox(height: 12),
-          if (imageBytes != null) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                children: [
-                  SizedBox(
-                    height: 160,
-                    width: double.infinity,
-                    child: Image.memory(imageBytes, fit: BoxFit.contain),
+      title: Text(hasCurrentImage ? 'Edit product image' : 'Add product image'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Paste an image, choose one from your phone library, or add an '
+              'image link.',
+            ),
+            const SizedBox(height: 12),
+            if (preview != null) ...[
+              Text(
+                'Target checker preview',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: GestureDetector(
+                  onPanUpdate: (details) {
+                    setState(() {
+                      _imageOffsetX = (_imageOffsetX +
+                              details.delta.dx / previewSize)
+                          .clamp(-0.5, 0.5);
+                      _imageOffsetY = (_imageOffsetY +
+                              details.delta.dy / previewSize)
+                          .clamp(-0.5, 0.5);
+                    });
+                  },
+                  child: Stack(
+                    children: [
+                      SizedBox.square(dimension: previewSize, child: preview),
+                      if (imageBytes != null)
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: IconButton.filledTonal(
+                            tooltip: 'Use existing image',
+                            onPressed: _removeImage,
+                            icon: const Icon(Icons.close),
+                          ),
+                        ),
+                    ],
                   ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: IconButton.filledTonal(
-                      tooltip: 'Remove',
-                      onPressed: _removeImage,
-                      icon: const Icon(Icons.close),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Drag the image or use the controls below.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              _imageViewSlider(
+                label: 'Zoom',
+                value: _imageScale,
+                min: 1,
+                max: 3,
+                onChanged: (value) => setState(() => _imageScale = value),
+              ),
+              _imageViewSlider(
+                label: 'Left/right',
+                value: _imageOffsetX,
+                min: -0.5,
+                max: 0.5,
+                onChanged: (value) => setState(() => _imageOffsetX = value),
+              ),
+              _imageViewSlider(
+                label: 'Up/down',
+                value: _imageOffsetY,
+                min: -0.5,
+                max: 0.5,
+                onChanged: (value) => setState(() => _imageOffsetY = value),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: _resetImageView,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reset view'),
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
+            if (_imageError != null) ...[
+              Text(
+                _imageError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 12),
+            ],
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isReadingImage ? null : _pasteImage,
+                    icon: _ImageSourceButtonIcon(
+                      isLoading: _isReadingImage,
+                      icon: Icons.content_paste,
                     ),
+                    label: const Text('Paste'),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isReadingImage ? null : _pickImage,
+                    icon: _ImageSourceButtonIcon(
+                      isLoading: _isReadingImage,
+                      icon: Icons.photo_library_outlined,
+                    ),
+                    label: const Text('Library'),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
-          ],
-          if (_imageError != null) ...[
-            Text(
-              _imageError!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 12),
-          ],
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _isReadingImage ? null : _pasteImage,
-                  icon: _ImageSourceButtonIcon(
-                    isLoading: _isReadingImage,
-                    icon: Icons.content_paste,
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    'or use a link',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  label: const Text('Paste'),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _isReadingImage ? null : _pickImage,
-                  icon: _ImageSourceButtonIcon(
-                    isLoading: _isReadingImage,
-                    icon: Icons.photo_library_outlined,
-                  ),
-                  label: const Text('Library'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Expanded(child: Divider()),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  'or use a link',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-              const Expanded(child: Divider()),
-            ],
-          ),
-          const SizedBox(height: 4),
-          TextField(
-            controller: _controller,
-            focusNode: _urlFocusNode,
-            keyboardType: TextInputType.url,
-            textInputAction: TextInputAction.done,
-            enabled: imageBytes == null,
-            decoration: const InputDecoration(
-              labelText: 'Image link',
-              hintText: 'https://...',
+                const Expanded(child: Divider()),
+              ],
             ),
-            onTapOutside: (_) => _urlFocusNode.unfocus(),
-            onSubmitted: (_) {
-              if (canSave) _submit();
-            },
-          ),
-        ],
+            const SizedBox(height: 4),
+            TextField(
+              controller: _controller,
+              focusNode: _urlFocusNode,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.done,
+              enabled: imageBytes == null,
+              decoration: const InputDecoration(
+                labelText: 'Image link',
+                hintText: 'https://...',
+              ),
+              onTapOutside: (_) => _urlFocusNode.unfocus(),
+              onSubmitted: (_) {
+                if (canSave) _submit();
+              },
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -715,7 +936,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
         ),
         ElevatedButton(
           onPressed: canSave && !_isReadingImage ? _submit : null,
-          child: const Text('Save image'),
+          child: const Text('Apply'),
         ),
       ],
     );
@@ -776,7 +997,7 @@ class _ImageToolsRow extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                   : const Icon(Icons.add_photo_alternate_outlined),
-          label: const Text('Add image'),
+          label: Text(hasImage ? 'Edit image' : 'Add image'),
         ),
       ],
     );

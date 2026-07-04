@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
@@ -35,6 +36,8 @@ class BasicShift extends ConsumerStatefulWidget {
 /// State for the basic-shift target checking card.
 class BasicShiftCard extends ConsumerState<BasicShift>
     with TickerProviderStateMixin {
+  Timer? _allowancePersistenceDebounce;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +59,12 @@ class BasicShiftCard extends ConsumerState<BasicShift>
             allowance,
           );
     });
+  }
+
+  @override
+  void dispose() {
+    _allowancePersistenceDebounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -153,6 +162,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               height: productImageSize,
                               child: ProductImageView(
                                 imageName: focusedProduct.imageName,
+                                scale: focusedProduct.imageScale,
+                                offsetX: focusedProduct.imageOffsetX,
+                                offsetY: focusedProduct.imageOffsetY,
                                 fallbackBuilder:
                                     (context) => Lottie.asset(
                                       'assets/lottie/product_image_not_found.json',
@@ -243,36 +255,55 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               borderSide: BorderSide.none,
                             ),
                             prefixIcon: const Icon(Icons.timer),
-                            suffixIcon: Visibility(
-                              visible: allowanceFocusNode.hasFocus,
-                              child: IconButton(
-                                icon: const Icon(Icons.keyboard_hide),
-                                onPressed: () => dismissTargetCheckInputs(ref),
-                              ),
+                            suffixIcon: ListenableBuilder(
+                              listenable: allowanceFocusNode,
+                              builder:
+                                  (context, _) => Visibility(
+                                    visible: allowanceFocusNode.hasFocus,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.keyboard_hide),
+                                      onPressed:
+                                          () => dismissTargetCheckInputs(ref),
+                                    ),
+                                  ),
                             ),
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
                           textInputAction: TextInputAction.done,
-                          onChanged: (value) async {
+                          onChanged: (value) {
                             final parsedValue = int.tryParse(value) ?? 0;
                             final allowanceProvided =
                                 parsedValue == 0 ? 0.0 : parsedValue / 60;
-                            await ref
-                                .read(allowanceProvider.notifier)
-                                .updateAllowance(allowanceProvided);
-                            ref
-                                .read(bonusInfoListProvider.notifier)
-                                .updateRatio(
-                                  focusedProduct.productName
-                                      .toLowerCase()
-                                      .trimRight(),
-                                  ref.read(targetProvider),
-                                  int.tryParse(numberController.text) ?? 0,
-                                  workingHours,
-                                  allowanceProvided,
+                            final allowanceNotifier = ref.read(
+                              allowanceProvider.notifier,
+                            );
+                            final bonusInfoNotifier = ref.read(
+                              bonusInfoListProvider.notifier,
+                            );
+                            allowanceNotifier.setAllowance(allowanceProvided);
+                            bonusInfoNotifier.updateRatio(
+                              focusedProduct.productName
+                                  .toLowerCase()
+                                  .trimRight(),
+                              ref.read(targetProvider),
+                              int.tryParse(numberController.text) ?? 0,
+                              workingHours,
+                              allowanceProvided,
+                            );
+                            _allowancePersistenceDebounce?.cancel();
+                            _allowancePersistenceDebounce = Timer(
+                              const Duration(milliseconds: 450),
+                              () {
+                                if (!mounted) return;
+                                unawaited(
+                                  ref
+                                      .read(allowanceProvider.notifier)
+                                      .persistAllowance(allowanceProvided),
                                 );
+                              },
+                            );
                           },
                           onFieldSubmitted:
                               (_) => dismissTargetCheckInputs(ref),
