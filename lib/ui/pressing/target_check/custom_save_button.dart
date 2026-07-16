@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
 import 'package:ballistics_wallet_flutter/custom_widgets/custom_text_field.dart';
 import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/providers/auth_providers/auth_provider.dart';
@@ -26,8 +27,8 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
 
   @override
   Widget build(BuildContext context) {
-    final productName =
-        ref.watch(focusedProductProvider).productName.toLowerCase().trimRight();
+    final focusedProduct = ref.watch(focusedProductProvider);
+    final productName = focusedProduct.productName.toLowerCase().trimRight();
     final amount = int.tryParse(ref.watch(numberControllerProvider)) ?? 0;
     // final allowance = ref.watch(allowanceProvider);
     // final userState = ref.watch(userNotifierProvider);
@@ -71,7 +72,21 @@ class CustomSaveButtonState extends ConsumerState<CustomSaveButton> {
                                         ref: ref,
                                         amountPressed: amount,
                                       );
-                                      if (!mounted) return;
+                                      if (!mounted || !buttonContext.mounted) {
+                                        return;
+                                      }
+                                      final kilograms = focusedProduct
+                                          .kilogramsForAmount(amount);
+                                      showAppNotification(
+                                        buttonContext,
+                                        focusedProduct.hasWeightFormula
+                                            ? 'Material moved: ${kilograms.toStringAsFixed(2)} kg for $amount products (powder + citric).'
+                                            : 'Material moved is unavailable because this product has no powder recipe.',
+                                        type:
+                                            focusedProduct.hasWeightFormula
+                                                ? AppNotificationType.info
+                                                : AppNotificationType.warning,
+                                      );
                                       setState(() {
                                         _isSaving = false;
                                         _successMessage = message;

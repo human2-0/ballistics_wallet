@@ -19,6 +19,7 @@ void main() {
       expect(product.powderWeightGrams, closeTo(154.88, 0.001));
       expect(product.citricWeightGrams, closeTo(51.63, 0.001));
       expect(product.finalProductWeightGrams, closeTo(206.51, 0.001));
+      expect(product.kilogramsForAmount(50), closeTo(10.3255, 0.001));
       expect(product.hasWeightFormula, true);
       expect(product.customWeightRangeMinGrams, isNull);
       expect(product.customWeightRangeMaxGrams, isNull);
@@ -48,6 +49,7 @@ void main() {
       final product = ProductInfo.empty();
 
       expect(product.finalProductWeightGrams, 0);
+      expect(product.kilogramsForAmount(50), 0);
       expect(product.hasWeightFormula, false);
     });
 

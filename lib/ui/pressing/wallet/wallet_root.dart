@@ -6,12 +6,14 @@ import 'package:ballistics_wallet_flutter/models/bonus_info.dart';
 import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
+import 'package:ballistics_wallet_flutter/ui/app_glass_style.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/bonus_info_list.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/date_picker.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/wallet/wallet_history.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class WalletRoot extends ConsumerStatefulWidget {
   const WalletRoot({super.key});
@@ -29,7 +31,8 @@ class _WalletRootState extends ConsumerState<WalletRoot> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        titleSpacing: 8,
+        surfaceTintColor: Colors.transparent,
+        titleSpacing: 12,
         title: _WalletToolSelector(
           selectedTool: _selectedTool,
           onSelectionChanged: (tool) {
@@ -159,33 +162,39 @@ class _WalletToolSelector extends StatelessWidget {
     final width = (MediaQuery.of(context).size.width - 16).clamp(320.0, 520.0);
     return SizedBox(
       width: width,
-      child: SegmentedButton<_WalletTool>(
-        showSelectedIcon: false,
-        style: const ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      child: GlassSegmentedControl(
+        height: 44,
+        borderRadius: 22,
+        useOwnLayer: true,
+        quality: GlassQuality.standard,
+        settings: appGlassSettings,
+        backgroundColor: appGlassControlBackground,
+        indicatorColor: appGlassIndicatorColor,
+        indicatorExpansion: const EdgeInsets.symmetric(
+          horizontal: 7,
+          vertical: 6,
+        ),
+        selectedTextStyle: const TextStyle(
+          color: appGlassAccent,
+          fontWeight: FontWeight.w700,
+          shadows: appGlassTextShadows,
+        ),
+        unselectedTextStyle: const TextStyle(
+          color: appGlassOnSurface,
+          fontWeight: FontWeight.w600,
+          shadows: appGlassTextShadows,
         ),
         segments: const [
-          ButtonSegment(
-            value: _WalletTool.calendar,
+          GlassSegment(
             icon: Icon(Icons.calendar_month_outlined),
-            label: Text('Calendar'),
+            label: 'Calendar',
           ),
-          ButtonSegment(
-            value: _WalletTool.history,
-            icon: Icon(Icons.history),
-            label: Text('History'),
-          ),
-          ButtonSegment(
-            value: _WalletTool.stats,
-            icon: Icon(Icons.insert_chart_outlined),
-            label: Text('Stats'),
-          ),
+          GlassSegment(icon: Icon(Icons.history), label: 'History'),
+          GlassSegment(icon: Icon(Icons.insert_chart_outlined), label: 'Stats'),
         ],
-        selected: {selectedTool},
-        onSelectionChanged: (selection) {
-          onSelectionChanged(selection.first);
-        },
+        selectedIndex: _WalletTool.values.indexOf(selectedTool),
+        onSegmentSelected:
+            (index) => onSelectionChanged(_WalletTool.values[index]),
       ),
     );
   }

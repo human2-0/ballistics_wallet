@@ -6,9 +6,11 @@ import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/services/product_search_service.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/add_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/delete_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/edit_product.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/product_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,27 +29,23 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
     ); // Assuming this now returns a List directly
 
     final controller = ref.watch(productNameControllerProvider);
-    final query = controller.toLowerCase().trim();
+    final query = controller.trim();
     final userState = ref.watch(userNotifierProvider);
     final allowance = ref.watch(allowanceProvider);
     final workingHours = userState.workingHours ?? 0.0;
     final effortFilter = ref.watch(productEffortFilterProvider);
-    final filteredProducts =
-        products
-            .where(
-              (product) =>
-                  product.productName.toLowerCase().trim().contains(query),
-            )
-            .toList()
-          ..sort(
-            (left, right) => _compareByEffort(
-              left,
-              right,
-              effortFilter: effortFilter,
-              workingHours: workingHours,
-              allowance: allowance,
-            ),
-          );
+    final filteredProducts = searchProducts(
+      products,
+      query,
+      tieBreaker:
+          (left, right) => _compareByEffort(
+            left,
+            right,
+            effortFilter: effortFilter,
+            workingHours: workingHours,
+            allowance: allowance,
+          ),
+    );
     return Expanded(
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -100,24 +98,7 @@ class ProductsListSuggestedState extends ConsumerState<ProductsListSuggested> {
                                 ),
                               ),
                               onTap: () async {
-                                ref
-                                    .read(focusedProductProvider.notifier)
-                                    .state = product;
-
-                                ref
-                                    .read(
-                                      productNameControllerProvider.notifier,
-                                    )
-                                    .controller
-                                    .text = product.productName;
-                                ref.read(targetProvider.notifier).state =
-                                    product.target;
-
-                                // Save the selected product history
-                                await ref
-                                    .read(lastSelectedProductProvider.notifier)
-                                    .saveSelectedProduct(product);
-                                dismissTargetCheckInputs(ref);
+                                await selectTargetCheckProduct(ref, product);
                               },
                               onLongPress: () async {
                                 // Show the bottom sheet with options
@@ -282,7 +263,7 @@ double _minimumTargetKg(
   required double allowance,
 }) {
   if (!product.hasWeightFormula) return 0;
-  return _minimumTarget(product, workingHours, allowance) *
-      product.finalProductWeightGrams /
-      1000;
+  return product.kilogramsForAmount(
+    _minimumTarget(product, workingHours, allowance),
+  );
 }

@@ -276,12 +276,17 @@ class CustomInfoContainer extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(8),
     decoration: getCustomBoxDecoration(baseColor),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 14,
-        color: Colors.brown[900],
-        fontWeight: FontWeight.bold,
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        text,
+        maxLines: 1,
+        softWrap: false,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.brown[900],
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ),
   );

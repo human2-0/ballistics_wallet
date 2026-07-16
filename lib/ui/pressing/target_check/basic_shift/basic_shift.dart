@@ -15,7 +15,6 @@ import 'package:ballistics_wallet_flutter/ui/pressing/target_check/custom_save_b
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/autocomplete_product.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/edit_weight_range.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/last_selected_products.dart';
-import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/search_bar.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/not_selected_product_sphere.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/rive_ellipses.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/rive_target_animation.dart';
@@ -104,7 +103,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
         mediaQuery.padding.top -
         mediaQuery.padding.bottom -
         bottomNavigationSpace;
-    final cardHeight = availableCardHeight.clamp(560.0, 720.0);
+    // Search is a separate 64px glass surface above this card. Subtracting it
+    // keeps the combined target-check layout within the previous height budget.
+    final cardHeight = (availableCardHeight - 64).clamp(496.0, 656.0);
     final cardWidth = screenSize.width * 0.95;
     final fieldWidth = cardWidth * 0.46;
     final productImageSize = math.min(
@@ -144,7 +145,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SearchProductBar(numberController: numberController),
             if (showList) _buildProductList(ref),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -160,8 +160,9 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                             SizedBox(
                               width: productImageSize,
                               height: productImageSize,
-                              child: ProductImageView(
+                              child: ProductImagePreview(
                                 imageName: focusedProduct.imageName,
+                                productName: focusedProduct.productName,
                                 scale: focusedProduct.imageScale,
                                 offsetX: focusedProduct.imageOffsetX,
                                 offsetY: focusedProduct.imageOffsetY,
@@ -255,18 +256,6 @@ class BasicShiftCard extends ConsumerState<BasicShift>
                               borderSide: BorderSide.none,
                             ),
                             prefixIcon: const Icon(Icons.timer),
-                            suffixIcon: ListenableBuilder(
-                              listenable: allowanceFocusNode,
-                              builder:
-                                  (context, _) => Visibility(
-                                    visible: allowanceFocusNode.hasFocus,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.keyboard_hide),
-                                      onPressed:
-                                          () => dismissTargetCheckInputs(ref),
-                                    ),
-                                  ),
-                            ),
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,

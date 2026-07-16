@@ -59,7 +59,7 @@ void main() {
           productName: 'WidgetA',
           target: 100,
           imageName: 'w',
-          product: const [],
+          product: const [Pressing('Blue', 150, 50)],
         ),
       ),
       numberControllerProvider.overrideWith(
@@ -87,6 +87,10 @@ void main() {
 
     expect(fakeBonusNotifier.state.bonusInfo.length, 1);
     expect(find.text('Fake bonus added'), findsOneWidget);
+    expect(
+      find.text('Material moved: 1.00 kg for 5 products (powder + citric).'),
+      findsOneWidget,
+    );
     await tester.pump(const Duration(seconds: 2));
   });
 

@@ -171,15 +171,6 @@ class _CalculatorFieldState extends ConsumerState<CalculatorField> {
         borderSide: BorderSide.none,
       ),
       prefixIcon: const Icon(Icons.calculate_rounded),
-      suffixIcon: Visibility(
-        visible: widget.focusNode.hasFocus,
-        child: IconButton(
-          icon: const Icon(Icons.keyboard_hide),
-          onPressed: () {
-            dismissTargetCheckInputs(widget.ref);
-          },
-        ),
-      ),
     ),
     keyboardType: TextInputType.number, // Custom input type
     textInputAction: TextInputAction.done,

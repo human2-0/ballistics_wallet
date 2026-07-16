@@ -24,4 +24,12 @@ void main() {
     expect(find.byType(ElevatedButton), findsOneWidget);
     expect(find.byType(Scaffold), findsOneWidget);
   });
+
+  testWidgets('Startup gate renders branded loading state', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
+
+    expect(find.text('Ballistics Pocket'), findsOneWidget);
+    expect(find.text('Getting your workspace ready'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
 }

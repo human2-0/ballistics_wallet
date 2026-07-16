@@ -66,10 +66,11 @@ final focusNodeProvider = Provider.autoDispose<FocusNode>((ref) {
 void openProductLookup(WidgetRef ref) {
   ref.read(numberFocusNodeProvider).unfocus();
   ref.read(allowanceFocusNodeProvider).unfocus();
+  // Keep this as the logical default even while the asynchronously loaded
+  // history is still empty. The list UI falls back to all products when there
+  // is no history, then switches to last selected if history finishes loading.
   ref.read(productListSourceProvider.notifier).state =
-      ref.read(lastSelectedProductProvider).isEmpty
-          ? ProductListSource.allProducts
-          : ProductListSource.lastSelected;
+      ProductListSource.lastSelected;
   ref.read(showListProvider.notifier).state = true;
 }
 

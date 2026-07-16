@@ -7,6 +7,7 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/split_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/services/product_search_service.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/split_check/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -526,11 +527,9 @@ class _ProductPickerState extends ConsumerState<ProductPicker> {
             ),
           ),
       optionsBuilder: (textEditingValue) {
-        final query = textEditingValue.text.toLowerCase();
+        final query = textEditingValue.text;
         if (query.isEmpty) return const <ProductInfo>[];
-        return allProducts.where(
-          (p) => p.productName.toLowerCase().contains(query),
-        );
+        return searchProducts(allProducts, query);
       },
       displayStringForOption: (option) => option.productName,
       initialValue: _controller.value,

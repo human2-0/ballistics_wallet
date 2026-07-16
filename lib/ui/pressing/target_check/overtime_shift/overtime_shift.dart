@@ -9,6 +9,7 @@ import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/users_repository.dart';
+import 'package:ballistics_wallet_flutter/services/product_search_service.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/edit_weight_range.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/overtime_shift/slide_to_basicshift.dart';
 import 'package:flutter/material.dart';
@@ -385,17 +386,10 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                               ),
                               child: products.when(
                                 data: (data) {
-                                  final filteredProducts =
-                                      data
-                                          .where(
-                                            (product) => product.productName
-                                                .toLowerCase()
-                                                .contains(
-                                                  textEditingController.text
-                                                      .toLowerCase(),
-                                                ),
-                                          )
-                                          .toList();
+                                  final filteredProducts = searchProducts(
+                                    data,
+                                    textEditingController.text,
+                                  );
                                   return ListView.builder(
                                     itemCount: filteredProducts.length,
                                     itemBuilder: (context, index) {
@@ -466,8 +460,12 @@ class OvertimeShiftCard extends ConsumerState<OvertimeShift>
                                 SizedBox(
                                   width: productImageSize,
                                   height: productImageSize,
-                                  child: ProductImageView(
+                                  child: ProductImagePreview(
                                     imageName: focusedProduct.imageName,
+                                    productName: focusedProduct.productName,
+                                    scale: focusedProduct.imageScale,
+                                    offsetX: focusedProduct.imageOffsetX,
+                                    offsetY: focusedProduct.imageOffsetY,
                                     fallbackBuilder:
                                         (context) => Lottie.asset(
                                           'assets/lottie/product_image_not_found.json',

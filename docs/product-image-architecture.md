@@ -39,3 +39,25 @@ Known drawbacks:
 - Other devices will know the Firestore `imageName`, but they will not have the local file until the image is bundled or downloaded there too.
 - Google Drive is used as a developer intake folder, not as a runtime image CDN.
 - The app stores downloaded image bytes as `<imageName>.png` to preserve the current renderer and bundle convention.
+
+## Target-checker depth preview
+
+Tapping a product image in either target-checker card opens a lightweight depth
+preview. It reuses the transparent subject cutout from `ProductImageView`. Only
+that subject is transformed. A GPU fragment material derives a height field
+from the cutout alpha, broad volume, and luminance, then applies 20-step
+parallax occlusion, generated surface normals, directional and rim lighting,
+specular response, and alpha-fringe cleanup. Shader-generated side walls and a
+responsive contact shadow reinforce the silhouette while the backdrop stays
+fixed.
+
+On iOS and Android the preview also samples device motion every 8ms and blends
+it with touch orbiting. iPhones with ProMotion can render the response above
+60Hz because `CADisableMinimumFrameDurationOnPhone` is enabled.
+
+This is intentionally not a Gaussian Splat reconstruction. A catalog entry has
+only one source image, whereas a reconstructable splat needs multiple views and
+an offline training pipeline. The preview performs no model inference or asset
+generation on the phone and adds no 3D package or downloaded payload. Product
+PNGs should retain a transparent background so the depth stack follows the
+subject silhouette.

@@ -3,6 +3,7 @@
 import 'dart:async'; // for Zone, used to detect test environment
 
 import 'package:ballistics_wallet_flutter/firebase_options.dart';
+import 'package:ballistics_wallet_flutter/services/crash_reporting_service.dart';
 import 'package:ballistics_wallet_flutter/services/work_timeline_notification_service.dart';
 import 'package:ballistics_wallet_flutter/utilities.dart'; // for initHive()
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +26,9 @@ class AppInitializer {
   /// Called by `main.dart` to run all necessary setup steps once.
   Future<void> initialize() async {
     await _initializeFirebase();
+    if (!_runningInTestEnvironment()) {
+      await CrashReportingService.instance.initialize();
+    }
     await initHive();
     await WorkTimelineNotificationService.instance.initialize();
   }

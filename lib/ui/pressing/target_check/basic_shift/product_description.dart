@@ -7,7 +7,7 @@ import 'package:ballistics_wallet_flutter/models/product_info.dart';
 import 'package:ballistics_wallet_flutter/providers/product_image_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/product_info_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart'
-    show lastSelectedProductProvider;
+    show dismissTargetCheckInputs, lastSelectedProductProvider;
 import 'package:ballistics_wallet_flutter/providers/wallet_providers.dart';
 import 'package:ballistics_wallet_flutter/repository/product_image_repository.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +30,12 @@ enum HistorySort {
 
 /// Opens the product note bottom sheet for the currently focused product.
 Future<void> showProductNoteDialog(BuildContext context, WidgetRef ref) async {
+  dismissTargetCheckInputs(ref);
   final product = ref.read(focusedProductProvider);
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    requestFocus: false,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
@@ -67,7 +69,9 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
     _originalDescription = _product.description ?? '';
     _controller = TextEditingController(text: _originalDescription);
     _focusNode = FocusNode();
-    _isEditing = _originalDescription.isEmpty;
+    // Product details open in viewing mode. Editing (and keyboard focus) only
+    // starts after the user explicitly taps Edit.
+    _isEditing = false;
   }
 
   @override
@@ -300,100 +304,103 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
                 onAddImage: _showAddImageDialog,
               ),
               const SizedBox(height: 16),
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: 80,
-                  maxHeight: 160,
-                ),
-                child: TextField(
-                  controller: _controller,
-                  maxLines: null,
-                  minLines: 3,
-                  autofocus: _isEditing,
-                  textInputAction: TextInputAction.newline,
-                  readOnly: !_isEditing,
-                  maxLength: 400,
-                  focusNode: _focusNode,
-                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                    hintText:
-                        _isEditing
-                            ? 'Add tips, tricks, sweet-spot powder amounts, '
-                                'or anything else helpful...'
-                            : null,
-                    filled: true,
-                    fillColor: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withValues(alpha: 0.10),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).dividerColor.withValues(alpha: 0.35),
+              TextFieldTapRegion(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 80,
+                    maxHeight: 160,
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    maxLines: null,
+                    minLines: 3,
+                    textInputAction: TextInputAction.newline,
+                    readOnly: !_isEditing,
+                    maxLength: 400,
+                    focusNode: _focusNode,
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                    decoration: InputDecoration(
+                      labelText: 'Description',
+                      hintText:
+                          _isEditing
+                              ? 'Add tips, tricks, sweet-spot powder amounts, '
+                                  'or anything else helpful...'
+                              : null,
+                      filled: true,
+                      fillColor: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.10),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.75),
-                        width: 1.4,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).dividerColor.withValues(alpha: 0.35),
+                        ),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.75),
+                          width: 1.4,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      counterText: '${_controller.text.length}/400',
+                      counterStyle: Theme.of(context).textTheme.labelSmall,
+                      suffixIcon:
+                          _isEditing
+                              ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    tooltip: 'Clear',
+                                    icon: const Icon(Icons.close),
+                                    onPressed: _controller.clear,
+                                  ),
+                                ],
+                              )
+                              : null,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    counterText: '${_controller.text.length}/400',
-                    counterStyle: Theme.of(context).textTheme.labelSmall,
-                    suffixIcon:
-                        _isEditing
-                            ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  tooltip: 'Clear',
-                                  icon: const Icon(Icons.close),
-                                  onPressed: _controller.clear,
-                                ),
-                              ],
-                            )
-                            : null,
                   ),
                 ),
               ),
               if (_isEditing) ...[
                 const SizedBox(height: 8),
-                _DescriptionToolbar(
-                  onInsert: (s) {
-                    final sel = _controller.selection;
-                    if (!sel.isValid) {
-                      _controller
-                        ..text = '${_controller.text}$s'
-                        ..selection = TextSelection.collapsed(
-                          offset: _controller.text.length,
+                TextFieldTapRegion(
+                  child: _DescriptionToolbar(
+                    onInsert: (s) {
+                      final sel = _controller.selection;
+                      if (!sel.isValid) {
+                        _controller
+                          ..text = '${_controller.text}$s'
+                          ..selection = TextSelection.collapsed(
+                            offset: _controller.text.length,
+                          );
+                      } else {
+                        final newText = _controller.text.replaceRange(
+                          sel.start,
+                          sel.end,
+                          s,
                         );
-                    } else {
-                      final newText = _controller.text.replaceRange(
-                        sel.start,
-                        sel.end,
-                        s,
-                      );
-                      final newOffset = sel.start + s.length;
-                      _controller.value = _controller.value.copyWith(
-                        text: newText,
-                        selection: TextSelection.collapsed(offset: newOffset),
-                        composing: TextRange.empty,
-                      );
-                    }
-                  },
+                        final newOffset = sel.start + s.length;
+                        _controller.value = _controller.value.copyWith(
+                          text: newText,
+                          selection: TextSelection.collapsed(offset: newOffset),
+                          composing: TextRange.empty,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ],
               const SizedBox(height: 16),
@@ -474,10 +481,8 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
                     OutlinedButton(
                       onPressed: () {
                         _controller.text = _originalDescription;
-                        setState(() {
-                          _isEditing = false;
-                          _didRequestFocus = false;
-                        });
+                        dismissTargetCheckInputs(ref);
+                        Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.red),
@@ -489,7 +494,10 @@ class _ProductNoteSheetState extends ConsumerState<_ProductNoteSheet> {
                     ),
                   if (!_isEditing)
                     OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        dismissTargetCheckInputs(ref);
+                        Navigator.pop(context);
+                      },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Colors.grey.shade600),
                         shape: RoundedRectangleBorder(
@@ -572,21 +580,37 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
   late double _imageScale;
   late double _imageOffsetX;
   late double _imageOffsetY;
+  late final double _savedImageScale;
+  late final double _savedImageOffsetX;
+  late final double _savedImageOffsetY;
+  bool _hasUrlSource = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _urlFocusNode = FocusNode();
-    _imageScale = widget.product.imageScale.clamp(1, 3);
-    _imageOffsetX = widget.product.imageOffsetX.clamp(-0.5, 0.5);
-    _imageOffsetY = widget.product.imageOffsetY.clamp(-0.5, 0.5);
-    _controller.addListener(() => setState(() {}));
+    _savedImageScale = widget.product.imageScale.clamp(
+      ProductImageFrame.minScale,
+      ProductImageFrame.maxScale,
+    );
+    _savedImageOffsetX = widget.product.imageOffsetX.clamp(
+      -ProductImageFrame.maxOffset,
+      ProductImageFrame.maxOffset,
+    );
+    _savedImageOffsetY = widget.product.imageOffsetY.clamp(
+      -ProductImageFrame.maxOffset,
+      ProductImageFrame.maxOffset,
+    );
+    _restoreSavedImageView();
+    _controller.addListener(_handleUrlChanged);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller
+      ..removeListener(_handleUrlChanged)
+      ..dispose();
     _urlFocusNode.dispose();
     super.dispose();
   }
@@ -604,11 +628,12 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
         throw const FormatException('Clipboard does not contain an image.');
       }
       if (!mounted) return;
+      _controller.clear();
       setState(() {
-        _controller.clear();
         _imageBytes = bytes;
         _imageMethod = _AddImageMethod.clipboard;
         _imageError = null;
+        _fitNewImage();
       });
     } on Object catch (error) {
       if (!mounted) return;
@@ -635,11 +660,12 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
         throw const FormatException('Selected image is empty.');
       }
       if (!mounted) return;
+      _controller.clear();
       setState(() {
-        _controller.clear();
         _imageBytes = bytes;
         _imageMethod = _AddImageMethod.library;
         _imageError = null;
+        _fitNewImage();
       });
     } on Object catch (error) {
       if (!mounted) return;
@@ -656,16 +682,35 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
       _imageBytes = null;
       _imageMethod = null;
       _imageError = null;
+      _restoreSavedImageView();
     });
   }
 
-  void _resetImageView() {
+  void _fitNewImage() {
+    _imageScale = ProductImageFrame.initialFittedScale;
+    _imageOffsetX = 0;
+    _imageOffsetY = 0;
+  }
+
+  void _restoreSavedImageView() {
+    _imageScale = _savedImageScale;
+    _imageOffsetX = _savedImageOffsetX;
+    _imageOffsetY = _savedImageOffsetY;
+  }
+
+  void _handleUrlChanged() {
+    final hasUrlSource = _controller.text.trim().isNotEmpty;
     setState(() {
-      _imageScale = 1;
-      _imageOffsetX = 0;
-      _imageOffsetY = 0;
+      if (hasUrlSource && !_hasUrlSource) {
+        _fitNewImage();
+      } else if (!hasUrlSource && _hasUrlSource && _imageBytes == null) {
+        _restoreSavedImageView();
+      }
+      _hasUrlSource = hasUrlSource;
     });
   }
+
+  void _resetImageView() => setState(_fitNewImage);
 
   void _submit() {
     _urlFocusNode.unfocus();
@@ -707,7 +752,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
         offsetY: _imageOffsetY,
         child: Image.memory(
           bytes,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           width: double.infinity,
           height: double.infinity,
         ),
@@ -723,7 +768,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
         offsetY: _imageOffsetY,
         child: Image.network(
           imageUrl,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           width: double.infinity,
           height: double.infinity,
           errorBuilder:
@@ -755,7 +800,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
     required ValueChanged<double> onChanged,
   }) => Row(
     children: [
-      SizedBox(width: 52, child: Text(label)),
+      SizedBox(width: 82, child: Text(label)),
       Expanded(
         child: Slider(
           value: value.clamp(min, max),
@@ -834,10 +879,10 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               _imageViewSlider(
-                label: 'Zoom',
+                label: 'Size ${(_imageScale * 100).round()}%',
                 value: _imageScale,
-                min: 1,
-                max: 3,
+                min: ProductImageFrame.minScale,
+                max: ProductImageFrame.maxScale,
                 onChanged: (value) => setState(() => _imageScale = value),
               ),
               _imageViewSlider(
@@ -859,7 +904,7 @@ class _AddProductImageDialogState extends State<_AddProductImageDialog> {
                 child: TextButton.icon(
                   onPressed: _resetImageView,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Reset view'),
+                  label: const Text('Fit with margin'),
                 ),
               ),
               const SizedBox(height: 4),

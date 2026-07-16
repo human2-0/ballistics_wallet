@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ballistics_wallet_flutter/custom_widgets/app_notification.dart';
+import 'package:ballistics_wallet_flutter/providers/controllers.dart';
 import 'package:ballistics_wallet_flutter/providers/router_provider.dart';
 import 'package:ballistics_wallet_flutter/providers/target_check_provider.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/basic_shift/basic_shift.dart';
+import 'package:ballistics_wallet_flutter/ui/pressing/target_check/look_up_bar/search_bar.dart';
 import 'package:ballistics_wallet_flutter/ui/pressing/target_check/work_timeline_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,6 +66,9 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
       });
     }
 
+    final numberController =
+        ref.watch(numberControllerProvider.notifier).controller;
+
     return GestureDetector(
       onTap: () {
         dismissTargetCheckInputs(ref);
@@ -90,32 +95,39 @@ class TargetCheckerCard extends ConsumerState<TargetChecker>
       //     await _flipController.reverse();
       //   }
       // },
-      child: AnimatedBuilder(
-        animation: _flipAnimation,
-        builder:
-            (context, child) => Transform(
-              alignment: Alignment.topCenter,
-              transform:
-                  Matrix4.identity()
-                    ..setEntry(3, 2, 0.001)
-                    ..rotateY(pi * _flipController.value),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: IndexedStack(
-                  alignment: Alignment.topCenter,
-                  index: (_flipController.value < 0.5) ? 0 : 1,
-                  children: const [
-                    BasicShift(),
-                    // Transform(
-                    //   alignment: Alignment.center,
-                    //   transform: Matrix4.identity()..rotateY(pi),
-                    //   child: const OvertimeShift(),
-                    // ),
-                    // BackFlipCard
-                  ],
-                ),
-              ),
+      child: Column(
+        children: [
+          SearchProductBar(numberController: numberController),
+          Expanded(
+            child: AnimatedBuilder(
+              animation: _flipAnimation,
+              builder:
+                  (context, child) => Transform(
+                    alignment: Alignment.topCenter,
+                    transform:
+                        Matrix4.identity()
+                          ..setEntry(3, 2, 0.001)
+                          ..rotateY(pi * _flipController.value),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: IndexedStack(
+                        alignment: Alignment.topCenter,
+                        index: (_flipController.value < 0.5) ? 0 : 1,
+                        children: const [
+                          BasicShift(),
+                          // Transform(
+                          //   alignment: Alignment.center,
+                          //   transform: Matrix4.identity()..rotateY(pi),
+                          //   child: const OvertimeShift(),
+                          // ),
+                          // BackFlipCard
+                        ],
+                      ),
+                    ),
+                  ),
             ),
+          ),
+        ],
       ),
     );
   }

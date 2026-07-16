@@ -30,6 +30,13 @@ target 'Runner' do
   # Rive's native renderer requires dynamic framework linkage on iOS.
   use_frameworks!
 
+  # Firestore otherwise compiles its large C++/gRPC dependency graph during
+  # every clean archive. Keep this tag aligned with firebase_core's native SDK
+  # version so CocoaPods downloads a precompiled XCFramework during pod install.
+  pod 'FirebaseFirestore',
+      :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git',
+      :tag => '12.12.0'
+
   # If other Objective‑C pods complain about module maps, add:
   # use_modular_headers!
 

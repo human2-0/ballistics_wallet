@@ -8,6 +8,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('keeps last-selected default while history is still empty', (
+    tester,
+  ) async {
+    final numberController = TextEditingController();
+    final container = ProviderContainer(
+      overrides: [
+        lastSelectedProductProvider.overrideWith(
+          (ref) => LastSelectedProductNotifier(loadFromStorage: false),
+        ),
+      ],
+    );
+    addTearDown(() {
+      numberController.dispose();
+      container.dispose();
+    });
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: Scaffold(
+            body: SearchProductBar(numberController: numberController),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    expect(
+      container.read(productListSourceProvider),
+      ProductListSource.lastSelected,
+    );
+
+    await tester.enterText(find.byType(TextField), 'product');
+    expect(
+      container.read(productListSourceProvider),
+      ProductListSource.allProducts,
+    );
+
+    await tester.enterText(find.byType(TextField), '');
+    expect(
+      container.read(productListSourceProvider),
+      ProductListSource.lastSelected,
+    );
+  });
+
   testWidgets('reselects last-selected tab when tapped while focused', (
     tester,
   ) async {

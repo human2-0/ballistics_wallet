@@ -80,6 +80,12 @@ class ProductInfo extends HiveObject {
   /// Expected finished weight for one product, calculated from split data.
   double get finalProductWeightGrams => powderWeightGrams + citricWeightGrams;
 
+  /// Total powder and citric weight for a produced amount, in kilograms.
+  double kilogramsForAmount(int amount) {
+    if (amount <= 0 || !hasWeightFormula) return 0;
+    return amount * finalProductWeightGrams / 1000;
+  }
+
   /// Whether this product has enough split data to calculate finished weight.
   bool get hasWeightFormula => product.any(
     (pressing) => pressing.systemG > 0 || pressing.systemCitric > 0,
